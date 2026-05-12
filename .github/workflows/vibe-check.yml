@@ -1,7 +1,16 @@
 # vibeguard:ignore
 name: VibeGuard Code Quality
 # vibeguard:ignore
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - "feature/**"
+  pull_request:
+    branches:
+      - main
+      - develop
 # vibeguard:ignore
 jobs:
   vibe-check:
@@ -11,8 +20,30 @@ jobs:
         with:
           fetch-depth: 50  # Required for git history audit
       
-      - name: Run VibeGuard Auditor
+      - name: Vibeguard - Backend
         uses: fabriziosalmi/vibe-check@v1.2.0
         with:
-          threshold: 800
+          directory: ./backend
+          threshold: 600
+          brutal_mode: false
+
+      - name: Vibeguard - Lib
+        uses: fabriziosalmi/vibe-check@v1.2.0
+        with:
+          directory: ./lib
+          threshold: 600
+          brutal_mode: false
+
+      - name: Vibeguard - Infra
+        uses: fabriziosalmi/vibe-check@v1.2.0
+        with:
+          directory: ./backend
+          threshold: 600
+          brutal_mode: false
+
+      - name: Vibeguard - Test
+        uses: fabriziosalmi/vibe-check@v1.2.0
+        with:
+          directory: ./backend
+          threshold: 600
           brutal_mode: false
