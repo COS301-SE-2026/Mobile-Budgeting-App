@@ -1,47 +1,93 @@
+# ── BudgetIt Makefile ──────────────────────────────────────
+# Run all commands from the root.
+# Flutter app lives at Flutter/budgetit/
+# All Flutter commands use FVM to ensure the pinned version is used.
+
+FLUTTER_DIR = Flutter/budgetit
+
 # ── Flutter ────────────────────────────────────────────────
 
-flutter-setup:
-	@echo "Installing Flutter dependencies..."
-	sudo apt update && sudo apt install -y \
-		curl git unzip xz-utils zip libglu1-mesa openjdk-17-jdk wget
-	@echo "Cloning Flutter SDK..."
-	cd ~ && git clone https://github.com/flutter/flutter.git -b stable || \
-		echo "Flutter already cloned, skipping."
-	@echo "Adding Flutter to PATH..."
-	grep -q 'flutter/bin' ~/.bashrc || \
-		echo 'export PATH="$$HOME/flutter/bin:$$PATH"' >> ~/.bashrc
-	@echo "Setting up Android SDK..."
-	mkdir -p ~/Android/Sdk/cmdline-tools
-	cd ~ && wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-	unzip -q ~/commandlinetools-linux-11076708_latest.zip -d ~/Android/Sdk/cmdline-tools || true
-	mv ~/Android/Sdk/cmdline-tools/cmdline-tools ~/Android/Sdk/cmdline-tools/latest 2>/dev/null || true
-	grep -q 'ANDROID_SDK_ROOT' ~/.bashrc || echo '\
-export ANDROID_SDK_ROOT="$$HOME/Android/Sdk"\n\
-export PATH="$$PATH:$$ANDROID_SDK_ROOT/cmdline-tools/latest/bin"\n\
-export PATH="$$PATH:$$ANDROID_SDK_ROOT/platform-tools"' >> ~/.bashrc
-	@echo "Installing Android SDK packages..."
-	. ~/.bashrc && sdkmanager "platforms;android-36" "build-tools;28.0.3" "platform-tools"
-	. ~/.bashrc && flutter config --android-sdk ~/Android/Sdk
-	@echo ""
-	@echo "✓ Done. Run: source ~/.bashrc"
-	@echo "  Then:   flutter doctor --android-licenses"
-
-flutter-update:
-	cd ~/flutter && git pull
-	sdkmanager --update
-	sdkmanager "platforms;android-36" "build-tools;28.0.3"
-
-flutter-doctor:
-	flutter doctor -v
-
 flutter-get:
-	cd flutter && flutter pub get
+	cd $(FLUTTER_DIR) && fvm flutter pub get
 
 flutter-run:
-	cd flutter && flutter run
+	cd $(FLUTTER_DIR) && fvm flutter run
+
+flutter-run-android:
+	cd $(FLUTTER_DIR) && fvm flutter run -d android
 
 flutter-test:
-	cd flutter && flutter test
+	cd $(FLUTTER_DIR) && fvm flutter test
+
+flutter-test-coverage:
+	cd $(FLUTTER_DIR) && fvm flutter test --coverage
 
 flutter-build-apk:
-	cd flutter && flutter build apk --release
+	cd $(FLUTTER_DIR) && fvm flutter build apk --release
+
+flutter-build-appbundle:
+	cd $(FLUTTER_DIR) && fvm flutter build appbundle --release
+
+flutter-clean:
+	cd $(FLUTTER_DIR) && fvm flutter clean && fvm flutter pub get
+
+flutter-analyze:
+	cd $(FLUTTER_DIR) && fvm flutter analyze
+
+flutter-doctor:
+	fvm flutter doctor -v
+
+flutter-devices:
+	fvm flutter devices
+
+flutter-update:
+	cd $(FLUTTER_DIR) && fvm install stable && fvm use stable && fvm flutter pub get
+
+# ── Setup ──────────────────────────────────────────────────
+
+setup-flutter:
+	@echo "Activating FVM..."
+	dart pub global activate fvm
+	@echo "Installing pinned Flutter version..."
+	cd $(FLUTTER_DIR) && fvm install
+	@echo "Installing dependencies..."
+	cd $(FLUTTER_DIR) && fvm flutter pub get
+	@echo "Accepting Android licenses..."
+	cd $(FLUTTER_DIR) && fvm flutter doctor --android-licenses
+	@echo ""
+	@echo "✓ Done. Run: make flutter-doctor to verify."
+
+# ── Help ───────────────────────────────────────────────────
+
+help:
+	@echo ""
+	@echo "BudgetIt — available commands:"
+	@echo ""
+	@echo "  Setup"
+	@echo "    make setup-flutter            Full Flutter environment setup"
+	@echo ""
+	@echo "  Development"
+	@echo "    make flutter-get              Install dependencies"
+	@echo "    make flutter-run              Run on connected device/emulator"
+	@echo "    make flutter-run-android      Run specifically on Android"
+	@echo "    make flutter-devices          List connected devices"
+	@echo "    make flutter-clean            Clean and reinstall dependencies"
+	@echo "    make flutter-analyze          Run static analysis"
+	@echo ""
+	@echo "  Testing"
+	@echo "    make flutter-test             Run all tests"
+	@echo "    make flutter-test-coverage    Run tests with coverage"
+	@echo ""
+	@echo "  Build"
+	@echo "    make flutter-build-apk        Build release APK"
+	@echo "    make flutter-build-appbundle  Build Play Store bundle"
+	@echo ""
+	@echo "  Maintenance"
+	@echo "    make flutter-doctor           Check Flutter setup"
+	@echo "    make flutter-update           Update to latest stable Flutter"
+	@echo ""
+
+.PHONY: flutter-get flutter-run flutter-run-android flutter-test \
+        flutter-test-coverage flutter-build-apk flutter-build-appbundle \
+        flutter-clean flutter-analyze flutter-doctor flutter-devices \
+        flutter-update setup-flutter help
