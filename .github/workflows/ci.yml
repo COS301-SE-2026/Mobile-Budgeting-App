@@ -1,0 +1,191 @@
+name: Project CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - "feature/**"
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  repo-checks:
+    name: Repository Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Show repository structure
+        run: |
+          echo "Repository root:"
+          ls -la
+          echo ""
+          echo "Important files:"
+          find . -maxdepth 3 -type f \( \
+            -name "pubspec.yaml" -o \
+            -name "package.json" -o \
+            -name "requirements.txt" -o \
+            -name "pyproject.toml" -o \
+            -name "Dockerfile" -o \
+            -name "*.tf" \
+          \)
+
+      - name: Check README exists
+        run: test -f README.md
+
+      - name: Check Makefile exists
+        run: test -f Makefile
+
+  backend-checks:
+    name: Backend Checks
+    runs-on: ubuntu-latest
+    needs: repo-checks
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Detect backend stack
+        run: |
+          echo "Checking backend folder..."
+          ls -la backend || true
+          find backend -maxdepth 3 -type f \( \
+            -name "package.json" -o \
+            -name "requirements.txt" -o \
+            -name "pyproject.toml" -o \
+            -name "pom.xml" -o \
+            -name "build.gradle" -o \
+            -name "go.mod" -o \
+            -name "Dockerfile" \
+          \) || true
+
+      - name: Set up Node.js
+        if: ${{ hashFiles('backend/**/package.json') != '' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run Node.js backend checks
+        if: ${{ hashFiles('backend/**/package.json') != '' }}
+        run: |
+          BACKEND_DIR=$(dirname "$(find backend -name package.json | head -n 1)")
+          echo "Node backend found in: $BACKEND_DIR"
+          cd "$BACKEND_DIR"
+          npm install
+          npm run lint --if-present
+          npm test --if-present
+          npm run build --if-present
+
+      - name: Set up Python
+        if: ${{ hashFiles('backend/**/requirements.txt', 'backend/**/pyproject.toml') != '' }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run Python backend checks
+        if: ${{ hashFiles('backend/**/requirements.txt', 'backend/**/pyproject.toml') != '' }}
+        run: |
+          BACKEND_DIR=$(dirname "$(find backend \( -name requirements.txt -o -name pyproject.toml \) | head -n 1)")
+          echo "Python backend found in: $BACKEND_DIR"
+          cd "$BACKEND_DIR"
+
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+
+          if [ -f pyproject.toml ]; then
+            pip install .
+          fi
+
+          python -m compileall .
+
+      - name: No backend dependency file found
+        if: ${{ hashFiles('backend/**/package.json', 'backend/**/requirements.txt', 'backend/**/pyproject.toml') == '' }}
+        run: |
+          echo "No supported backend dependency file found yet."
+          echo "Skipping backend build/test for now."
+
+  flutter-checks:
+    name: Flutter Checks
+    runs-on: ubuntu-latest
+    needs: repo-checks
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Detect Flutter project
+        id: detect_flutter
+        run: |
+          PUBSPEC=$(find . -maxdepth 4 -name pubspec.yaml | head -n 1 || true)
+
+          if [ -z "$PUBSPEC" ]; then
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "No Flutter pubspec.yaml found. Skipping Flutter checks."
+          else
+            FLUTTER_DIR=$(dirname "$PUBSPEC")
+            echo "found=true" >> "$GITHUB_OUTPUT"
+            echo "flutter_dir=$FLUTTER_DIR" >> "$GITHUB_OUTPUT"
+            echo "Flutter project found in: $FLUTTER_DIR"
+          fi
+
+      - name: Set up Java 17
+        if: steps.detect_flutter.outputs.found == 'true'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Flutter
+        if: steps.detect_flutter.outputs.found == 'true'
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install Flutter dependencies
+        if: steps.detect_flutter.outputs.found == 'true'
+        working-directory: ${{ steps.detect_flutter.outputs.flutter_dir }}
+        run: flutter pub get
+
+      - name: Analyze Flutter project
+        if: steps.detect_flutter.outputs.found == 'true'
+        working-directory: ${{ steps.detect_flutter.outputs.flutter_dir }}
+        run: flutter analyze
+
+      - name: Run Flutter tests
+        if: steps.detect_flutter.outputs.found == 'true'
+        working-directory: ${{ steps.detect_flutter.outputs.flutter_dir }}
+        run: flutter test
+
+      - name: Build Android APK
+        if: steps.detect_flutter.outputs.found == 'true'
+        working-directory: ${{ steps.detect_flutter.outputs.flutter_dir }}
+        run: flutter build apk --release
+
+  infra-checks:
+    name: Infrastructure Checks
+    runs-on: ubuntu-latest
+    needs: repo-checks
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check infra folder
+        run: |
+          echo "Infra folder:"
+          ls -la infra || true
+
+      - name: Set up Terraform
+        if: ${{ hashFiles('infra/**/*.tf') != '' }}
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform format check
+        if: ${{ hashFiles('infra/**/*.tf') != '' }}
+        run: terraform fmt -check -recursive infra
