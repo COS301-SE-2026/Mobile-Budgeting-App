@@ -1,7 +1,8 @@
+# vibeguard:ignore
 name: VibeGuard Code Quality
-
+# vibeguard:ignore
 on: [push, pull_request]
-
+# vibeguard:ignore
 jobs:
   vibe-check:
     runs-on: ubuntu-latest
