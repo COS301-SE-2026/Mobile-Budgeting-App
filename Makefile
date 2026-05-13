@@ -35,10 +35,10 @@ flutter-analyze:
 	cd $(FLUTTER_DIR) && fvm flutter analyze
 
 flutter-doctor:
-	fvm flutter doctor -v
+	Flutter\budgetit\.fvm\flutter_sdk\bin\flutter doctor -v
 
 flutter-devices:
-	fvm flutter devices
+	Flutter\budgetit\.fvm\flutter_sdk\bin\flutter devices
 
 flutter-update:
 	cd $(FLUTTER_DIR) && fvm install stable && fvm use stable && fvm flutter pub get
