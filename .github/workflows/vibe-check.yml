@@ -16,33 +16,33 @@ jobs:
   vibe-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@a9894b814f9a9f85c75cde4c94e85fd4ce7d0e07
         with:
-          fetch-depth: 50  # Required for git history audit
-      
+          fetch-depth: 50 # Required for git history audit
+
       - name: Vibeguard - Backend
-        uses: fabriziosalmi/vibe-check@v1.2.0
+        uses: fabriziosalmi/vibe-check@a9894b814f9a9f85c75cde4c94e85fd4ce7d0e07
         with:
           directory: ./backend
           threshold: 600
           brutal_mode: false
 
       - name: Vibeguard - Lib
-        uses: fabriziosalmi/vibe-check@v1.2.0
+        uses: fabriziosalmi/vibe-check@a9894b814f9a9f85c75cde4c94e85fd4ce7d0e07
         with:
           directory: ./lib
           threshold: 600
           brutal_mode: false
 
       - name: Vibeguard - Infra
-        uses: fabriziosalmi/vibe-check@v1.2.0
+        uses: fabriziosalmi/vibe-check@a9894b814f9a9f85c75cde4c94e85fd4ce7d0e07
         with:
           directory: ./backend
           threshold: 600
           brutal_mode: false
 
       - name: Vibeguard - Test
-        uses: fabriziosalmi/vibe-check@v1.2.0
+        uses: fabriziosalmi/vibe-check@a9894b814f9a9f85c75cde4c94e85fd4ce7d0e07
         with:
           directory: ./backend
           threshold: 600
