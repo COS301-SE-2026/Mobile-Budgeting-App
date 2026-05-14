@@ -182,7 +182,7 @@ jobs:
 
       - name: Set up Terraform
         if: ${{ hashFiles('infra/**/*.tf') != '' }}
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
 
       - name: Terraform format check
         if: ${{ hashFiles('infra/**/*.tf') != '' }}
