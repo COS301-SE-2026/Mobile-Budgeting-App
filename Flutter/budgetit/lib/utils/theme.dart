@@ -30,11 +30,16 @@ class MyTheme{
    Color hardBBlue = Color(0xFF3300FF);
    Color hardYellow = Color(0xFFFFFF00);
    Color hardRed = Color(0xFFFF4911);
-   String headerFont1 = 'Lexend Mega ';
-   String headerFont2 = 'Public Sans ';
+   String headerFont1 = 'Lexend Mega-Bold';
+   String headerFont2 = 'Public Sans-Bold';
+   String headerFont3= 'Archivo-Bold';
+   String bodyFont = 'Darker Grotesque';
+   int header1FontSize = 24;
+    int header2FontSize = 20;
+    int header3FontSize = 18;
+    int bodyFontSize = 16;
    
-   String headerFont4 = 'Archivo ';
-   String bodyText = 'Darker Grotesque';
+   
 
 
   

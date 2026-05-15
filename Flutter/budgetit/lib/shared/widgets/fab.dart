@@ -23,14 +23,15 @@ class _FABState extends State<FAB> {
         width: MediaQuery.of( context).size.width * 0.17,
         height: MediaQuery.of( context).size.height * 0.08,
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.black, width: 3),
-          color: _pressed ?   Colors.white : MyTheme().hardBBlue,
+          border: Border.all(color: Colors.black, width: MediaQuery.of(context).size.width * 0.01),
+          borderRadius: BorderRadius.circular(10),
+          color: _pressed ?   Colors.white : MyTheme().softLighGreen,
           shape: BoxShape.rectangle,
           boxShadow: _pressed ? null : [
             BoxShadow(
               color: Colors.black,
-    
-              offset: const Offset(4, 4),
+              
+              offset:  Offset(MediaQuery.of(context).size.width * 0.01, MediaQuery.of(context).size.width * 0.01),
             ),
           ] ,
         ),

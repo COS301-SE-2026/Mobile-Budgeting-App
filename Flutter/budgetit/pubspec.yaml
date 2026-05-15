@@ -62,7 +62,7 @@ flutter:
     - lib/shared/assets/
 
   fonts:
-    - family: Archivo
+    - family: Archivo-Bold
       fonts:
       - asset: lib/shared/assets/fonts/Archivo-Bold.ttf 
         weight: 700
@@ -71,12 +71,12 @@ flutter:
       fonts:
       - asset: lib/shared/assets/fonts/DarkerGrotesque-Regular.ttf 
     
-    - family: Public Sans
+    - family: Public Sans-Bold
       fonts:
       - asset: lib/shared/assets/fonts/public-sans.bold.ttf 
         weight: 700
 
-    - family: Lexend Mega
+    - family: Lexend Mega-Bold
       fonts:
       - asset: lib/shared/assets/fonts/LexendMega-Bold.ttf
         weight: 700
