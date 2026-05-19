@@ -56,7 +56,7 @@ class CategoryClosure extends Table {
 
 class Transactions extends Table {
   TextColumn get id => text()();
-  TextColumn get amount => text().map(const DecimalConverter())();
+  TextColumn get amount => text().map(DecimalConverter())();
   TextColumn get type => textEnum<TransactionType>()();
   TextColumn get shortDescription => text()();
   TextColumn get longDescription => text().nullable()();
@@ -84,7 +84,7 @@ class TransactionCategoryMap extends Table {
 class BudgetTemplates extends Table {
   TextColumn get id => text()();
   TextColumn get categoryId => text().references(Categories, #id)();
-  TextColumn get amount => text().map(const DecimalConverter())();
+  TextColumn get amount => text().map(DecimalConverter())();
   TextColumn get periodType => textEnum<PeriodType>()();
   TextColumn get currency => text().withDefault(const Constant('ZAR'))();
   DateTimeColumn get createdAt => dateTime()();
@@ -100,7 +100,7 @@ class BudgetPeriods extends Table {
   TextColumn get templateId => text().references(BudgetTemplates, #id)();
   DateTimeColumn get startDate => dateTime()();
   DateTimeColumn get endDate => dateTime()();
-  TextColumn get budgetedAmount => text().map(const DecimalConverter())();
+  TextColumn get budgetedAmount => text().map(DecimalConverter())();
   BoolColumn get isOverridden => boolean()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
