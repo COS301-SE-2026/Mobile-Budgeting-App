@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 //import 'package:popover/popover.dart';
 
 class FABMenu extends StatefulWidget {
-  const FABMenu({Key? key}) : super(key: key);
+  const FABMenu({super.key});
 
   @override
   State<FABMenu> createState() => _FABMenuState();
