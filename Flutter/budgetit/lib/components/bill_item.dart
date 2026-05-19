@@ -8,11 +8,21 @@ class BillItem extends StatelessWidget {
   final String amount;
 
   const BillItem({
-    
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.amount,
+  });
 
-  static const Color darkGreen = Color(0xFF04240C);
-  static const Color cream = Color(0xFFDDD6AE);
-  static const Color teal = Color(0xFF137E84);
+  static const Color darkGreen =
+      Color(0xFF04240C);
+
+  static const Color cream =
+      Color(0xFFDDD6AE);
+
+  static const Color teal =
+      Color(0xFF137E84);
 
   @override
   Widget build(BuildContext context) {
@@ -30,11 +40,14 @@ class BillItem extends StatelessWidget {
 
         color: cream,
 
-        borderRadius: BorderRadius.circular(28),
+        borderRadius:
+            BorderRadius.circular(28),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.20),
+            color: Colors.black.withValues(
+              alpha: 0.20,
+            ),
             blurRadius: 12,
             offset: const Offset(0, 5),
           ),
@@ -52,9 +65,12 @@ class BillItem extends StatelessWidget {
 
             decoration: BoxDecoration(
 
-              color: const Color(0x22137E84),
+              color: const Color(
+                0x22137E84,
+              ),
 
-              borderRadius: BorderRadius.circular(20),
+              borderRadius:
+                  BorderRadius.circular(20),
             ),
 
             child: Icon(
@@ -72,7 +88,8 @@ class BillItem extends StatelessWidget {
 
             child: Column(
 
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
 
               children: [
 
@@ -81,7 +98,8 @@ class BillItem extends StatelessWidget {
 
                   style: const TextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontWeight:
+                        FontWeight.bold,
                     color: darkGreen,
                   ),
                 ),
@@ -92,9 +110,15 @@ class BillItem extends StatelessWidget {
                   subtitle,
 
                   style: TextStyle(
-                    color: darkGreen.withOpacity(0.5),
+                    color:
+                        darkGreen.withValues(
+                          alpha: 0.75,
+                        ),
+
                     fontSize: 15,
-                    fontWeight: FontWeight.w500,
+
+                    fontWeight:
+                        FontWeight.w500,
                   ),
                 ),
               ],
@@ -107,7 +131,8 @@ class BillItem extends StatelessWidget {
             style: const TextStyle(
               color: darkGreen,
               fontSize: 22,
-              fontWeight: FontWeight.bold,
+              fontWeight:
+                  FontWeight.bold,
             ),
           ),
         ],
