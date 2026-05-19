@@ -1,6 +1,8 @@
+import 'package:budgetit/shared/widgets/transac_menu.dart';
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:popover/popover.dart';
 
 class FAB extends StatefulWidget {
   const FAB({super.key});
@@ -20,40 +22,17 @@ class _FABState extends State<FAB> {
       onTapUp: (_) => setState(() => _pressed = false),
       onTapCancel: () => setState(() => _pressed = false),
 onTap : ()  {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Choose an option'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                // Add transaction
-              },
-              child: const Text('Add Transaction'),
-            ),
-            const SizedBox(height: 8),
-            ElevatedButton(
-              onPressed: () async{
-                Navigator.pop(context);
-                FilePickerResult? result = await FilePicker.pickFiles(
-                allowMultiple: true,
-                type: FileType.custom,
-                allowedExtensions: ['pdf','csv'],
-              );
-              },
-              child: const Text('Import PDF'), //TODO Sort Out
-            ),
-           
-           
-          ],
-        ),
-      );
-    },
-  );
+  showPopover(
+            context: context,
+            bodyBuilder: (context) => FABMenu(),
+            onPop: () => print('Popover was popped!'),
+            direction: PopoverDirection.top,
+            backgroundColor: MyColours().secondary,
+            width: 150,
+            height: 150,
+            arrowHeight: 30,
+            arrowWidth: 30,
+          );
 },      
 
 

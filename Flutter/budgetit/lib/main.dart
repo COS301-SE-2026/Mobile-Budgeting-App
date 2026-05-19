@@ -59,16 +59,17 @@ class _HomePageState extends State<HomePage> {
       body: _pages[_selectedIndex],   // Show the selected page
       bottomNavigationBar: Container(
   decoration: BoxDecoration(
-    border: Border.all(
-      color: MyColours().secondary,
-      width: 1.5,
-    ),
+  
+    borderRadius: BorderRadius.all(Radius.circular(10)),
+    border: Border(top: BorderSide(color: MyColours().secondary, width: 1.5))
+    
     
   ),
   child: NavigationBar(
     selectedIndex: _selectedIndex,
     backgroundColor: MyColours().background,
     indicatorColor: MyColours().secondary,
+  
     onDestinationSelected: _onDestinationSelected,
 
   
