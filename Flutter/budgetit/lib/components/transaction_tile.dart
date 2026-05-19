@@ -17,10 +17,17 @@ class TransactionTile extends StatelessWidget {
     required this.isExpense,
   });
 
-  static const Color darkGreen = Color(0xFF04240C);
-  static const Color cream = Color(0xFFDDD6AE);
-  static const Color teal = Color(0xFF137E84);
-  static const Color gold = Color(0xFFC2B280);
+  static const Color darkGreen =
+      Color(0xFF04240C);
+
+  static const Color cream =
+      Color(0xFFDDD6AE);
+
+  static const Color teal =
+      Color(0xFF137E84);
+
+  static const Color gold =
+      Color(0xFFC2B280);
 
   @override
   Widget build(BuildContext context) {
@@ -36,15 +43,20 @@ class TransactionTile extends StatelessWidget {
 
       decoration: BoxDecoration(
 
-        // cream card on dark background
         color: cream,
 
-        borderRadius: BorderRadius.circular(24),
+        borderRadius:
+            BorderRadius.circular(24),
 
         boxShadow: [
+
           BoxShadow(
-            color: Colors.black.withOpacity(0.18),
+            color: Colors.black.withValues(
+              alpha: 0.18,
+            ),
+
             blurRadius: 12,
+
             offset: const Offset(0, 5),
           ),
         ],
@@ -52,21 +64,24 @@ class TransactionTile extends StatelessWidget {
 
       child: Column(
 
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
 
         children: [
 
-          // top label
           Container(
 
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 6,
-            ),
+            padding:
+                const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
 
             decoration: BoxDecoration(
               color: const Color(0x2204240C),
-              borderRadius: BorderRadius.circular(20),
+
+              borderRadius:
+                  BorderRadius.circular(20),
             ),
 
             child: const Text(
@@ -75,7 +90,8 @@ class TransactionTile extends StatelessWidget {
               style: TextStyle(
                 color: darkGreen,
                 fontSize: 11,
-                fontWeight: FontWeight.bold,
+                fontWeight:
+                    FontWeight.bold,
                 letterSpacing: 1.2,
               ),
             ),
@@ -87,7 +103,6 @@ class TransactionTile extends StatelessWidget {
 
             children: [
 
-              // icon bubble
               Container(
 
                 width: 55,
@@ -95,11 +110,17 @@ class TransactionTile extends StatelessWidget {
 
                 decoration: BoxDecoration(
 
-                  color: isExpense
-                      ? const Color(0x22C2B280)
-                      : const Color(0x22137E84),
+                  color:
+                      isExpense
+                          ? const Color(
+                            0x22FF5252,
+                          )
+                          : const Color(
+                            0x22137E84,
+                          ),
 
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius:
+                      BorderRadius.circular(18),
                 ),
 
                 child: Icon(
@@ -107,52 +128,60 @@ class TransactionTile extends StatelessWidget {
 
                   size: 28,
 
-                  color: isExpense
-                      ? Colors.redAccent
-                      : teal,
+                  color:
+                      isExpense
+                          ? Colors.redAccent
+                          : teal,
                 ),
               ),
 
               const SizedBox(width: 15),
 
-              // title + subtitle
               Expanded(
 
                 child: Column(
 
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
 
                   children: [
 
                     Text(
                       title,
 
-                      style: const TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                        color: darkGreen,
-                      ),
+                      style:
+                          const TextStyle(
+                            fontSize: 17,
+                            fontWeight:
+                                FontWeight.bold,
+                            color:
+                                darkGreen,
+                          ),
                     ),
 
                     const SizedBox(height: 5),
 
-                    Text(
-                      subtitle,
+                    const Text(
+                      "Transaction details",
 
-                      style: const TextStyle(
-                        color: Color(0x8804240C),
+                      style: TextStyle(
+                        color:
+                            Color(0xAA04240C),
+
                         fontSize: 13,
-                        fontWeight: FontWeight.w500,
+
+                        fontWeight:
+                            FontWeight.w500,
                       ),
                     ),
                   ],
                 ),
               ),
 
-              // amount
               Column(
 
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment:
+                    CrossAxisAlignment.end,
 
                 children: [
 
@@ -161,11 +190,15 @@ class TransactionTile extends StatelessWidget {
 
                     style: TextStyle(
                       fontSize: 17,
-                      fontWeight: FontWeight.bold,
 
-                      color: isExpense
-                          ? Colors.redAccent
-                          : teal,
+                      fontWeight:
+                          FontWeight.bold,
+
+                      color:
+                          isExpense
+                              ? Colors
+                                  .redAccent
+                              : teal,
                     ),
                   ),
 
@@ -178,9 +211,20 @@ class TransactionTile extends StatelessWidget {
 
                     style: TextStyle(
                       fontSize: 11,
-                      color: isExpense
-                          ? Colors.redAccent
-                          : teal.withOpacity(0.8),
+
+                      color:
+                          isExpense
+                              ? Colors
+                                  .redAccent
+                                  .withValues(
+                                    alpha:
+                                        0.85,
+                                  )
+                              : teal
+                                  .withValues(
+                                    alpha:
+                                        0.8,
+                                  ),
                     ),
                   ),
                 ],

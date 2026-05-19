@@ -4,8 +4,11 @@ class DashboardHeader extends StatelessWidget {
 
   const DashboardHeader({super.key});
 
-  static const Color darkGreen = Color(0xFF04240C);
-  static const Color cream = Color(0xFFDDD6AE);
+  static const Color darkGreen =
+      Color(0xFF04240C);
+
+  static const Color cream =
+      Color(0xFFDDD6AE);
 
   @override
   Widget build(BuildContext context) {
@@ -26,22 +29,27 @@ class DashboardHeader extends StatelessWidget {
 
         decoration: BoxDecoration(
 
-          color: cream.withOpacity(0.18),
+          color: cream.withValues(
+            alpha: 0.18,
+          ),
 
-          borderRadius: BorderRadius.circular(18),
+          borderRadius:
+              BorderRadius.circular(18),
 
           border: Border.all(
-            color: cream.withOpacity(0.15),
+            color: cream.withValues(
+              alpha: 0.15,
+            ),
           ),
         ),
 
         child: Row(
 
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment:
+              MainAxisAlignment.spaceBetween,
 
           children: [
 
-            // left side
             Row(
 
               children: [
@@ -60,25 +68,29 @@ class DashboardHeader extends StatelessWidget {
                   style: TextStyle(
                     color: cream,
                     fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                    fontWeight:
+                        FontWeight.bold,
                   ),
                 ),
               ],
             ),
 
-            // right side icons
             Row(
 
               children: [
 
                 Container(
 
-                  padding: const EdgeInsets.all(6),
+                  padding:
+                      const EdgeInsets.all(6),
 
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
+
                     border: Border.all(
-                      color: cream.withOpacity(0.3),
+                      color: cream.withValues(
+                        alpha: 0.3,
+                      ),
                     ),
                   ),
 
@@ -93,12 +105,16 @@ class DashboardHeader extends StatelessWidget {
 
                 Container(
 
-                  padding: const EdgeInsets.all(6),
+                  padding:
+                      const EdgeInsets.all(6),
 
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
+
                     border: Border.all(
-                      color: cream.withOpacity(0.3),
+                      color: cream.withValues(
+                        alpha: 0.3,
+                      ),
                     ),
                   ),
 

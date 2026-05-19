@@ -4,8 +4,11 @@ class BalanceCard extends StatelessWidget {
 
   const BalanceCard({super.key});
 
-  static const Color darkGreen = Color(0xFF04240C);
-  static const Color cream = Color(0xFFDDD6AE);
+  static const Color darkGreen =
+      Color(0xFF04240C);
+
+  static const Color cream =
+      Color(0xFFDDD6AE);
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +26,8 @@ class BalanceCard extends StatelessWidget {
 
       decoration: BoxDecoration(
 
-        borderRadius: BorderRadius.circular(30),
+        borderRadius:
+            BorderRadius.circular(30),
 
         gradient: const LinearGradient(
 
@@ -41,8 +45,12 @@ class BalanceCard extends StatelessWidget {
         boxShadow: [
 
           BoxShadow(
-            color: Colors.black.withOpacity(0.30),
+            color: Colors.black.withValues(
+              alpha: 0.30,
+            ),
+
             blurRadius: 20,
+
             offset: const Offset(0, 10),
           ),
         ],
@@ -50,7 +58,8 @@ class BalanceCard extends StatelessWidget {
 
       child: Column(
 
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
 
         children: [
 
@@ -68,7 +77,7 @@ class BalanceCard extends StatelessWidget {
           const SizedBox(height: 20),
 
           const Text(
-            "\R1,850.00",
+            "R1,850.00",
 
             style: TextStyle(
               color: cream,
@@ -81,11 +90,15 @@ class BalanceCard extends StatelessWidget {
           const SizedBox(height: 25),
 
           Text(
-            "Target: \R1,950.00",
+            "Target: R1,950.00",
 
             style: TextStyle(
-              color: cream.withOpacity(0.8),
+              color: cream.withValues(
+                alpha: 0.8,
+              ),
+
               fontSize: 20,
+
               fontWeight: FontWeight.w400,
             ),
           ),
