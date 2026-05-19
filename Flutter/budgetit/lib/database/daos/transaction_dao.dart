@@ -16,10 +16,6 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
 
   DateTime _now() => DateTime.now().toUtc();
 
-  // ────────────────────────────────────────────────────────────────────────────
-  // Transactions CRUD
-  // ────────────────────────────────────────────────────────────────────────────
-
   Future<Transaction> insertTransaction({
     required Decimal amount,
     required TransactionType type,
@@ -107,7 +103,6 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
     TransactionSource? source,
     String? currency,
   }) async {
-    // validation omitted for brevity (add it back as needed)
     final companion = TransactionsCompanion(
       amount: amount != null ? Value(amount) : const Value.absent(),
       type: type != null ? Value(type) : const Value.absent(),
@@ -153,10 +148,6 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
     );
   }
 
-  // ────────────────────────────────────────────────────────────────────────────
-  // Transaction <-> Category mapping
-  // ────────────────────────────────────────────────────────────────────────────
-
   Future<TransactionCategoryMapData> assignCategory({
     required String transactionId,
     required String categoryId,
@@ -190,16 +181,12 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
     )..where((t) => t.categoryId.equals(categoryId))).get();
   }
 
-  /// Removes the category mapping for a transaction.
-  /// Call this before a transaction is deleted so orphaned mappings don't linger.
   Future<void> removeMapping(String transactionId) async {
     await (delete(
       transactionCategoryMap,
     )..where((t) => t.transactionId.equals(transactionId))).go();
   }
 
-  /// Returns transactions for a category joined with the Transactions table.
-  /// This is the primary query for "view spending by category" features.
   Future<List<Transaction>> getTransactionsByCategory(String categoryId) {
     final query = select(transactions).join([
       leftOuterJoin(
