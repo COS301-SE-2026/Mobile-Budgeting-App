@@ -25,7 +25,7 @@ onTap : ()  {
   showPopover(
             context: context,
             bodyBuilder: (context) => FABMenu(),
-            onPop: () => print('Popover was popped!'),
+            onPop: () => {},
             direction: PopoverDirection.top,
             backgroundColor: MyColours().secondary,
             width: 150,

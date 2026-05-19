@@ -1,4 +1,4 @@
-import 'package:budgetit/views/transaction_manager/transaction.manager.dart';
+
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
 class MainScaffold extends StatefulWidget {
