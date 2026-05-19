@@ -39,7 +39,7 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = context.watch<AuthProvider>();
+    final auth = context.watch<AppAuthProvider>();
 
     return Scaffold(
       backgroundColor: _green,
@@ -119,7 +119,7 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
   }
 
   // --- Glass Card ---
-  Widget _buildCard(AuthProvider auth) {
+  Widget _buildCard(AppAuthProvider auth) {
     return Container(
       decoration: BoxDecoration(
         color: _glassColor,
@@ -181,7 +181,7 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
             _passwordController.clear();
             _confirmPasswordController.clear();
           });
-          context.read<AuthProvider>().clearError();
+          context.read<AppAuthProvider>().clearError();
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
@@ -308,7 +308,7 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
   }
 
   // --- Error Message ---
-  Widget _buildErrorMessage(AuthProvider auth) {
+  Widget _buildErrorMessage(AppAuthProvider auth) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Container(
@@ -335,7 +335,7 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
   }
 
   // --- Primary Button ---
-  Widget _buildPrimaryButton(AuthProvider auth) {
+  Widget _buildPrimaryButton(AppAuthProvider auth) {
     final label = _selectedTab == 0 ? 'Login →' : 'Register →';
     return SizedBox(
       width: double.infinity,
@@ -385,13 +385,13 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
   }
 
   // --- Guest Button ---
-  Widget _buildGuestButton(AuthProvider auth) {
+  Widget _buildGuestButton(AppAuthProvider auth) {
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton(
         onPressed: auth.isLoading
             ? null
-            : () => context.read<AuthProvider>().continueAsGuest(),
+            : () => context.read<AppAuthProvider>().continueAsGuest(),
         style: OutlinedButton.styleFrom(
           foregroundColor: _cream,
           side: const BorderSide(color: Color(0x88DDD6AE)),
@@ -452,7 +452,7 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
   }
 
   // --- Handle Submit ---
-  Future<void> _handleSubmit(AuthProvider auth) async {
+  Future<void> _handleSubmit(AppAuthProvider auth) async {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
@@ -466,6 +466,18 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
     if (_selectedTab == 0) {
       // Login
       await auth.signIn(email, password);
+      if (!mounted) return;
+      if (auth.needsVerification) {
+        // User exists but never confirmed — route to verify screen.
+        // A fresh code has already been requested by the service layer.
+        auth.clearNeedsVerification();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => VerifyEmailScreen(email: email),
+          ),
+        );
+      }
     } else {
       // Register
       final confirm = _confirmPasswordController.text;
@@ -483,7 +495,7 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
       }
       final success = await auth.signUp(email, password);
       if (success && mounted) {
-        // Navigate to email verification screen
+        auth.clearNeedsVerification();
         Navigator.push(
           context,
           MaterialPageRoute(

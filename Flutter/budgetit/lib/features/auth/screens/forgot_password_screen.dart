@@ -39,7 +39,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = context.watch<AuthProvider>();
+    final auth = context.watch<AppAuthProvider>();
 
     return Scaffold(
       backgroundColor: _green,
@@ -99,7 +99,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     );
   }
 
-  Widget _buildCard(AuthProvider auth) {
+  Widget _buildCard(AppAuthProvider auth) {
     return Container(
       decoration: BoxDecoration(
         color: _glassColor,
@@ -117,7 +117,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   // --- Step 0: Email input ---
-  Widget _buildStep0(AuthProvider auth) {
+  Widget _buildStep0(AppAuthProvider auth) {
     return Column(
       children: [
         _buildTextField(
@@ -138,7 +138,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   // --- Step 1: Code + new password ---
-  Widget _buildStep1(AuthProvider auth) {
+  Widget _buildStep1(AppAuthProvider auth) {
     return Column(
       children: [
         _buildTextField(
@@ -228,7 +228,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     );
   }
 
-  Widget _buildError(AuthProvider auth) {
+  Widget _buildError(AppAuthProvider auth) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Container(
@@ -294,7 +294,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     );
   }
 
-  Future<void> _handleSendCode(AuthProvider auth) async {
+  Future<void> _handleSendCode(AppAuthProvider auth) async {
     final email = _emailController.text.trim();
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -312,7 +312,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     }
   }
 
-  Future<void> _handleConfirmReset(AuthProvider auth) async {
+  Future<void> _handleConfirmReset(AppAuthProvider auth) async {
     final code = _codeController.text.trim();
     final newPassword = _newPasswordController.text;
     final confirm = _confirmPasswordController.text;

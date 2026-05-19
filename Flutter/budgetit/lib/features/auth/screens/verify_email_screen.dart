@@ -39,7 +39,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = context.watch<AuthProvider>();
+    final auth = context.watch<AppAuthProvider>();
 
     return Scaffold(
       backgroundColor: _green,
@@ -110,7 +110,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     );
   }
 
-  Widget _buildCodeCard(AuthProvider auth) {
+  Widget _buildCodeCard(AppAuthProvider auth) {
     return Container(
       decoration: BoxDecoration(
         color: _glassColor,
@@ -176,7 +176,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     );
   }
 
-  Widget _buildError(AuthProvider auth) {
+  Widget _buildError(AppAuthProvider auth) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Container(
@@ -204,7 +204,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     );
   }
 
-  Widget _buildConfirmButton(AuthProvider auth) {
+  Widget _buildConfirmButton(AppAuthProvider auth) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
@@ -241,15 +241,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   Widget _buildResendRow() {
     return Center(
       child: GestureDetector(
-        onTap: () {
-          // Resend logic — will call Cognito resendSignUpCode when AWS is ready
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Verification code resent'),
-              backgroundColor: Color(0xFF04240C),
-            ),
-          );
-        },
+        onTap: _handleResend,
         child: RichText(
           text: const TextSpan(
             style: TextStyle(color: Colors.white60, fontSize: 13),
@@ -269,7 +261,25 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     );
   }
 
-  Future<void> _handleConfirm(AuthProvider auth) async {
+  Future<void> _handleResend() async {
+    final auth = context.read<AppAuthProvider>();
+    final success = await auth.resendSignUpCode(widget.email);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          success
+              ? 'Verification code resent to ${widget.email}'
+              : (auth.errorMessage ?? 'Could not resend code. Try again.'),
+        ),
+        backgroundColor: success
+            ? const Color(0xFF04240C)
+            : const Color(0xFFCF6679),
+      ),
+    );
+  }
+
+  Future<void> _handleConfirm(AppAuthProvider auth) async {
     final code = _fullCode;
     if (code.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
