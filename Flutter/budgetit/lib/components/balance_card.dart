@@ -1,63 +1,93 @@
 import 'package:flutter/material.dart';
 
 class BalanceCard extends StatelessWidget {
+
   const BalanceCard({super.key});
+
+  static const Color darkGreen = Color(0xFF04240C);
+  static const Color cream = Color(0xFFDDD6AE);
 
   @override
   Widget build(BuildContext context) {
+
     return Container(
-      margin: const EdgeInsets.all(20),
-      padding: const EdgeInsets.all(20),
+
+      width: double.infinity,
+
+      margin: const EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: 10,
+      ),
+
+      padding: const EdgeInsets.all(28),
 
       decoration: BoxDecoration(
-        color: const Color(0xFF04240C), // dark green
-        borderRadius: BorderRadius.circular(20),
+
+        borderRadius: BorderRadius.circular(30),
+
+        gradient: const LinearGradient(
+
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+
+          colors: [
+
+            Color(0xFF1B3D16),
+            Color(0xFF4E6240),
+            Color(0xFF6E7F5B),
+          ],
+        ),
 
         boxShadow: [
+
           BoxShadow(
-            color: Color(0x6604240C),
-            blurRadius: 12,
-            offset: Offset(0, 6),
+            color: Colors.black.withOpacity(0.30),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
 
       child: Column(
+
         crossAxisAlignment: CrossAxisAlignment.start,
+
         children: [
 
-          Text(
-            "BALANCE : R 11,345.49",
+          const Text(
+            "MONTHLY SPENDING",
+
             style: TextStyle(
-              color: Color(0xFFDDD6AE), // cream
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+              color: cream,
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+              letterSpacing: 1.2,
             ),
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 20),
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
+          const Text(
+            "\R1,850.00",
 
-              Text(
-                "SALARY: R22,000",
-                style: TextStyle(
-                  color: Color(0xFFDDD6AE),
-                  fontSize: 14,
-                ),
-              ),
+            style: TextStyle(
+              color: cream,
+              fontSize: 52,
+              fontWeight: FontWeight.bold,
+              height: 1,
+            ),
+          ),
 
-              Text(
-                "MONEY SPENT: R10 000",
-                style: TextStyle(
-                  color: Color(0xFFDDD6AE),
-                  fontSize: 14,
-                ),
-              ),
+          const SizedBox(height: 25),
 
-            ],
+          Text(
+            "Target: \R1,950.00",
+
+            style: TextStyle(
+              color: cream.withOpacity(0.8),
+              fontSize: 20,
+              fontWeight: FontWeight.w400,
+            ),
           ),
         ],
       ),
