@@ -7,7 +7,7 @@ import '../components/bottom_nav.dart';
 import '../components/goal_card.dart';
 import '../components/dashboard_header.dart';
 import '../components/insight_widget.dart';
-import '../components/MonthlyTrendWidget.dart';
+import '../components/monthly_trend_widget.dart';
 import '../components/quick_stats_widgets.dart';
 
 class DashboardPage extends StatefulWidget {
