@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 
 class InsightWidget extends StatefulWidget {
-
   final List<BudgetInsight> insights;
 
-  const InsightWidget({
-    super.key,
-    required this.insights,
-  });
+  const InsightWidget({super.key, required this.insights});
 
   @override
   State<InsightWidget> createState() => _InsightWidgetState();
@@ -15,11 +11,7 @@ class InsightWidget extends StatefulWidget {
 
 class _InsightWidgetState extends State<InsightWidget>
     with SingleTickerProviderStateMixin {
-
-  static const Color darkGreen = Color(0xFF04240C);
   static const Color cream = Color(0xFFDDD6AE);
-  static const Color gold = Color(0xFFC2B280);
-  static const Color teal = Color(0xFF137E84);
 
   int _current = 0;
 
@@ -28,7 +20,6 @@ class _InsightWidgetState extends State<InsightWidget>
 
   @override
   void initState() {
-
     super.initState();
 
     _controller = AnimationController(
@@ -36,31 +27,24 @@ class _InsightWidgetState extends State<InsightWidget>
       duration: const Duration(milliseconds: 300),
     );
 
-    _fade = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeIn,
-    );
+    _fade = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
 
     _controller.forward();
   }
 
   @override
   void dispose() {
-
     _controller.dispose();
 
     super.dispose();
   }
 
   void _navigate(int delta) {
-
     _controller.reverse().then((_) {
-
       setState(() {
-
         _current =
             (_current + delta + widget.insights.length) %
-                widget.insights.length;
+            widget.insights.length;
       });
 
       _controller.forward();
@@ -69,7 +53,6 @@ class _InsightWidgetState extends State<InsightWidget>
 
   @override
   Widget build(BuildContext context) {
-
     if (widget.insights.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -77,17 +60,13 @@ class _InsightWidgetState extends State<InsightWidget>
     final insight = widget.insights[_current];
 
     return Column(
-
       crossAxisAlignment: CrossAxisAlignment.start,
 
       children: [
-
         Row(
-
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
           children: [
-
             const Text(
               'Insight',
 
@@ -99,11 +78,8 @@ class _InsightWidgetState extends State<InsightWidget>
             ),
 
             if (widget.insights.length > 1)
-
               Row(
-
                 children: [
-
                   Text(
                     '${_current + 1}/${widget.insights.length}',
 
@@ -143,39 +119,28 @@ class _InsightWidgetState extends State<InsightWidget>
 }
 
 class _InsightCard extends StatelessWidget {
-
   static const Color darkGreen = Color(0xFF04240C);
   static const Color cream = Color(0xFFDDD6AE);
 
   final BudgetInsight insight;
 
-  const _InsightCard({
-    required this.insight,
-  });
+  const _InsightCard({required this.insight});
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
-
       padding: const EdgeInsets.all(16),
 
       decoration: BoxDecoration(
-
         color: darkGreen,
 
         borderRadius: BorderRadius.circular(16),
 
-        border: Border(
-          left: BorderSide(
-            color: insight.accentColor,
-            width: 3,
-          ),
-        ),
+        border: Border(left: BorderSide(color: insight.accentColor, width: 3)),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.25),
+            color: Colors.black.withValues(alpha: 0.25),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -183,13 +148,10 @@ class _InsightCard extends StatelessWidget {
       ),
 
       child: Row(
-
         crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
-
           Container(
-
             width: 36,
             height: 36,
 
@@ -198,29 +160,19 @@ class _InsightCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
             ),
 
-            child: Icon(
-              insight.icon,
-              size: 18,
-              color: insight.accentColor,
-            ),
+            child: Icon(insight.icon, size: 18, color: insight.accentColor),
           ),
 
           const SizedBox(width: 12),
 
           Expanded(
-
             child: Column(
-
               crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
-
                 Row(
-
                   children: [
-
                     Expanded(
-
                       child: Text(
                         insight.title,
 
@@ -232,9 +184,7 @@ class _InsightCard extends StatelessWidget {
                       ),
                     ),
 
-                    _SeverityBadge(
-                      severity: insight.severity,
-                    ),
+                    _SeverityBadge(severity: insight.severity),
                   ],
                 ),
 
@@ -259,32 +209,19 @@ class _InsightCard extends StatelessWidget {
 }
 
 class _SeverityBadge extends StatelessWidget {
-
   static const Color cream = Color(0xFFDDD6AE);
   static const Color teal = Color(0xFF137E84);
 
   final InsightSeverity severity;
 
-  const _SeverityBadge({
-    required this.severity,
-  });
+  const _SeverityBadge({required this.severity});
 
   @override
   Widget build(BuildContext context) {
-
     final (label, bg, fg) = switch (severity) {
+      InsightSeverity.tip => ('Tip', const Color(0x22137E84), teal),
 
-      InsightSeverity.tip => (
-        'Tip',
-        const Color(0x22137E84),
-        teal,
-      ),
-
-      InsightSeverity.warning => (
-        'Warning',
-        const Color(0x33DDD6AE),
-        cream,
-      ),
+      InsightSeverity.warning => ('Warning', const Color(0x33DDD6AE), cream),
 
       InsightSeverity.alert => (
         'Alert',
@@ -294,11 +231,7 @@ class _SeverityBadge extends StatelessWidget {
     };
 
     return Container(
-
-      padding: const EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 3,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
 
       decoration: BoxDecoration(
         color: bg,
@@ -320,27 +253,19 @@ class _SeverityBadge extends StatelessWidget {
 }
 
 class _NavButton extends StatelessWidget {
-
   static const Color cream = Color(0xFFDDD6AE);
-  static const Color teal = Color(0xFF137E84);
 
   final IconData icon;
   final VoidCallback onTap;
 
-  const _NavButton({
-    required this.icon,
-    required this.onTap,
-  });
+  const _NavButton({required this.icon, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-
     return GestureDetector(
-
       onTap: onTap,
 
       child: Container(
-
         width: 28,
         height: 28,
 
@@ -349,24 +274,15 @@ class _NavButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
         ),
 
-        child: Icon(
-          icon,
-          size: 18,
-          color: cream,
-        ),
+        child: Icon(icon, size: 18, color: cream),
       ),
     );
   }
 }
 
-enum InsightSeverity {
-  tip,
-  warning,
-  alert,
-}
+enum InsightSeverity { tip, warning, alert }
 
 class BudgetInsight {
-
   final String title;
   final String body;
   final IconData icon;

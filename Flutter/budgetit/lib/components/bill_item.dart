@@ -7,13 +7,8 @@ class BillItem extends StatelessWidget {
   final String subtitle;
   final String amount;
 
-  BillItem({
-    super.key,
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.amount,
-  });
+  const BillItem({
+    
 
   static const Color darkGreen = Color(0xFF04240C);
   static const Color cream = Color(0xFFDDD6AE);

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class GoalCard extends StatelessWidget {
-
   final String title;
   final String saved;
   final String target;
@@ -22,31 +21,23 @@ class GoalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
-
       width: double.infinity,
 
-      margin: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 10,
-      ),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
 
       padding: const EdgeInsets.all(20),
 
       decoration: BoxDecoration(
-
         color: darkGreen,
 
         borderRadius: BorderRadius.circular(25),
 
-        border: Border.all(
-          color: cream.withOpacity(0.2),
-        ),
+        border: Border.all(color: cream.withOpacity(0.2)),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.25),
+            color: Colors.black.withValues(alpha: 0.25),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -54,17 +45,13 @@ class GoalCard extends StatelessWidget {
       ),
 
       child: Column(
-
         crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
-
           Row(
-
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
             children: [
-
               Text(
                 title,
 
@@ -75,18 +62,13 @@ class GoalCard extends StatelessWidget {
                 ),
               ),
 
-              const Icon(
-                Icons.flag,
-                color: teal,
-              ),
-
+              const Icon(Icons.flag, color: teal),
             ],
           ),
 
           const SizedBox(height: 15),
 
           ClipRRect(
-
             borderRadius: BorderRadius.circular(10),
 
             child: LinearProgressIndicator(
@@ -100,11 +82,9 @@ class GoalCard extends StatelessWidget {
           const SizedBox(height: 15),
 
           Row(
-
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
             children: [
-
               Text(
                 "Saved: $saved",
 
@@ -117,14 +97,10 @@ class GoalCard extends StatelessWidget {
               Text(
                 "Target: $target",
 
-                style: TextStyle(
-                  color: cream.withOpacity(0.7),
-                ),
+                style: TextStyle(color: cream.withOpacity(0.7)),
               ),
-
             ],
           ),
-
         ],
       ),
     );

@@ -3,17 +3,13 @@ import 'package:flutter/material.dart';
 class MonthlyTrendWidget extends StatefulWidget {
   final List<MonthData> months;
 
-  const MonthlyTrendWidget({
-    super.key,
-    required this.months,
-  });
+  const MonthlyTrendWidget({super.key, required this.months});
 
   @override
   State<MonthlyTrendWidget> createState() => _MonthlyTrendWidgetState();
 }
 
 class _MonthlyTrendWidgetState extends State<MonthlyTrendWidget> {
-
   static const Color darkGreen = Color(0xFF04240C);
   static const Color cream = Color(0xFFDDD6AE);
   static const Color gold = Color(0xFFC2B280);
@@ -22,9 +18,9 @@ class _MonthlyTrendWidgetState extends State<MonthlyTrendWidget> {
 
   @override
   Widget build(BuildContext context) {
-
-    final maxSpend =
-        widget.months.map((m) => m.spent).reduce((a, b) => a > b ? a : b);
+    final maxSpend = widget.months
+        .map((m) => m.spent)
+        .reduce((a, b) => a > b ? a : b);
 
     final selected = _selectedIndex != null
         ? widget.months[_selectedIndex!]
@@ -33,17 +29,13 @@ class _MonthlyTrendWidgetState extends State<MonthlyTrendWidget> {
     final trend = _getTrend();
 
     return Column(
-
       crossAxisAlignment: CrossAxisAlignment.start,
 
       children: [
-
         Row(
-
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
           children: [
-
             const Text(
               'Monthly Trend',
 
@@ -55,29 +47,24 @@ class _MonthlyTrendWidgetState extends State<MonthlyTrendWidget> {
             ),
 
             _TrendPill(trend: trend),
-
           ],
         ),
 
         const SizedBox(height: 16),
 
         Container(
-
           padding: const EdgeInsets.all(16),
 
           decoration: BoxDecoration(
-
             color: darkGreen,
 
             borderRadius: BorderRadius.circular(16),
 
-            border: Border.all(
-              color: const Color(0x22DDD6AE),
-            ),
+            border: Border.all(color: const Color(0x22DDD6AE)),
 
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.25),
+                color: Colors.black.withValues(alpha: 0.25),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -85,9 +72,7 @@ class _MonthlyTrendWidgetState extends State<MonthlyTrendWidget> {
           ),
 
           child: Column(
-
             children: [
-
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
 
@@ -100,15 +85,12 @@ class _MonthlyTrendWidgetState extends State<MonthlyTrendWidget> {
               const SizedBox(height: 20),
 
               SizedBox(
-
                 height: 110,
 
                 child: Row(
-
                   crossAxisAlignment: CrossAxisAlignment.end,
 
                   children: List.generate(widget.months.length, (i) {
-
                     final m = widget.months[i];
 
                     final isSelected =
@@ -119,12 +101,9 @@ class _MonthlyTrendWidgetState extends State<MonthlyTrendWidget> {
                     final barHeight = (m.spent / maxSpend) * 80;
 
                     return Expanded(
-
                       child: GestureDetector(
-
                         onTap: () => setState(() {
-                          _selectedIndex =
-                              _selectedIndex == i ? null : i;
+                          _selectedIndex = _selectedIndex == i ? null : i;
                         }),
 
                         child: _Bar(
@@ -142,22 +121,14 @@ class _MonthlyTrendWidgetState extends State<MonthlyTrendWidget> {
               const SizedBox(height: 12),
 
               Row(
-
                 mainAxisAlignment: MainAxisAlignment.center,
 
                 children: const [
-
-                  _LegendDot(
-                    color: gold,
-                    label: 'Spent',
-                  ),
+                  _LegendDot(color: gold, label: 'Spent'),
 
                   SizedBox(width: 16),
 
-                  _LegendDot(
-                    color: Color(0x22DDD6AE),
-                    label: 'Remaining',
-                  ),
+                  _LegendDot(color: Color(0x22DDD6AE), label: 'Remaining'),
                 ],
               ),
             ],
@@ -168,9 +139,7 @@ class _MonthlyTrendWidgetState extends State<MonthlyTrendWidget> {
   }
 
   _TrendResult _getTrend() {
-
     if (widget.months.length < 2) {
-
       return const _TrendResult(
         label: 'No data',
         color: Colors.grey,
@@ -183,20 +152,15 @@ class _MonthlyTrendWidgetState extends State<MonthlyTrendWidget> {
 
     final diff = last - prev;
 
-    final pct =
-        ((diff / prev) * 100).abs().toStringAsFixed(0);
+    final pct = ((diff / prev) * 100).abs().toStringAsFixed(0);
 
     if (diff < 0) {
-
       return _TrendResult(
         label: '$pct% less than last month',
         color: gold,
         icon: Icons.trending_down_rounded,
       );
-    }
-
-    else if (diff > 0) {
-
+    } else if (diff > 0) {
       return const _TrendResult(
         label: 'More than last month',
         color: Colors.redAccent,
@@ -213,36 +177,26 @@ class _MonthlyTrendWidgetState extends State<MonthlyTrendWidget> {
 }
 
 class _SelectedDetail extends StatelessWidget {
-
   static const Color cream = Color(0xFFDDD6AE);
   static const Color gold = Color(0xFFC2B280);
 
   final MonthData data;
 
-  const _SelectedDetail({
-    super.key,
-    required this.data,
-  });
+  const _SelectedDetail({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
-
     final remaining = data.income - data.spent;
 
     final pct = ((data.spent / data.income) * 100).round();
 
     return Row(
-
       children: [
-
         Expanded(
-
           child: Column(
-
             crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
-
               Text(
                 data.month,
 
@@ -268,50 +222,36 @@ class _SelectedDetail extends StatelessWidget {
               Text(
                 'of R${_fmt(data.income)} income',
 
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Color(0x99DDD6AE),
-                ),
+                style: const TextStyle(fontSize: 12, color: Color(0x99DDD6AE)),
               ),
             ],
           ),
         ),
 
         Column(
-
           crossAxisAlignment: CrossAxisAlignment.end,
 
           children: [
-
             Text(
               'R${_fmt(remaining)}',
 
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: remaining >= 0
-                    ? gold
-                    : Colors.redAccent,
+                color: remaining >= 0 ? gold : Colors.redAccent,
               ),
             ),
 
             const Text(
               'remaining',
 
-              style: TextStyle(
-                fontSize: 11,
-                color: Color(0x99DDD6AE),
-              ),
+              style: TextStyle(fontSize: 11, color: Color(0x99DDD6AE)),
             ),
 
             const SizedBox(height: 6),
 
             Container(
-
-              padding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 4,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
 
               decoration: BoxDecoration(
                 color: const Color(0x22C2B280),
@@ -334,15 +274,12 @@ class _SelectedDetail extends StatelessWidget {
     );
   }
 
-  String _fmt(double v) =>
-      v.toStringAsFixed(0).replaceAllMapped(
-        RegExp(r'(\d)(?=(\d{3})+$)'),
-        (m) => '${m[1]} ',
-      );
+  String _fmt(double v) => v
+      .toStringAsFixed(0)
+      .replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+$)'), (m) => '${m[1]} ');
 }
 
 class _Bar extends StatelessWidget {
-
   static const Color gold = Color(0xFFC2B280);
 
   final MonthData data;
@@ -359,25 +296,18 @@ class _Bar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Padding(
-
       padding: const EdgeInsets.symmetric(horizontal: 4),
 
       child: Column(
-
         mainAxisAlignment: MainAxisAlignment.end,
 
         children: [
-
           Stack(
-
             alignment: Alignment.bottomCenter,
 
             children: [
-
               Container(
-
                 width: double.infinity,
                 height: maxHeight,
 
@@ -388,7 +318,6 @@ class _Bar extends StatelessWidget {
               ),
 
               AnimatedContainer(
-
                 duration: const Duration(milliseconds: 400),
 
                 curve: Curves.easeOutCubic,
@@ -398,9 +327,7 @@ class _Bar extends StatelessWidget {
                 height: height.clamp(4, maxHeight),
 
                 decoration: BoxDecoration(
-                  color: isSelected
-                      ? gold
-                      : const Color(0x88C2B280),
+                  color: isSelected ? gold : const Color(0x88C2B280),
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
@@ -414,9 +341,7 @@ class _Bar extends StatelessWidget {
 
             style: TextStyle(
               fontSize: 11,
-              fontWeight: isSelected
-                  ? FontWeight.w700
-                  : FontWeight.w400,
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
               color: isSelected
                   ? const Color(0xFFDDD6AE)
                   : const Color(0x99DDD6AE),
@@ -429,22 +354,14 @@ class _Bar extends StatelessWidget {
 }
 
 class _TrendPill extends StatelessWidget {
-
   final _TrendResult trend;
 
-  const _TrendPill({
-    required this.trend,
-  });
+  const _TrendPill({required this.trend});
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
-
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 5,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
 
       decoration: BoxDecoration(
         color: trend.color.withOpacity(0.1),
@@ -452,16 +369,10 @@ class _TrendPill extends StatelessWidget {
       ),
 
       child: Row(
-
         mainAxisSize: MainAxisSize.min,
 
         children: [
-
-          Icon(
-            trend.icon,
-            size: 14,
-            color: trend.color,
-          ),
+          Icon(trend.icon, size: 14, color: trend.color),
 
           const SizedBox(width: 4),
 
@@ -481,30 +392,20 @@ class _TrendPill extends StatelessWidget {
 }
 
 class _LegendDot extends StatelessWidget {
-
   final Color color;
   final String label;
 
-  const _LegendDot({
-    required this.color,
-    required this.label,
-  });
+  const _LegendDot({required this.color, required this.label});
 
   @override
   Widget build(BuildContext context) {
-
     return Row(
-
       children: [
-
         Container(
           width: 8,
           height: 8,
 
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
 
         const SizedBox(width: 5),
@@ -512,10 +413,7 @@ class _LegendDot extends StatelessWidget {
         const Text(
           'Spent',
 
-          style: TextStyle(
-            fontSize: 10,
-            color: Color(0x99DDD6AE),
-          ),
+          style: TextStyle(fontSize: 10, color: Color(0x99DDD6AE)),
         ),
       ],
     );
@@ -523,7 +421,6 @@ class _LegendDot extends StatelessWidget {
 }
 
 class MonthData {
-
   final String month;
   final String shortMonth;
   final double income;
@@ -538,7 +435,6 @@ class MonthData {
 }
 
 class _TrendResult {
-
   final String label;
   final Color color;
   final IconData icon;

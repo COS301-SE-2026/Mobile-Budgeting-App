@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
 
 class ActionButton extends StatelessWidget {
-
   final IconData icon;
   final String label;
 
-  const ActionButton({
-    super.key,
-    required this.icon,
-    required this.label,
-  });
+  const ActionButton({super.key, required this.icon, required this.label});
 
   // theme colors
   static const Color darkGreen = Color(0xFF04240C);
@@ -18,29 +13,21 @@ class ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
-
       width: 90,
 
-      padding: const EdgeInsets.symmetric(
-        vertical: 15,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 15),
 
       decoration: BoxDecoration(
-
         color: darkGreen,
 
         borderRadius: BorderRadius.circular(20),
 
-        border: Border.all(
-          color: cream.withOpacity(0.25),
-          width: 1,
-        ),
+        border: Border.all(color: cream.withValues(alpha: 0.25), width: 1),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.25),
+            color: Colors.black.withValues(alpha: 0.25),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -51,12 +38,7 @@ class ActionButton extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
 
         children: [
-
-          Icon(
-            icon,
-            size: 30,
-            color: cream,
-          ),
+          Icon(icon, size: 30, color: cream),
 
           const SizedBox(height: 10),
 
@@ -71,7 +53,6 @@ class ActionButton extends StatelessWidget {
               fontSize: 13,
             ),
           ),
-
         ],
       ),
     );
