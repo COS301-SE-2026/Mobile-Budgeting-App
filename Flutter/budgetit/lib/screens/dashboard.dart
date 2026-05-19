@@ -10,33 +10,50 @@ import '../components/monthly_trend_widget.dart';
 import '../components/quick_stats_widgets.dart';
 
 class DashboardPage extends StatefulWidget {
+
   const DashboardPage({super.key});
 
   @override
-  State<DashboardPage> createState() => _DashboardPageState();
+  State<DashboardPage> createState() =>
+      _DashboardPageState();
 }
 
-class _DashboardPageState extends State<DashboardPage> {
-  static const Color background = Color(0xFF04240C);
+class _DashboardPageState
+    extends State<DashboardPage> {
+
+  static const Color background =
+      Color(0xFF04240C);
 
   String selectedFilter = "All";
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
+
       backgroundColor: background,
 
-      bottomNavigationBar: const BottomNav(),
+      bottomNavigationBar:
+          const BottomNav(),
 
       body: SafeArea(
+
         child: SingleChildScrollView(
+
           child: Padding(
-            padding: const EdgeInsets.only(bottom: 40),
+
+            padding:
+                const EdgeInsets.only(
+                  bottom: 40,
+                ),
 
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
 
               children: [
+
                 const DashboardHeader(),
 
                 const SizedBox(height: 20),
@@ -46,47 +63,90 @@ class _DashboardPageState extends State<DashboardPage> {
                 const SizedBox(height: 20),
 
                 const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
 
-                  child: QuickStatsWidget(),
+                  padding:
+                      EdgeInsets.symmetric(
+                        horizontal: 20,
+                      ),
+
+                  child:
+                      QuickStatsWidget(),
                 ),
 
                 const SizedBox(height: 25),
 
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+
+                  padding:
+                      const EdgeInsets.symmetric(
+                        horizontal: 20,
+                      ),
 
                   child: Column(
+
                     children: [
+
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
 
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(18),
+                        padding:
+                            const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
 
-                          border: Border.all(color: const Color(0x66DDD6AE)),
+                        decoration:
+                            BoxDecoration(
 
-                          gradient: const LinearGradient(
-                            begin: Alignment.topLeft,
+                              borderRadius:
+                                  BorderRadius.circular(
+                                    18,
+                                  ),
 
-                            end: Alignment.bottomRight,
+                              border: Border.all(
+                                color:
+                                    const Color(
+                                      0x66DDD6AE,
+                                    ),
+                              ),
 
-                            colors: [
-                              Color(0xFF1B3D16),
-                              Color(0xFF4E6240),
-                              Color(0xFF6E7F5B),
-                            ],
-                          ),
-                        ),
-                        //save
+                              gradient:
+                                  const LinearGradient(
+
+                                    begin:
+                                        Alignment
+                                            .topLeft,
+
+                                    end:
+                                        Alignment
+                                            .bottomRight,
+
+                                    colors: [
+
+                                      Color(
+                                        0xFF1B3D16,
+                                      ),
+
+                                      Color(
+                                        0xFF4E6240,
+                                      ),
+
+                                      Color(
+                                        0xFF6E7F5B,
+                                      ),
+                                    ],
+                                  ),
+                            ),
+
                         child: Row(
+
                           children: const [
+
                             Icon(
                               Icons.search,
-                              color: Color(0xFFDDD6AE),
+                              color:
+                                  Color(
+                                    0xFFDDD6AE,
+                                  ),
                               size: 20,
                             ),
 
@@ -96,7 +156,11 @@ class _DashboardPageState extends State<DashboardPage> {
                               "Search transactions...",
 
                               style: TextStyle(
-                                color: Color(0xCCDDD6AE),
+                                color:
+                                    Color(
+                                      0xCCDDD6AE,
+                                    ),
+
                                 fontSize: 15,
                               ),
                             ),
@@ -107,29 +171,64 @@ class _DashboardPageState extends State<DashboardPage> {
                       const SizedBox(height: 14),
 
                       Container(
-                        width: double.infinity,
 
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        width:
+                            double.infinity,
 
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
+                        padding:
+                            const EdgeInsets.symmetric(
+                              vertical: 16,
+                            ),
 
-                          gradient: const LinearGradient(
-                            begin: Alignment.topLeft,
+                        decoration:
+                            BoxDecoration(
 
-                            end: Alignment.bottomRight,
+                              borderRadius:
+                                  BorderRadius.circular(
+                                    16,
+                                  ),
 
-                            colors: [Color(0xFF137E84), Color(0xFF1B5E63)],
-                          ),
-                        ),
+                              gradient:
+                                  const LinearGradient(
+
+                                    begin:
+                                        Alignment
+                                            .topLeft,
+
+                                    end:
+                                        Alignment
+                                            .bottomRight,
+
+                                    colors: [
+
+                                      Color(
+                                        0xFF137E84,
+                                      ),
+
+                                      Color(
+                                        0xFF1B5E63,
+                                      ),
+                                    ],
+                                  ),
+                            ),
 
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+
+                          mainAxisAlignment:
+                              MainAxisAlignment
+                                  .center,
 
                           children: const [
+
                             Icon(
-                              Icons.upload_file_rounded,
-                              color: Color(0xFFDDD6AE),
+                              Icons
+                                  .upload_file_rounded,
+
+                              color:
+                                  Color(
+                                    0xFFDDD6AE,
+                                  ),
+
                               size: 20,
                             ),
 
@@ -139,9 +238,16 @@ class _DashboardPageState extends State<DashboardPage> {
                               "Import Bank Statement (CSV/PDF)",
 
                               style: TextStyle(
-                                color: Color(0xFFDDD6AE),
+                                color:
+                                    Color(
+                                      0xFFDDD6AE,
+                                    ),
+
                                 fontSize: 15,
-                                fontWeight: FontWeight.w600,
+
+                                fontWeight:
+                                    FontWeight
+                                        .w600,
                               ),
                             ),
                           ],
@@ -151,60 +257,92 @@ class _DashboardPageState extends State<DashboardPage> {
                       const SizedBox(height: 18),
 
                       SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
+
+                        scrollDirection:
+                            Axis.horizontal,
 
                         child: Row(
+
                           children: [
+
                             _FilterPill(
                               label: "All",
 
-                              isSelected: selectedFilter == "All",
+                              isSelected:
+                                  selectedFilter ==
+                                      "All",
 
                               onTap: () {
+
                                 setState(() {
-                                  selectedFilter = "All";
+
+                                  selectedFilter =
+                                      "All";
                                 });
                               },
                             ),
 
-                            const SizedBox(width: 10),
+                            const SizedBox(
+                              width: 10,
+                            ),
 
                             _FilterPill(
                               label: "Income",
 
-                              isSelected: selectedFilter == "Income",
+                              isSelected:
+                                  selectedFilter ==
+                                      "Income",
 
                               onTap: () {
+
                                 setState(() {
-                                  selectedFilter = "Income";
+
+                                  selectedFilter =
+                                      "Income";
                                 });
                               },
                             ),
 
-                            const SizedBox(width: 10),
+                            const SizedBox(
+                              width: 10,
+                            ),
 
                             _FilterPill(
-                              label: "Expenses",
+                              label:
+                                  "Expenses",
 
-                              isSelected: selectedFilter == "Expenses",
+                              isSelected:
+                                  selectedFilter ==
+                                      "Expenses",
 
                               onTap: () {
+
                                 setState(() {
-                                  selectedFilter = "Expenses";
+
+                                  selectedFilter =
+                                      "Expenses";
                                 });
                               },
                             ),
 
-                            const SizedBox(width: 10),
+                            const SizedBox(
+                              width: 10,
+                            ),
 
                             _FilterPill(
-                              label: "Scheduled",
+                              label:
+                                  "Scheduled",
 
-                              isSelected: selectedFilter == "Scheduled",
+                              isSelected:
+                                  selectedFilter ==
+                                      "Scheduled",
 
                               onTap: () {
+
                                 setState(() {
-                                  selectedFilter = "Scheduled";
+
+                                  selectedFilter =
+                                      "Scheduled";
                                 });
                               },
                             ),
@@ -218,63 +356,111 @@ class _DashboardPageState extends State<DashboardPage> {
                 const SizedBox(height: 25),
 
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
 
-                  child: MonthlyTrendWidget(
-                    months: const [
-                      MonthData(
-                        month: 'March 2026',
-                        shortMonth: 'Mar',
-                        income: 22000,
-                        spent: 14200,
+                  padding:
+                      const EdgeInsets.symmetric(
+                        horizontal: 20,
                       ),
 
-                      MonthData(
-                        month: 'April 2026',
-                        shortMonth: 'Apr',
-                        income: 22000,
-                        spent: 12800,
-                      ),
+                  child:
+                      MonthlyTrendWidget(
 
-                      MonthData(
-                        month: 'May 2026',
-                        shortMonth: 'May',
-                        income: 22000,
-                        spent: 10000,
+                        months: const [
+
+                          MonthData(
+                            month:
+                                'March 2026',
+
+                            shortMonth:
+                                'Mar',
+
+                            income: 22000,
+
+                            spent: 14200,
+                          ),
+
+                          MonthData(
+                            month:
+                                'April 2026',
+
+                            shortMonth:
+                                'Apr',
+
+                            income: 22000,
+
+                            spent: 12800,
+                          ),
+
+                          MonthData(
+                            month:
+                                'May 2026',
+
+                            shortMonth:
+                                'May',
+
+                            income: 22000,
+
+                            spent: 10000,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
                 ),
 
                 const SizedBox(height: 25),
 
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
 
-                  child: InsightWidget(
-                    insights: [
-                      BudgetInsight(
-                        title: 'You\'re spending less this month',
-
-                        body: 'Your expenses dropped compared to April.',
-
-                        icon: Icons.trending_down_rounded,
-
-                        accentColor: Color(0xFF137E84),
-
-                        severity: InsightSeverity.tip,
+                  padding:
+                      const EdgeInsets.symmetric(
+                        horizontal: 20,
                       ),
 
-                      BudgetInsight(
-                        title: 'Entertainment budget exceeded',
+                  child: InsightWidget(
 
-                        body: 'You\'ve spent more than expected.',
+                    insights: [
 
-                        icon: Icons.movie_rounded,
+                      const BudgetInsight(
 
-                        accentColor: Color(0xFFC2B280),
+                        title:
+                            'You\'re spending less this month',
 
-                        severity: InsightSeverity.warning,
+                        body:
+                            'Your expenses dropped compared to April.',
+
+                        icon:
+                            Icons
+                                .trending_down_rounded,
+
+                        accentColor:
+                            Color(
+                              0xFF137E84,
+                            ),
+
+                        severity:
+                            InsightSeverity
+                                .tip,
+                      ),
+
+                      const BudgetInsight(
+
+                        title:
+                            'Entertainment budget exceeded',
+
+                        body:
+                            'You\'ve spent more than expected.',
+
+                        icon:
+                            Icons
+                                .movie_rounded,
+
+                        accentColor:
+                            Color(
+                              0xFFC2B280,
+                            ),
+
+                        severity:
+                            InsightSeverity
+                                .warning,
                       ),
                     ],
                   ),
@@ -283,47 +469,71 @@ class _DashboardPageState extends State<DashboardPage> {
                 const SizedBox(height: 25),
 
                 const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
+
+                  padding:
+                      EdgeInsets.symmetric(
+                        horizontal: 20,
+                      ),
 
                   child: Text(
                     "Upcoming Bills",
 
                     style: TextStyle(
                       fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFFDDD6AE),
+                      fontWeight:
+                          FontWeight.bold,
+
+                      color:
+                          Color(
+                            0xFFDDD6AE,
+                          ),
                     ),
                   ),
                 ),
 
                 const SizedBox(height: 10),
 
-                BillItem(
-                  icon: Icons.electric_bolt,
+                const BillItem(
+                  icon:
+                      Icons.electric_bolt,
+
                   title: "Electricity",
-                  subtitle: "Due tomorrow",
+
+                  subtitle:
+                      "Due tomorrow",
+
                   amount: "R850",
                 ),
 
-                BillItem(
+                const BillItem(
                   icon: Icons.movie,
                   title: "Netflix",
-                  subtitle: "Due tomorrow",
+                  subtitle:
+                      "Due tomorrow",
                   amount: "R199",
                 ),
 
                 const SizedBox(height: 25),
 
                 const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
+
+                  padding:
+                      EdgeInsets.symmetric(
+                        horizontal: 20,
+                      ),
 
                   child: Text(
                     "Recent Transactions",
 
                     style: TextStyle(
                       fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFFDDD6AE),
+                      fontWeight:
+                          FontWeight.bold,
+
+                      color:
+                          Color(
+                            0xFFDDD6AE,
+                          ),
                     ),
                   ),
                 ),
@@ -331,18 +541,25 @@ class _DashboardPageState extends State<DashboardPage> {
                 const SizedBox(height: 10),
 
                 const TransactionTile(
-                  icon: Icons.shopping_cart,
+                  icon:
+                      Icons.shopping_cart,
+
                   title: "Groceries",
+
                   subtitle: "Today",
+
                   amount: "- R850",
+
                   isExpense: true,
                 ),
 
                 const TransactionTile(
                   icon: Icons.payments,
                   title: "Salary",
-                  subtitle: "Yesterday",
-                  amount: "+ R22 000",
+                  subtitle:
+                      "Yesterday",
+                  amount:
+                      "+ R22 000",
                   isExpense: false,
                 ),
               ],
@@ -354,7 +571,9 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 }
 
-class _FilterPill extends StatelessWidget {
+class _FilterPill
+    extends StatelessWidget {
+
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
@@ -367,29 +586,59 @@ class _FilterPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return GestureDetector(
+
       onTap: onTap,
 
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+
+        padding:
+            const EdgeInsets.symmetric(
+              horizontal: 22,
+              vertical: 12,
+            ),
 
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFDDD6AE) : const Color(0x22137E84),
 
-          borderRadius: BorderRadius.circular(30),
+          color:
+              isSelected
+                  ? const Color(
+                    0xFFDDD6AE,
+                  )
+                  : const Color(
+                    0x22137E84,
+                  ),
 
-          border: Border.all(color: const Color(0x88DDD6AE)),
+          borderRadius:
+              BorderRadius.circular(
+                30,
+              ),
+
+          border: Border.all(
+            color:
+                const Color(
+                  0x88DDD6AE,
+                ),
+          ),
         ),
 
         child: Text(
           label,
 
           style: TextStyle(
-            color: isSelected
-                ? const Color(0xFF04240C)
-                : const Color(0xFFDDD6AE),
 
-            fontWeight: FontWeight.w600,
+            color:
+                isSelected
+                    ? const Color(
+                      0xFF04240C,
+                    )
+                    : const Color(
+                      0xFFDDD6AE,
+                    ),
+
+            fontWeight:
+                FontWeight.w600,
           ),
         ),
       ),
