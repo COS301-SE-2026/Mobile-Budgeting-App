@@ -1,18 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'features/auth/data/auth_service.dart';
+import 'package:amplify_flutter/amplify_flutter.dart';
+import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
+import 'amplifyconfiguration.dart';
+import 'features/auth/data/cognito_auth_service.dart';
 import 'features/auth/providers/auth_provider.dart';
 import 'features/auth/screens/login_register_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await _configureAmplify();
   runApp(
     ChangeNotifierProvider(
-      create: (_) => AuthProvider(
-        authService: MockAuthService(),
+      create: (_) => AppAuthProvider(
+        authService: CognitoAuthService(),
       ),
       child: const BudgetItApp(),
     ),
   );
+}
+
+Future<void> _configureAmplify() async {
+  try {
+    final authPlugin = AmplifyAuthCognito();
+    await Amplify.addPlugin(authPlugin);
+    await Amplify.configure(amplifyconfig);
+  } on AmplifyAlreadyConfiguredException {
+    // Already configured — safe to ignore on hot restart
+  }
 }
 
 class BudgetItApp extends StatelessWidget {
@@ -51,7 +66,7 @@ class AuthGate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final auth = context.watch<AuthProvider>();
+    final auth = context.watch<AppAuthProvider>();
 
     if (auth.status == AuthStatus.unknown) {
       return const Scaffold(
@@ -67,7 +82,6 @@ class AuthGate extends StatelessWidget {
       return const LoginRegisterScreen();
     }
 
-    // loggedIn or skipped — show home
     return Scaffold(
       backgroundColor: const Color(0xFF04240C),
       appBar: AppBar(
@@ -79,7 +93,7 @@ class AuthGate extends StatelessWidget {
         actions: [
           if (auth.isLoggedIn)
             TextButton(
-              onPressed: () => context.read<AuthProvider>().signOut(),
+              onPressed: () => context.read<AppAuthProvider>().signOut(),
               child: const Text(
                 'Logout',
                 style: TextStyle(color: Color(0xFFDDD6AE)),
@@ -118,7 +132,7 @@ class AuthGate extends StatelessWidget {
               const SizedBox(height: 24),
               TextButton(
                 onPressed: () =>
-                    context.read<AuthProvider>().backToLogin(),
+                  context.read<AppAuthProvider>().backToLogin(),
                 child: const Text(
                   'Sign in instead',
                   style: TextStyle(color: Color(0xFFDDD6AE)),
