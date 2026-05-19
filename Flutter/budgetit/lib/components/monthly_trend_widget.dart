@@ -229,8 +229,7 @@ class _SelectedDetail extends StatelessWidget {
 
     final remaining = data.income - data.spent;
 
-    final pct =
-        ((data.spent / data.income) * 100).round();
+    final pct = ((data.spent / data.income) * 100).round();
 
     return Row(
 
