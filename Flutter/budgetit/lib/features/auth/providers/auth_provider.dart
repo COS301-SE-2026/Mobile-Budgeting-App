@@ -9,22 +9,24 @@ enum AuthStatus {
   loggedIn,   // successfully authenticated
 }
 
-class AuthProvider extends ChangeNotifier {
+class AppAuthProvider extends ChangeNotifier {
   final AuthService _authService;
 
   AuthStatus _status = AuthStatus.unknown;
-  AuthUser? _currentUser;
+  AppAuthUser? _currentUser;
   String? _errorMessage;
   bool _isLoading = false;
+  bool _needsVerification = false;
 
   // Getters — screens read these to know what to show
   AuthStatus get status => _status;
-  AuthUser? get currentUser => _currentUser;
+  AppAuthUser? get currentUser => _currentUser;
   String? get errorMessage => _errorMessage;
   bool get isLoading => _isLoading;
   bool get isLoggedIn => _status == AuthStatus.loggedIn;
+  bool get needsVerification => _needsVerification;
 
-  AuthProvider({required AuthService authService})
+  AppAuthProvider({required AuthService authService})
       : _authService = authService {
     _checkCurrentSession();
   }
@@ -47,11 +49,36 @@ class AuthProvider extends ChangeNotifier {
   }
 
   // --- Sign Up ---
-  // Returns true if successful, false if error
+  // Returns true if the UI should navigate to the verify-email screen.
+  // That happens both for a brand-new signup AND for the
+  // "user exists but is unconfirmed" case (we silently trigger a resend).
   Future<bool> signUp(String email, String password) async {
     _setLoading(true);
     _clearError();
+    _needsVerification = false;
     final result = await _authService.signUp(email, password);
+    _setLoading(false);
+    _needsVerification = result.needsVerification;
+    if (!result.success) {
+      _errorMessage = result.errorMessage;
+      notifyListeners();
+      return false;
+    }
+    // Surface the info message ("Account exists but not verified...") even
+    // on the success path so the user understands why they're being routed
+    // to verify instead of being logged in.
+    if (result.errorMessage != null) {
+      _errorMessage = result.errorMessage;
+    }
+    notifyListeners();
+    return true;
+  }
+
+  // --- Resend Sign Up Code ---
+  Future<bool> resendSignUpCode(String email) async {
+    _setLoading(true);
+    _clearError();
+    final result = await _authService.resendSignUpCode(email);
     _setLoading(false);
     if (!result.success) {
       _errorMessage = result.errorMessage;
@@ -79,12 +106,14 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> signIn(String email, String password) async {
     _setLoading(true);
     _clearError();
+    _needsVerification = false;
     final result = await _authService.signIn(email, password);
     if (result.success) {
       _currentUser = await _authService.getCurrentUser();
       _status = AuthStatus.loggedIn;
     } else {
       _errorMessage = result.errorMessage;
+      _needsVerification = result.needsVerification;
     }
     _setLoading(false);
     return result.success;
@@ -154,6 +183,10 @@ class AuthProvider extends ChangeNotifier {
   void clearError() {
     _clearError();
     notifyListeners();
+  }
+
+  void clearNeedsVerification() {
+    _needsVerification = false;
   }
 
 }
