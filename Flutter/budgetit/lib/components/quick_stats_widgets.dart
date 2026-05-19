@@ -4,154 +4,46 @@ class QuickStatsWidget extends StatelessWidget {
 
   const QuickStatsWidget({super.key});
 
-  static const Color darkGreen = Color(0xFF04240C);
   static const Color cream = Color(0xFFDDD6AE);
-  static const Color teal = Color(0xFF137E84);
-  static const Color gold = Color(0xFFC2B280);
-
-  @override
-  Widget build(BuildContext context) {
-
-    return Column(
-
-      crossAxisAlignment: CrossAxisAlignment.start,
-
-      children: [
-
-        const Text(
-          'Quick Stats',
-
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: cream,
-          ),
-        ),
-
-        const SizedBox(height: 12),
-
-        GridView.count(
-
-          crossAxisCount: 2,
-
-          shrinkWrap: true,
-
-          physics: const NeverScrollableScrollPhysics(),
-
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-
-          childAspectRatio: 1.5,
-
-          children: const [
-
-            _StatCard(
-              label: 'Days Left',
-              value: '13',
-              subtitle: 'in May',
-
-              icon: Icons.calendar_today_rounded,
-
-              iconColor: teal,
-              iconBg: Color(0x22137E84),
-            ),
-
-            _StatCard(
-              label: 'Daily Budget',
-              value: 'R871',
-              subtitle: 'on track',
-
-              icon: Icons.trending_up_rounded,
-
-              iconColor: teal,
-              iconBg: Color(0x22137E84),
-
-              subtitleColor: teal,
-            ),
-
-            _StatCard(
-              label: 'Biggest Spend',
-              value: 'Groceries',
-              subtitle: 'this month',
-
-              icon: Icons.shopping_cart_rounded,
-
-              iconColor: gold,
-              iconBg: Color(0x22C2B280),
-
-              valueFontSize: 15,
-            ),
-
-            _StatCard(
-              label: 'Net Savings',
-              value: 'R11 345',
-              subtitle: '↑ vs April',
-
-              icon: Icons.savings_rounded,
-
-              iconColor: teal,
-              iconBg: Color(0x22137E84),
-
-              subtitleColor: teal,
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _StatCard extends StatelessWidget {
-
-  static const Color darkGreen = Color(0xFF04240C);
-  static const Color cream = Color(0xFFDDD6AE);
-
-  final String label;
-  final String value;
-  final String subtitle;
-
-  final IconData icon;
-
-  final Color iconColor;
-  final Color iconBg;
-
-  final Color subtitleColor;
-
-  final double valueFontSize;
-
-  const _StatCard({
-    required this.label,
-    required this.value,
-    required this.subtitle,
-    required this.icon,
-    required this.iconColor,
-    required this.iconBg,
-    this.subtitleColor = const Color(0x99DDD6AE),
-    this.valueFontSize = 20,
-  });
 
   @override
   Widget build(BuildContext context) {
 
     return Container(
 
-      padding: const EdgeInsets.all(14),
+      margin: const EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: 10,
+      ),
+
+      padding: const EdgeInsets.all(20),
 
       decoration: BoxDecoration(
 
-        color: darkGreen,
-
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(22),
 
         border: Border.all(
-          color: const Color(0x22DDD6AE),
+          color: cream.withOpacity(0.7),
+        ),
+
+        gradient: const LinearGradient(
+
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+
+          colors: [
+
+            Color(0xFF1B3D16),
+            Color(0xFF4E6240),
+            Color(0xFF6E7F5B),
+          ],
         ),
 
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.25),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            blurRadius: 15,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -160,78 +52,205 @@ class _StatCard extends StatelessWidget {
 
         crossAxisAlignment: CrossAxisAlignment.start,
 
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
         children: [
+
+          const Text(
+            "Spending by Category",
+
+            style: TextStyle(
+              color: cream,
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+
+          const SizedBox(height: 20),
 
           Row(
 
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
             children: [
 
-              Text(
-                label,
+              // donut chart
+              SizedBox(
 
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0x99DDD6AE),
-                  letterSpacing: 0.3,
+                width: 120,
+                height: 120,
+
+                child: Stack(
+
+                  alignment: Alignment.center,
+
+                  children: [
+
+                    SizedBox(
+
+                      width: 120,
+                      height: 120,
+
+                      child: CircularProgressIndicator(
+                        value: 0.75,
+                        strokeWidth: 16,
+
+                        backgroundColor: Color(0x55DDD6AE),
+
+                        valueColor:
+                            AlwaysStoppedAnimation(
+                              Color(0xFF04240C),
+                            ),
+                      ),
+                    ),
+
+                    SizedBox(
+
+                      width: 85,
+                      height: 85,
+
+                      child: CircularProgressIndicator(
+                        value: 0.45,
+                        strokeWidth: 16,
+
+                        backgroundColor: Colors.transparent,
+
+                        valueColor:
+                            AlwaysStoppedAnimation(
+                              Color(0xFF137E84),
+                            ),
+                      ),
+                    ),
+
+                    Column(
+
+                      mainAxisAlignment:
+                          MainAxisAlignment.center,
+
+                      children: [
+
+                        Text(
+                          "TOTAL",
+
+                          style: TextStyle(
+                            color:
+                                cream.withOpacity(0.7),
+
+                            fontSize: 11,
+
+                            letterSpacing: 1,
+                          ),
+                        ),
+
+                        const SizedBox(height: 4),
+
+                        const Text(
+                          "\R4.2k",
+
+                          style: TextStyle(
+                            color: cream,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
 
-              Container(
+              const SizedBox(width: 20),
 
-                width: 28,
-                height: 28,
+              // categories
+              Expanded(
 
-                decoration: BoxDecoration(
-                  color: iconBg,
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                child: Column(
 
-                child: Icon(
-                  icon,
-                  size: 15,
-                  color: iconColor,
-                ),
-              ),
-            ],
-          ),
+                  children: const [
 
-          Column(
+                    _CategoryRow(
+                      color: Color(0xFF04240C),
+                      title: "Housing",
+                      percentage: "45%",
+                    ),
 
-            crossAxisAlignment: CrossAxisAlignment.start,
+                    SizedBox(height: 18),
 
-            children: [
+                    _CategoryRow(
+                      color: Color(0xFF137E84),
+                      title: "Dining",
+                      percentage: "25%",
+                    ),
 
-              Text(
-                value,
+                    SizedBox(height: 18),
 
-                style: TextStyle(
-                  fontSize: valueFontSize,
-                  fontWeight: FontWeight.w700,
-                  color: cream,
-                  height: 1.1,
-                ),
-              ),
-
-              const SizedBox(height: 2),
-
-              Text(
-                subtitle,
-
-                style: TextStyle(
-                  fontSize: 11,
-                  color: subtitleColor,
-                  fontWeight: FontWeight.w500,
+                    _CategoryRow(
+                      color: Color(0x88DDD6AE),
+                      title: "Others",
+                      percentage: "30%",
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
         ],
       ),
+    );
+  }
+}
+
+class _CategoryRow extends StatelessWidget {
+
+  final Color color;
+  final String title;
+  final String percentage;
+
+  const _CategoryRow({
+    required this.color,
+    required this.title,
+    required this.percentage,
+  });
+
+  static const Color cream = Color(0xFFDDD6AE);
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Row(
+
+      children: [
+
+        Container(
+          width: 10,
+          height: 10,
+
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+
+        const SizedBox(width: 10),
+
+        Expanded(
+
+          child: Text(
+            title,
+
+            style: const TextStyle(
+              color: cream,
+              fontSize: 15,
+            ),
+          ),
+        ),
+
+        Text(
+          percentage,
+
+          style: TextStyle(
+            color: cream.withOpacity(0.9),
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 }
