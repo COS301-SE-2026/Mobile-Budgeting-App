@@ -39,8 +39,15 @@ Build the image once (~20 min — downloads Flutter engine artifacts):
 make container-build-image
 ```
 
+
+
 This creates a local image named `budgetit-flutter:latest`. Subsequent builds use the
 layer cache so only changed layers re-download.
+
+
+Please note : You may get a warning about not being able to find the image on DockerHub.
+This is expected as the image is built locally from the ContainerFile 
+You do not need to be signed into dockerhub to build the image .
 
 ---
 
