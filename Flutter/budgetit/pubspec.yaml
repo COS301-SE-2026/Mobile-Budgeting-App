@@ -29,6 +29,7 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   file_picker: ^11.0.2
+  popover: ^0.4.0
   flutter:
     sdk: flutter
  
