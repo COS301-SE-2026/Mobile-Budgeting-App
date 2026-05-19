@@ -55,7 +55,7 @@ class BalanceCard extends StatelessWidget {
         children: [
 
           const Text(
-            "MONTHLY SPENDING",
+            "MONTHLY SPENDING MAY 2026",
 
             style: TextStyle(
               color: cream,
