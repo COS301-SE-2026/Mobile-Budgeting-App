@@ -3,13 +3,14 @@ import 'package:flutter/material.dart';
 import 'shared/widgets/main_scaffold.dart';
 import 'shared/widgets/main_appbar.dart';
 import 'package:budgetit/utils/app_colour.dart';
+import 'screens/budget_manager_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const BudgetApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class BudgetApp extends StatelessWidget {
+  const BudgetApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -106,6 +107,10 @@ class ReportsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Center(
       child: Text('Reports Page - Coming Soon'),
+    );
+  }
+      debugShowCheckedModeBanner: false,
+      home: BudgetManagerScreen(),
     );
   }
 }
