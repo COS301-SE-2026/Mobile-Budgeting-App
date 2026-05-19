@@ -1,178 +1,21 @@
 import 'package:flutter/material.dart';
 
-class InsightWidget extends StatefulWidget {
+class MonthlyTrendWidget extends StatefulWidget {
 
-  final List<BudgetInsight> insights;
+  final List<MonthData> months;
 
-  const InsightWidget({
+  const MonthlyTrendWidget({
     super.key,
-    required this.insights,
+    required this.months,
   });
 
   @override
-  State<InsightWidget> createState() =>
-      _InsightWidgetState();
+  State<MonthlyTrendWidget> createState() =>
+      _MonthlyTrendWidgetState();
 }
 
-class _InsightWidgetState
-    extends State<InsightWidget>
-    with SingleTickerProviderStateMixin {
-
-  static const Color cream =
-      Color(0xFFDDD6AE);
-
-  int _current = 0;
-
-  late AnimationController _controller;
-  late Animation<double> _fade;
-
-  @override
-  void initState() {
-
-    super.initState();
-
-    _controller = AnimationController(
-      vsync: this,
-
-      duration: const Duration(
-        milliseconds: 300,
-      ),
-    );
-
-    _fade = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeIn,
-    );
-
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-
-    _controller.dispose();
-
-    super.dispose();
-  }
-
-  void _navigate(int delta) {
-
-    _controller.reverse().then((_) {
-
-      setState(() {
-
-        _current =
-            (_current +
-                    delta +
-                    widget.insights.length) %
-                widget.insights.length;
-      });
-
-      _controller.forward();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-
-    if (widget.insights.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    final insight =
-        widget.insights[_current];
-
-    return Column(
-
-      crossAxisAlignment:
-          CrossAxisAlignment.start,
-
-      children: [
-
-        Row(
-
-          mainAxisAlignment:
-              MainAxisAlignment.spaceBetween,
-
-          children: [
-
-            const Text(
-              'Insight',
-
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight:
-                    FontWeight.w600,
-                color: cream,
-              ),
-            ),
-
-            if (widget.insights.length >
-                1)
-              Row(
-
-                children: [
-
-                  Text(
-                    '${_current + 1}/${widget.insights.length}',
-
-                    style:
-                        const TextStyle(
-                          fontSize: 12,
-                          color:
-                              Color(
-                                0x99DDD6AE,
-                              ),
-                        ),
-                  ),
-
-                  const SizedBox(width: 6),
-
-                  _NavButton(
-                    icon:
-                        Icons
-                            .chevron_left_rounded,
-
-                    onTap:
-                        () => _navigate(
-                          -1,
-                        ),
-                  ),
-
-                  const SizedBox(width: 4),
-
-                  _NavButton(
-                    icon:
-                        Icons
-                            .chevron_right_rounded,
-
-                    onTap:
-                        () => _navigate(
-                          1,
-                        ),
-                  ),
-                ],
-              ),
-          ],
-        ),
-
-        const SizedBox(height: 12),
-
-        FadeTransition(
-          opacity: _fade,
-
-          child:
-              _InsightCard(
-                insight: insight,
-              ),
-        ),
-      ],
-    );
-  }
-}
-
-class _InsightCard
-    extends StatelessWidget {
+class _MonthlyTrendWidgetState
+    extends State<MonthlyTrendWidget> {
 
   static const Color darkGreen =
       Color(0xFF04240C);
@@ -180,145 +23,157 @@ class _InsightCard
   static const Color cream =
       Color(0xFFDDD6AE);
 
-  final BudgetInsight insight;
+  static const Color gold =
+      Color(0xFFC2B280);
 
-  const _InsightCard({
-    required this.insight,
-  });
+  int? _selectedIndex;
 
   @override
   Widget build(BuildContext context) {
 
+    final maxSpend = widget.months
+        .map((m) => m.spent)
+        .reduce((a, b) => a > b ? a : b);
+
     return Container(
 
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
 
       decoration: BoxDecoration(
 
         color: darkGreen,
 
         borderRadius:
-            BorderRadius.circular(16),
+            BorderRadius.circular(24),
 
-        border: Border(
-          left: BorderSide(
-            color:
-                insight.accentColor,
-
-            width: 3,
-          ),
+        border: Border.all(
+          color: const Color(0x22DDD6AE),
         ),
-
-        boxShadow: [
-
-          BoxShadow(
-            color: Colors.black
-                .withValues(
-                  alpha: 0.25,
-                ),
-
-            blurRadius: 10,
-
-            offset: const Offset(
-              0,
-              4,
-            ),
-          ),
-        ],
       ),
 
-      child: Row(
+      child: Column(
 
         crossAxisAlignment:
             CrossAxisAlignment.start,
 
         children: [
 
-          Container(
+          const Text(
+            "Monthly Trend",
 
-            width: 36,
-            height: 36,
-
-            decoration: BoxDecoration(
-
-              color: insight.accentColor
-                  .withValues(
-                    alpha: 0.15,
-                  ),
-
-              borderRadius:
-                  BorderRadius.circular(
-                    10,
-                  ),
-            ),
-
-            child: Icon(
-              insight.icon,
-
-              size: 18,
-
-              color:
-                  insight.accentColor,
+            style: TextStyle(
+              color: cream,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
             ),
           ),
 
-          const SizedBox(width: 12),
+          const SizedBox(height: 25),
 
-          Expanded(
+          SizedBox(
 
-            child: Column(
+            height: 180,
+
+            child: Row(
 
               crossAxisAlignment:
-                  CrossAxisAlignment
-                      .start,
+                  CrossAxisAlignment.end,
 
-              children: [
+              children: List.generate(
+                widget.months.length,
+                (index) {
 
-                Row(
+                  final month =
+                      widget.months[index];
 
-                  children: [
+                  final height =
+                      (month.spent /
+                              maxSpend) *
+                          130;
 
-                    Expanded(
+                  final isSelected =
+                      _selectedIndex ==
+                          index;
 
-                      child: Text(
-                        insight.title,
+                  return Expanded(
 
-                        style:
-                            const TextStyle(
-                              fontSize: 14,
-                              fontWeight:
-                                  FontWeight
-                                      .w600,
+                    child: GestureDetector(
+
+                      onTap: () {
+
+                        setState(() {
+
+                          _selectedIndex =
+                              index;
+                        });
+                      },
+
+                      child: Column(
+
+                        mainAxisAlignment:
+                            MainAxisAlignment.end,
+
+                        children: [
+
+                          AnimatedContainer(
+
+                            duration:
+                                const Duration(
+                                  milliseconds:
+                                      300,
+                                ),
+
+                            width: 40,
+
+                            height: height,
+
+                            decoration:
+                                BoxDecoration(
+
+                                  color:
+                                      isSelected
+                                          ? gold
+                                          : gold
+                                              .withValues(
+                                                alpha:
+                                                    0.5,
+                                              ),
+
+                                  borderRadius:
+                                      BorderRadius.circular(
+                                        14,
+                                      ),
+                                ),
+                          ),
+
+                          const SizedBox(
+                            height: 10,
+                          ),
+
+                          Text(
+                            month.shortMonth,
+
+                            style: TextStyle(
+
                               color:
-                                  cream,
+                                  isSelected
+                                      ? cream
+                                      : cream
+                                          .withValues(
+                                            alpha:
+                                                0.6,
+                                          ),
+
+                              fontWeight:
+                                  FontWeight.bold,
                             ),
+                          ),
+                        ],
                       ),
                     ),
-
-                    _SeverityBadge(
-                      severity:
-                          insight
-                              .severity,
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 4),
-
-                Text(
-                  insight.body,
-
-                  style:
-                      const TextStyle(
-                        fontSize: 12,
-                        color:
-                            Color(
-                              0x99DDD6AE,
-                            ),
-                        height: 1.5,
-                      ),
-                ),
-              ],
+                  );
+                },
+              ),
             ),
           ),
         ],
@@ -327,145 +182,17 @@ class _InsightCard
   }
 }
 
-class _SeverityBadge
-    extends StatelessWidget {
+class MonthData {
 
-  static const Color cream =
-      Color(0xFFDDD6AE);
+  final String month;
+  final String shortMonth;
+  final double income;
+  final double spent;
 
-  static const Color teal =
-      Color(0xFF137E84);
-
-  final InsightSeverity severity;
-
-  const _SeverityBadge({
-    required this.severity,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-
-    final (label, bg, fg) =
-        switch (severity) {
-
-          InsightSeverity.tip => (
-            'Tip',
-            const Color(0x22137E84),
-            teal,
-          ),
-
-          InsightSeverity.warning => (
-            'Warning',
-            const Color(0x33DDD6AE),
-            cream,
-          ),
-
-          InsightSeverity.alert => (
-            'Alert',
-            const Color(0x44B00020),
-            Colors.redAccent,
-          ),
-        };
-
-    return Container(
-
-      padding:
-          const EdgeInsets.symmetric(
-            horizontal: 8,
-            vertical: 3,
-          ),
-
-      decoration: BoxDecoration(
-        color: bg,
-
-        borderRadius:
-            BorderRadius.circular(6),
-      ),
-
-      child: Text(
-        label,
-
-        style: TextStyle(
-          fontSize: 10,
-
-          fontWeight:
-              FontWeight.w600,
-
-          color: fg,
-
-          letterSpacing: 0.3,
-        ),
-      ),
-    );
-  }
-}
-
-class _NavButton
-    extends StatelessWidget {
-
-  static const Color cream =
-      Color(0xFFDDD6AE);
-
-  final IconData icon;
-  final VoidCallback onTap;
-
-  const _NavButton({
-    required this.icon,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-
-    return GestureDetector(
-
-      onTap: onTap,
-
-      child: Container(
-
-        width: 28,
-        height: 28,
-
-        decoration: BoxDecoration(
-          color:
-              const Color(0x22137E84),
-
-          borderRadius:
-              BorderRadius.circular(
-                8,
-              ),
-        ),
-
-        child: Icon(
-          icon,
-          size: 18,
-          color: cream,
-        ),
-      ),
-    );
-  }
-}
-
-enum InsightSeverity {
-  tip,
-  warning,
-  alert,
-}
-
-class BudgetInsight {
-
-  final String title;
-  final String body;
-  final IconData icon;
-  final Color accentColor;
-  final InsightSeverity severity;
-
-  const BudgetInsight({
-    required this.title,
-    required this.body,
-    required this.icon,
-    required this.accentColor,
-    this.severity =
-        InsightSeverity.tip,
+  const MonthData({
+    required this.month,
+    required this.shortMonth,
+    required this.income,
+    required this.spent,
   });
 }
