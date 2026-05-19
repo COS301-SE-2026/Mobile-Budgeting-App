@@ -1,77 +1,117 @@
 import 'package:flutter/material.dart';
 
 class DashboardHeader extends StatelessWidget {
+
   const DashboardHeader({super.key});
+
+  static const Color darkGreen = Color(0xFF04240C);
+  static const Color cream = Color(0xFFDDD6AE);
 
   @override
   Widget build(BuildContext context) {
 
     return Padding(
 
-      padding: EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: 20,
         vertical: 15,
       ),
 
-      child: Row(
+      child: Container(
 
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 18,
+          vertical: 14,
+        ),
 
-        children: [
+        decoration: BoxDecoration(
 
-          // burger menu
-          Container(
+          color: cream.withOpacity(0.18),
 
-            padding: EdgeInsets.all(10),
+          borderRadius: BorderRadius.circular(18),
 
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(15),
-            ),
-
-            child: Icon(
-              Icons.menu,
-              size: 28,
-            ),
+          border: Border.all(
+            color: cream.withOpacity(0.15),
           ),
+        ),
 
-          // month selector
-          Container(
+        child: Row(
 
-            padding: EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 12,
-            ),
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
-            decoration: BoxDecoration(
-              color: Colors.green,
-              borderRadius: BorderRadius.circular(20),
-            ),
+          children: [
 
-            child: Row(
+            // left side
+            Row(
+
               children: [
-                //i need to make a drop down for date
-                Text(
-                  "MAY 2026",
+
+                const Icon(
+                  Icons.menu,
+                  color: cream,
+                  size: 20,
+                ),
+
+                const SizedBox(width: 10),
+
+                const Text(
+                  "Budget IT",
 
                   style: TextStyle(
+                    color: cream,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-
-                SizedBox(width: 10),
-
-                Icon(Icons.keyboard_arrow_down),
-
               ],
             ),
-          ),
 
-          // profile/settings icon
-         
+            // right side icons
+            Row(
 
-        ],
+              children: [
+
+                Container(
+
+                  padding: const EdgeInsets.all(6),
+
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: cream.withOpacity(0.3),
+                    ),
+                  ),
+
+                  child: const Icon(
+                    Icons.person_outline,
+                    color: cream,
+                    size: 18,
+                  ),
+                ),
+
+                const SizedBox(width: 10),
+
+                Container(
+
+                  padding: const EdgeInsets.all(6),
+
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: cream.withOpacity(0.3),
+                    ),
+                  ),
+
+                  child: const Icon(
+                    Icons.settings_outlined,
+                    color: cream,
+                    size: 18,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
