@@ -12,7 +12,7 @@ class MyBadge extends StatefulWidget {
 }
 
 class _MyBadgeState extends State<MyBadge> {
-  @override
+  
   bool _isPressed = false;
   @override
   Widget build(BuildContext context) {

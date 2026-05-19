@@ -9,7 +9,7 @@ class MainScaffold extends StatefulWidget {
 }
 
 class _MainScaffoldState extends State<MainScaffold> {
-  final int _currentIndex = 0;
+  //final int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {

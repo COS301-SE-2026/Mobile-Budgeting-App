@@ -97,11 +97,11 @@ Widget build(BuildContext context) {
           Column(
             children: [
               Divider(color: Colors.transparent),
-              box(text: 'Grocery Order - R500', icon: Icons.shopping_cart),
+              MyBox(text: 'Grocery Order - R500', icon: Icons.shopping_cart),
               Divider(color: Colors.transparent),
-              box(text: 'Electricity - R300', icon: Icons.bolt),
+              MyBox(text: 'Electricity - R300', icon: Icons.bolt),
               Divider(color: Colors.transparent),
-              box(text: 'Water - R200', icon: Icons.local_drink),
+              MyBox(text: 'Water - R200', icon: Icons.local_drink),
             ],
           ),
         ],

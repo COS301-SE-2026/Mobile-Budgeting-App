@@ -1,18 +1,18 @@
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
 
-class box extends StatefulWidget {
+class MyBox extends StatefulWidget {
   final String? text;
   final IconData? icon;
   final GestureTapCallback ? onTap;
 
-  const box({super.key, this.text = '', this.icon, this.onTap});
+  const MyBox({super.key, this.text = '', this.icon, this.onTap});
 
   @override
-  State<box> createState() => _boxState();
+  State<MyBox> createState() => _MyBoxState();
 }
 
-class _boxState extends State<box> {
+class _MyBoxState extends State<MyBox> {
    bool _isPressed = false;
   @override
   Widget build(BuildContext context) {
