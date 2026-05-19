@@ -9,10 +9,8 @@ import '../components/bottom_nav.dart';
 import '../components/dashboard_header.dart';
 import '../components/insight_widget.dart';
 import '../components/quick_stats_widgets.dart';
-import '../components/monthly_trend_widget.dart'
-    hide InsightWidget,
-    BudgetInsight,
-    InsightSeverity;
+import '../components/monthly_trend_widget.dart';
+  
     
 class DashboardPage extends StatefulWidget {
 
