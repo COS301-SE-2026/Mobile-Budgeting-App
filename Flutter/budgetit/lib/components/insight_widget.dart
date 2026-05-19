@@ -156,7 +156,7 @@ class _InsightCard extends StatelessWidget {
             height: 36,
 
             decoration: BoxDecoration(
-              color: insight.accentColor.withOpacity(0.15),
+              color: insight.accentColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(10),
             ),
 
