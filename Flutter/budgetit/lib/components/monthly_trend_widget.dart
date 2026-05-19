@@ -1,46 +1,86 @@
 import 'package:flutter/material.dart';
 
-class MonthlyTrendWidget extends StatefulWidget {
+class InsightWidget extends StatefulWidget {
 
-  final List<MonthData> months;
+  final List<BudgetInsight> insights;
 
-  const MonthlyTrendWidget({
+  const InsightWidget({
     super.key,
-    required this.months,
+    required this.insights,
   });
 
   @override
-  State<MonthlyTrendWidget> createState() =>
-      _MonthlyTrendWidgetState();
+  State<InsightWidget> createState() =>
+      _InsightWidgetState();
 }
 
-class _MonthlyTrendWidgetState
-    extends State<MonthlyTrendWidget> {
-
-  static const Color darkGreen =
-      Color(0xFF04240C);
+class _InsightWidgetState
+    extends State<InsightWidget>
+    with SingleTickerProviderStateMixin {
 
   static const Color cream =
       Color(0xFFDDD6AE);
 
-  static const Color gold =
-      Color(0xFFC2B280);
+  int _current = 0;
 
-  int? _selectedIndex;
+  late AnimationController _controller;
+  late Animation<double> _fade;
+
+  @override
+  void initState() {
+
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+
+      duration: const Duration(
+        milliseconds: 300,
+      ),
+    );
+
+    _fade = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeIn,
+    );
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+
+    _controller.dispose();
+
+    super.dispose();
+  }
+
+  void _navigate(int delta) {
+
+    _controller.reverse().then((_) {
+
+      setState(() {
+
+        _current =
+            (_current +
+                    delta +
+                    widget.insights.length) %
+                widget.insights.length;
+      });
+
+      _controller.forward();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
 
-    final maxSpend = widget.months
-        .map((m) => m.spent)
-        .reduce((a, b) => a > b ? a : b);
+    if (widget.insights.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
-    final selected =
-        _selectedIndex != null
-            ? widget.months[_selectedIndex!]
-            : widget.months.last;
-
-    final trend = _getTrend();
+    final insight =
+        widget.insights[_current];
 
     return Column(
 
@@ -57,504 +97,93 @@ class _MonthlyTrendWidgetState
           children: [
 
             const Text(
-              'Monthly Trend',
-
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: cream,
-              ),
-            ),
-
-            _TrendPill(trend: trend),
-          ],
-        ),
-
-        const SizedBox(height: 16),
-
-        Container(
-
-          padding: const EdgeInsets.all(16),
-
-          decoration: BoxDecoration(
-
-            color: darkGreen,
-
-            borderRadius:
-                BorderRadius.circular(16),
-
-            border: Border.all(
-              color: const Color(0x22DDD6AE),
-            ),
-
-            boxShadow: [
-
-              BoxShadow(
-                color: Colors.black
-                    .withValues(alpha: 0.25),
-
-                blurRadius: 10,
-
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-
-          child: Column(
-
-            children: [
-
-              AnimatedSwitcher(
-
-                duration: const Duration(
-                  milliseconds: 200,
-                ),
-
-                child: _SelectedDetail(
-                  key: ValueKey(
-                    selected.month,
-                  ),
-
-                  data: selected,
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              SizedBox(
-
-                height: 110,
-
-                child: Row(
-
-                  crossAxisAlignment:
-                      CrossAxisAlignment.end,
-
-                  children: List.generate(
-                    widget.months.length,
-                    (i) {
-
-                      final m =
-                          widget.months[i];
-
-                      final isSelected =
-                          _selectedIndex == i ||
-                              (_selectedIndex ==
-                                      null &&
-                                  i ==
-                                      widget
-                                              .months
-                                              .length -
-                                          1);
-
-                      final barHeight =
-                          (m.spent /
-                                  maxSpend) *
-                              80;
-
-                      return Expanded(
-
-                        child:
-                            GestureDetector(
-
-                              onTap: () =>
-                                  setState(() {
-                                    _selectedIndex =
-                                        _selectedIndex ==
-                                                i
-                                            ? null
-                                            : i;
-                                  }),
-
-                              child: _Bar(
-                                data: m,
-                                height:
-                                    barHeight,
-                                isSelected:
-                                    isSelected,
-                                maxHeight:
-                                    80,
-                              ),
-                            ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 12),
-
-              Row(
-
-                mainAxisAlignment:
-                    MainAxisAlignment.center,
-
-                children: const [
-
-                  _LegendDot(
-                    color: gold,
-                    label: 'Spent',
-                  ),
-
-                  SizedBox(width: 16),
-
-                  _LegendDot(
-                    color:
-                        Color(0x22DDD6AE),
-                    label: 'Remaining',
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  _TrendResult _getTrend() {
-
-    if (widget.months.length < 2) {
-
-      return const _TrendResult(
-        label: 'No data',
-        color: Colors.grey,
-        icon: Icons.remove,
-      );
-    }
-
-    final last =
-        widget.months.last.spent;
-
-    final prev = widget
-        .months[
-            widget.months.length - 2]
-        .spent;
-
-    final diff = last - prev;
-
-    final pct = ((diff / prev) * 100)
-        .abs()
-        .toStringAsFixed(0);
-
-    if (diff < 0) {
-
-      return _TrendResult(
-        label:
-            '$pct% less than last month',
-
-        color: gold,
-
-        icon:
-            Icons.trending_down_rounded,
-      );
-    } else if (diff > 0) {
-
-      return const _TrendResult(
-        label: 'More than last month',
-        color: Colors.redAccent,
-        icon: Icons.trending_up_rounded,
-      );
-    }
-
-    return const _TrendResult(
-      label: 'Same as last month',
-      color: Colors.grey,
-      icon: Icons.trending_flat_rounded,
-    );
-  }
-}
-
-class _SelectedDetail
-    extends StatelessWidget {
-
-  static const Color cream =
-      Color(0xFFDDD6AE);
-
-  static const Color gold =
-      Color(0xFFC2B280);
-
-  final MonthData data;
-
-  const _SelectedDetail({
-    super.key,
-    required this.data,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-
-    final remaining =
-        data.income - data.spent;
-
-    final pct = ((data.spent /
-                data.income) *
-            100)
-        .round();
-
-    return Row(
-
-      children: [
-
-        Expanded(
-
-          child: Column(
-
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
-
-            children: [
-
-              const SizedBox(height: 2),
-
-              Text(
-                data.month,
-
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight:
-                      FontWeight.w500,
-                  color:
-                      Color(0x99DDD6AE),
-                ),
-              ),
-
-              const SizedBox(height: 4),
-
-              Text(
-                'R${_fmt(data.spent)} spent',
-
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight:
-                      FontWeight.w700,
-                  color: cream,
-                ),
-              ),
-
-              Text(
-                'of R${_fmt(data.income)} income',
-
-                style: const TextStyle(
-                  fontSize: 12,
-                  color:
-                      Color(0x99DDD6AE),
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        Column(
-
-          crossAxisAlignment:
-              CrossAxisAlignment.end,
-
-          children: [
-
-            Text(
-              'R${_fmt(remaining)}',
+              'Insight',
 
               style: TextStyle(
                 fontSize: 16,
                 fontWeight:
                     FontWeight.w600,
-
-                color:
-                    remaining >= 0
-                        ? gold
-                        : Colors
-                            .redAccent,
+                color: cream,
               ),
             ),
 
-            const Text(
-              'remaining',
+            if (widget.insights.length >
+                1)
+              Row(
 
-              style: TextStyle(
-                fontSize: 11,
-                color:
-                    Color(0x99DDD6AE),
-              ),
-            ),
+                children: [
 
-            const SizedBox(height: 6),
+                  Text(
+                    '${_current + 1}/${widget.insights.length}',
 
-            Container(
-
-              padding:
-                  const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
+                    style:
+                        const TextStyle(
+                          fontSize: 12,
+                          color:
+                              Color(
+                                0x99DDD6AE,
+                              ),
+                        ),
                   ),
 
-              decoration: BoxDecoration(
+                  const SizedBox(width: 6),
 
-                color:
-                    const Color(0x22C2B280),
+                  _NavButton(
+                    icon:
+                        Icons
+                            .chevron_left_rounded,
 
-                borderRadius:
-                    BorderRadius.circular(
-                      8,
-                    ),
+                    onTap:
+                        () => _navigate(
+                          -1,
+                        ),
+                  ),
+
+                  const SizedBox(width: 4),
+
+                  _NavButton(
+                    icon:
+                        Icons
+                            .chevron_right_rounded,
+
+                    onTap:
+                        () => _navigate(
+                          1,
+                        ),
+                  ),
+                ],
               ),
-
-              child: Text(
-                '$pct% used',
-
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight:
-                      FontWeight.w600,
-                  color: gold,
-                ),
-              ),
-            ),
           ],
+        ),
+
+        const SizedBox(height: 12),
+
+        FadeTransition(
+          opacity: _fade,
+
+          child:
+              _InsightCard(
+                insight: insight,
+              ),
         ),
       ],
     );
   }
-
-  String _fmt(double v) => v
-      .toStringAsFixed(0)
-      .replaceAllMapped(
-        RegExp(
-          r'(\d)(?=(\d{3})+$)',
-        ),
-        (m) => '${m[1]} ',
-      );
 }
 
-class _Bar extends StatelessWidget {
+class _InsightCard
+    extends StatelessWidget {
 
-  static const Color gold =
-      Color(0xFFC2B280);
+  static const Color darkGreen =
+      Color(0xFF04240C);
 
-  final MonthData data;
-  final double height;
-  final bool isSelected;
-  final double maxHeight;
+  static const Color cream =
+      Color(0xFFDDD6AE);
 
-  const _Bar({
-    required this.data,
-    required this.height,
-    required this.isSelected,
-    required this.maxHeight,
-  });
+  final BudgetInsight insight;
 
-  @override
-  Widget build(BuildContext context) {
-
-    return Padding(
-
-      padding:
-          const EdgeInsets.symmetric(
-            horizontal: 4,
-          ),
-
-      child: Column(
-
-        mainAxisAlignment:
-            MainAxisAlignment.end,
-
-        children: [
-
-          Stack(
-
-            alignment:
-                Alignment.bottomCenter,
-
-            children: [
-
-              Container(
-
-                width: double.infinity,
-                height: maxHeight,
-
-                decoration: BoxDecoration(
-                  color:
-                      const Color(
-                        0x22DDD6AE,
-                      ),
-
-                  borderRadius:
-                      BorderRadius.circular(
-                        8,
-                      ),
-                ),
-              ),
-
-              AnimatedContainer(
-
-                duration: const Duration(
-                  milliseconds: 400,
-                ),
-
-                curve:
-                    Curves.easeOutCubic,
-
-                width: double.infinity,
-
-                height:
-                    height.clamp(
-                      4,
-                      maxHeight,
-                    ),
-
-                decoration: BoxDecoration(
-
-                  color:
-                      isSelected
-                          ? gold
-                          : const Color(
-                            0x88C2B280,
-                          ),
-
-                  borderRadius:
-                      BorderRadius.circular(
-                        8,
-                      ),
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 2),
-
-          Text(
-            data.shortMonth,
-
-            style: TextStyle(
-              fontSize: 11,
-
-              fontWeight:
-                  isSelected
-                      ? FontWeight.w700
-                      : FontWeight.w400,
-
-              color:
-                  isSelected
-                      ? const Color(
-                        0xFFDDD6AE,
-                      )
-                      : const Color(
-                        0x99DDD6AE,
-                      ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TrendPill extends StatelessWidget {
-
-  final _TrendResult trend;
-
-  const _TrendPill({
-    required this.trend,
+  const _InsightCard({
+    required this.insight,
   });
 
   @override
@@ -562,44 +191,134 @@ class _TrendPill extends StatelessWidget {
 
     return Container(
 
-      padding:
-          const EdgeInsets.symmetric(
-            horizontal: 10,
-            vertical: 5,
-          ),
+      padding: const EdgeInsets.all(16),
 
       decoration: BoxDecoration(
 
-        color: trend.color.withValues(
-          alpha: 0.1,
-        ),
+        color: darkGreen,
 
         borderRadius:
-            BorderRadius.circular(20),
+            BorderRadius.circular(16),
+
+        border: Border(
+          left: BorderSide(
+            color:
+                insight.accentColor,
+
+            width: 3,
+          ),
+        ),
+
+        boxShadow: [
+
+          BoxShadow(
+            color: Colors.black
+                .withValues(
+                  alpha: 0.25,
+                ),
+
+            blurRadius: 10,
+
+            offset: const Offset(
+              0,
+              4,
+            ),
+          ),
+        ],
       ),
 
       child: Row(
 
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
 
         children: [
 
-          Icon(
-            trend.icon,
-            size: 14,
-            color: trend.color,
+          Container(
+
+            width: 36,
+            height: 36,
+
+            decoration: BoxDecoration(
+
+              color: insight.accentColor
+                  .withValues(
+                    alpha: 0.15,
+                  ),
+
+              borderRadius:
+                  BorderRadius.circular(
+                    10,
+                  ),
+            ),
+
+            child: Icon(
+              insight.icon,
+
+              size: 18,
+
+              color:
+                  insight.accentColor,
+            ),
           ),
 
-          const SizedBox(width: 4),
+          const SizedBox(width: 12),
 
-          Text(
-            trend.label,
+          Expanded(
 
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight:
-                  FontWeight.w600,
-              color: trend.color,
+            child: Column(
+
+              crossAxisAlignment:
+                  CrossAxisAlignment
+                      .start,
+
+              children: [
+
+                Row(
+
+                  children: [
+
+                    Expanded(
+
+                      child: Text(
+                        insight.title,
+
+                        style:
+                            const TextStyle(
+                              fontSize: 14,
+                              fontWeight:
+                                  FontWeight
+                                      .w600,
+                              color:
+                                  cream,
+                            ),
+                      ),
+                    ),
+
+                    _SeverityBadge(
+                      severity:
+                          insight
+                              .severity,
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 4),
+
+                Text(
+                  insight.body,
+
+                  style:
+                      const TextStyle(
+                        fontSize: 12,
+                        color:
+                            Color(
+                              0x99DDD6AE,
+                            ),
+                        height: 1.5,
+                      ),
+                ),
+              ],
             ),
           ),
         ],
@@ -608,73 +327,145 @@ class _TrendPill extends StatelessWidget {
   }
 }
 
-class _LegendDot extends StatelessWidget {
+class _SeverityBadge
+    extends StatelessWidget {
 
-  final Color color;
-  final String label;
+  static const Color cream =
+      Color(0xFFDDD6AE);
 
-  const _LegendDot({
-    required this.color,
-    required this.label,
+  static const Color teal =
+      Color(0xFF137E84);
+
+  final InsightSeverity severity;
+
+  const _SeverityBadge({
+    required this.severity,
   });
 
   @override
   Widget build(BuildContext context) {
 
-    return Row(
+    final (label, bg, fg) =
+        switch (severity) {
 
-      children: [
-
-        Container(
-
-          width: 8,
-          height: 8,
-
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
+          InsightSeverity.tip => (
+            'Tip',
+            const Color(0x22137E84),
+            teal,
           ),
-        ),
 
-        const SizedBox(width: 5),
-
-        Text(
-          label,
-
-          style: const TextStyle(
-            fontSize: 10,
-            color: Color(0x99DDD6AE),
+          InsightSeverity.warning => (
+            'Warning',
+            const Color(0x33DDD6AE),
+            cream,
           ),
+
+          InsightSeverity.alert => (
+            'Alert',
+            const Color(0x44B00020),
+            Colors.redAccent,
+          ),
+        };
+
+    return Container(
+
+      padding:
+          const EdgeInsets.symmetric(
+            horizontal: 8,
+            vertical: 3,
+          ),
+
+      decoration: BoxDecoration(
+        color: bg,
+
+        borderRadius:
+            BorderRadius.circular(6),
+      ),
+
+      child: Text(
+        label,
+
+        style: TextStyle(
+          fontSize: 10,
+
+          fontWeight:
+              FontWeight.w600,
+
+          color: fg,
+
+          letterSpacing: 0.3,
         ),
-      ],
+      ),
     );
   }
 }
 
-class MonthData {
+class _NavButton
+    extends StatelessWidget {
 
-  final String month;
-  final String shortMonth;
-  final double income;
-  final double spent;
+  static const Color cream =
+      Color(0xFFDDD6AE);
 
-  const MonthData({
-    required this.month,
-    required this.shortMonth,
-    required this.income,
-    required this.spent,
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _NavButton({
+    required this.icon,
+    required this.onTap,
   });
+
+  @override
+  Widget build(BuildContext context) {
+
+    return GestureDetector(
+
+      onTap: onTap,
+
+      child: Container(
+
+        width: 28,
+        height: 28,
+
+        decoration: BoxDecoration(
+          color:
+              const Color(0x22137E84),
+
+          borderRadius:
+              BorderRadius.circular(
+                8,
+              ),
+        ),
+
+        child: Icon(
+          icon,
+          size: 18,
+          color: cream,
+        ),
+      ),
+    );
+  }
 }
 
-class _TrendResult {
+enum InsightSeverity {
+  tip,
+  warning,
+  alert,
+}
 
-  final String label;
-  final Color color;
+class BudgetInsight {
+
+  final String title;
+  final String body;
   final IconData icon;
+  final Color accentColor;
+  final InsightSeverity severity;
 
-  const _TrendResult({
-    required this.label,
-    required this.color,
+  const BudgetInsight({
+    required this.title,
+    required this.body,
     required this.icon,
+    required this.accentColor,
+    this.severity =
+        InsightSeverity.tip,
   });
 }
