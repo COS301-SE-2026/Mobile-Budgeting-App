@@ -8,8 +8,13 @@ class MyColours{
   );
    Color secondary = Color.fromARGB(250,221, 214, 174);
    Color background = Color.fromARGB(250, 4, 36, 12);
+   Color tertiary = Color.fromARGB(250, 19, 126, 132);
   Color textPrimary = Color.fromARGB(250,221, 214, 174);
-
+  
+  double bodyFontSize = 16;
+  double headingFontSize1 = 24;
+  double headingFontSize2 = 20;
+  double headingFontSize3 = 18;
   
 
 }
