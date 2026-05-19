@@ -6,17 +6,26 @@ import '../components/bill_item.dart';
 import '../components/bottom_nav.dart';
 import '../components/goal_card.dart';
 import '../components/dashboard_header.dart';
-import '../components/search_bar.dart';
 import '../components/insight_widget.dart';
-import '../components/action_button.dart';
 import '../components/MonthlyTrendWidget.dart';
 import '../components/quick_stats_widgets.dart';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
 
   const DashboardPage({super.key});
 
-  static const Color background = Color(0xFF04240C);
+  @override
+  State<DashboardPage> createState() =>
+      _DashboardPageState();
+}
+
+class _DashboardPageState
+    extends State<DashboardPage> {
+
+  static const Color background =
+      Color(0xFF04240C);
+
+  String selectedFilter = "All";
 
   @override
   Widget build(BuildContext context) {
@@ -25,65 +34,276 @@ class DashboardPage extends StatelessWidget {
 
       backgroundColor: background,
 
+      bottomNavigationBar: const BottomNav(),
+
       body: SafeArea(
 
         child: SingleChildScrollView(
 
           child: Padding(
 
-            padding: const EdgeInsets.only(bottom: 30),
+            padding: const EdgeInsets.only(
+              bottom: 40,
+            ),
 
             child: Column(
 
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
 
               children: [
 
-                // header
                 const DashboardHeader(),
 
                 const SizedBox(height: 20),
 
-                // balance card
                 const BalanceCard(),
 
                 const SizedBox(height: 20),
 
-                // quick stats
                 const Padding(
 
-                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  padding:
+                      EdgeInsets.symmetric(
+                        horizontal: 20,
+                      ),
 
                   child: QuickStatsWidget(),
                 ),
 
                 const SizedBox(height: 25),
 
-                // action buttons
                 Padding(
 
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-
-                  child: Row(
-
-                    mainAxisAlignment:
-                        MainAxisAlignment.spaceBetween,
-
-                    children: const [
-
-                      ActionButton(
-                        icon: Icons.send_rounded,
-                        label: "Send",
+                  padding:
+                      const EdgeInsets.symmetric(
+                        horizontal: 20,
                       ),
 
-                      ActionButton(
-                        icon: Icons.account_balance_wallet_rounded,
-                        label: "Budget",
+                  child: Column(
+
+                    children: [
+
+                      Container(
+
+                        padding:
+                            const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
+
+                        decoration: BoxDecoration(
+
+                          borderRadius:
+                              BorderRadius.circular(18),
+
+                          border: Border.all(
+                            color:
+                                const Color(
+                                  0x66DDD6AE,
+                                ),
+                          ),
+
+                          gradient:
+                              const LinearGradient(
+
+                                begin:
+                                    Alignment.topLeft,
+
+                                end:
+                                    Alignment
+                                        .bottomRight,
+
+                                colors: [
+
+                                  Color(0xFF1B3D16),
+                                  Color(0xFF4E6240),
+                                  Color(0xFF6E7F5B),
+                                ],
+                              ),
+                        ),
+
+                        child: Row(
+
+                          children: const [
+
+                            Icon(
+                              Icons.search,
+                              color: Color(
+                                0xFFDDD6AE,
+                              ),
+                              size: 20,
+                            ),
+
+                            SizedBox(width: 10),
+
+                            Text(
+                              "Search transactions...",
+
+                              style: TextStyle(
+                                color: Color(
+                                  0xCCDDD6AE,
+                                ),
+                                fontSize: 15,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
 
-                      ActionButton(
-                        icon: Icons.receipt_long_rounded,
-                        label: "Bills",
+                      const SizedBox(height: 14),
+
+                      Container(
+
+                        width: double.infinity,
+
+                        padding:
+                            const EdgeInsets.symmetric(
+                              vertical: 16,
+                            ),
+
+                        decoration: BoxDecoration(
+
+                          borderRadius:
+                              BorderRadius.circular(16),
+
+                          gradient:
+                              const LinearGradient(
+
+                                begin:
+                                    Alignment.topLeft,
+
+                                end:
+                                    Alignment
+                                        .bottomRight,
+
+                                colors: [
+
+                                  Color(0xFF137E84),
+                                  Color(0xFF1B5E63),
+                                ],
+                              ),
+                        ),
+
+                        child: Row(
+
+                          mainAxisAlignment:
+                              MainAxisAlignment.center,
+
+                          children: const [
+
+                            Icon(
+                              Icons.upload_file_rounded,
+                              color: Color(
+                                0xFFDDD6AE,
+                              ),
+                              size: 20,
+                            ),
+
+                            SizedBox(width: 10),
+
+                            Text(
+                              "Import Bank Statement (CSV/PDF)",
+
+                              style: TextStyle(
+                                color: Color(
+                                  0xFFDDD6AE,
+                                ),
+                                fontSize: 15,
+                                fontWeight:
+                                    FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 18),
+
+                      SingleChildScrollView(
+
+                        scrollDirection:
+                            Axis.horizontal,
+
+                        child: Row(
+
+                          children: [
+
+                            _FilterPill(
+                              label: "All",
+
+                              isSelected:
+                                  selectedFilter ==
+                                      "All",
+
+                              onTap: () {
+
+                                setState(() {
+
+                                  selectedFilter =
+                                      "All";
+                                });
+                              },
+                            ),
+
+                            const SizedBox(width: 10),
+
+                            _FilterPill(
+                              label: "Income",
+
+                              isSelected:
+                                  selectedFilter ==
+                                      "Income",
+
+                              onTap: () {
+
+                                setState(() {
+
+                                  selectedFilter =
+                                      "Income";
+                                });
+                              },
+                            ),
+
+                            const SizedBox(width: 10),
+
+                            _FilterPill(
+                              label: "Expenses",
+
+                              isSelected:
+                                  selectedFilter ==
+                                      "Expenses",
+
+                              onTap: () {
+
+                                setState(() {
+
+                                  selectedFilter =
+                                      "Expenses";
+                                });
+                              },
+                            ),
+
+                            const SizedBox(width: 10),
+
+                            _FilterPill(
+                              label: "Scheduled",
+
+                              isSelected:
+                                  selectedFilter ==
+                                      "Scheduled",
+
+                              onTap: () {
+
+                                setState(() {
+
+                                  selectedFilter =
+                                      "Scheduled";
+                                });
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -91,10 +311,12 @@ class DashboardPage extends StatelessWidget {
 
                 const SizedBox(height: 25),
 
-                // monthly trend
                 Padding(
 
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  padding:
+                      const EdgeInsets.symmetric(
+                        horizontal: 20,
+                      ),
 
                   child: MonthlyTrendWidget(
 
@@ -126,40 +348,49 @@ class DashboardPage extends StatelessWidget {
 
                 const SizedBox(height: 25),
 
-                // insight section
                 Padding(
 
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  padding:
+                      const EdgeInsets.symmetric(
+                        horizontal: 20,
+                      ),
 
                   child: InsightWidget(
 
                     insights: [
 
                       BudgetInsight(
-                        title: 'You\'re spending less this month',
+                        title:
+                            'You\'re spending less this month',
+
                         body:
-                            'Your expenses dropped compared to April. Great progress on controlling spending.',
-                        icon: Icons.trending_down_rounded,
-                        accentColor: Color(0xFF137E84),
-                        severity: InsightSeverity.tip,
+                            'Your expenses dropped compared to April.',
+
+                        icon:
+                            Icons
+                                .trending_down_rounded,
+
+                        accentColor:
+                            Color(0xFF137E84),
+
+                        severity:
+                            InsightSeverity.tip,
                       ),
 
                       BudgetInsight(
-                        title: 'Entertainment budget exceeded',
+                        title:
+                            'Entertainment budget exceeded',
+
                         body:
-                            'You\'ve spent more than expected on subscriptions and movies this month.',
+                            'You\'ve spent more than expected.',
+
                         icon: Icons.movie_rounded,
-                        accentColor: Color(0xFFC2B280),
-                        severity: InsightSeverity.warning,
-                      ),
 
-                      BudgetInsight(
-                        title: 'Vacation savings improving',
-                        body:
-                            'You are halfway toward your vacation savings goal.',
-                        icon: Icons.flight_takeoff_rounded,
-                        accentColor: Color(0xFF137E84),
-                        severity: InsightSeverity.tip,
+                        accentColor:
+                            Color(0xFFC2B280),
+
+                        severity:
+                            InsightSeverity.warning,
                       ),
                     ],
                   ),
@@ -167,10 +398,12 @@ class DashboardPage extends StatelessWidget {
 
                 const SizedBox(height: 25),
 
-                // upcoming bills
                 const Padding(
 
-                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  padding:
+                      EdgeInsets.symmetric(
+                        horizontal: 20,
+                      ),
 
                   child: Text(
                     "Upcoming Bills",
@@ -178,21 +411,21 @@ class DashboardPage extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color.fromARGB(255, 134, 143, 136),
+                      color: Color(0xFFDDD6AE),
                     ),
                   ),
                 ),
 
                 const SizedBox(height: 10),
 
-                const BillItem(
+                BillItem(
                   icon: Icons.electric_bolt,
                   title: "Electricity",
                   subtitle: "Due tomorrow",
                   amount: "R850",
                 ),
 
-                const BillItem(
+                BillItem(
                   icon: Icons.movie,
                   title: "Netflix",
                   subtitle: "Due tomorrow",
@@ -201,44 +434,12 @@ class DashboardPage extends StatelessWidget {
 
                 const SizedBox(height: 25),
 
-                // goals
                 const Padding(
 
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-
-                  child: Text(
-                    "Savings Goals",
-
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF04240C),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-
-                const GoalCard(
-                  title: "Vacation Fund",
-                  saved: "R5 000",
-                  target: "R10 000",
-                  progress: 0.5,
-                ),
-
-                const GoalCard(
-                  title: "New Laptop",
-                  saved: "R12 000",
-                  target: "R20 000",
-                  progress: 0.6,
-                ),
-
-                const SizedBox(height: 25),
-
-                // recent transactions
-                const Padding(
-
-                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  padding:
+                      EdgeInsets.symmetric(
+                        horizontal: 20,
+                      ),
 
                   child: Text(
                     "Recent Transactions",
@@ -246,7 +447,7 @@ class DashboardPage extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF04240C),
+                      color: Color(0xFFDDD6AE),
                     ),
                   ),
                 ),
@@ -268,15 +469,70 @@ class DashboardPage extends StatelessWidget {
                   amount: "+ R22 000",
                   isExpense: false,
                 ),
-
-                const SizedBox(height: 30),
-
-                // bottom nav
-                const BottomNav(),
-
-                const SizedBox(height: 20),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FilterPill extends StatelessWidget {
+
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _FilterPill({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+
+    return GestureDetector(
+
+      onTap: onTap,
+
+      child: Container(
+
+        padding:
+            const EdgeInsets.symmetric(
+              horizontal: 22,
+              vertical: 12,
+            ),
+
+        decoration: BoxDecoration(
+
+          color:
+              isSelected
+                  ? const Color(0xFFDDD6AE)
+                  : const Color(0x22137E84),
+
+          borderRadius:
+              BorderRadius.circular(30),
+
+          border: Border.all(
+            color:
+                const Color(0x88DDD6AE),
+          ),
+        ),
+
+        child: Text(
+          label,
+
+          style: TextStyle(
+
+            color:
+                isSelected
+                    ? const Color(0xFF04240C)
+                    : const Color(0xFFDDD6AE),
+
+            fontWeight:
+                FontWeight.w600,
           ),
         ),
       ),
