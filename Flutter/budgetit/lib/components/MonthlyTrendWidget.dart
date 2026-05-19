@@ -101,7 +101,7 @@ class _MonthlyTrendWidgetState extends State<MonthlyTrendWidget> {
 
               SizedBox(
 
-                height: 100,
+                height: 110,
 
                 child: Row(
 
@@ -408,7 +408,7 @@ class _Bar extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 6),
+          const SizedBox(height: 2),
 
           Text(
             data.shortMonth,
@@ -470,7 +470,7 @@ class _TrendPill extends StatelessWidget {
             trend.label,
 
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 10,
               fontWeight: FontWeight.w600,
               color: trend.color,
             ),
@@ -514,7 +514,7 @@ class _LegendDot extends StatelessWidget {
           'Spent',
 
           style: TextStyle(
-            fontSize: 11,
+            fontSize: 10,
             color: Color(0x99DDD6AE),
           ),
         ),
