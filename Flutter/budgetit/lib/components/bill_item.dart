@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:budgetit/utils/app_colour.dart';
 
 class BillItem extends StatelessWidget {
 
@@ -15,15 +16,7 @@ class BillItem extends StatelessWidget {
     required this.amount,
   });
 
-  static const Color darkGreen =
-      Color(0xFF04240C);
-
-  static const Color cream =
-      Color(0xFFDDD6AE);
-
-  static const Color teal =
-      Color(0xFF137E84);
-
+ final colours = MyColours();
   @override
   Widget build(BuildContext context) {
 
