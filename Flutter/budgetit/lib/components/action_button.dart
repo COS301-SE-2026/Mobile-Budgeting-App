@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/app_colour.dart';
 
 class ActionButton extends StatelessWidget {
   final IconData icon;
@@ -6,10 +7,6 @@ class ActionButton extends StatelessWidget {
 
   const ActionButton({super.key, required this.icon, required this.label});
 
-  // theme colors
-  static const Color darkGreen = Color(0xFF04240C);
-  static const Color cream = Color(0xFFDDD6AE);
-  static const Color teal = Color(0xFF137E84);
 
   @override
   Widget build(BuildContext context) {
@@ -19,11 +16,11 @@ class ActionButton extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 15),
 
       decoration: BoxDecoration(
-        color: darkGreen,
+        color: MyColours.background,
 
         borderRadius: BorderRadius.circular(20),
 
-        border: Border.all(color: cream.withValues(alpha: 0.25), width: 1),
+        border: Border.all(color: MyColours.secondary.withValues(alpha: 0.25), width: 1,),
 
         boxShadow: [
           BoxShadow(
@@ -38,7 +35,7 @@ class ActionButton extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
 
         children: [
-          Icon(icon, size: 30, color: cream),
+          Icon(icon, size: 30, color: MyColours.secondary),
 
           const SizedBox(height: 10),
 
@@ -48,7 +45,7 @@ class ActionButton extends StatelessWidget {
             textAlign: TextAlign.center,
 
             style: const TextStyle(
-              color: cream,
+              color: MyColours.textPrimary,
               fontWeight: FontWeight.bold,
               fontSize: 13,
             ),
