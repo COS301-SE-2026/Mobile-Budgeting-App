@@ -97,9 +97,16 @@ class _HomePageState extends State<HomePage> {
     BudgetManagerScreen(),
   ];
 
-  void _onDestinationSelected(int index) {
-    setState(() => _selectedIndex = index);
-  }
+ void _onDestinationSelected(int index) {
+  setState(() {
+    _selectedIndex = index;
+  });
+
+
+  setState(() {
+    _selectedIndex = index;
+  });
+}
 
   @override
   Widget build(BuildContext context) {
@@ -107,36 +114,42 @@ class _HomePageState extends State<HomePage> {
       appBar: MainAppbar(),
       body: _pages[_selectedIndex],
       bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(10)),
-          border: Border(
-            top: BorderSide(color: MyColours().secondary, width: 1.5),
-          ),
-        ),
-        child: NavigationBar(
-          selectedIndex: _selectedIndex,
-          backgroundColor: MyColours().background,
-          indicatorColor: MyColours().secondary,
-          onDestinationSelected: _onDestinationSelected,
-          destinations: const [
-            NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home),
-              label: '',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.attach_money),
-              selectedIcon: Icon(Icons.attach_money),
-              label: '',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.pie_chart_outline),
-              selectedIcon: Icon(Icons.pie_chart),
-              label: '',
-            ),
-          ],
-        ),
-      ),
+  decoration: BoxDecoration(
+  
+    borderRadius: BorderRadius.all(Radius.circular(10)),
+    border: Border(top: BorderSide(color: MyColours().secondary, width: 1.5))
+    
+    
+  ),
+  child: NavigationBar(
+    selectedIndex: _selectedIndex,
+    backgroundColor: MyColours().background,
+    indicatorColor: MyColours().secondary,
+  
+    onDestinationSelected: _onDestinationSelected,
+
+  
+ 
+    destinations: const [
+  NavigationDestination(
+    icon: Icon(Icons.home_outlined),
+    selectedIcon: Icon(Icons.home),
+    label: '',
+  ),
+  NavigationDestination(
+    icon: Icon(Icons.attach_money),
+    selectedIcon: Icon(Icons.attach_money),
+    label: '',
+  ),
+  NavigationDestination(
+    icon: Icon(Icons.pie_chart_outline),
+    selectedIcon: Icon(Icons.pie_chart),
+    label: '',
+  ),
+
+],
+  ),
+),
     );
   }
 }

@@ -18,8 +18,9 @@ void main() {
     await tester.pumpWidget(const BudgetApp());
     await tester.pumpAndSettle();
 
-    // The app should start on the dashboard.
+    // The app should start with the shared bottom navigation.
     expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.byType(NavigationDestination), findsNWidgets(3));
 
     // Go to transactions screen.
     await tester.tap(find.byType(NavigationDestination).at(1));
