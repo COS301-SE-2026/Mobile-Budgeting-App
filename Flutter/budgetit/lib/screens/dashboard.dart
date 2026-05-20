@@ -1,6 +1,6 @@
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
-
+import '../shared/widgets/main_appbar.dart';
 import '../components/transaction_tile.dart';
 import '../components/balance_card.dart';
 import '../components/bill_item.dart';
@@ -31,6 +31,8 @@ class _DashboardState
 
       backgroundColor:
           colours.background,
+
+      appBar: const MainAppbar(),
 
       body: SafeArea(
 
@@ -91,6 +93,9 @@ class _DashboardState
                         decoration:
                             BoxDecoration(
 
+                              color:
+                                  colours.secondary,
+
                               borderRadius:
                                   BorderRadius.circular(
                                     18,
@@ -98,36 +103,34 @@ class _DashboardState
 
                               border: Border.all(
                                 color:
-                                    colours.secondary
+                                    colours
+                                        .background
                                         .withValues(
                                           alpha:
-                                              0.4,
+                                              0.15,
                                         ),
                               ),
 
-                              gradient:
-                                  LinearGradient(
+                              boxShadow: [
 
-                                    begin:
-                                        Alignment
-                                            .topLeft,
+                                BoxShadow(
+                                  color:
+                                      Colors.black
+                                          .withValues(
+                                            alpha:
+                                                0.15,
+                                          ),
 
-                                    end:
-                                        Alignment
-                                            .bottomRight,
+                                  blurRadius:
+                                      10,
 
-                                    colors: [
-
-                                      colours
-                                          .background,
-
-                                      colours
-                                          .tertiary,
-
-                                      colours
-                                          .secondary,
-                                    ],
-                                  ),
+                                  offset:
+                                      const Offset(
+                                        0,
+                                        4,
+                                      ),
+                                ),
+                              ],
                             ),
 
                         child: Row(
@@ -139,7 +142,7 @@ class _DashboardState
 
                               color:
                                   colours
-                                      .textPrimary,
+                                      .background,
 
                               size: 20,
                             ),
@@ -154,10 +157,10 @@ class _DashboardState
                               style: TextStyle(
                                 color:
                                     colours
-                                        .textPrimary
+                                        .background
                                         .withValues(
                                           alpha:
-                                              0.8,
+                                              0.7,
                                         ),
 
                                 fontSize: 15,
@@ -182,31 +185,44 @@ class _DashboardState
                         decoration:
                             BoxDecoration(
 
+                              color:
+                                  colours.secondary,
+
                               borderRadius:
                                   BorderRadius.circular(
                                     16,
                                   ),
 
-                              gradient:
-                                  LinearGradient(
+                              border: Border.all(
+                                color:
+                                    colours
+                                        .background
+                                        .withValues(
+                                          alpha:
+                                              0.15,
+                                        ),
+                              ),
 
-                                    begin:
-                                        Alignment
-                                            .topLeft,
+                              boxShadow: [
 
-                                    end:
-                                        Alignment
-                                            .bottomRight,
+                                BoxShadow(
+                                  color:
+                                      Colors.black
+                                          .withValues(
+                                            alpha:
+                                                0.15,
+                                          ),
 
-                                    colors: [
+                                  blurRadius:
+                                      10,
 
-                                      colours
-                                          .tertiary,
-
-                                      colours
-                                          .background,
-                                    ],
-                                  ),
+                                  offset:
+                                      const Offset(
+                                        0,
+                                        4,
+                                      ),
+                                ),
+                              ],
                             ),
 
                         child: Row(
@@ -223,7 +239,7 @@ class _DashboardState
 
                               color:
                                   colours
-                                      .textPrimary,
+                                      .background,
 
                               size: 20,
                             ),
@@ -238,7 +254,7 @@ class _DashboardState
                               style: TextStyle(
                                 color:
                                     colours
-                                        .textPrimary,
+                                        .background,
 
                                 fontSize: 15,
 
