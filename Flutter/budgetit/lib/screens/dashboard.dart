@@ -1,41 +1,36 @@
-// ignore_for_file: unused_import
-
+import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
 
 import '../components/transaction_tile.dart';
 import '../components/balance_card.dart';
 import '../components/bill_item.dart';
-import '../components/dashboard_header.dart';
 import '../components/insight_widget.dart';
 import '../components/quick_stats_widgets.dart';
 import '../components/monthly_trend_widget.dart';
 
-class DashboardPage extends StatefulWidget {
+class Dashboard extends StatefulWidget {
 
-  const DashboardPage({super.key});
+  const Dashboard({super.key});
 
   @override
-  State<DashboardPage> createState() =>
-      _DashboardPageState();
+  State<Dashboard> createState() =>
+      _DashboardState();
 }
 
-class _DashboardPageState
-    extends State<DashboardPage> {
-
-  static const Color background =
-      Color(0xFF04240C);
+class _DashboardState
+    extends State<Dashboard> {
 
   String selectedFilter = "All";
 
   @override
   Widget build(BuildContext context) {
 
+    final colours = MyColours();
+
     return Scaffold(
 
-      backgroundColor: background,
-
-      // bottomNavigationBar:
-      //     const BottomNav(),
+      backgroundColor:
+          colours.background,
 
       body: SafeArea(
 
@@ -54,8 +49,6 @@ class _DashboardPageState
                   CrossAxisAlignment.start,
 
               children: [
-
-                const DashboardHeader(),
 
                 const SizedBox(height: 20),
 
@@ -105,13 +98,15 @@ class _DashboardPageState
 
                               border: Border.all(
                                 color:
-                                    const Color(
-                                      0x66DDD6AE,
-                                    ),
+                                    colours.secondary
+                                        .withValues(
+                                          alpha:
+                                              0.4,
+                                        ),
                               ),
 
                               gradient:
-                                  const LinearGradient(
+                                  LinearGradient(
 
                                     begin:
                                         Alignment
@@ -123,44 +118,47 @@ class _DashboardPageState
 
                                     colors: [
 
-                                      Color(
-                                        0xFF1B3D16,
-                                      ),
+                                      colours
+                                          .background,
 
-                                      Color(
-                                        0xFF4E6240,
-                                      ),
+                                      colours
+                                          .tertiary,
 
-                                      Color(
-                                        0xFF6E7F5B,
-                                      ),
+                                      colours
+                                          .secondary,
                                     ],
                                   ),
                             ),
 
                         child: Row(
 
-                          children: const [
+                          children: [
 
                             Icon(
                               Icons.search,
+
                               color:
-                                  Color(
-                                    0xFFDDD6AE,
-                                  ),
+                                  colours
+                                      .textPrimary,
+
                               size: 20,
                             ),
 
-                            SizedBox(width: 10),
+                            const SizedBox(
+                              width: 10,
+                            ),
 
                             Text(
                               "Search transactions...",
 
                               style: TextStyle(
                                 color:
-                                    Color(
-                                      0xCCDDD6AE,
-                                    ),
+                                    colours
+                                        .textPrimary
+                                        .withValues(
+                                          alpha:
+                                              0.8,
+                                        ),
 
                                 fontSize: 15,
                               ),
@@ -190,7 +188,7 @@ class _DashboardPageState
                                   ),
 
                               gradient:
-                                  const LinearGradient(
+                                  LinearGradient(
 
                                     begin:
                                         Alignment
@@ -202,13 +200,11 @@ class _DashboardPageState
 
                                     colors: [
 
-                                      Color(
-                                        0xFF137E84,
-                                      ),
+                                      colours
+                                          .tertiary,
 
-                                      Color(
-                                        0xFF1B5E63,
-                                      ),
+                                      colours
+                                          .background,
                                     ],
                                   ),
                             ),
@@ -219,30 +215,30 @@ class _DashboardPageState
                               MainAxisAlignment
                                   .center,
 
-                          children: const [
+                          children: [
 
                             Icon(
                               Icons
                                   .upload_file_rounded,
 
                               color:
-                                  Color(
-                                    0xFFDDD6AE,
-                                  ),
+                                  colours
+                                      .textPrimary,
 
                               size: 20,
                             ),
 
-                            SizedBox(width: 10),
+                            const SizedBox(
+                              width: 10,
+                            ),
 
                             Text(
                               "Import Bank Statement (CSV/PDF)",
 
                               style: TextStyle(
                                 color:
-                                    Color(
-                                      0xFFDDD6AE,
-                                    ),
+                                    colours
+                                        .textPrimary,
 
                                 fontSize: 15,
 
@@ -420,7 +416,7 @@ class _DashboardPageState
 
                     insights: [
 
-                      const BudgetInsight(
+                      BudgetInsight(
 
                         title:
                             'You\'re spending less this month',
@@ -433,16 +429,14 @@ class _DashboardPageState
                                 .trending_down_rounded,
 
                         accentColor:
-                            Color(
-                              0xFF137E84,
-                            ),
+                            colours.tertiary,
 
                         severity:
                             InsightSeverity
                                 .tip,
                       ),
 
-                      const BudgetInsight(
+                      BudgetInsight(
 
                         title:
                             'Entertainment budget exceeded',
@@ -455,9 +449,7 @@ class _DashboardPageState
                                 .movie_rounded,
 
                         accentColor:
-                            Color(
-                              0xFFC2B280,
-                            ),
+                            colours.secondary,
 
                         severity:
                             InsightSeverity
@@ -469,10 +461,10 @@ class _DashboardPageState
 
                 const SizedBox(height: 25),
 
-                const Padding(
+                Padding(
 
                   padding:
-                      EdgeInsets.symmetric(
+                      const EdgeInsets.symmetric(
                         horizontal: 20,
                       ),
 
@@ -481,20 +473,19 @@ class _DashboardPageState
 
                     style: TextStyle(
                       fontSize: 18,
+
                       fontWeight:
                           FontWeight.bold,
 
                       color:
-                          Color(
-                            0xFFDDD6AE,
-                          ),
+                          colours.textPrimary,
                     ),
                   ),
                 ),
 
                 const SizedBox(height: 10),
 
-                const BillItem(
+                BillItem(
                   icon:
                       Icons.electric_bolt,
 
@@ -506,7 +497,7 @@ class _DashboardPageState
                   amount: "R850",
                 ),
 
-                const BillItem(
+                BillItem(
                   icon: Icons.movie,
                   title: "Netflix",
                   subtitle:
@@ -516,10 +507,10 @@ class _DashboardPageState
 
                 const SizedBox(height: 25),
 
-                const Padding(
+                Padding(
 
                   padding:
-                      EdgeInsets.symmetric(
+                      const EdgeInsets.symmetric(
                         horizontal: 20,
                       ),
 
@@ -528,13 +519,12 @@ class _DashboardPageState
 
                     style: TextStyle(
                       fontSize: 18,
+
                       fontWeight:
                           FontWeight.bold,
 
                       color:
-                          Color(
-                            0xFFDDD6AE,
-                          ),
+                          colours.textPrimary,
                     ),
                   ),
                 ),
@@ -588,6 +578,8 @@ class _FilterPill
   @override
   Widget build(BuildContext context) {
 
+    final colours = MyColours();
+
     return GestureDetector(
 
       onTap: onTap,
@@ -604,12 +596,11 @@ class _FilterPill
 
           color:
               isSelected
-                  ? const Color(
-                    0xFFDDD6AE,
-                  )
-                  : const Color(
-                    0x22137E84,
-                  ),
+                  ? colours.secondary
+                  : colours.tertiary
+                      .withValues(
+                        alpha: 0.15,
+                      ),
 
           borderRadius:
               BorderRadius.circular(
@@ -618,9 +609,10 @@ class _FilterPill
 
           border: Border.all(
             color:
-                const Color(
-                  0x88DDD6AE,
-                ),
+                colours.secondary
+                    .withValues(
+                      alpha: 0.5,
+                    ),
           ),
         ),
 
@@ -631,12 +623,8 @@ class _FilterPill
 
             color:
                 isSelected
-                    ? const Color(
-                      0xFF04240C,
-                    )
-                    : const Color(
-                      0xFFDDD6AE,
-                    ),
+                    ? colours.background
+                    : colours.textPrimary,
 
             fontWeight:
                 FontWeight.w600,
