@@ -515,13 +515,51 @@ class _BudgetCategory {
 
                   Navigator.of(dialogContext).pop();
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        '${selectedCategory.label} budget created.',
-                      ),
-                    ),
-                  );
+                  ScaffoldMessenger.of(context)
+  ..hideCurrentSnackBar()
+  ..showSnackBar(
+    SnackBar(
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: colours.secondary,
+      elevation: 8,
+      margin: const EdgeInsets.symmetric(
+        horizontal: 18,
+        vertical: 16,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+      ),
+      duration: const Duration(seconds: 3),
+      content: Row(
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: colours.background,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              selectedCategory.icon,
+              color: colours.secondary,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              '${selectedCategory.label} budget created successfully',
+              style: TextStyle(
+                color: colours.background,
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colours.secondary,
