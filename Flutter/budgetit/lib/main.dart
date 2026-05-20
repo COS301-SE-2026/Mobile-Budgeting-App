@@ -4,13 +4,14 @@ import 'screens/dashboard.dart';
 import 'shared/widgets/main_scaffold.dart';
 import 'shared/widgets/main_appbar.dart';
 import 'package:budgetit/utils/app_colour.dart';
+import 'views/budget_manager/budget_manager_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const BudgetApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class BudgetApp extends StatelessWidget {
+  const BudgetApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -53,11 +54,11 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
-  // List of pages to display for each destination
+  
   final List<Widget> _pages = [
-    const MainScaffold(),           // Home page (index 0)
-    const TransactionManager(),     // Transaction Manager (index 1)
-    const ReportsPage(),            // Reports page – create this widget
+    const MainScaffold(),           
+    const TransactionManager(),     
+    BudgetManagerScreen(),           
   ];
 
   void _onDestinationSelected(int index) {
@@ -90,7 +91,7 @@ class _HomePageState extends State<HomePage> {
  
     destinations: const [
       NavigationDestination(
-         // Empty widget to remove label space 
+        
         icon: Icon(Icons.home_outlined),
         selectedIcon: Icon(Icons.home),
         label: '',
@@ -114,14 +115,5 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// Temporary placeholder for Reports page – replace with your actual widget
-class ReportsPage extends StatelessWidget {
-  const ReportsPage({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Reports Page - Coming Soon'),
-    );
-  }
-}
+
