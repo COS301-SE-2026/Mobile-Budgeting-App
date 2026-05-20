@@ -1,8 +1,9 @@
 import 'package:budgetit/views/transaction_manager/transaction.manager.dart';
 import 'package:flutter/material.dart';
 import 'screens/dashboard.dart';
-import 'shared/widgets/main_scaffold.dart';
+
 import 'shared/widgets/main_appbar.dart';
+
 import 'package:budgetit/utils/app_colour.dart';
 import 'views/budget_manager/budget_manager_screen.dart';
 
@@ -37,7 +38,7 @@ class BudgetApp extends StatelessWidget {
           const TransactionManager(),
     },
 
-    home: const DashboardPage(),  
+    home: const HomePage(),  
 
     );
   }
@@ -55,11 +56,11 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
   
-  final List<Widget> _pages = [
-    const MainScaffold(),           
-    const TransactionManager(),     
-    BudgetManagerScreen(),           
-  ];
+ final List<Widget> _pages = [
+  const DashboardPage(),
+  const TransactionManager(),
+  BudgetManagerScreen(),
+];
 
   void _onDestinationSelected(int index) {
     setState(() {
