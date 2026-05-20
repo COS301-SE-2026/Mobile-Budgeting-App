@@ -62,11 +62,16 @@ class _HomePageState extends State<HomePage> {
   BudgetManagerScreen(),
 ];
 
-  void _onDestinationSelected(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
+ void _onDestinationSelected(int index) {
+  setState(() {
+    _selectedIndex = index;
+  });
+
+
+  setState(() {
+    _selectedIndex = index;
+  });
+}
 
   @override
   Widget build(BuildContext context) {
@@ -91,25 +96,23 @@ class _HomePageState extends State<HomePage> {
   
  
     destinations: const [
-      NavigationDestination(
-        
-        icon: Icon(Icons.home_outlined),
-        selectedIcon: Icon(Icons.home),
-        label: '',
-      ),
+  NavigationDestination(
+    icon: Icon(Icons.home_outlined),
+    selectedIcon: Icon(Icons.home),
+    label: '',
+  ),
+  NavigationDestination(
+    icon: Icon(Icons.attach_money),
+    selectedIcon: Icon(Icons.attach_money),
+    label: '',
+  ),
+  NavigationDestination(
+    icon: Icon(Icons.pie_chart_outline),
+    selectedIcon: Icon(Icons.pie_chart),
+    label: '',
+  ),
 
-      NavigationDestination(
-        icon: Icon(Icons.attach_money),
-        selectedIcon: Icon(Icons.attach_money),
-        label: '',
-
-      ),
-      NavigationDestination(
-        icon: Icon(Icons.pie_chart_outline),
-        selectedIcon: Icon(Icons.pie_chart),
-        label: '',
-      ),
-    ],
+],
   ),
 ),
     );
