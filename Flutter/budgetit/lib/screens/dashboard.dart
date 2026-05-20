@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import '../components/transaction_tile.dart';
 import '../components/balance_card.dart';
 import '../components/bill_item.dart';
-import '../components/bottom_nav.dart';
 import '../components/dashboard_header.dart';
 import '../components/insight_widget.dart';
 import '../components/quick_stats_widgets.dart';
@@ -35,8 +34,8 @@ class _DashboardPageState
 
       backgroundColor: background,
 
-      bottomNavigationBar:
-          const BottomNav(),
+      // bottomNavigationBar:
+      //     const BottomNav(),
 
       body: SafeArea(
 
