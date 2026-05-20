@@ -406,7 +406,7 @@ class _BudgetCategory {
               mainAxisSize: MainAxisSize.min,
               children: [
                 DropdownButtonFormField<_BudgetCategoryOption>(
-                  value: selectedCategory,
+                  initialValue: selectedCategory,
                   dropdownColor: colours.background,
                   style: TextStyle(color: colours.textPrimary),
                   decoration: InputDecoration(
