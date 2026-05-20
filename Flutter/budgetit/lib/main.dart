@@ -1,5 +1,6 @@
 import 'package:budgetit/views/transaction_manager/transaction.manager.dart';
 import 'package:flutter/material.dart';
+import 'screens/dashboard.dart';
 import 'shared/widgets/main_scaffold.dart';
 import 'shared/widgets/main_appbar.dart';
 import 'package:budgetit/utils/app_colour.dart';
@@ -15,16 +16,29 @@ class BudgetApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'BudgetIt',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
+
+    debugShowCheckedModeBanner: false,
+
+    title: 'BudgetIt',
+
+    theme: ThemeData(
+
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: Colors.blue,
       ),
-      initialRoute: '/',
-      routes: {
-        '/transaction_manager': (context) => const TransactionManager(),
-      },
-      home: const HomePage(),
+
+      useMaterial3: true,
+    ),
+
+    initialRoute: '/',
+
+    routes: {
+      '/transaction_manager': (context) =>
+          const TransactionManager(),
+    },
+
+    home: const DashboardPage(),  
+
     );
   }
 }
@@ -82,10 +96,12 @@ class _HomePageState extends State<HomePage> {
         selectedIcon: Icon(Icons.home),
         label: '',
       ),
+
       NavigationDestination(
         icon: Icon(Icons.attach_money),
         selectedIcon: Icon(Icons.attach_money),
         label: '',
+
       ),
       NavigationDestination(
         icon: Icon(Icons.pie_chart_outline),
