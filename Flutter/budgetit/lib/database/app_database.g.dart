@@ -240,14 +240,31 @@ class $CategoriesTable extends Categories
 }
 
 class Category extends DataClass implements Insertable<Category> {
+  /// Unique identifier for the category.
   final String id;
+
+  /// Display name of the category (e.g., 'Groceries', 'Salary').
   final String name;
+
+  /// Whether this is an income or expense category.
   final CategoryType type;
+
+  /// Optional icon identifier (e.g., a font icon name or emoji).
   final String? icon;
+
+  /// Optional color for UI display.
   final String? color;
+
+  /// Whether this is a built-in/default category.
   final bool isDefault;
+
+  /// When the category was created.
   final DateTime createdAt;
+
+  /// When the category was last modified.
   final DateTime updatedAt;
+
+  /// When the category was soft-deleted (null if active).
   final DateTime? deletedAt;
   const Category({
     required this.id,
@@ -682,8 +699,13 @@ class $CategoryClosureTable extends CategoryClosure
 
 class CategoryClosureData extends DataClass
     implements Insertable<CategoryClosureData> {
+  /// Ancestor category ID.
   final String ancestorId;
+
+  /// Descendant category ID.
   final String descendantId;
+
+  /// Distance from ancestor to descendant (0 = self, 1 = direct child, etc.).
   final int depth;
   const CategoryClosureData({
     required this.ancestorId,
@@ -1135,16 +1157,37 @@ class $TransactionsTable extends Transactions
 }
 
 class Transaction extends DataClass implements Insertable<Transaction> {
+  /// Unique identifier for the transaction.
   final String id;
+
+  /// Transaction amount (stored as a decimal string via [DecimalConverter]).
   final Decimal amount;
+
+  /// Whether this is an income or expense transaction.
   final TransactionType type;
+
+  /// Short description of the transaction (max 100 chars).
   final String shortDescription;
+
+  /// Optional extended description (max 500 chars).
   final String? longDescription;
+
+  /// When the transaction actually occurred.
   final DateTime transactionDate;
+
+  /// When the record was created in the database.
   final DateTime createdAt;
+
+  /// When the record was last modified.
   final DateTime updatedAt;
+
+  /// When the transaction was soft-deleted (null if active).
   final DateTime? deletedAt;
+
+  /// Source of the transaction (manual, imported, recurring).
   final TransactionSource source;
+
+  /// Currency code for the transaction (defaults to 'ZAR').
   final String currency;
   const Transaction({
     required this.id,
@@ -1681,9 +1724,16 @@ class $TransactionCategoryMapTable extends TransactionCategoryMap
 
 class TransactionCategoryMapData extends DataClass
     implements Insertable<TransactionCategoryMapData> {
+  /// The transaction this category is assigned to.
   final String transactionId;
+
+  /// The assigned category.
   final String categoryId;
+
+  /// When the assignment was made.
   final DateTime assignedAt;
+
+  /// How the assignment was determined (manual, AI, import).
   final AssignmentSource assignmentSource;
   const TransactionCategoryMapData({
     required this.transactionId,
@@ -2107,13 +2157,28 @@ class $BudgetTemplatesTable extends BudgetTemplates
 }
 
 class BudgetTemplate extends DataClass implements Insertable<BudgetTemplate> {
+  /// Unique identifier for the template.
   final String id;
+
+  /// The category this budget applies to.
   final String categoryId;
+
+  /// The budget amount per period.
   final Decimal amount;
+
+  /// How often the budget repeats (daily, weekly, monthly, yearly).
   final PeriodType periodType;
+
+  /// Currency code (defaults to 'ZAR').
   final String currency;
+
+  /// When the template was created.
   final DateTime createdAt;
+
+  /// When the template was last modified.
   final DateTime updatedAt;
+
+  /// When the template was soft-deleted (null if active).
   final DateTime? deletedAt;
   const BudgetTemplate({
     required this.id,
@@ -2645,13 +2710,28 @@ class $BudgetPeriodsTable extends BudgetPeriods
 }
 
 class BudgetPeriod extends DataClass implements Insertable<BudgetPeriod> {
+  /// Unique identifier for the period.
   final String id;
+
+  /// The template this period belongs to.
   final String templateId;
+
+  /// Start of the budgeting period.
   final DateTime startDate;
+
+  /// End of the budgeting period.
   final DateTime endDate;
+
+  /// The amount budgeted for this period.
   final Decimal budgetedAmount;
+
+  /// Whether this period's budget has been manually overridden.
   final bool isOverridden;
+
+  /// When the period was created.
   final DateTime createdAt;
+
+  /// When the period was last modified.
   final DateTime updatedAt;
   const BudgetPeriod({
     required this.id,
@@ -3048,8 +3128,13 @@ class $AppSettingsTable extends AppSettings
 }
 
 class AppSetting extends DataClass implements Insertable<AppSetting> {
+  /// Unique key for the setting (e.g., 'default_currency').
   final String key;
+
+  /// The setting value (always a string).
   final String value;
+
+  /// When the setting was last updated.
   final DateTime updatedAt;
   const AppSetting({
     required this.key,
@@ -3221,12 +3306,6 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $BudgetPeriodsTable budgetPeriods = $BudgetPeriodsTable(this);
   late final $AppSettingsTable appSettings = $AppSettingsTable(this);
-  late final CategoryDao categoryDao = CategoryDao(this as AppDatabase);
-  late final TransactionDao transactionDao = TransactionDao(
-    this as AppDatabase,
-  );
-  late final BudgetDao budgetDao = BudgetDao(this as AppDatabase);
-  late final SettingsDao settingsDao = SettingsDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
