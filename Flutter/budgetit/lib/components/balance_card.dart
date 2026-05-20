@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:budgetit/utils/app_colour.dart';
 
 class BalanceCard extends StatelessWidget {
 
   const BalanceCard({super.key});
-
-  static const Color darkGreen =
-      Color(0xFF04240C);
-
-  static const Color cream =
-      Color(0xFFDDD6AE);
 
   @override
   Widget build(BuildContext context) {

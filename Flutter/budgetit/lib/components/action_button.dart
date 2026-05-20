@@ -4,8 +4,8 @@ import '../utils/app_colour.dart';
 class ActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
-
-  const ActionButton({super.key, required this.icon, required this.label});
+  final colours = MyColours();
+  ActionButton({super.key, required this.icon, required this.label});
 
 
   @override
@@ -16,11 +16,11 @@ class ActionButton extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 15),
 
       decoration: BoxDecoration(
-        color: MyColours.background,
+        color: colours.background,
 
         borderRadius: BorderRadius.circular(20),
 
-        border: Border.all(color: MyColours.secondary.withValues(alpha: 0.25), width: 1,),
+        border: Border.all(color: colours.secondary.withValues(alpha: 0.25), width: 1,),
 
         boxShadow: [
           BoxShadow(
@@ -35,7 +35,7 @@ class ActionButton extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
 
         children: [
-          Icon(icon, size: 30, color: MyColours.secondary),
+          Icon(icon, size: 30, color: colours.secondary),
 
           const SizedBox(height: 10),
 
@@ -44,8 +44,8 @@ class ActionButton extends StatelessWidget {
 
             textAlign: TextAlign.center,
 
-            style: const TextStyle(
-              color: MyColours.textPrimary,
+            style: TextStyle(
+              color: colours.textPrimary,
               fontWeight: FontWeight.bold,
               fontSize: 13,
             ),
