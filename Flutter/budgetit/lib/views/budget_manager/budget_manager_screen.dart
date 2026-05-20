@@ -1,10 +1,63 @@
 import 'package:flutter/material.dart';
 import '../../utils/app_colour.dart';
 
-class BudgetManagerScreen extends StatelessWidget {
-  BudgetManagerScreen({super.key});
+class BudgetManagerScreen extends StatefulWidget {
+  const BudgetManagerScreen({super.key});
 
+  @override
+  State<BudgetManagerScreen> createState() => _BudgetManagerScreenState();
+}
+
+class _BudgetCategory {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final double spent;
+  final double limit;
+  final Color progressColor;
+  final bool isOverLimit;
+
+  const _BudgetCategory({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.spent,
+    required this.limit,
+    required this.progressColor,
+    this.isOverLimit = false,
+  });
+}
+
+class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
   final MyColours colours = MyColours();
+
+  final List<_BudgetCategory> _budgetCategories = [
+    _BudgetCategory(
+      icon: Icons.home_outlined,
+      title: "Rent",
+      subtitle: "Fixed Expense",
+      spent: 1200,
+      limit: 1200,
+      progressColor: Colors.cyan,
+    ),
+    _BudgetCategory(
+      icon: Icons.shopping_bag_outlined,
+      title: "Groceries",
+      subtitle: "Essential",
+      spent: 450,
+      limit: 600,
+      progressColor: Colors.greenAccent,
+    ),
+    _BudgetCategory(
+      icon: Icons.restaurant,
+      title: "Dining",
+      subtitle: "Discretionary",
+      spent: 200,
+      limit: 150,
+      progressColor: Colors.red,
+      isOverLimit: true,
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -46,37 +99,18 @@ class BudgetManagerScreen extends StatelessWidget {
 
                 const SizedBox(height: 12),
 
-                _budgetCard(
-                  icon: Icons.home_outlined,
-                  title: "Rent",
-                  subtitle: "Fixed Expense",
-                  spent: 1200,
-                  limit: 1200,
-                  progressColor: Colors.cyan,
-                ),
-
-                const SizedBox(height: 14),
-
-                _budgetCard(
-                  icon: Icons.shopping_bag_outlined,
-                  title: "Groceries",
-                  subtitle: "Essential",
-                  spent: 450,
-                  limit: 600,
-                  progressColor: Colors.greenAccent,
-                ),
-
-                const SizedBox(height: 14),
-
-                _budgetCard(
-                  icon: Icons.restaurant,
-                  title: "Dining",
-                  subtitle: "Discretionary",
-                  spent: 200,
-                  limit: 150,
-                  progressColor: Colors.red,
-                  isOverLimit: true,
-                ),
+                for (final budget in _budgetCategories) ...[
+  _budgetCard(
+    icon: budget.icon,
+    title: budget.title,
+    subtitle: budget.subtitle,
+    spent: budget.spent,
+    limit: budget.limit,
+    progressColor: budget.progressColor,
+    isOverLimit: budget.isOverLimit,
+  ),
+  const SizedBox(height: 14),
+],
 
                 const SizedBox(height: 24),
 
@@ -84,7 +118,9 @@ class BudgetManagerScreen extends StatelessWidget {
                   width: double.infinity,
                   height: 48,
                   child: ElevatedButton.icon(
-                    onPressed: () {},
+                    onPressed: () {
+                           _showCreateBudgetDialog(context);
+                          },
                     icon: const Icon(Icons.add_circle_outline),
                     label: const Text(
                       "CREATE NEW BUDGET",
@@ -279,5 +315,139 @@ class BudgetManagerScreen extends StatelessWidget {
   }
 
   
-  
+  void _showCreateBudgetDialog(BuildContext context) {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController limitController = TextEditingController();
+
+  showDialog(
+    context: context,
+    builder: (dialogContext) {
+      return AlertDialog(
+        backgroundColor: colours.background,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: colours.secondary,
+            width: 1.5,
+          ),
+        ),
+        title: Text(
+          'Create New Budget',
+          style: TextStyle(
+            color: colours.textPrimary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              style: TextStyle(color: colours.textPrimary),
+              decoration: InputDecoration(
+                labelText: 'Budget name',
+                labelStyle: TextStyle(color: colours.textPrimary),
+                hintText: 'e.g. Transport',
+                hintStyle: TextStyle(
+                  color: colours.textPrimary.withValues(alpha: 0.6),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: colours.secondary),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: colours.secondary,
+                    width: 2,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+            TextField(
+              controller: limitController,
+              keyboardType: TextInputType.number,
+              style: TextStyle(color: colours.textPrimary),
+              decoration: InputDecoration(
+                labelText: 'Budget limit',
+                labelStyle: TextStyle(color: colours.textPrimary),
+                hintText: 'e.g. 500',
+                hintStyle: TextStyle(
+                  color: colours.textPrimary.withValues(alpha: 0.6),
+                ),
+                prefixText: 'R ',
+                prefixStyle: TextStyle(color: colours.textPrimary),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: colours.secondary),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: colours.secondary,
+                    width: 2,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+            },
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: colours.textPrimary),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final String name = nameController.text.trim();
+              final double? limit = double.tryParse(
+                limitController.text.trim(),
+              );
+
+              if (name.isEmpty || limit == null || limit <= 0) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Please enter a valid budget name and limit.'),
+                  ),
+                );
+                return;
+              }
+
+              setState(() {
+                _budgetCategories.add(
+                  _BudgetCategory(
+                    icon: Icons.account_balance_wallet_outlined,
+                    title: name,
+                    subtitle: 'Custom Budget',
+                    spent: 0,
+                    limit: limit,
+                    progressColor: Colors.amber,
+                  ),
+                );
+              });
+
+              Navigator.of(dialogContext).pop();
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Budget "$name" created.'),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: colours.secondary,
+              foregroundColor: colours.background,
+            ),
+            child: const Text('Create'),
+          ),
+        ],
+      );
+    },
+  ).then((_) {
+    nameController.dispose();
+    limitController.dispose();
+  });
+}
 }
