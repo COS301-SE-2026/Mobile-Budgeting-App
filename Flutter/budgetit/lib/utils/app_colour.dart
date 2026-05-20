@@ -6,7 +6,8 @@ class MyColours{
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
-   Color secondary = Color.fromARGB(250,221, 214, 174);
+  Color primary = Color.fromARGB(23,221, 214, 174);
+   Color secondary = Color.fromARGB(250,221, 214, 174); 
    Color background = Color.fromARGB(250, 4, 36, 12);
    Color tertiary = Color.fromARGB(250, 19, 126, 132);
   Color textPrimary = Color.fromARGB(250,221, 214, 174);
