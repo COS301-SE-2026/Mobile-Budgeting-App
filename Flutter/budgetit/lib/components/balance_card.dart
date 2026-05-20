@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:budgetit/utils/app_colour.dart';
+import 'package:flutter/material.dart';
 
 class BalanceCard extends StatelessWidget {
 
@@ -7,6 +7,8 @@ class BalanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final colours = MyColours();
 
     return Container(
 
@@ -31,9 +33,9 @@ class BalanceCard extends StatelessWidget {
 
           colors: [
 
-            MyColours().background,
-            MyColours().tertiary,
-            MyColours().secondary,
+            colours.background,
+            colours.tertiary,
+            colours.secondary,
           ],
         ),
 
@@ -58,7 +60,7 @@ class BalanceCard extends StatelessWidget {
 
         children: [
 
-          const Text(
+          Text(
             "MONTHLY SPENDING MAY 2026",
 
             style: TextStyle(
@@ -71,11 +73,11 @@ class BalanceCard extends StatelessWidget {
 
           const SizedBox(height: 20),
 
-          const Text(
+          Text(
             "R1,850.00",
 
             style: TextStyle(
-              color: cream,
+              color: colours.textPrimary,
               fontSize: 52,
               fontWeight: FontWeight.bold,
               height: 1,
@@ -88,7 +90,7 @@ class BalanceCard extends StatelessWidget {
             "Target: R1,950.00",
 
             style: TextStyle(
-              color: cream.withValues(
+              color: colours.textPrimary.withValues(
                 alpha: 0.8,
               ),
 
