@@ -32,11 +32,11 @@ class _DashboardState
       backgroundColor:
           colours.background,
 
-      appBar: const MainAppbar(),
+   
 
-      body: SafeArea(
+      
 
-        child: SingleChildScrollView(
+        body: SingleChildScrollView(
 
           child: Padding(
 
@@ -82,285 +82,18 @@ class _DashboardState
 
                     children: [
 
-                      Container(
+                    
+                    
 
-                        padding:
-                            const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 14,
-                            ),
+                   
 
-                        decoration:
-                            BoxDecoration(
-
-                              color:
-                                  colours.secondary,
-
-                              borderRadius:
-                                  BorderRadius.circular(
-                                    18,
-                                  ),
-
-                              border: Border.all(
-                                color:
-                                    colours
-                                        .background
-                                        .withValues(
-                                          alpha:
-                                              0.15,
-                                        ),
-                              ),
-
-                              boxShadow: [
-
-                                BoxShadow(
-                                  color:
-                                      Colors.black
-                                          .withValues(
-                                            alpha:
-                                                0.15,
-                                          ),
-
-                                  blurRadius:
-                                      10,
-
-                                  offset:
-                                      const Offset(
-                                        0,
-                                        4,
-                                      ),
-                                ),
-                              ],
-                            ),
-
-                        child: Row(
-
-                          children: [
-
-                            Icon(
-                              Icons.search,
-
-                              color:
-                                  colours
-                                      .background,
-
-                              size: 20,
-                            ),
-
-                            const SizedBox(
-                              width: 10,
-                            ),
-
-                            Text(
-                              "Search transactions...",
-
-                              style: TextStyle(
-                                color:
-                                    colours
-                                        .background
-                                        .withValues(
-                                          alpha:
-                                              0.7,
-                                        ),
-
-                                fontSize: 15,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 14),
-
-                      Container(
-
-                        width:
-                            double.infinity,
-
-                        padding:
-                            const EdgeInsets.symmetric(
-                              vertical: 16,
-                            ),
-
-                        decoration:
-                            BoxDecoration(
-
-                              color:
-                                  colours.secondary,
-
-                              borderRadius:
-                                  BorderRadius.circular(
-                                    16,
-                                  ),
-
-                              border: Border.all(
-                                color:
-                                    colours
-                                        .background
-                                        .withValues(
-                                          alpha:
-                                              0.15,
-                                        ),
-                              ),
-
-                              boxShadow: [
-
-                                BoxShadow(
-                                  color:
-                                      Colors.black
-                                          .withValues(
-                                            alpha:
-                                                0.15,
-                                          ),
-
-                                  blurRadius:
-                                      10,
-
-                                  offset:
-                                      const Offset(
-                                        0,
-                                        4,
-                                      ),
-                                ),
-                              ],
-                            ),
-
-                        child: Row(
-
-                          mainAxisAlignment:
-                              MainAxisAlignment
-                                  .center,
-
-                          children: [
-
-                            Icon(
-                              Icons
-                                  .upload_file_rounded,
-
-                              color:
-                                  colours
-                                      .background,
-
-                              size: 20,
-                            ),
-
-                            const SizedBox(
-                              width: 10,
-                            ),
-
-                            Text(
-                              "Import Bank Statement (CSV/PDF)",
-
-                              style: TextStyle(
-                                color:
-                                    colours
-                                        .background,
-
-                                fontSize: 15,
-
-                                fontWeight:
-                                    FontWeight
-                                        .w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 18),
 
                       SingleChildScrollView(
 
                         scrollDirection:
                             Axis.horizontal,
 
-                        child: Row(
-
-                          children: [
-
-                            _FilterPill(
-                              label: "All",
-
-                              isSelected:
-                                  selectedFilter ==
-                                      "All",
-
-                              onTap: () {
-
-                                setState(() {
-
-                                  selectedFilter =
-                                      "All";
-                                });
-                              },
-                            ),
-
-                            const SizedBox(
-                              width: 10,
-                            ),
-
-                            _FilterPill(
-                              label: "Income",
-
-                              isSelected:
-                                  selectedFilter ==
-                                      "Income",
-
-                              onTap: () {
-
-                                setState(() {
-
-                                  selectedFilter =
-                                      "Income";
-                                });
-                              },
-                            ),
-
-                            const SizedBox(
-                              width: 10,
-                            ),
-
-                            _FilterPill(
-                              label:
-                                  "Expenses",
-
-                              isSelected:
-                                  selectedFilter ==
-                                      "Expenses",
-
-                              onTap: () {
-
-                                setState(() {
-
-                                  selectedFilter =
-                                      "Expenses";
-                                });
-                              },
-                            ),
-
-                            const SizedBox(
-                              width: 10,
-                            ),
-
-                            _FilterPill(
-                              label:
-                                  "Scheduled",
-
-                              isSelected:
-                                  selectedFilter ==
-                                      "Scheduled",
-
-                              onTap: () {
-
-                                setState(() {
-
-                                  selectedFilter =
-                                      "Scheduled";
-                                });
-                              },
-                            ),
-                          ],
-                        ),
+                        
                       ),
                     ],
                   ),
@@ -573,7 +306,7 @@ class _DashboardState
             ),
           ),
         ),
-      ),
+      
     );
   }
 }
