@@ -492,11 +492,39 @@ class _BudgetCategory {
                   );
 
                   if (limit == null || limit <= 0) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please enter a valid budget limit.'),
-                      ),
-                    );
+                    ScaffoldMessenger.of(context)
+  ..hideCurrentSnackBar()
+  ..showSnackBar(
+    SnackBar(
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: Colors.red.shade700,
+      margin: const EdgeInsets.symmetric(
+        horizontal: 18,
+        vertical: 16,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+      ),
+      content: const Row(
+        children: [
+          Icon(
+            Icons.error_outline,
+            color: Colors.white,
+          ),
+          SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Please enter a valid budget limit.',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
                     return;
                   }
 
