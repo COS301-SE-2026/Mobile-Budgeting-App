@@ -24,16 +24,16 @@ class BalanceCard extends StatelessWidget {
         borderRadius:
             BorderRadius.circular(30),
 
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
 
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
 
           colors: [
 
-            Color(0xFF1B3D16),
-            Color(0xFF4E6240),
-            Color(0xFF6E7F5B),
+            MyColours().background,
+            MyColours().tertiary,
+            MyColours().secondary,
           ],
         ),
 
@@ -62,7 +62,7 @@ class BalanceCard extends StatelessWidget {
             "MONTHLY SPENDING MAY 2026",
 
             style: TextStyle(
-              color: cream,
+              color: colours.textPrimary,
               fontSize: 16,
               fontWeight: FontWeight.w400,
               letterSpacing: 1.2,
