@@ -31,8 +31,18 @@ Future<void> _configureAmplify() async {
   } on AmplifyAlreadyConfiguredException {}
 }
 
-class BudgetApp extends StatelessWidget {
-  const BudgetApp({super.key});
+Future<void> _configureAmplify() async {
+  try {
+    final authPlugin = AmplifyAuthCognito();
+    await Amplify.addPlugin(authPlugin);
+    await Amplify.configure(amplifyconfig);
+  } on AmplifyAlreadyConfiguredException {
+    // Already configured — safe to ignore on hot restart
+  }
+}
+
+class BudgetItApp extends StatelessWidget {
+  const BudgetItApp({super.key});
 
   @override
   Widget build(BuildContext context) {
