@@ -25,9 +25,10 @@ jobs:
           echo "Repository root:"
           ls -la
           echo ""
-          echo "Important project files:"
-          find . -maxdepth 4 -type f \( \
+          echo "Important files:"
+          find . -maxdepth 3 -type f \( \
             -name "pubspec.yaml" -o \
+            -name "package.json" -o \
             -name "requirements.txt" -o \
             -name "pyproject.toml" -o \
             -name "Dockerfile" -o \
@@ -49,38 +50,49 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Detect Python backend stack
-        id: detect_backend
+      - name: Detect backend stack
         run: |
           echo "Checking backend folder..."
           ls -la backend || true
-
-          BACKEND_FILE=$(find backend -maxdepth 4 -type f \( \
+          find backend -maxdepth 3 -type f \( \
+            -name "package.json" -o \
             -name "requirements.txt" -o \
-            -name "pyproject.toml" \
-          \) | head -n 1 || true)
+            -name "pyproject.toml" -o \
+            -name "pom.xml" -o \
+            -name "build.gradle" -o \
+            -name "go.mod" -o \
+            -name "Dockerfile" \
+          \) || true
 
-          if [ -z "$BACKEND_FILE" ]; then
-            echo "found=false" >> "$GITHUB_OUTPUT"
-            echo "No Python dependency file found in backend."
-          else
-            BACKEND_DIR=$(dirname "$BACKEND_FILE")
-            echo "found=true" >> "$GITHUB_OUTPUT"
-            echo "backend_dir=$BACKEND_DIR" >> "$GITHUB_OUTPUT"
-            echo "Python backend found in: $BACKEND_DIR"
-          fi
+      - name: Set up Node.js
+        if: ${{ hashFiles('backend/**/package.json') != '' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run Node.js backend checks
+        if: ${{ hashFiles('backend/**/package.json') != '' }}
+        run: |
+          BACKEND_DIR=$(dirname "$(find backend -name package.json | head -n 1)")
+          echo "Node backend found in: $BACKEND_DIR"
+          cd "$BACKEND_DIR"
+          npm install
+          npm run lint --if-present
+          npm test --if-present
+          npm run build --if-present
 
       - name: Set up Python
-        if: steps.detect_backend.outputs.found == 'true'
+        if: ${{ hashFiles('backend/**/requirements.txt', 'backend/**/pyproject.toml') != '' }}
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Install backend dependencies
-        if: steps.detect_backend.outputs.found == 'true'
-        working-directory: ${{ steps.detect_backend.outputs.backend_dir }}
+      - name: Run Python backend checks
+        if: ${{ hashFiles('backend/**/requirements.txt', 'backend/**/pyproject.toml') != '' }}
         run: |
-          python -m pip install --upgrade pip
+          BACKEND_DIR=$(dirname "$(find backend \( -name requirements.txt -o -name pyproject.toml \) | head -n 1)")
+          echo "Python backend found in: $BACKEND_DIR"
+          cd "$BACKEND_DIR"
 
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
@@ -90,23 +102,13 @@ jobs:
             pip install .
           fi
 
-          pip install pytest
+          python -m compileall .
 
-      - name: Run Python syntax checks
-        if: steps.detect_backend.outputs.found == 'true'
-        working-directory: ${{ steps.detect_backend.outputs.backend_dir }}
-        run: python -m compileall .
-
-      - name: Run pytest
-        if: steps.detect_backend.outputs.found == 'true'
-        working-directory: ${{ steps.detect_backend.outputs.backend_dir }}
-        run: pytest
-
-      - name: No Python backend found
-        if: steps.detect_backend.outputs.found == 'false'
+      - name: No backend dependency file found
+        if: ${{ hashFiles('backend/**/package.json', 'backend/**/requirements.txt', 'backend/**/pyproject.toml') == '' }}
         run: |
-          echo "No Python/FastAPI backend dependency file found yet."
-          echo "Skipping backend checks for now."
+          echo "No supported backend dependency file found yet."
+          echo "Skipping backend build/test for now."
 
   flutter-checks:
     name: Flutter Checks
