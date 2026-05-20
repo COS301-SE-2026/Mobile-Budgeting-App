@@ -30,8 +30,13 @@ class _MyBoxState extends State<MyBox> {
       decoration: BoxDecoration(
         shape: BoxShape.rectangle,
         borderRadius: BorderRadius.circular(10),
-        gradient: _isPressed ? null : MyColours().primaryGradient,
-        color: _isPressed ? MyColours().secondary : null,
+      //  gradient: _isPressed ? null : MyColours().primaryGradient,
+        color: MyColours().primary ,
+        border: Border.all(
+    color: MyColours().secondary, // choose the border color
+    width: 1.0,          // choose the border width
+  ),
+         
       ),
      
       child: Row(

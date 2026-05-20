@@ -21,25 +21,14 @@ class QuickStatsWidget extends StatelessWidget {
 
       decoration: BoxDecoration(
 
+        color: colours.secondary,
+
         borderRadius:
             BorderRadius.circular(22),
 
         border: Border.all(
-          color: colours.secondary
-              .withValues(alpha: 0.7),
-        ),
-
-        gradient: LinearGradient(
-
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-
-          colors: [
-
-            colours.background,
-            colours.tertiary,
-            colours.secondary,
-          ],
+          color: colours.background
+              .withValues(alpha: 0.15),
         ),
 
         boxShadow: [
@@ -49,9 +38,9 @@ class QuickStatsWidget extends StatelessWidget {
               alpha: 0.25,
             ),
 
-            blurRadius: 15,
+            blurRadius: 20,
 
-            offset: const Offset(0, 6),
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -67,9 +56,9 @@ class QuickStatsWidget extends StatelessWidget {
             "Spending by Category",
 
             style: TextStyle(
-              color: colours.textPrimary,
+              color: colours.background,
               fontSize: 18,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
             ),
           ),
 
@@ -90,6 +79,25 @@ class QuickStatsWidget extends StatelessWidget {
 
                   children: [
 
+                    Container(
+
+                      width: 120,
+                      height: 120,
+
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+
+                        border: Border.all(
+                          color: colours.background
+                              .withValues(
+                                alpha: 0.25,
+                              ),
+
+                          width: 14,
+                        ),
+                      ),
+                    ),
+
                     SizedBox(
 
                       width: 120,
@@ -98,15 +106,12 @@ class QuickStatsWidget extends StatelessWidget {
                       child:
                           CircularProgressIndicator(
 
-                            value: 0.75,
+                            value: 0.45,
 
-                            strokeWidth: 16,
+                            strokeWidth: 14,
 
                             backgroundColor:
-                                colours.secondary
-                                    .withValues(
-                                      alpha: 0.3,
-                                    ),
+                                Colors.transparent,
 
                             valueColor:
                                 AlwaysStoppedAnimation(
@@ -117,15 +122,15 @@ class QuickStatsWidget extends StatelessWidget {
 
                     SizedBox(
 
-                      width: 85,
-                      height: 85,
+                      width: 88,
+                      height: 88,
 
                       child:
                           CircularProgressIndicator(
 
-                            value: 0.45,
+                            value: 0.25,
 
-                            strokeWidth: 16,
+                            strokeWidth: 12,
 
                             backgroundColor:
                                 Colors.transparent,
@@ -149,12 +154,15 @@ class QuickStatsWidget extends StatelessWidget {
 
                           style: TextStyle(
                             color: colours
-                                .textPrimary
+                                .background
                                 .withValues(
                                   alpha: 0.7,
                                 ),
 
                             fontSize: 11,
+
+                            fontWeight:
+                                FontWeight.w600,
 
                             letterSpacing: 1,
                           ),
@@ -167,7 +175,7 @@ class QuickStatsWidget extends StatelessWidget {
 
                           style: TextStyle(
                             color:
-                                colours.textPrimary,
+                                colours.background,
 
                             fontSize: 22,
 
@@ -181,7 +189,7 @@ class QuickStatsWidget extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(width: 20),
+              const SizedBox(width: 24),
 
               Expanded(
 
@@ -206,8 +214,8 @@ class QuickStatsWidget extends StatelessWidget {
                     const SizedBox(height: 18),
 
                     _CategoryRow(
-                      color: colours.secondary
-                          .withValues(alpha: 0.6),
+                      color: colours.background
+                          .withValues(alpha: 0.35),
 
                       title: "Others",
                       percentage: "30%",
@@ -263,7 +271,7 @@ class _CategoryRow extends StatelessWidget {
             title,
 
             style: TextStyle(
-              color: colours.textPrimary,
+              color: colours.background,
               fontSize: 15,
             ),
           ),
@@ -273,7 +281,7 @@ class _CategoryRow extends StatelessWidget {
           percentage,
 
           style: TextStyle(
-            color: colours.textPrimary
+            color: colours.background
                 .withValues(alpha: 0.9),
 
             fontSize: 14,
