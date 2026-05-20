@@ -1,15 +1,29 @@
+import 'package:budgetit/main.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:budgetit/views/budget_manager/budget_manager_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-   testWidgets('Budget manager screen loads correctly', (tester) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: BudgetManagerScreen(), 
-      ),
-    );
+  testWidgets('App launches and navigates between main screens', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const BudgetApp());
+    await tester.pumpAndSettle();
+
+    // The app should start with the shared bottom navigation.
+    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.byType(NavigationDestination), findsNWidgets(3));
+
+    // Go to transactions screen.
+    await tester.tap(find.byType(NavigationDestination).at(1));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+
+    // Go to budget manager screen.
+    await tester.tap(find.byType(NavigationDestination).at(2));
+    await tester.pumpAndSettle();
 
  //   expect(find.text('Budget IT'), findsOneWidget);
     expect(find.text('MONTHLY SPENDING'), findsOneWidget);
