@@ -37,7 +37,7 @@ class BudgetApp extends StatelessWidget {
           const TransactionManager(),
     },
 
-    home: const DashboardPage(),  
+    home: const Dashboard(),  
 
     );
   }
