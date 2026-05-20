@@ -1,5 +1,3 @@
-version: "3"
-
 # Run 'make container-clean' to wipe and force fresh downloads.
 volumes:
   gradle-cache:

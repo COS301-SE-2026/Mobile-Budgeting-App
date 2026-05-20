@@ -10,9 +10,25 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: Text('BUDGETIT', style: TextStyle(color: MyColours().textPrimary, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 2)),
-      backgroundColor: MyColours().background,
-      centerTitle: true,
+       
+        backgroundColor: MyColours().background,
+        elevation: 0,
+        leading: Icon(Icons.menu, color: MyColours().textPrimary),
+        title: Text(
+          "Budget IT",
+          style: TextStyle(
+            color: MyColours().textPrimary,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1,
+          ),
+        ),
+        actions: [
+          Icon(Icons.account_circle_outlined, color: MyColours().textPrimary),
+          const SizedBox(width: 12),
+          Icon(Icons.settings_outlined, color: MyColours().textPrimary),
+          const SizedBox(width: 12),
+        ],
+      
     );
   }
 }

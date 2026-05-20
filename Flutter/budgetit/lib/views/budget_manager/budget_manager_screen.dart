@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../utils/app_colour.dart';
+import '../../utils/app_colour.dart';
 
 class BudgetManagerScreen extends StatelessWidget {
   BudgetManagerScreen({super.key});
@@ -10,25 +10,7 @@ class BudgetManagerScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: colours.background,
-      appBar: AppBar(
-        backgroundColor: colours.background,
-        elevation: 0,
-        leading: Icon(Icons.menu, color: colours.textPrimary),
-        title: Text(
-          "Budget IT",
-          style: TextStyle(
-            color: colours.textPrimary,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1,
-          ),
-        ),
-        actions: [
-          Icon(Icons.account_circle_outlined, color: colours.textPrimary),
-          const SizedBox(width: 12),
-          Icon(Icons.settings_outlined, color: colours.textPrimary),
-          const SizedBox(width: 12),
-        ],
-      ),
+     
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -138,7 +120,7 @@ class BudgetManagerScreen extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: _bottomNavBar(),
+    
     );
   }
 
@@ -296,31 +278,6 @@ class BudgetManagerScreen extends StatelessWidget {
     );
   }
 
-  Widget _bottomNavBar() {
-    return BottomNavigationBar(
-      backgroundColor: colours.background,
-      selectedItemColor: colours.secondary,
-      unselectedItemColor: colours.secondary,
-      type: BottomNavigationBarType.fixed,
-      currentIndex: 2,
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.grid_view),
-          label: "Dashboard",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.receipt_long),
-          label: "Transactions",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.account_balance_wallet_outlined),
-          label: "Budgets",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person_outline),
-          label: "Profile",
-        ),
-      ],
-    );
-  }
+  
+  
 }
