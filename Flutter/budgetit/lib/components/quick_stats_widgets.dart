@@ -1,14 +1,14 @@
+import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
 
 class QuickStatsWidget extends StatelessWidget {
 
   const QuickStatsWidget({super.key});
 
-  static const Color cream =
-      Color(0xFFDDD6AE);
-
   @override
   Widget build(BuildContext context) {
+
+    final colours = MyColours();
 
     return Container(
 
@@ -25,21 +25,20 @@ class QuickStatsWidget extends StatelessWidget {
             BorderRadius.circular(22),
 
         border: Border.all(
-          color: cream.withValues(
-            alpha: 0.7,
-          ),
+          color: colours.secondary
+              .withValues(alpha: 0.7),
         ),
 
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
 
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
 
           colors: [
 
-            Color(0xFF1B3D16),
-            Color(0xFF4E6240),
-            Color(0xFF6E7F5B),
+            colours.background,
+            colours.tertiary,
+            colours.secondary,
           ],
         ),
 
@@ -64,11 +63,11 @@ class QuickStatsWidget extends StatelessWidget {
 
         children: [
 
-          const Text(
+          Text(
             "Spending by Category",
 
             style: TextStyle(
-              color: cream,
+              color: colours.textPrimary,
               fontSize: 18,
               fontWeight: FontWeight.w500,
             ),
@@ -104,11 +103,14 @@ class QuickStatsWidget extends StatelessWidget {
                             strokeWidth: 16,
 
                             backgroundColor:
-                                Color(0x55DDD6AE),
+                                colours.secondary
+                                    .withValues(
+                                      alpha: 0.3,
+                                    ),
 
                             valueColor:
                                 AlwaysStoppedAnimation(
-                                  Color(0xFF04240C),
+                                  colours.background,
                                 ),
                           ),
                     ),
@@ -130,7 +132,7 @@ class QuickStatsWidget extends StatelessWidget {
 
                             valueColor:
                                 AlwaysStoppedAnimation(
-                                  Color(0xFF137E84),
+                                  colours.tertiary,
                                 ),
                           ),
                     ),
@@ -146,8 +148,9 @@ class QuickStatsWidget extends StatelessWidget {
                           "TOTAL",
 
                           style: TextStyle(
-                            color:
-                                cream.withValues(
+                            color: colours
+                                .textPrimary
+                                .withValues(
                                   alpha: 0.7,
                                 ),
 
@@ -159,12 +162,15 @@ class QuickStatsWidget extends StatelessWidget {
 
                         const SizedBox(height: 4),
 
-                        const Text(
+                        Text(
                           "R4.2k",
 
                           style: TextStyle(
-                            color: cream,
+                            color:
+                                colours.textPrimary,
+
                             fontSize: 22,
+
                             fontWeight:
                                 FontWeight.bold,
                           ),
@@ -181,26 +187,28 @@ class QuickStatsWidget extends StatelessWidget {
 
                 child: Column(
 
-                  children: const [
+                  children: [
 
                     _CategoryRow(
-                      color: Color(0xFF04240C),
+                      color: colours.background,
                       title: "Housing",
                       percentage: "45%",
                     ),
 
-                    SizedBox(height: 18),
+                    const SizedBox(height: 18),
 
                     _CategoryRow(
-                      color: Color(0xFF137E84),
+                      color: colours.tertiary,
                       title: "Dining",
                       percentage: "25%",
                     ),
 
-                    SizedBox(height: 18),
+                    const SizedBox(height: 18),
 
                     _CategoryRow(
-                      color: Color(0x88DDD6AE),
+                      color: colours.secondary
+                          .withValues(alpha: 0.6),
+
                       title: "Others",
                       percentage: "30%",
                     ),
@@ -227,11 +235,10 @@ class _CategoryRow extends StatelessWidget {
     required this.percentage,
   });
 
-  static const Color cream =
-      Color(0xFFDDD6AE);
-
   @override
   Widget build(BuildContext context) {
+
+    final colours = MyColours();
 
     return Row(
 
@@ -255,8 +262,8 @@ class _CategoryRow extends StatelessWidget {
           child: Text(
             title,
 
-            style: const TextStyle(
-              color: cream,
+            style: TextStyle(
+              color: colours.textPrimary,
               fontSize: 15,
             ),
           ),
@@ -266,9 +273,8 @@ class _CategoryRow extends StatelessWidget {
           percentage,
 
           style: TextStyle(
-            color: cream.withValues(
-              alpha: 0.9,
-            ),
+            color: colours.textPrimary
+                .withValues(alpha: 0.9),
 
             fontSize: 14,
 
