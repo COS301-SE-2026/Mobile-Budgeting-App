@@ -5,18 +5,98 @@ packages:
     dependency: transitive
     description:
       name: _fe_analyzer_shared
-      sha256: "8d7ff3948166b8ec5da0fbb5962000926b8e02f2ed9b3e51d1738905fbd4c98d"
+      sha256: "3b19a47f6ea7c2632760777c78174f47f6aec1e05f0cd611380d4593b8af1dbc"
       url: "https://pub.dev"
     source: hosted
-    version: "93.0.0"
+    version: "96.0.0"
+  amplify_analytics_pinpoint:
+    dependency: transitive
+    description:
+      name: amplify_analytics_pinpoint
+      sha256: "40d127fc69c1d736c4831a8c2246eb52ca4608dc6071781cd8b0de6111f8fdc5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.11.0"
+  amplify_analytics_pinpoint_dart:
+    dependency: transitive
+    description:
+      name: amplify_analytics_pinpoint_dart
+      sha256: d2cd4e418871a6915d150f89f85e88a2b7f757ba9ecbe928719097cb0b5e7273
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.16"
+  amplify_auth_cognito:
+    dependency: "direct main"
+    description:
+      name: amplify_auth_cognito
+      sha256: "47707cd42e325868baad790ebb6aa0fae1f84c1e01fe5ef8f0a21953b8c979cb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.11.0"
+  amplify_auth_cognito_dart:
+    dependency: transitive
+    description:
+      name: amplify_auth_cognito_dart
+      sha256: "8d7289eef7a73100e6c37eb8d82e75e70349c444132c528839fa5a420f723df2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.11.20"
+  amplify_core:
+    dependency: transitive
+    description:
+      name: amplify_core
+      sha256: "153141495f3d7188bcfdb81f8439612ecece6a0af48ad69b16d2f2d0249c3b40"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.11.0"
+  amplify_db_common:
+    dependency: transitive
+    description:
+      name: amplify_db_common
+      sha256: f3ed15209e2c30aeb332474b2d6d9b9b3fc6a411b0f097661ec3e59409e63f4c
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.17"
+  amplify_db_common_dart:
+    dependency: "direct main"
+    description:
+      name: amplify_db_common_dart
+      sha256: e63f49b2e1c1b044d62dd3c0f2f554a865550dfe802cbfd50147aa52fb99455e
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.18"
+  amplify_flutter:
+    dependency: "direct main"
+    description:
+      name: amplify_flutter
+      sha256: "018864135e7faafd3deead7765a80b18476b7a3935bc54b34d9c3fe544d8efa9"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.11.0"
+  amplify_secure_storage:
+    dependency: transitive
+    description:
+      name: amplify_secure_storage
+      sha256: "3bfb4844a88fc7356d87456e288123f6048966e5644b0a8ca69acc1f76c0b30c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.17"
+  amplify_secure_storage_dart:
+    dependency: transitive
+    description:
+      name: amplify_secure_storage_dart
+      sha256: "0a0aeda93ef57b95df17b893dacf3ff115da847a11d598c1984537fbbd8d0f9a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.10"
   analyzer:
     dependency: transitive
     description:
       name: analyzer
-      sha256: de7148ed2fcec579b19f122c1800933dfa028f6d9fd38a152b04b1516cec120b
+      sha256: "0c516bc4ad36a1a75759e54d5047cb9d15cded4459df01aa35a0b5ec7db2c2a0"
       url: "https://pub.dev"
     source: hosted
-    version: "10.0.1"
+    version: "10.2.0"
   args:
     dependency: transitive
     description:
@@ -33,6 +113,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.13.1"
+  aws_common:
+    dependency: transitive
+    description:
+      name: aws_common
+      sha256: "2d577ae98722794a2e72e323ba8bb174e0566a4a147512bef0fa43a8aa8b6c3f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.13"
+  aws_signature_v4:
+    dependency: transitive
+    description:
+      name: aws_signature_v4
+      sha256: f1a1a75d6a3340e6b357ff2e0cad29dc3b65c26b489f2fe2d9be4bd2bfde12b2
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.10"
   boolean_selector:
     dependency: transitive
     description:
@@ -146,6 +242,7 @@ packages:
     source: hosted
     version: "1.19.1"
   convert:
+<<<<<<< HEAD
     dependency: transitive
     description:
       name: convert
@@ -153,6 +250,25 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.2"
+  crclib:
+    dependency: transitive
+    description:
+      name: crclib
+      sha256: "800f2226cd90c900ddcaaccb79449eabe690627ee8c7046737458f1a2509043d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0"
+  cross_file:
+=======
+>>>>>>> f2a6421 (Revert "Merge branch 'feature/uc13-cognito-auth' into dev")
+    dependency: transitive
+    description:
+      name: convert
+      sha256: b30acd5944035672bc15c6b7a8b47d773e41e2f17de064350988c5d02adb1c68
+      url: "https://pub.dev"
+    source: hosted
+<<<<<<< HEAD
+    version: "0.3.5+2"
   crypto:
     dependency: transitive
     description:
@@ -177,6 +293,19 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.7"
+  dbus:
+=======
+    version: "3.1.2"
+  crclib:
+>>>>>>> f2a6421 (Revert "Merge branch 'feature/uc13-cognito-auth' into dev")
+    dependency: transitive
+    description:
+      name: crclib
+      sha256: "800f2226cd90c900ddcaaccb79449eabe690627ee8c7046737458f1a2509043d"
+      url: "https://pub.dev"
+    source: hosted
+<<<<<<< HEAD
+    version: "0.7.12"
   decimal:
     dependency: "direct main"
     description:
@@ -185,30 +314,72 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.4"
-  drift:
-    dependency: "direct main"
+=======
+    version: "3.0.0"
+  crypto:
+    dependency: transitive
     description:
-      name: drift
-      sha256: "8033500116b24398fba0cca0369cc31678cd627c01e41753a61186911cea743e"
+      name: crypto
+      sha256: c8ea0233063ba03258fbcf2ca4d6dadfefe14f02fab57702265467a19f27fadf
       url: "https://pub.dev"
     source: hosted
-    version: "2.33.0"
+    version: "3.0.7"
+  cupertino_icons:
+    dependency: "direct main"
+    description:
+      name: cupertino_icons
+      sha256: "41e005c33bd814be4d3096aff55b1908d419fde52ca656c8c47719ec745873cd"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.9"
+>>>>>>> f2a6421 (Revert "Merge branch 'feature/uc13-cognito-auth' into dev")
+  device_info_plus:
+    dependency: transitive
+    description:
+      name: device_info_plus
+      sha256: b4fed1b2835da9d670d7bed7db79ae2a94b0f5ad6312268158a9b5479abbacdd
+      url: "https://pub.dev"
+    source: hosted
+    version: "12.4.0"
+  device_info_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: device_info_plus_platform_interface
+      sha256: e1ea89119e34903dca74b883d0dd78eb762814f97fb6c76f35e9ff74d261a18f
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.3"
+  drift:
+<<<<<<< HEAD
+    dependency: "direct main"
+=======
+    dependency: transitive
+>>>>>>> f2a6421 (Revert "Merge branch 'feature/uc13-cognito-auth' into dev")
+    description:
+      name: drift
+      sha256: "970cd188fddb111b26ea6a9b07a62bf5c2432d74147b8122c67044ae3b97e99e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.31.0"
+<<<<<<< HEAD
   drift_dev:
     dependency: "direct dev"
     description:
       name: drift_dev
-      sha256: b3dd5b75e30522a91da8abda9f5bb17230cb038097f6d15fa75d42bb563428aa
+      sha256: "917184b2fb867b70a548a83bf0d36268423b38d39968c06cce4905683da49587"
       url: "https://pub.dev"
     source: hosted
-    version: "2.33.0"
+    version: "2.31.0"
   drift_flutter:
     dependency: "direct main"
     description:
       name: drift_flutter
-      sha256: "887fdec622174dc7eaefd0048403e34ee07cc18626ac8a7544cc3b8a4a172166"
+      sha256: c07120854742a0cae2f7501a0da02493addde550db6641d284983c08762e60a7
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.0"
+    version: "0.2.8"
+=======
+>>>>>>> f2a6421 (Revert "Merge branch 'feature/uc13-cognito-auth' into dev")
   fake_async:
     dependency: transitive
     description:
@@ -227,12 +398,27 @@ packages:
     version: "2.2.0"
   file:
     dependency: transitive
+<<<<<<< HEAD
     description:
       name: file
       sha256: a3b4f84adafef897088c160faf7dfffb7696046cb13ae90b508c2cbc95d3b8d4
       url: "https://pub.dev"
     source: hosted
     version: "7.0.1"
+  file_picker:
+    dependency: "direct main"
+=======
+>>>>>>> f2a6421 (Revert "Merge branch 'feature/uc13-cognito-auth' into dev")
+    description:
+      name: file
+      sha256: a3b4f84adafef897088c160faf7dfffb7696046cb13ae90b508c2cbc95d3b8d4
+      url: "https://pub.dev"
+    source: hosted
+<<<<<<< HEAD
+    version: "11.0.2"
+=======
+    version: "7.0.1"
+>>>>>>> f2a6421 (Revert "Merge branch 'feature/uc13-cognito-auth' into dev")
   fixnum:
     dependency: transitive
     description:
@@ -254,8 +440,110 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.0.0"
+  flutter_secure_storage:
+    dependency: "direct main"
+    description:
+      name: flutter_secure_storage
+      sha256: "9cad52d75ebc511adfae3d447d5d13da15a55a92c9410e50f67335b6d21d16ea"
+      url: "https://pub.dev"
+    source: hosted
+    version: "9.2.4"
+  flutter_secure_storage_linux:
+    dependency: transitive
+    description:
+      name: flutter_secure_storage_linux
+      sha256: be76c1d24a97d0b98f8b54bce6b481a380a6590df992d0098f868ad54dc8f688
+      url: "https://pub.dev"
+    source: hosted
+<<<<<<< HEAD
+    version: "2.0.34"
+  flutter_secure_storage:
+    dependency: "direct main"
+    description:
+      name: flutter_secure_storage
+      sha256: "6848263f9744072d0977347c383fb8b57d9780319a6bf5238b5a2866a029de62"
+      url: "https://pub.dev"
+    source: hosted
+    version: "10.2.0"
+  flutter_secure_storage_darwin:
+    dependency: transitive
+    description:
+      name: flutter_secure_storage_darwin
+      sha256: "67cd1ff671add31dc13e45194398187a04bb63804b37fa47866afae296d73fcb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.1"
+  flutter_secure_storage_linux:
+    dependency: transitive
+    description:
+      name: flutter_secure_storage_linux
+      sha256: "2b5c76dce569ab752d55a1cee6a2242bcc11fdba927078fb88c503f150767cda"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0"
+=======
+    version: "1.2.3"
+  flutter_secure_storage_macos:
+    dependency: transitive
+    description:
+      name: flutter_secure_storage_macos
+      sha256: "6c0a2795a2d1de26ae202a0d78527d163f4acbb11cde4c75c670f3a0fc064247"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.3"
+>>>>>>> f2a6421 (Revert "Merge branch 'feature/uc13-cognito-auth' into dev")
+  flutter_secure_storage_platform_interface:
+    dependency: transitive
+    description:
+      name: flutter_secure_storage_platform_interface
+<<<<<<< HEAD
+      sha256: "8ceea1223bee3c6ac1a22dabd8feefc550e4729b3675de4b5900f55afcb435d6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
+=======
+      sha256: cf91ad32ce5adef6fba4d736a542baca9daf3beac4db2d04be350b87f69ac4a8
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.2"
+>>>>>>> f2a6421 (Revert "Merge branch 'feature/uc13-cognito-auth' into dev")
+  flutter_secure_storage_web:
+    dependency: transitive
+    description:
+      name: flutter_secure_storage_web
+<<<<<<< HEAD
+      sha256: "073a62b3aeb866ab4ce795f960413948e51e5a42a9b0c8333b6daf5bb3208a1c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.1"
+=======
+      sha256: f4ebff989b4f07b2656fb16b47852c0aab9fed9b4ec1c70103368337bc1886a9
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.1"
+>>>>>>> f2a6421 (Revert "Merge branch 'feature/uc13-cognito-auth' into dev")
+  flutter_secure_storage_windows:
+    dependency: transitive
+    description:
+      name: flutter_secure_storage_windows
+<<<<<<< HEAD
+      sha256: "3b7c8e068875dfd46719ff57c90d8c459c87f2302ed6b00ff006b3c9fcad1613"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.1.0"
+=======
+      sha256: b20b07cb5ed4ed74fc567b78a72936203f587eba460af1df11281c9326cd3709
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.2"
+>>>>>>> f2a6421 (Revert "Merge branch 'feature/uc13-cognito-auth' into dev")
   flutter_test:
     dependency: "direct dev"
+    description: flutter
+    source: sdk
+    version: "0.0.0"
+  flutter_web_plugins:
+    dependency: transitive
     description: flutter
     source: sdk
     version: "0.0.0"
@@ -283,6 +571,23 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.3"
+  http:
+    dependency: transitive
+    description:
+      name: http
+      sha256: "87721a4a50b19c7f1d49001e51409bddc46303966ce89a65af4f4e6004896412"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.6.0"
+  http2:
+    dependency: transitive
+    description:
+      name: http2
+      sha256: "382d3aefc5bd6dc68c6b892d7664f29b5beb3251611ae946a98d35158a82bbfa"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.1"
+<<<<<<< HEAD
   http_multi_server:
     dependency: transitive
     description:
@@ -291,6 +596,8 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.2"
+=======
+>>>>>>> f2a6421 (Revert "Merge branch 'feature/uc13-cognito-auth' into dev")
   http_parser:
     dependency: transitive
     description:
@@ -307,6 +614,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.20.2"
+<<<<<<< HEAD
   io:
     dependency: transitive
     description:
@@ -315,6 +623,8 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
+=======
+>>>>>>> f2a6421 (Revert "Merge branch 'feature/uc13-cognito-auth' into dev")
   jni:
     dependency: transitive
     description:
@@ -331,14 +641,32 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
+<<<<<<< HEAD
+=======
+  js:
+    dependency: transitive
+    description:
+      name: js
+      sha256: f2c445dce49627136094980615a031419f7f3eb393237e4ecd97ac15dea343f3
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.7"
+>>>>>>> f2a6421 (Revert "Merge branch 'feature/uc13-cognito-auth' into dev")
   json_annotation:
     dependency: transitive
     description:
       name: json_annotation
+<<<<<<< HEAD
       sha256: "2a743920d81b7910627f68ee2c9ac1fc0bfee32b9fc3403587d7c6791ca12f80"
       url: "https://pub.dev"
     source: hosted
     version: "4.12.0"
+=======
+      sha256: cb09e7dac6210041fad964ed7fbee004f14258b4eca4040f72d1234062ace4c8
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.11.0"
+>>>>>>> f2a6421 (Revert "Merge branch 'feature/uc13-cognito-auth' into dev")
   leak_tracker:
     dependency: transitive
     description:
@@ -419,6 +747,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.17.6"
+  nested:
+    dependency: transitive
+    description:
+      name: nested
+      sha256: "03bac4c528c64c95c722ec99280375a6f2fc708eec17c7b3f07253b626cd2a20"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
+  oauth2:
+    dependency: transitive
+    description:
+      name: oauth2
+      sha256: "890a032ba1b44fa8dcfeba500e613df0ecbe16aeace13bb0fe1d25eb42cda5b8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.5"
   objective_c:
     dependency: transitive
     description:
@@ -427,6 +771,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "9.3.0"
+  os_detect:
+    dependency: transitive
+    description:
+      name: os_detect
+      sha256: "7d87c0dd98c6faf110d5aa498e9a6df02ffce4bb78cc9cfc8ad02929be9bb71f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.3"
   package_config:
     dependency: transitive
     description:
@@ -435,6 +787,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.0"
+  package_info_plus:
+    dependency: transitive
+    description:
+      name: package_info_plus
+      sha256: "468c26b4254ab01979fa5e4a98cb343ea3631b9acee6f21028997419a80e1a20"
+      url: "https://pub.dev"
+    source: hosted
+    version: "9.0.1"
+  package_info_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: package_info_plus_platform_interface
+      sha256: "202a487f08836a592a6bd4f901ac69b3a8f146af552bbd14407b6b41e1c3f086"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.1"
   path:
     dependency: transitive
     description:
@@ -444,7 +812,11 @@ packages:
     source: hosted
     version: "1.9.1"
   path_provider:
+<<<<<<< HEAD
     dependency: "direct main"
+=======
+    dependency: transitive
+>>>>>>> f2a6421 (Revert "Merge branch 'feature/uc13-cognito-auth' into dev")
     description:
       name: path_provider
       sha256: "50c5dd5b6e1aaf6fb3a78b33f6aa3afca52bf903a8a5298f53101fdaee55bbcd"
@@ -491,6 +863,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.0"
+  petitparser:
+    dependency: transitive
+    description:
+      name: petitparser
+      sha256: "91bd59303e9f769f108f8df05e371341b15d59e995e6806aefab827b58336675"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.2"
   platform:
     dependency: transitive
     description:
@@ -507,6 +887,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
+<<<<<<< HEAD
   pool:
     dependency: transitive
     description:
@@ -515,6 +896,28 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.2"
+  popover:
+=======
+  provider:
+>>>>>>> f2a6421 (Revert "Merge branch 'feature/uc13-cognito-auth' into dev")
+    dependency: "direct main"
+    description:
+      name: provider
+      sha256: "4e82183fa20e5ca25703ead7e05de9e4cceed1fbd1eadc1ac3cb6f565a09f272"
+      url: "https://pub.dev"
+    source: hosted
+<<<<<<< HEAD
+    version: "0.4.0"
+  provider:
+    dependency: "direct main"
+    description:
+      name: provider
+      sha256: "4e82183fa20e5ca25703ead7e05de9e4cceed1fbd1eadc1ac3cb6f565a09f272"
+      url: "https://pub.dev"
+    source: hosted
+=======
+>>>>>>> f2a6421 (Revert "Merge branch 'feature/uc13-cognito-auth' into dev")
+    version: "6.1.5+1"
   pub_semver:
     dependency: transitive
     description:
@@ -523,6 +926,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.0"
+<<<<<<< HEAD
   pubspec_parse:
     dependency: transitive
     description:
@@ -547,6 +951,8 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.0"
+=======
+>>>>>>> f2a6421 (Revert "Merge branch 'feature/uc13-cognito-auth' into dev")
   record_use:
     dependency: transitive
     description:
@@ -555,6 +961,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.0"
+  retry:
+    dependency: transitive
+    description:
+      name: retry
+      sha256: "822e118d5b3aafed083109c72d5f484c6dc66707885e07c0fbcb8b986bba7efc"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.2"
   shelf:
     dependency: transitive
     description:
@@ -563,6 +977,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.2"
+<<<<<<< HEAD
   shelf_web_socket:
     dependency: transitive
     description:
@@ -571,11 +986,29 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
+=======
+>>>>>>> f2a6421 (Revert "Merge branch 'feature/uc13-cognito-auth' into dev")
   sky_engine:
     dependency: transitive
     description: flutter
     source: sdk
     version: "0.0.0"
+  smithy:
+    dependency: transitive
+    description:
+      name: smithy
+      sha256: d84419bc9873c74ba586b2d655ac787c2064bf45d12539c49c813d04aa383053
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.10"
+  smithy_aws:
+    dependency: transitive
+    description:
+      name: smithy_aws
+      sha256: c12a091cf928db9ff4b0d2dd9c5ed8f3f5b71164a7c723ebecec84c2b635a099
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.10"
   source_gen:
     dependency: transitive
     description:
@@ -592,38 +1025,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.2"
-  sqlcipher_flutter_libs:
-    dependency: transitive
-    description:
-      name: sqlcipher_flutter_libs
-      sha256: "38d62d659d2fb8739bf25a42c9a350d1fdd6c29a5a61f13a946778ec75d27929"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.0+eol"
   sqlite3:
     dependency: transitive
     description:
       name: sqlite3
-      sha256: "56da3e13ed7d28a66f930aa2b2b29db6736a233f08283326e96321dd812030f5"
+      sha256: "3145bd74dcdb4fd6f5c6dda4d4e4490a8087d7f286a14dee5d37087290f0f8a2"
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.1"
+    version: "2.9.4"
   sqlite3_flutter_libs:
     dependency: transitive
     description:
       name: sqlite3_flutter_libs
-      sha256: "3ed7553eee7bb368f8950f58ba29f634e06e813c029aff6a0d60862b96de8454"
+      sha256: eeb9e3a45207649076b808f8a5a74d68770d0b7f26ccef6d5f43106eee5375ad
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.0+eol"
+    version: "0.5.42"
   sqlparser:
     dependency: transitive
     description:
       name: sqlparser
-      sha256: ecdc06d4a7d79dcbc928d99afd2f7f5b0f98a637c46f89be83d911617f759978
+      sha256: "337e9997f7141ffdd054259128553c348635fa318f7ca492f07a4ab76f850d19"
       url: "https://pub.dev"
     source: hosted
-    version: "0.44.4"
+    version: "0.43.1"
   stack_trace:
     dependency: transitive
     description:
@@ -672,6 +1097,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.11"
+  tuple:
+    dependency: transitive
+    description:
+      name: tuple
+      sha256: a97ce2013f240b2f3807bcbaf218765b6f301c3eff91092bcfa23a039e7dd151
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.2"
   typed_data:
     dependency: transitive
     description:
@@ -736,6 +1169,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.3"
+  win32:
+    dependency: transitive
+    description:
+      name: win32
+      sha256: d7cb55e04cd34096cd3a79b3330245f54cb96a370a1c27adb3c84b917de8b08e
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.15.0"
+  win32_registry:
+    dependency: transitive
+    description:
+      name: win32_registry
+      sha256: "6f1b564492d0147b330dd794fee8f512cec4977957f310f9951b5f9d83618dae"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
+  worker_bee:
+    dependency: transitive
+    description:
+      name: worker_bee
+      sha256: b23ee127a1ac275ccbb1ffc3abae04faf6ccb13de94cd2eda415493f78acfdea
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.11"
   xdg_directories:
     dependency: transitive
     description:
@@ -744,6 +1201,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
+  xml:
+    dependency: transitive
+    description:
+      name: xml
+      sha256: "971043b3a0d3da28727e40ed3e0b5d18b742fa5a68665cca88e74b7876d5e025"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.6.1"
   yaml:
     dependency: transitive
     description:
