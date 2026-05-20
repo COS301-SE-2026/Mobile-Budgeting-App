@@ -1,5 +1,6 @@
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
+
 class BalanceCard extends StatelessWidget {
 
   const BalanceCard({super.key});
@@ -22,21 +23,10 @@ class BalanceCard extends StatelessWidget {
 
       decoration: BoxDecoration(
 
+        color: colours.secondary,
+
         borderRadius:
             BorderRadius.circular(30),
-
-        gradient: LinearGradient(
-
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-
-          colors: [
-
-            colours.background,
-            colours.tertiary,
-            colours.secondary,
-          ],
-        ),
 
         boxShadow: [
 
@@ -63,7 +53,7 @@ class BalanceCard extends StatelessWidget {
             "MONTHLY SPENDING MAY 2026",
 
             style: TextStyle(
-              color: colours.textPrimary,
+              color: colours.background,
               fontSize: 16,
               fontWeight: FontWeight.w400,
               letterSpacing: 1.2,
@@ -76,7 +66,7 @@ class BalanceCard extends StatelessWidget {
             "R1,850.00",
 
             style: TextStyle(
-              color: colours.textPrimary,
+              color: colours.background,
               fontSize: 52,
               fontWeight: FontWeight.bold,
               height: 1,
@@ -89,7 +79,7 @@ class BalanceCard extends StatelessWidget {
             "Target: R1,950.00",
 
             style: TextStyle(
-              color: colours.textPrimary.withValues(
+              color: colours.background.withValues(
                 alpha: 0.8,
               ),
 
