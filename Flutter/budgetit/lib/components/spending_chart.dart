@@ -66,7 +66,7 @@ class SpendingChart extends StatelessWidget {
                     'TOTAL',
                     style: TextStyle(
                       fontSize: 11,
-                      color: colours.textPrimary.withOpacity(0.5),
+                      color: colours.textPrimary,
                       letterSpacing: 1.2,
                     ),
                   ),
@@ -124,7 +124,7 @@ class _LegendItem extends StatelessWidget {
           '${cat.label} ${cat.percentage.toInt()}%',
           style: TextStyle(
             fontSize: 13,
-            color: colours.textPrimary.withOpacity(0.6),
+            color: colours.textPrimary,
           ),
         ),
       ],
