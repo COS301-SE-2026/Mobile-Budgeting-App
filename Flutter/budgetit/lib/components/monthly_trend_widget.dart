@@ -2,6 +2,7 @@ import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
 
 class MonthlyTrendWidget extends StatefulWidget {
+
   final DateTime selectedDate;
   final List<MonthData> months;
 
@@ -20,6 +21,53 @@ class _MonthlyTrendWidgetState
     extends State<MonthlyTrendWidget> {
 
   int? _selectedIndex;
+
+  DateTime _startMonth =
+      DateTime(2026, 3);
+
+  String _monthName(int month) {
+
+    const months = [
+      '',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+
+    return months[month];
+  }
+
+  String _displayMonth(int index) {
+
+    final date = DateTime(
+      _startMonth.year,
+      _startMonth.month + index,
+    );
+
+    return _monthName(date.month);
+  }
+
+  String get currentRange {
+
+    final endMonth = DateTime(
+      _startMonth.year,
+      _startMonth.month + 2,
+    );
+
+    return
+        "${_monthName(_startMonth.month)} ${_startMonth.year}"
+        " - "
+        "${_monthName(endMonth.month)} ${endMonth.year}";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,9 +100,11 @@ class _MonthlyTrendWidgetState
         crossAxisAlignment:
             CrossAxisAlignment.start,
 
-            children: [
+        children: [
 
-              Row(
+          // header
+
+          Row(
 
             mainAxisAlignment:
                 MainAxisAlignment.spaceBetween,
@@ -75,15 +125,29 @@ class _MonthlyTrendWidgetState
 
                 children: [
 
-                  Icon(
-                    Icons.chevron_left,
-                    color: colours.textPrimary,
+                  GestureDetector(
+
+                    onTap: () {
+
+                      setState(() {
+
+                        _startMonth = DateTime(
+                          _startMonth.year,
+                          _startMonth.month - 1,
+                        );
+                      });
+                    },
+
+                    child: Icon(
+                      Icons.chevron_left,
+                      color: colours.textPrimary,
+                    ),
                   ),
 
                   const SizedBox(width: 6),
 
                   Text(
-                    "Mar - May",
+                    currentRange,
 
                     style: TextStyle(
                       color: colours.textPrimary,
@@ -93,126 +157,240 @@ class _MonthlyTrendWidgetState
 
                   const SizedBox(width: 6),
 
-                  Icon(
-                    Icons.chevron_right,
-                    color: colours.textPrimary,
+                  GestureDetector(
+
+                    onTap: () {
+
+                      setState(() {
+
+                        _startMonth = DateTime(
+                          _startMonth.year,
+                          _startMonth.month + 1,
+                        );
+                      });
+                    },
+
+                    child: Icon(
+                      Icons.chevron_right,
+                      color: colours.textPrimary,
+                    ),
                   ),
                 ],
               ),
             ],
           ),
 
-          const SizedBox(height: 25),
+          const SizedBox(height: 30),
 
           SizedBox(
 
-            height: 180,
+            height: 240,
 
             child: Row(
 
-              crossAxisAlignment:
-                  CrossAxisAlignment.end,
+              children: [
 
-              children: List.generate(
-                widget.months.length,
+                // y axis
 
-                (index) {
+                Column(
 
-                  final month =
-                      widget.months[index];
+                  mainAxisAlignment:
+                      MainAxisAlignment.spaceBetween,
 
-                  final height =
-                      (month.spent /
-                              maxSpend) *
-                          130;
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
 
-                  final isSelected =
-                      _selectedIndex ==
-                          index;
+                  children: [
 
-                  return Expanded(
-
-                    child: GestureDetector(
-
-                      onTap: () {
-
-                        setState(() {
-
-                          _selectedIndex =
-                              index;
-                        });
-                      },
-
-                      child: Column(
-
-                        mainAxisAlignment:
-                            MainAxisAlignment.end,
-
-                        children: [
-
-                          AnimatedContainer(
-
-                            duration:
-                                const Duration(
-                                  milliseconds:
-                                      300,
-                                ),
-
-                            width: 40,
-
-                            height: height,
-
-                            decoration:
-                                BoxDecoration(
-
-                                  color:
-                                      isSelected
-                                          ? colours
-                                              .tertiary
-                                          : colours
-                                              .tertiary
-                                              .withValues(
-                                                alpha:
-                                                    0.5,
-                                              ),
-
-                                  borderRadius:
-                                      BorderRadius.circular(
-                                        14,
-                                      ),
-                                ),
-                          ),
-
-                          const SizedBox(
-                            height: 10,
-                          ),
-
-                          Text(
-                            month.shortMonth,
-
-                            style: TextStyle(
-
-                              color:
-                                  isSelected
-                                      ? colours
-                                          .textPrimary
-                                      : colours
-                                          .textPrimary
-                                          .withValues(
-                                            alpha:
-                                                0.6,
-                                          ),
-
-                              fontWeight:
-                                  FontWeight.bold,
-                            ),
-                          ),
-                        ],
+                    Text(
+                      "R15K",
+                      style: TextStyle(
+                        color: colours.textPrimary
+                            .withValues(alpha: 0.5),
+                        fontSize: 10,
                       ),
                     ),
-                  );
-                },
-              ),
+
+                    Text(
+                      "R10K",
+                      style: TextStyle(
+                        color: colours.textPrimary
+                            .withValues(alpha: 0.5),
+                        fontSize: 10,
+                      ),
+                    ),
+
+                    Text(
+                      "R5K",
+                      style: TextStyle(
+                        color: colours.textPrimary
+                            .withValues(alpha: 0.5),
+                        fontSize: 10,
+                      ),
+                    ),
+
+                    Text(
+                      "0",
+                      style: TextStyle(
+                        color: colours.textPrimary
+                            .withValues(alpha: 0.5),
+                        fontSize: 10,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(width: 16),
+
+                // bars
+
+                Expanded(
+
+                  child: Row(
+
+                    crossAxisAlignment:
+                        CrossAxisAlignment.end,
+
+                    children: List.generate(
+                      widget.months.length,
+
+                      (index) {
+
+                        final month =
+                            widget.months[index];
+
+                        final height =
+                            (month.spent /
+                                    maxSpend) *
+                                140;
+
+                        final isSelected =
+                            _selectedIndex ==
+                                index;
+
+                        return Expanded(
+
+                          child: GestureDetector(
+
+                            onTap: () {
+
+                              setState(() {
+
+                                _selectedIndex =
+                                    index;
+                              });
+                            },
+
+                            child: Column(
+
+                              mainAxisAlignment:
+                                  MainAxisAlignment.end,
+
+                              children: [
+
+                                // amount
+
+                                Text(
+
+                                  "R${month.spent.toInt()}",
+
+                                  style: TextStyle(
+                                    color:
+                                        colours
+                                            .textPrimary,
+                                    fontSize: 11,
+                                    fontWeight:
+                                        FontWeight.w500,
+                                  ),
+                                ),
+
+                                const SizedBox(height: 8),
+
+                                // bar
+
+                                AnimatedContainer(
+
+                                  duration:
+                                      const Duration(
+                                        milliseconds:
+                                            300,
+                                      ),
+
+                                  width: 52,
+
+                                  height: height,
+
+                                  decoration:
+                                      BoxDecoration(
+
+                                        color:
+                                            isSelected
+                                                ? colours
+                                                    .tertiary
+                                                : colours
+                                                    .tertiary
+                                                    .withValues(
+                                                      alpha:
+                                                          0.5,
+                                                    ),
+
+                                        borderRadius:
+                                            BorderRadius.circular(
+                                              14,
+                                            ),
+
+                                        boxShadow:
+                                            isSelected
+                                                ? [
+                                                    BoxShadow(
+                                                      color:
+                                                          colours
+                                                              .tertiary,
+                                                      blurRadius:
+                                                          12,
+                                                      spreadRadius:
+                                                          1,
+                                                    ),
+                                                  ]
+                                                : [],
+                                      ),
+                                ),
+
+                                const SizedBox(
+                                  height: 12,
+                                ),
+
+                                // x axis
+
+                                Text(
+                                  _displayMonth(index),
+
+                                  style: TextStyle(
+
+                                    color:
+                                        isSelected
+                                            ? colours
+                                                .textPrimary
+                                            : colours
+                                                .textPrimary
+                                                .withValues(
+                                                  alpha:
+                                                      0.6,
+                                                ),
+
+                                    fontWeight:
+                                        FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
