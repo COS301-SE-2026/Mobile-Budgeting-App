@@ -106,8 +106,7 @@ class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
 
   /// Returns the active budget template for the given [categoryId].
   ///
-  /// Only returns the first matching template (if one exists). Throws
-  /// if more than one active template exists for the same category.
+  /// Returns the first matching template, or `null` if none exists.
   ///
   /// - [categoryId] - the category identifier to look up
   /// - [includeDeleted] - if `true`, includes soft-deleted templates
@@ -117,7 +116,8 @@ class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
     bool includeDeleted = false,
   }) {
     final q = select(budgetTemplates)
-      ..where((t) => t.categoryId.equals(categoryId));
+      ..where((t) => t.categoryId.equals(categoryId))
+      ..limit(1);
     if (!includeDeleted) q.where((t) => t.deletedAt.isNull());
     return q.getSingleOrNull();
   }
@@ -161,10 +161,12 @@ class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
   /// Hard-deletes a budget template and all associated [BudgetPeriod]s.
   ///
   /// This permanently removes both the template record and any generated
-  /// budget periods for that template.
+  /// budget periods for that template within a single transaction.
   Future<void> hardDeleteBudgetTemplate(String id) async {
-    await (delete(budgetPeriods)..where((t) => t.templateId.equals(id))).go();
-    await (delete(budgetTemplates)..where((t) => t.id.equals(id))).go();
+    await db.transaction(() async {
+      await (delete(budgetPeriods)..where((t) => t.templateId.equals(id))).go();
+      await (delete(budgetTemplates)..where((t) => t.id.equals(id))).go();
+    });
   }
 
   /// Restores a soft-deleted budget template by clearing its [deletedAt] timestamp.
@@ -194,6 +196,9 @@ class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
     required Decimal budgetedAmount,
     bool isOverridden = false,
   }) async {
+    if (!endDate.isAfter(startDate)) {
+      throw ArgumentError('endDate must be after startDate');
+    }
     final id = _uuid.v4();
     final now = _now();
     await into(budgetPeriods).insert(
@@ -233,29 +238,34 @@ class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
   /// Returns the active budget period for a [templateId] at the given [date].
   ///
   /// The active period is the one where [startDate] <= [date] <= [endDate].
+  /// Pass [date] in UTC for consistent comparisons with stored period boundaries.
   ///
   /// Returns `null` if no period is active for the given [date].
   Future<BudgetPeriod?> getActiveBudgetPeriod(
     String templateId,
     DateTime date,
   ) {
-    return (select(budgetPeriods)..where(
-          (t) =>
-              t.templateId.equals(templateId) &
-              t.startDate.isSmallerOrEqualValue(date) &
-              t.endDate.isBiggerOrEqualValue(date),
-        ))
+    return (select(budgetPeriods)
+          ..where(
+            (t) =>
+                t.templateId.equals(templateId) &
+                t.startDate.isSmallerOrEqualValue(date) &
+                t.endDate.isBiggerOrEqualValue(date),
+          )
+          ..limit(1))
         .getSingleOrNull();
   }
 
   /// Generates the next budget period for a template.
   ///
-  /// Calculates the start and end dates based on the template's
-  /// [PeriodType]:
-  /// - [PeriodType.daily] - same day until end of day
-  /// - [PeriodType.weekly] - Monday to Sunday of current week
-  /// - [PeriodType.monthly] - 1st to last day of current month
-  /// - [PeriodType.yearly] - January 1st to December 31st of current year
+  /// If an active period already exists for the current date, it is returned
+  /// immediately without creating a duplicate.
+  ///
+  /// Calculates start and end dates in UTC based on the template's [PeriodType]:
+  /// - [PeriodType.daily]   - midnight UTC today → 23:59:59.999 UTC today
+  /// - [PeriodType.weekly]  - midnight UTC Monday → 23:59:59.999 UTC Sunday
+  /// - [PeriodType.monthly] - midnight UTC 1st → 23:59:59.999 UTC last day
+  /// - [PeriodType.yearly]  - midnight UTC Jan 1 → 23:59:59.999 UTC Dec 31
   ///
   /// The [budgetedAmount] is taken from the template's [BudgetTemplate.amount].
   ///
@@ -266,40 +276,32 @@ class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
       throw StateError('Budget template $templateId not found');
     }
 
-    final effectiveDate = DateTime.now();
+    final now = DateTime.now().toUtc();
+    final existing = await getActiveBudgetPeriod(templateId, now);
+    if (existing != null) return existing;
+
+    final today = DateTime.utc(now.year, now.month, now.day);
     DateTime startDate, endDate;
 
     switch (template.periodType) {
       case PeriodType.daily:
-        startDate = effectiveDate;
-        endDate = effectiveDate
+        startDate = today;
+        endDate = today
             .add(const Duration(days: 1))
-            .subtract(const Duration(microseconds: 1));
-        break;
+            .subtract(const Duration(milliseconds: 1));
       case PeriodType.weekly:
-        startDate = effectiveDate.subtract(
-          Duration(days: effectiveDate.weekday - 1),
-        );
+        startDate = today.subtract(Duration(days: today.weekday - 1));
         endDate = startDate
-            .add(const Duration(days: 6))
-            .subtract(const Duration(microseconds: 1));
-        break;
+            .add(const Duration(days: 7))
+            .subtract(const Duration(milliseconds: 1));
       case PeriodType.monthly:
-        startDate = DateTime(effectiveDate.year, effectiveDate.month, 1);
-        endDate = DateTime(
-          effectiveDate.year,
-          effectiveDate.month + 1,
-          0,
-        ).subtract(const Duration(microseconds: 1));
-        break;
+        startDate = DateTime.utc(now.year, now.month, 1);
+        endDate = DateTime.utc(now.year, now.month + 1, 1)
+            .subtract(const Duration(milliseconds: 1));
       case PeriodType.yearly:
-        startDate = DateTime(effectiveDate.year);
-        endDate = DateTime(
-          effectiveDate.year + 1,
-          1,
-          0,
-        ).subtract(const Duration(microseconds: 1));
-        break;
+        startDate = DateTime.utc(now.year, 1, 1);
+        endDate = DateTime.utc(now.year + 1, 1, 1)
+            .subtract(const Duration(milliseconds: 1));
     }
 
     return insertBudgetPeriod(
@@ -329,6 +331,9 @@ class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
     DateTime? startDate,
     DateTime? endDate,
   }) async {
+    if (startDate != null && endDate != null && !endDate.isAfter(startDate)) {
+      throw ArgumentError('endDate must be after startDate');
+    }
     final companion = BudgetPeriodsCompanion(
       budgetedAmount: budgetedAmount != null
           ? Value(budgetedAmount)
