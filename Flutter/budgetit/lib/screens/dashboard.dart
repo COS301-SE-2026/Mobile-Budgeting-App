@@ -17,7 +17,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   String selectedFilter = "All";
-
+  DateTime selectedDate = DateTime.now();
   @override
   Widget build(BuildContext context) {
     final colours = MyColours();
@@ -34,9 +34,77 @@ class _DashboardState extends State<Dashboard> {
 
             children: [
               const SizedBox(height: 20),
+              //adding the filter gang
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+
+                    Text(
+                      "Dashboard",
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: colours.textPrimary,
+                      ),
+                    ),
+
+                    GestureDetector(
+                      onTap: () async {
+
+                        final pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: selectedDate,
+                          firstDate: DateTime(2024),
+                          lastDate: DateTime(2030),
+                        );
+
+                        if (pickedDate != null) {
+                          setState(() {
+                            selectedDate = pickedDate;//makes it rebuild using the new date hehe
+                          });
+                        }
+                      },
+
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
+
+                        decoration: BoxDecoration(
+                          color: colours.primary,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+
+                        child: Row(
+                          children: [
+
+                            const Icon(
+                              Icons.calendar_month,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+
+                            const SizedBox(width: 8),
+
+                            Text(
+                              "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
               // balance section
-              const BalanceCard(),
 
               const SizedBox(height: 20),
 
@@ -51,10 +119,12 @@ class _DashboardState extends State<Dashboard> {
               const SizedBox(height: 25),
 
               // monthly trends
-              Padding(
+             Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
 
                 child: MonthlyTrendWidget(
+                  selectedDate: selectedDate,
+
                   months: const [
                     MonthData(
                       month: 'March 2026',
