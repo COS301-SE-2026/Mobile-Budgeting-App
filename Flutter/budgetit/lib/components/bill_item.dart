@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:budgetit/utils/app_colour.dart';
 
 class BillItem extends StatelessWidget {
 
@@ -7,7 +8,7 @@ class BillItem extends StatelessWidget {
   final String subtitle;
   final String amount;
 
-  const BillItem({
+  BillItem({
     super.key,
     required this.icon,
     required this.title,
@@ -15,15 +16,7 @@ class BillItem extends StatelessWidget {
     required this.amount,
   });
 
-  static const Color darkGreen =
-      Color(0xFF04240C);
-
-  static const Color cream =
-      Color(0xFFDDD6AE);
-
-  static const Color teal =
-      Color(0xFF137E84);
-
+  final colours = MyColours();
   @override
   Widget build(BuildContext context) {
 
@@ -38,7 +31,7 @@ class BillItem extends StatelessWidget {
 
       decoration: BoxDecoration(
 
-        color: cream,
+        color: colours.secondary,
 
         borderRadius:
             BorderRadius.circular(28),
@@ -78,7 +71,7 @@ class BillItem extends StatelessWidget {
 
               size: 30,
 
-              color: teal,
+              color: colours.tertiary,
             ),
           ),
 
@@ -96,11 +89,11 @@ class BillItem extends StatelessWidget {
                 Text(
                   title,
 
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight:
                         FontWeight.bold,
-                    color: darkGreen,
+                    color: colours.background,
                   ),
                 ),
 
@@ -111,9 +104,7 @@ class BillItem extends StatelessWidget {
 
                   style: TextStyle(
                     color:
-                        darkGreen.withValues(
-                          alpha: 0.75,
-                        ),
+                        colours.background.withValues(alpha: 0.75),
 
                     fontSize: 15,
 
@@ -128,8 +119,8 @@ class BillItem extends StatelessWidget {
           Text(
             amount,
 
-            style: const TextStyle(
-              color: darkGreen,
+            style: TextStyle(
+              color: colours.background,
               fontSize: 22,
               fontWeight:
                   FontWeight.bold,
