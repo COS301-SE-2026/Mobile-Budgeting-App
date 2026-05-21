@@ -45,78 +45,78 @@ class _BudgetCategory {
   class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
   final MyColours colours = MyColours();
 
-  final List<_BudgetCategory> _budgetCategories = [
-    _BudgetCategory(
-      icon: Icons.home_outlined,
-      title: "Rent",
-      subtitle: "Fixed Expense",
-      spent: 1200,
-      limit: 1200,
-      progressColor: Colors.cyan,
-    ),
-    _BudgetCategory(
-      icon: Icons.shopping_bag_outlined,
-      title: "Groceries",
-      subtitle: "Essential",
-      spent: 450,
-      limit: 600,
-      progressColor: Colors.greenAccent,
-    ),
-    _BudgetCategory(
-      icon: Icons.restaurant,
-      title: "Dining",
-      subtitle: "Discretionary",
-      spent: 200,
-      limit: 150,
-      progressColor: Colors.red,
-      isOverLimit: true,
-    ),
-  ];
+  late final List<_BudgetCategory> _budgetCategories = [
+  _BudgetCategory(
+    icon: Icons.home_outlined,
+    title: "Rent",
+    subtitle: "Fixed Expense",
+    spent: 1200,
+    limit: 1200,
+    progressColor: colours.tertiary,
+  ),
+  _BudgetCategory(
+    icon: Icons.shopping_bag_outlined,
+    title: "Groceries",
+    subtitle: "Essential",
+    spent: 450,
+    limit: 600,
+    progressColor: colours.secondary,
+  ),
+  _BudgetCategory(
+    icon: Icons.restaurant,
+    title: "Dining",
+    subtitle: "Discretionary",
+    spent: 200,
+    limit: 150,
+    progressColor: colours.tertiary,
+    isOverLimit: true,
+  ),
+];
 
-  final List<_BudgetCategoryOption> _categoryOptions = const [
-    _BudgetCategoryOption(
-      label: 'Rent',
-      subtitle: 'Fixed Expense',
-      icon: Icons.home_outlined,
-      progressColor: Colors.cyan,
-    ),
-    _BudgetCategoryOption(
-      label: 'Groceries',
-      subtitle: 'Essential',
-      icon: Icons.shopping_bag_outlined,
-      progressColor: Colors.greenAccent,
-    ),
-    _BudgetCategoryOption(
-      label: 'Dining',
-      subtitle: 'Discretionary',
-      icon: Icons.restaurant,
-      progressColor: Colors.red,
-    ),
-    _BudgetCategoryOption(
-      label: 'Transport',
-      subtitle: 'Travel Expense',
-      icon: Icons.directions_car_outlined,
-      progressColor: Colors.orangeAccent,
-    ),
-    _BudgetCategoryOption(
-      label: 'Entertainment',
-      subtitle: 'Lifestyle',
-      icon: Icons.movie_outlined,
-      progressColor: Colors.purpleAccent,
-    ),
-    _BudgetCategoryOption(
-      label: 'Utilities',
-      subtitle: 'Monthly Bills',
-      icon: Icons.electric_bolt_outlined,
-      progressColor: Colors.blueAccent,
-    ),
-    _BudgetCategoryOption(
-      label: 'Savings',
-      subtitle: 'Financial Goal',
-      icon: Icons.savings_outlined,
-      progressColor: Colors.tealAccent,
-    ),
-  ];
+  late final List<_BudgetCategoryOption> _categoryOptions = [
+  _BudgetCategoryOption(
+    label: 'Rent',
+    subtitle: 'Fixed Expense',
+    icon: Icons.home_outlined,
+    progressColor: colours.tertiary,
+  ),
+  _BudgetCategoryOption(
+    label: 'Groceries',
+    subtitle: 'Essential',
+    icon: Icons.shopping_bag_outlined,
+    progressColor: colours.secondary,
+  ),
+  _BudgetCategoryOption(
+    label: 'Dining',
+    subtitle: 'Discretionary',
+    icon: Icons.restaurant,
+    progressColor: colours.tertiary,
+  ),
+  _BudgetCategoryOption(
+    label: 'Transport',
+    subtitle: 'Travel Expense',
+    icon: Icons.directions_car_outlined,
+    progressColor: colours.secondary,
+  ),
+  _BudgetCategoryOption(
+    label: 'Entertainment',
+    subtitle: 'Lifestyle',
+    icon: Icons.movie_outlined,
+    progressColor: colours.tertiary,
+  ),
+  _BudgetCategoryOption(
+    label: 'Utilities',
+    subtitle: 'Monthly Bills',
+    icon: Icons.electric_bolt_outlined,
+    progressColor: colours.secondary,
+  ),
+  _BudgetCategoryOption(
+    label: 'Savings',
+    subtitle: 'Financial Goal',
+    icon: Icons.savings_outlined,
+    progressColor: colours.tertiary,
+  ),
+];
 
 
 
@@ -280,7 +280,7 @@ class _BudgetCategory {
         gradient: colours.primaryGradient,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: isOverLimit ? Colors.red : colours.secondary,
+          color: isOverLimit ? colours.tertiary : colours.secondary,
           width: 1,
         ),
       ),
@@ -292,17 +292,17 @@ class _BudgetCategory {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: Colors.red,
+                  color: colours.tertiary,
                   borderRadius: BorderRadius.circular(2),
                 ),
-                child: const Text(
-                  "OVER LIMIT",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 8,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                child: Text(
+  "OVER LIMIT",
+  style: TextStyle(
+    color: colours.background,
+    fontSize: 8,
+    fontWeight: FontWeight.bold,
+  ),
+),
               ),
             ),
 
@@ -350,7 +350,7 @@ class _BudgetCategory {
               Text(
                 "R${spent.toInt()} / R${limit.toInt()}",
                 style: TextStyle(
-                  color: isOverLimit ? Colors.red : colours.textPrimary,
+                  color: isOverLimit ? colours.tertiary : colours.textPrimary,
                   fontSize: 12,
                   fontWeight:
                       isOverLimit ? FontWeight.bold : FontWeight.normal,
@@ -497,7 +497,7 @@ class _BudgetCategory {
   ..showSnackBar(
     SnackBar(
       behavior: SnackBarBehavior.floating,
-      backgroundColor: Colors.red.shade700,
+      backgroundColor: colours.tertiary,
       margin: const EdgeInsets.symmetric(
         horizontal: 18,
         vertical: 16,
@@ -505,24 +505,24 @@ class _BudgetCategory {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
       ),
-      content: const Row(
-        children: [
-          Icon(
-            Icons.error_outline,
-            color: Colors.white,
-          ),
-          SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'Please enter a valid budget limit.',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
+     content: const Row(
+  children: [
+    Icon(
+      Icons.error_outline,
+      color: Colors.white,
+    ),
+    SizedBox(width: 12),
+    Expanded(
+      child: Text(
+        'Please enter a valid budget limit.',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w600,
+        ),
       ),
+    ),
+  ],
+),
     ),
   );
                     return;
