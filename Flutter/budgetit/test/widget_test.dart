@@ -23,6 +23,7 @@ AppDatabase _openTestDatabase() {
   }
   return AppDatabase.forTesting(NativeDatabase.memory());
 }
+import 'package:budgetit/views/budget_manager/budget_manager_screen.dart';
 
 void main() {
   testWidgets('Budget manager screen loads correctly', (
