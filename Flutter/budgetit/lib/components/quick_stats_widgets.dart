@@ -200,7 +200,7 @@ class QuickStatsWidget extends StatelessWidget {
                     _CategoryRow(
                       color: colours.background,
                       title: "Housing",
-                      percentage: "45%",
+                      percentage: "30%",
                     ),
 
                     const SizedBox(height: 18),
@@ -218,7 +218,7 @@ class QuickStatsWidget extends StatelessWidget {
                           .withValues(alpha: 0.35),
 
                       title: "Others",
-                      percentage: "30%",
+                      percentage: "45%",
                     ),
                   ],
                 ),
