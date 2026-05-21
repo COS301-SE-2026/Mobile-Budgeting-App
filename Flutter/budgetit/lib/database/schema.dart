@@ -24,11 +24,9 @@ enum AssignmentSource { manual, ai, import }
 /// The period type used by budget templates.
 enum PeriodType { daily, weekly, monthly, yearly }
 
-/*
-SQLite does not have a built-in decimal type.
-Dart makes use of custom column types to automatically convert Decimal values
-to and from SQLite's TEXT type.
-*/
+/// SQLite does not have a built-in decimal type.
+/// Dart uses custom column types to automatically convert [Decimal] values
+/// to and from SQLite's TEXT type.
 
 /// Converts [Decimal] values to and from SQLite's TEXT type.
 ///
