@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'amplifyconfiguration.dart';
 import 'auth/data/cognito_auth_service.dart';
 import 'auth/providers/auth_provider.dart';
+import 'database/app_database.dart';
 import 'screens/dashboard.dart';
 import 'screens/login_password_screen.dart';
 
@@ -34,32 +35,28 @@ class BudgetApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AppAuthProvider(authService: CognitoAuthService()),
-      child: MaterialApp(
-
-      debugShowCheckedModeBanner: false,
-
-      title: 'BudgetIt',
-
-      theme: ThemeData(
-
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
+    return MultiProvider(
+      providers: [
+        Provider<AppDatabase>(
+          create: (_) => AppDatabase(),
+          dispose: (_, db) => db.close(),
         ),
-
-        useMaterial3: true,
-      ),
-
-      initialRoute: '/',
-
-      routes: {
-        '/transaction_manager': (context) =>
-            const TransactionManager(),
-      },
-
-      home: const AuthWrapper(),
-
+        ChangeNotifierProvider(
+          create: (_) => AppAuthProvider(authService: CognitoAuthService()),
+        ),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'BudgetIt',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          useMaterial3: true,
+        ),
+        initialRoute: '/',
+        routes: {
+          '/transaction_manager': (context) => const TransactionManager(),
+        },
+        home: const AuthWrapper(),
       ),
     );
   }
@@ -76,65 +73,54 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
-  
- final List<Widget> _pages = [
-  
-  const Dashboard(),
-  const TransactionManager(),
-  BudgetManagerScreen(),
-];
+  final List<Widget> _pages = [
+    const Dashboard(),
+    const TransactionManager(),
+    BudgetManagerScreen(),
+  ];
 
- void _onDestinationSelected(int index) {
-  setState(() {
-    _selectedIndex = index;
-  });
-
-
-
-}
+  void _onDestinationSelected(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: MainAppbar(),
-      body: _pages[_selectedIndex],   // Show the selected page
+      body: _pages[_selectedIndex], // Show the selected page
       bottomNavigationBar: Container(
-  decoration: BoxDecoration(
-  
-    borderRadius: BorderRadius.all(Radius.circular(10)),
-    border: Border(top: BorderSide(color: MyColours().secondary, width: 1.5))
-    
-    
-  ),
-  child: NavigationBar(
-    selectedIndex: _selectedIndex,
-    backgroundColor: MyColours().background,
-    indicatorColor: MyColours().secondary,
-  
-    onDestinationSelected: _onDestinationSelected,
-
-  
- 
-    destinations: const [
-  NavigationDestination(
-    icon: Icon(Icons.home_outlined),
-    selectedIcon: Icon(Icons.home),
-    label: '',
-  ),
-  NavigationDestination(
-    icon: Icon(Icons.attach_money),
-    selectedIcon: Icon(Icons.attach_money),
-    label: '',
-  ),
-  NavigationDestination(
-    icon: Icon(Icons.pie_chart_outline),
-    selectedIcon: Icon(Icons.pie_chart),
-    label: '',
-  ),
-
-],
-  ),
-),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          border: Border(
+            top: BorderSide(color: MyColours().secondary, width: 1.5),
+          ),
+        ),
+        child: NavigationBar(
+          selectedIndex: _selectedIndex,
+          backgroundColor: MyColours().background,
+          indicatorColor: MyColours().secondary,
+          onDestinationSelected: _onDestinationSelected,
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home),
+              label: '',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.attach_money),
+              selectedIcon: Icon(Icons.attach_money),
+              label: '',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.pie_chart_outline),
+              selectedIcon: Icon(Icons.pie_chart),
+              label: '',
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -1,8 +1,10 @@
 // daos/category_dao.dart
 import 'package:drift/drift.dart';
+import 'package:flutter/widgets.dart' show IconData;
 import 'package:uuid/uuid.dart';
 import '../app_database.dart';
 import '../schema.dart';
+import '../../utils/icon_mapper.dart';
 
 part 'category_dao.g.dart';
 
@@ -41,15 +43,18 @@ class CategoryDao extends DatabaseAccessor<AppDatabase>
   /// entry (self-reference with depth 0). Returns the persisted
   /// [Category] record.
   ///
-  /// - [name] - the name of the category
-  /// - [type] - the category type ([income] or [expense])
-  /// - [icon] - optional icon string
-  /// - [color] - optional color string
-  /// - [isDefault] - whether this is a default system category
+  /// The [icon] is stored as a decimal codePoint string via [iconToDb].
+  /// Read it back with `category.iconData` (from the [CategoryIconX] extension).
+  ///
+  /// - [name] - the display name of the category
+  /// - [type] - whether this is an [CategoryType.income] or [CategoryType.expense] category
+  /// - [icon] - optional [IconData] for the category; must be a Material Icon
+  /// - [color] - optional hex color string for UI display (e.g. `'#FF5733'`)
+  /// - [isDefault] - whether this is a built-in system category (defaults to `false`)
   Future<Category> insertCategory({
     required String name,
     required CategoryType type,
-    String? icon,
+    IconData? icon,
     String? color,
     bool isDefault = false,
   }) async {
@@ -59,7 +64,7 @@ class CategoryDao extends DatabaseAccessor<AppDatabase>
       id: id,
       name: name,
       type: type,
-      icon: Value(icon),
+      icon: Value(icon != null ? iconToDb(icon) : null),
       color: Value(color),
       isDefault: isDefault,
       createdAt: now,
@@ -124,22 +129,40 @@ class CategoryDao extends DatabaseAccessor<AppDatabase>
 
   /// Updates a category's fields.
   ///
-  /// Only provided non-`null` parameters are updated. The
-  /// [Category.updatedAt] timestamp is always refreshed.
+  /// Only fields wrapped in a present [Value] are written to the database.
+  /// Use `Value(null)` to explicitly clear a nullable field, and
+  /// `const Value.absent()` (the default) to leave it unchanged.
+  /// [Category.updatedAt] is always refreshed regardless of which fields
+  /// are updated.
+  ///
+  /// The [icon] parameter accepts a [Value]-wrapped [IconData]. Conversion
+  /// to the stored codePoint string is handled internally.
   ///
   /// Returns the updated [Category].
+  ///
+  /// Example — set an icon:
+  /// ```dart
+  /// await dao.updateCategory(id, icon: Value(Icons.savings_outlined));
+  /// ```
+  ///
+  /// Example — clear an icon:
+  /// ```dart
+  /// await dao.updateCategory(id, icon: const Value(null));
+  /// ```
   Future<Category> updateCategory(
     String id, {
     String? name,
     CategoryType? type,
-    Value<String?> icon = const Value.absent(),
+    Value<IconData?> icon = const Value.absent(),
     Value<String?> color = const Value.absent(),
     bool? isDefault,
   }) async {
     final companion = CategoriesCompanion(
       name: name != null ? Value(name) : const Value.absent(),
       type: type != null ? Value(type) : const Value.absent(),
-      icon: icon,
+      icon: icon.present
+          ? Value(icon.value != null ? iconToDb(icon.value!) : null)
+          : const Value.absent(),
       color: color,
       isDefault: isDefault != null ? Value(isDefault) : const Value.absent(),
       updatedAt: Value(_now()),
