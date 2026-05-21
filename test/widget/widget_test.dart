@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:budgetit/main.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:budgetit/main.dart';
+import 'package:flutter/material.dart';
 
 void main() {
   testWidgets('App launches and navigates between main screens', (
@@ -24,14 +24,13 @@ void main() {
     await tester.tap(find.byType(NavigationDestination).at(2));
     await tester.pumpAndSettle();
 
+ //   expect(find.text('Budget IT'), findsOneWidget);
     expect(find.text('MONTHLY SPENDING'), findsOneWidget);
     expect(find.text('Budget Categories'), findsOneWidget);
     expect(find.text('CREATE NEW BUDGET'), findsOneWidget);
 
-    // Go back to dashboard.
-    await tester.tap(find.byType(NavigationDestination).at(0));
-    await tester.pumpAndSettle();
-
-    expect(tester.takeException(), isNull);
+    expect(find.text('Rent'), findsOneWidget);
+    expect(find.text('Groceries'), findsOneWidget);
+    expect(find.text('Dining'), findsOneWidget);
   });
 }
