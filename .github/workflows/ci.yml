@@ -158,10 +158,20 @@ jobs:
         working-directory: ${{ steps.detect_flutter.outputs.flutter_dir }}
         run: flutter analyze
 
-      - name: Run Flutter tests
+      - name: Run Flutter unit tests
         if: steps.detect_flutter.outputs.found == 'true'
         working-directory: ${{ steps.detect_flutter.outputs.flutter_dir }}
-        run: flutter test
+        run: flutter test ../../test/unit/
+
+      - name: Run Flutter widget tests
+        if: steps.detect_flutter.outputs.found == 'true'
+        working-directory: ${{ steps.detect_flutter.outputs.flutter_dir }}
+        run: flutter test ../../test/widget/
+
+      - name: Run Flutter integration tests
+        if: steps.detect_flutter.outputs.found == 'true'
+        working-directory: ${{ steps.detect_flutter.outputs.flutter_dir }}
+        run: flutter test ../../test/integration/
 
       - name: Build Android APK
         if: steps.detect_flutter.outputs.found == 'true'
