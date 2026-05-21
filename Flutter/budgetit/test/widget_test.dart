@@ -1,13 +1,36 @@
+import 'dart:ffi';
+import 'dart:io';
+
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sqlite3/open.dart';
 
+import 'package:budgetit/database/app_database.dart';
 import 'package:budgetit/main.dart';
+
+AppDatabase _openTestDatabase() {
+  if (Platform.isLinux) {
+    open.overrideFor(OperatingSystem.linux, () {
+      for (final lib in ['libsqlite3.so', 'libsqlite3.so.0']) {
+        try {
+          return DynamicLibrary.open(lib);
+        } catch (_) {}
+      }
+      throw UnsupportedError('Could not load SQLite.');
+    });
+  }
+  return AppDatabase.forTesting(NativeDatabase.memory());
+}
 
 void main() {
   testWidgets('App launches and navigates between main screens', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const BudgetApp());
+    final db = _openTestDatabase();
+    addTearDown(db.close);
+
+    await tester.pumpWidget(BudgetApp(db: db));
     await tester.pumpAndSettle();
 
     // The app should start with the shared bottom navigation.
