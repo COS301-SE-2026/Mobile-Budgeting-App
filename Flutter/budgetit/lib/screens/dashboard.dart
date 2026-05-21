@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:budgetit/utils/app_colour.dart';
+import 'package:provider/provider.dart';
+import 'package:budgetit/utils/theme_provider.dart';
 
 import '../components/balance_card.dart';
 import '../components/bill_item.dart';
@@ -20,6 +22,7 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>();
     final colours = MyColours();
 
     return Scaffold(
