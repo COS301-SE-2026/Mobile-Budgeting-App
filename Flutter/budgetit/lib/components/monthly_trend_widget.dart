@@ -1,5 +1,7 @@
 import 'package:budgetit/utils/app_colour.dart';
+import 'package:budgetit/utils/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class MonthlyTrendWidget extends StatefulWidget {
   final List<MonthData> months;
@@ -21,7 +23,7 @@ class _MonthlyTrendWidgetState
 
   @override
   Widget build(BuildContext context) {
-
+    context.watch<ThemeProvider>();
     final colours = MyColours();
 
     final maxSpend = widget.months
@@ -34,13 +36,13 @@ class _MonthlyTrendWidgetState
 
       decoration: BoxDecoration(
 
-        color: colours.background,
+        color: colours.navBarColor,
 
         borderRadius:
             BorderRadius.circular(24),
 
         border: Border.all(
-          color: colours.secondary
+          color: colours.cardText
               .withValues(alpha: 0.15),
         ),
       ),
@@ -56,7 +58,7 @@ class _MonthlyTrendWidgetState
             "Monthly Trend",
 
             style: TextStyle(
-              color: colours.textPrimary,
+              color: colours.cardText,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -155,9 +157,9 @@ class _MonthlyTrendWidgetState
                               color:
                                   isSelected
                                       ? colours
-                                          .textPrimary
+                                          .cardText
                                       : colours
-                                          .textPrimary
+                                          .cardText
                                           .withValues(
                                             alpha:
                                                 0.6,
