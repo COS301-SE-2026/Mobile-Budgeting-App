@@ -56,13 +56,15 @@ dependencies:
   # State management
   provider: ^6.1.2
 
+  popover: ^0.4.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
   drift_dev: ^2.21.0
   build_runner: ^2.15.0
   mockito: ^5.4.5
-  sqlite3: any
+  sqlite3: ^2.9.4
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
