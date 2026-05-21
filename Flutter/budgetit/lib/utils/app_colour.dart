@@ -11,6 +11,9 @@ class MyColours{
    Color background = Color.fromARGB(250, 4, 36, 12);
    Color tertiary = Color.fromARGB(250, 19, 126, 132);
   Color textPrimary = Color.fromARGB(250,221, 214, 174);
+  Color redColor = Color.fromARGB(255, 255, 0, 0);
+  Color greenAccents = Color.fromARGB(255, 0, 230, 118);
+  Color whiteAccents = Color.fromARGB(255, 255, 255, 255);
   
   double bodyFontSize = 16;
   double headingFontSize1 = 24;
