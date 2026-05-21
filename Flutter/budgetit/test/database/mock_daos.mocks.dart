@@ -11,9 +11,10 @@ import 'package:budgetit/database/daos/category_dao.dart' as _i5;
 import 'package:budgetit/database/daos/settings_dao.dart' as _i9;
 import 'package:budgetit/database/daos/transaction_dao.dart' as _i7;
 import 'package:budgetit/database/schema.dart' as _i11;
-import 'package:decimal/decimal.dart' as _i12;
+import 'package:decimal/decimal.dart' as _i13;
 import 'package:drift/drift.dart' as _i3;
 import 'package:drift/src/runtime/executor/stream_queries.dart' as _i4;
+import 'package:flutter/widgets.dart' as _i12;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i10;
 
@@ -418,7 +419,7 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
   _i6.Future<_i2.Category> insertCategory({
     required String? name,
     required _i11.CategoryType? type,
-    String? icon,
+    _i12.IconData? icon,
     String? color,
     bool? isDefault = false,
   }) =>
@@ -511,7 +512,7 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
     String? id, {
     String? name,
     _i11.CategoryType? type,
-    _i3.Value<String?>? icon = const _i3.Value.absent(),
+    _i3.Value<_i12.IconData?>? icon = const _i3.Value.absent(),
     _i3.Value<String?>? color = const _i3.Value.absent(),
     bool? isDefault,
   }) =>
@@ -1333,7 +1334,7 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
 
   @override
   _i6.Future<_i2.Transaction> insertTransaction({
-    required _i12.Decimal? amount,
+    required _i13.Decimal? amount,
     required _i11.TransactionType? type,
     required String? shortDescription,
     String? longDescription,
@@ -1459,7 +1460,7 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
   @override
   _i6.Future<_i2.Transaction> updateTransaction(
     String? id, {
-    _i12.Decimal? amount,
+    _i13.Decimal? amount,
     _i11.TransactionType? type,
     String? shortDescription,
     _i3.Value<String?>? longDescription = const _i3.Value.absent(),
@@ -2349,7 +2350,7 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
   @override
   _i6.Future<_i2.BudgetTemplate> insertBudgetTemplate({
     required String? categoryId,
-    required _i12.Decimal? amount,
+    required _i13.Decimal? amount,
     required _i11.PeriodType? periodType,
     String? currency = 'ZAR',
   }) =>
@@ -2438,7 +2439,7 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
   @override
   _i6.Future<_i2.BudgetTemplate> updateBudgetTemplate(
     String? id, {
-    _i12.Decimal? amount,
+    _i13.Decimal? amount,
     _i11.PeriodType? periodType,
     String? currency,
   }) =>
@@ -2511,7 +2512,7 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
     required String? templateId,
     required DateTime? startDate,
     required DateTime? endDate,
-    required _i12.Decimal? budgetedAmount,
+    required _i13.Decimal? budgetedAmount,
     bool? isOverridden = false,
   }) =>
       (super.noSuchMethod(
@@ -2607,7 +2608,7 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
   @override
   _i6.Future<_i2.BudgetPeriod> updateBudgetPeriod(
     String? id, {
-    _i12.Decimal? budgetedAmount,
+    _i13.Decimal? budgetedAmount,
     bool? isOverridden,
     DateTime? startDate,
     DateTime? endDate,

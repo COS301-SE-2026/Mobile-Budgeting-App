@@ -1,7 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:budgetit/database/app_database.dart';
 import 'package:budgetit/database/daos/category_dao.dart';
 import 'package:budgetit/database/schema.dart';
+import 'package:budgetit/utils/icon_mapper.dart';
 import 'helpers.dart';
 
 void main() {
@@ -60,11 +62,11 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Dining',
         type: CategoryType.expense,
-        icon: 'restaurant',
+        icon: Icons.restaurant,
         color: '#FF5733',
       );
 
-      expect(cat.icon, equals('restaurant'));
+      expect(cat.iconData!.codePoint, equals(Icons.restaurant.codePoint));
       expect(cat.color, equals('#FF5733'));
     });
 
@@ -240,13 +242,13 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Food',
         type: CategoryType.expense,
-        icon: 'fork',
+        icon: Icons.restaurant,
         color: '#FF0000',
       );
 
       final updated = await dao.updateCategory(cat.id, name: 'Groceries');
 
-      expect(updated.icon, equals('fork'));
+      expect(updated.iconData!.codePoint, equals(Icons.restaurant.codePoint));
       expect(updated.color, equals('#FF0000'));
       expect(updated.type, equals(CategoryType.expense));
     });
