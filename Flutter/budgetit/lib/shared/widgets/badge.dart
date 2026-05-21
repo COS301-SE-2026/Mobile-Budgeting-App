@@ -22,13 +22,21 @@ class _MyBadgeState extends State<MyBadge> {
       child: Container(
        constraints: BoxConstraints(
         maxWidth: MediaQuery.of(context).size.width * 0.25,
+        minHeight: MediaQuery.of(context).size.height * 0.04,
+        
+        
       ),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         shape: BoxShape.rectangle,
         borderRadius: BorderRadius.circular(10),
-        gradient: _isPressed ? null : MyColours().primaryGradient,
-        color: _isPressed ? MyColours().secondary : null,
+        
+        border: Border.all(
+          color: _isPressed ? MyColours().primary : MyColours().secondary,
+          width: 1.5,
+        ),
+        
+        color: _isPressed ? MyColours().secondary : MyColours().primary,
       ),
      
       child: Row(
@@ -36,10 +44,15 @@ class _MyBadgeState extends State<MyBadge> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
+            
+
             widget.text ?? '',
             textAlign: TextAlign.center,
+            
             style: TextStyle(
               fontSize: MyColours().bodyFontSize,
+              
+            
               color: _isPressed ? MyColours().background : MyColours().textPrimary,
             ),
           ),
