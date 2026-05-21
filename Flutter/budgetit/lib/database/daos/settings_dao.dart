@@ -20,6 +20,11 @@ part 'settings_dao.g.dart';
 @DriftAccessor(tables: [AppSettings])
 class SettingsDao extends DatabaseAccessor<AppDatabase>
     with _$SettingsDaoMixin {
+  static const _kDefaultCurrency = 'default_currency';
+  static const _kThemeMode = 'theme_mode';
+  static const _kOnboardingComplete = 'onboarding_complete';
+  static const _kDateFormat = 'date_format';
+
   /// Creates a new instance of [SettingsDao] backed by the given [AppDatabase].
   SettingsDao(super.db);
 
@@ -61,38 +66,38 @@ class SettingsDao extends DatabaseAccessor<AppDatabase>
   ///
   /// Defaults to 'ZAR' if not set.
   Future<String> getDefaultCurrency() async =>
-      await getSetting('default_currency') ?? 'ZAR';
+      await getSetting(_kDefaultCurrency) ?? 'ZAR';
 
   /// Sets the user's default currency.
   Future<void> setDefaultCurrency(String currency) =>
-      setSetting('default_currency', currency);
+      setSetting(_kDefaultCurrency, currency);
 
   /// Returns the user's preferred theme mode.
   ///
   /// Defaults to 'system' if not set.
   Future<String> getThemeMode() async =>
-      await getSetting('theme_mode') ?? 'system';
+      await getSetting(_kThemeMode) ?? 'system';
 
   /// Sets the user's preferred theme mode.
-  Future<void> setThemeMode(String mode) => setSetting('theme_mode', mode);
+  Future<void> setThemeMode(String mode) => setSetting(_kThemeMode, mode);
 
   /// Checks whether onboarding has been completed.
   ///
   /// Returns `false` if the setting is unset.
   Future<bool> getOnboardingComplete() async =>
-      await getSetting('onboarding_complete') == 'true';
+      await getSetting(_kOnboardingComplete) == 'true';
 
   /// Records whether onboarding has been completed.
   Future<void> setOnboardingComplete({required bool complete}) =>
-      setSetting('onboarding_complete', complete.toString());
+      setSetting(_kOnboardingComplete, complete.toString());
 
   /// Returns the user's preferred date format.
   ///
   /// Defaults to 'yyyy-MM-dd' if not set.
   Future<String> getDateFormat() async =>
-      await getSetting('date_format') ?? 'yyyy-MM-dd';
+      await getSetting(_kDateFormat) ?? 'yyyy-MM-dd';
 
   /// Sets the user's preferred date format.
   Future<void> setDateFormat(String format) =>
-      setSetting('date_format', format);
+      setSetting(_kDateFormat, format);
 }
