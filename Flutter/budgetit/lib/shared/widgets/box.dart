@@ -82,7 +82,7 @@ class _MyBoxState extends State<MyBox> {
           borderRadius: BorderRadius.circular(10),
           color: MyColours().primary,
           border: Border.all(
-            color: MyColours().secondary,
+            color: MyColours().cardText.withValues(alpha: 0.3),
             width: 1.0,
           ),
         ),
@@ -91,7 +91,7 @@ class _MyBoxState extends State<MyBox> {
             const SizedBox(width: 12),
             Icon(
               _icon,
-              color: _isPressed ? MyColours().background : MyColours().textPrimary,
+              color: _isPressed ? MyColours().background : MyColours().cardText,
               size: MediaQuery.of(context).size.width * 0.04,
             ),
             const SizedBox(width: 6),
@@ -106,7 +106,7 @@ class _MyBoxState extends State<MyBox> {
                       fontSize: MyColours().bodyFontSize,
                       color: _isPressed
                           ? MyColours().background
-                          : MyColours().textPrimary,
+                          : MyColours().cardText,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -117,7 +117,7 @@ class _MyBoxState extends State<MyBox> {
                         fontSize: MyColours().bodyFontSize * 0.85,
                         color: _isPressed
                             ? MyColours().background
-                            : MyColours().secondary,
+                            : MyColours().cardText.withValues(alpha: 0.75),
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -128,8 +128,7 @@ class _MyBoxState extends State<MyBox> {
               'R${_amount.toStringAsFixed(2)}',
               style: TextStyle(
                 fontSize: MyColours().bodyFontSize,
-                color: _isPressed ? MyColours().background : MyColours().secondary,
-             //   fontWeight: FontWeight,
+                color: _isPressed ? MyColours().background : MyColours().cardText,
               ),
             ),
             const SizedBox(width: 12),
