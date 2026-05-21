@@ -1,0 +1,82 @@
+[
+  {
+    "amount": "25000.00",
+    "type": "income",
+    "short_description": "May salary",
+    "transaction_date": "2026-05-01T08:00:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Salary"
+  },
+  {
+    "amount": "3500.00",
+    "type": "income",
+    "short_description": "Freelance project payment",
+    "transaction_date": "2026-05-10T10:00:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Freelance"
+  },
+  {
+    "amount": "8000.00",
+    "type": "expense",
+    "short_description": "May rent",
+    "transaction_date": "2026-05-01T09:00:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Rent"
+  },
+  {
+    "amount": "1243.50",
+    "type": "expense",
+    "short_description": "Weekly grocery run",
+    "transaction_date": "2026-05-03T11:30:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Groceries"
+  },
+  {
+    "amount": "650.00",
+    "type": "expense",
+    "short_description": "Monthly transport card top-up",
+    "transaction_date": "2026-05-05T07:45:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Transport"
+  },
+  {
+    "amount": "389.00",
+    "type": "expense",
+    "short_description": "Dinner at Tashas",
+    "transaction_date": "2026-05-09T19:30:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Dining Out"
+  },
+  {
+    "amount": "199.00",
+    "type": "expense",
+    "short_description": "Netflix + Spotify",
+    "transaction_date": "2026-05-12T00:00:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Subscriptions"
+  },
+  {
+    "amount": "872.00",
+    "type": "expense",
+    "short_description": "Electricity bill",
+    "transaction_date": "2026-05-15T08:00:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Utilities"
+  },
+  {
+    "amount": "560.00",
+    "type": "expense",
+    "short_description": "Cinema and popcorn",
+    "transaction_date": "2026-05-17T20:00:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Entertainment"
+  },
+  {
+    "amount": "934.99",
+    "type": "expense",
+    "short_description": "Grocery run",
+    "transaction_date": "2026-05-19T10:15:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Groceries"
+  }
+]
