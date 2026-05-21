@@ -8,6 +8,7 @@ import 'auth/data/cognito_auth_service.dart';
 import 'auth/providers/auth_provider.dart';
 import 'screens/dashboard.dart';
 import 'screens/login_password_screen.dart';
+import 'utils/theme_provider.dart';
 
 import 'shared/widgets/main_appbar.dart';
 
@@ -34,8 +35,11 @@ class BudgetApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AppAuthProvider(authService: CognitoAuthService()),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => AppAuthProvider(authService: CognitoAuthService())),
+      ],
       child: MaterialApp(
 
       debugShowCheckedModeBanner: false,
@@ -95,6 +99,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // rebuild navigation bar + appbar on theme change
     return Scaffold(
       appBar: MainAppbar(),
       body: _pages[_selectedIndex],   // Show the selected page
@@ -108,7 +113,7 @@ class _HomePageState extends State<HomePage> {
   ),
   child: NavigationBar(
     selectedIndex: _selectedIndex,
-    backgroundColor: MyColours().background,
+    backgroundColor: MyColours().navBarColor,
     indicatorColor: MyColours().secondary,
   
     onDestinationSelected: _onDestinationSelected,
@@ -117,18 +122,18 @@ class _HomePageState extends State<HomePage> {
  
     destinations: const [
   NavigationDestination(
-    icon: Icon(Icons.home_outlined),
-    selectedIcon: Icon(Icons.home),
+    icon: Icon(Icons.home_outlined, color: Color(0xFFDDD6AE)),
+    selectedIcon: Icon(Icons.home, color: Color(0xFFDDD6AE)),
     label: '',
   ),
   NavigationDestination(
-    icon: Icon(Icons.attach_money),
-    selectedIcon: Icon(Icons.attach_money),
+    icon: Icon(Icons.attach_money, color: Color(0xFFDDD6AE)),
+    selectedIcon: Icon(Icons.attach_money, color: Color(0xFFDDD6AE)),
     label: '',
   ),
   NavigationDestination(
-    icon: Icon(Icons.pie_chart_outline),
-    selectedIcon: Icon(Icons.pie_chart),
+    icon: Icon(Icons.pie_chart_outline, color: Color(0xFFDDD6AE)),
+    selectedIcon: Icon(Icons.pie_chart, color: Color(0xFFDDD6AE)),
     label: '',
   ),
 
@@ -145,6 +150,7 @@ class AuthWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // propagate theme to all descendant pages
     final auth = context.watch<AppAuthProvider>();
 
     switch (auth.status) {
