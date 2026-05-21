@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../utils/app_colour.dart';
+import 'package:provider/provider.dart';
+import 'package:budgetit/utils/theme_provider.dart';
 
 class BudgetManagerScreen extends StatefulWidget {
   const BudgetManagerScreen({super.key});
@@ -43,7 +45,7 @@ class _BudgetCategory {
 
 
   class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
-  final MyColours colours = MyColours();
+  MyColours colours = MyColours();
 
   final List<_BudgetCategory> _budgetCategories = [
     _BudgetCategory(
@@ -122,6 +124,8 @@ class _BudgetCategory {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>();
+    colours = MyColours(); // re-instantiate each build so helper methods see current theme
     return Scaffold(
       backgroundColor: colours.background,
      
@@ -235,7 +239,7 @@ class _BudgetCategory {
           Text(
             "MONTHLY SPENDING",
             style: TextStyle(
-              color: colours.textPrimary,
+              color: colours.cardText,
               fontSize: 10,
               letterSpacing: 1,
             ),
@@ -244,7 +248,7 @@ class _BudgetCategory {
           Text(
             "R1,850.00",
             style: TextStyle(
-              color: colours.textPrimary,
+              color: colours.cardText,
               fontSize: 28,
               fontWeight: FontWeight.bold,
               letterSpacing: 1,
@@ -254,7 +258,7 @@ class _BudgetCategory {
           Text(
             "Target: R1,950.00",
             style: TextStyle(
-              color: colours.textPrimary,
+              color: colours.cardText,
               fontSize: 12,
             ),
           ),
@@ -312,12 +316,12 @@ class _BudgetCategory {
                 width: 34,
                 height: 34,
                 decoration: BoxDecoration(
-                  color: colours.secondary,
+                  color: colours.cardText.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Icon(
                   icon,
-                  color: colours.background,
+                  color: colours.cardText,
                   size: 20,
                 ),
               ),
@@ -331,7 +335,7 @@ class _BudgetCategory {
                     Text(
                       title,
                       style: TextStyle(
-                        color: colours.textPrimary,
+                        color: colours.cardText,
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
                       ),
@@ -339,7 +343,7 @@ class _BudgetCategory {
                     Text(
                       subtitle,
                       style: TextStyle(
-                        color: colours.textPrimary,
+                        color: colours.cardText,
                         fontSize: 10,
                       ),
                     ),
@@ -350,7 +354,7 @@ class _BudgetCategory {
               Text(
                 "R${spent.toInt()} / R${limit.toInt()}",
                 style: TextStyle(
-                  color: isOverLimit ? Colors.red : colours.textPrimary,
+                  color: isOverLimit ? Colors.red : colours.cardText,
                   fontSize: 12,
                   fontWeight:
                       isOverLimit ? FontWeight.bold : FontWeight.normal,
@@ -366,7 +370,7 @@ class _BudgetCategory {
             child: LinearProgressIndicator(
               value: progress > 1 ? 1 : progress,
               minHeight: 6,
-              backgroundColor: colours.secondary,
+              backgroundColor: colours.cardText.withValues(alpha: 0.25),
               valueColor: AlwaysStoppedAnimation<Color>(progressColor),
             ),
           ),
