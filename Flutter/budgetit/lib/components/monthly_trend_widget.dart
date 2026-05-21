@@ -2,10 +2,12 @@ import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
 
 class MonthlyTrendWidget extends StatefulWidget {
+  final DateTime selectedDate;
   final List<MonthData> months;
 
   const MonthlyTrendWidget({
     super.key,
+    required this.selectedDate,
     required this.months,
   });
 
@@ -50,16 +52,54 @@ class _MonthlyTrendWidgetState
         crossAxisAlignment:
             CrossAxisAlignment.start,
 
-        children: [
+            children: [
 
-          Text(
-            "Monthly Trend",
+              Row(
 
-            style: TextStyle(
-              color: colours.textPrimary,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            mainAxisAlignment:
+                MainAxisAlignment.spaceBetween,
+
+            children: [
+
+              Text(
+                "Monthly Spending",
+
+                style: TextStyle(
+                  color: colours.textPrimary,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              Row(
+
+                children: [
+
+                  Icon(
+                    Icons.chevron_left,
+                    color: colours.textPrimary,
+                  ),
+
+                  const SizedBox(width: 6),
+
+                  Text(
+                    "Mar - May",
+
+                    style: TextStyle(
+                      color: colours.textPrimary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+
+                  const SizedBox(width: 6),
+
+                  Icon(
+                    Icons.chevron_right,
+                    color: colours.textPrimary,
+                  ),
+                ],
+              ),
+            ],
           ),
 
           const SizedBox(height: 25),
