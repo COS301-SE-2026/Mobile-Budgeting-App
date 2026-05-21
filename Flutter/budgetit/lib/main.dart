@@ -78,7 +78,8 @@ class _HomePageState extends State<HomePage> {
 
   
  final List<Widget> _pages = [
-  const DashboardPage(),
+  
+  const Dashboard(),
   const TransactionManager(),
   BudgetManagerScreen(),
 ];
@@ -89,9 +90,7 @@ class _HomePageState extends State<HomePage> {
   });
 
 
-  setState(() {
-    _selectedIndex = index;
-  });
+
 }
 
   @override

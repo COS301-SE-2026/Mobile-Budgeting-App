@@ -1,7 +1,7 @@
+import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
 
 class MonthlyTrendWidget extends StatefulWidget {
-
   final List<MonthData> months;
 
   const MonthlyTrendWidget({
@@ -17,19 +17,12 @@ class MonthlyTrendWidget extends StatefulWidget {
 class _MonthlyTrendWidgetState
     extends State<MonthlyTrendWidget> {
 
-  static const Color darkGreen =
-      Color(0xFF04240C);
-
-  static const Color cream =
-      Color(0xFFDDD6AE);
-
-  static const Color gold =
-      Color(0xFFC2B280);
-
   int? _selectedIndex;
 
   @override
   Widget build(BuildContext context) {
+
+    final colours = MyColours();
 
     final maxSpend = widget.months
         .map((m) => m.spent)
@@ -41,13 +34,14 @@ class _MonthlyTrendWidgetState
 
       decoration: BoxDecoration(
 
-        color: darkGreen,
+        color: colours.background,
 
         borderRadius:
             BorderRadius.circular(24),
 
         border: Border.all(
-          color: const Color(0x22DDD6AE),
+          color: colours.secondary
+              .withValues(alpha: 0.15),
         ),
       ),
 
@@ -58,11 +52,11 @@ class _MonthlyTrendWidgetState
 
         children: [
 
-          const Text(
+          Text(
             "Monthly Trend",
 
             style: TextStyle(
-              color: cream,
+              color: colours.textPrimary,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -81,6 +75,7 @@ class _MonthlyTrendWidgetState
 
               children: List.generate(
                 widget.months.length,
+
                 (index) {
 
                   final month =
@@ -132,8 +127,10 @@ class _MonthlyTrendWidgetState
 
                                   color:
                                       isSelected
-                                          ? gold
-                                          : gold
+                                          ? colours
+                                              .tertiary
+                                          : colours
+                                              .tertiary
                                               .withValues(
                                                 alpha:
                                                     0.5,
@@ -157,8 +154,10 @@ class _MonthlyTrendWidgetState
 
                               color:
                                   isSelected
-                                      ? cream
-                                      : cream
+                                      ? colours
+                                          .textPrimary
+                                      : colours
+                                          .textPrimary
                                           .withValues(
                                             alpha:
                                                 0.6,

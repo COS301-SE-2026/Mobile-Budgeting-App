@@ -1,7 +1,7 @@
+import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
 
 class GoalCard extends StatelessWidget {
-
   final String title;
   final String saved;
   final String target;
@@ -15,20 +15,12 @@ class GoalCard extends StatelessWidget {
     required this.progress,
   });
 
-  static const Color darkGreen =
-      Color(0xFF04240C);
-
-  static const Color cream =
-      Color(0xFFDDD6AE);
-
-  static const Color teal =
-      Color(0xFF137E84);
-
   @override
   Widget build(BuildContext context) {
 
-    return Container(
+    final colours = MyColours();
 
+    return Container(
       width: double.infinity,
 
       margin: const EdgeInsets.symmetric(
@@ -39,20 +31,17 @@ class GoalCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
 
       decoration: BoxDecoration(
+        color: colours.background,
 
-        color: darkGreen,
-
-        borderRadius:
-            BorderRadius.circular(25),
+        borderRadius: BorderRadius.circular(25),
 
         border: Border.all(
-          color: cream.withValues(
+          color: colours.secondary.withValues(
             alpha: 0.2,
           ),
         ),
 
         boxShadow: [
-
           BoxShadow(
             color: Colors.black.withValues(
               alpha: 0.25,
@@ -66,14 +55,12 @@ class GoalCard extends StatelessWidget {
       ),
 
       child: Column(
-
         crossAxisAlignment:
             CrossAxisAlignment.start,
 
         children: [
 
           Row(
-
             mainAxisAlignment:
                 MainAxisAlignment.spaceBetween,
 
@@ -82,17 +69,17 @@ class GoalCard extends StatelessWidget {
               Text(
                 title,
 
-                style: const TextStyle(
-                  color: cream,
+                style: TextStyle(
+                  color: colours.textPrimary,
                   fontSize: 18,
                   fontWeight:
                       FontWeight.bold,
                 ),
               ),
 
-              const Icon(
+              Icon(
                 Icons.flag,
-                color: teal,
+                color: colours.tertiary,
               ),
             ],
           ),
@@ -100,7 +87,6 @@ class GoalCard extends StatelessWidget {
           const SizedBox(height: 15),
 
           ClipRRect(
-
             borderRadius:
                 BorderRadius.circular(10),
 
@@ -109,16 +95,17 @@ class GoalCard extends StatelessWidget {
               minHeight: 10,
 
               backgroundColor:
-                  const Color(0x33DDD6AE),
+                  colours.secondary.withValues(
+                    alpha: 0.2,
+                  ),
 
-              color: teal,
+              color: colours.tertiary,
             ),
           ),
 
           const SizedBox(height: 15),
 
           Row(
-
             mainAxisAlignment:
                 MainAxisAlignment.spaceBetween,
 
@@ -127,8 +114,9 @@ class GoalCard extends StatelessWidget {
               Text(
                 "Saved: $saved",
 
-                style: const TextStyle(
-                  color: cream,
+                style: TextStyle(
+                  color: colours.textPrimary,
+
                   fontWeight:
                       FontWeight.bold,
                 ),
@@ -138,7 +126,8 @@ class GoalCard extends StatelessWidget {
                 "Target: $target",
 
                 style: TextStyle(
-                  color: cream.withValues(
+                  color: colours.textPrimary
+                      .withValues(
                     alpha: 0.7,
                   ),
                 ),
