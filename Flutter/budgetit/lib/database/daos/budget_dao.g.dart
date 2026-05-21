@@ -4,7 +4,6 @@ part of 'budget_dao.dart';
 
 // ignore_for_file: type=lint
 mixin _$BudgetDaoMixin on DatabaseAccessor<AppDatabase> {
-  $CategoriesTable get categories => attachedDatabase.categories;
   $BudgetTemplatesTable get budgetTemplates => attachedDatabase.budgetTemplates;
   $BudgetPeriodsTable get budgetPeriods => attachedDatabase.budgetPeriods;
   BudgetDaoManager get managers => BudgetDaoManager(this);
@@ -13,8 +12,6 @@ mixin _$BudgetDaoMixin on DatabaseAccessor<AppDatabase> {
 class BudgetDaoManager {
   final _$BudgetDaoMixin _db;
   BudgetDaoManager(this._db);
-  $$CategoriesTableTableManager get categories =>
-      $$CategoriesTableTableManager(_db.attachedDatabase, _db.categories);
   $$BudgetTemplatesTableTableManager get budgetTemplates =>
       $$BudgetTemplatesTableTableManager(
         _db.attachedDatabase,

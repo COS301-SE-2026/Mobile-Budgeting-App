@@ -1,3 +1,4 @@
+import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
 
 class TransactionTile extends StatelessWidget {
@@ -17,20 +18,10 @@ class TransactionTile extends StatelessWidget {
     required this.isExpense,
   });
 
-  static const Color darkGreen =
-      Color(0xFF04240C);
-
-  static const Color cream =
-      Color(0xFFDDD6AE);
-
-  static const Color teal =
-      Color(0xFF137E84);
-
-  static const Color gold =
-      Color(0xFFC2B280);
-
   @override
   Widget build(BuildContext context) {
+
+    final colours = MyColours();
 
     return Container(
 
@@ -43,7 +34,7 @@ class TransactionTile extends StatelessWidget {
 
       decoration: BoxDecoration(
 
-        color: cream,
+        color: colours.secondary,
 
         borderRadius:
             BorderRadius.circular(24),
@@ -78,17 +69,18 @@ class TransactionTile extends StatelessWidget {
                 ),
 
             decoration: BoxDecoration(
-              color: const Color(0x2204240C),
+              color: colours.background
+                  .withValues(alpha: 0.15),
 
               borderRadius:
                   BorderRadius.circular(20),
             ),
 
-            child: const Text(
+            child: Text(
               "TRANSACTION",
 
               style: TextStyle(
-                color: darkGreen,
+                color: colours.background,
                 fontSize: 11,
                 fontWeight:
                     FontWeight.bold,
@@ -112,12 +104,14 @@ class TransactionTile extends StatelessWidget {
 
                   color:
                       isExpense
-                          ? const Color(
-                            0x22FF5252,
-                          )
-                          : const Color(
-                            0x22137E84,
-                          ),
+                          ? Colors.redAccent
+                              .withValues(
+                                alpha: 0.15,
+                              )
+                          : colours.tertiary
+                              .withValues(
+                                alpha: 0.15,
+                              ),
 
                   borderRadius:
                       BorderRadius.circular(18),
@@ -131,7 +125,7 @@ class TransactionTile extends StatelessWidget {
                   color:
                       isExpense
                           ? Colors.redAccent
-                          : teal,
+                          : colours.tertiary,
                 ),
               ),
 
@@ -150,23 +144,26 @@ class TransactionTile extends StatelessWidget {
                       title,
 
                       style:
-                          const TextStyle(
+                          TextStyle(
                             fontSize: 17,
                             fontWeight:
                                 FontWeight.bold,
                             color:
-                                darkGreen,
+                                colours.background,
                           ),
                     ),
 
                     const SizedBox(height: 5),
 
-                    const Text(
-                      "Transaction details",
+                    Text(
+                      subtitle,
 
                       style: TextStyle(
                         color:
-                            Color(0xAA04240C),
+                            colours.background
+                                .withValues(
+                                  alpha: 0.7,
+                                ),
 
                         fontSize: 13,
 
@@ -198,7 +195,8 @@ class TransactionTile extends StatelessWidget {
                           isExpense
                               ? Colors
                                   .redAccent
-                              : teal,
+                              : colours
+                                  .tertiary,
                     ),
                   ),
 
@@ -220,7 +218,8 @@ class TransactionTile extends StatelessWidget {
                                     alpha:
                                         0.85,
                                   )
-                              : teal
+                              : colours
+                                  .tertiary
                                   .withValues(
                                     alpha:
                                         0.8,

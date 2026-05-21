@@ -1,17 +1,14 @@
+import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
 
 class BalanceCard extends StatelessWidget {
 
   const BalanceCard({super.key});
 
-  static const Color darkGreen =
-      Color(0xFF04240C);
-
-  static const Color cream =
-      Color(0xFFDDD6AE);
-
   @override
   Widget build(BuildContext context) {
+
+    final colours = MyColours();
 
     return Container(
 
@@ -26,21 +23,10 @@ class BalanceCard extends StatelessWidget {
 
       decoration: BoxDecoration(
 
+        color: colours.secondary,
+
         borderRadius:
             BorderRadius.circular(30),
-
-        gradient: const LinearGradient(
-
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-
-          colors: [
-
-            Color(0xFF1B3D16),
-            Color(0xFF4E6240),
-            Color(0xFF6E7F5B),
-          ],
-        ),
 
         boxShadow: [
 
@@ -63,11 +49,11 @@ class BalanceCard extends StatelessWidget {
 
         children: [
 
-          const Text(
+          Text(
             "MONTHLY SPENDING MAY 2026",
 
             style: TextStyle(
-              color: cream,
+              color: colours.background,
               fontSize: 16,
               fontWeight: FontWeight.w400,
               letterSpacing: 1.2,
@@ -76,11 +62,11 @@ class BalanceCard extends StatelessWidget {
 
           const SizedBox(height: 20),
 
-          const Text(
+          Text(
             "R1,850.00",
 
             style: TextStyle(
-              color: cream,
+              color: colours.background,
               fontSize: 52,
               fontWeight: FontWeight.bold,
               height: 1,
@@ -93,7 +79,7 @@ class BalanceCard extends StatelessWidget {
             "Target: R1,950.00",
 
             style: TextStyle(
-              color: cream.withValues(
+              color: colours.background.withValues(
                 alpha: 0.8,
               ),
 

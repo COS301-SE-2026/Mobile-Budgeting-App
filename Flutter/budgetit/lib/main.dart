@@ -1,14 +1,32 @@
+import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
+import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:budgetit/views/transaction_manager/transaction.manager.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'amplifyconfiguration.dart';
+import 'auth/data/cognito_auth_service.dart';
+import 'auth/providers/auth_provider.dart';
 import 'screens/dashboard.dart';
+import 'screens/login_password_screen.dart';
 
 import 'shared/widgets/main_appbar.dart';
 
 import 'package:budgetit/utils/app_colour.dart';
 import 'views/budget_manager/budget_manager_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await _configureAmplify();
   runApp(const BudgetApp());
+}
+
+Future<void> _configureAmplify() async {
+  try {
+    await Amplify.addPlugin(AmplifyAuthCognito());
+    await Amplify.configure(amplifyconfig);
+  } on AmplifyAlreadyConfiguredException {
+    // Already configured — safe to ignore.
+  }
 }
 
 class BudgetApp extends StatelessWidget {
@@ -16,30 +34,33 @@ class BudgetApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return ChangeNotifierProvider(
+      create: (_) => AppAuthProvider(authService: CognitoAuthService()),
+      child: MaterialApp(
 
-    debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: false,
 
-    title: 'BudgetIt',
+      title: 'BudgetIt',
 
-    theme: ThemeData(
+      theme: ThemeData(
 
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.blue,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+        ),
+
+        useMaterial3: true,
       ),
 
-      useMaterial3: true,
-    ),
+      initialRoute: '/',
 
-    initialRoute: '/',
+      routes: {
+        '/transaction_manager': (context) =>
+            const TransactionManager(),
+      },
 
-    routes: {
-      '/transaction_manager': (context) =>
-          const TransactionManager(),
-    },
+      home: const AuthWrapper(),
 
-    home: const HomePage(),  
-
+      ),
     );
   }
 }
@@ -57,7 +78,8 @@ class _HomePageState extends State<HomePage> {
 
   
  final List<Widget> _pages = [
-  const DashboardPage(),
+  
+  const Dashboard(),
   const TransactionManager(),
   BudgetManagerScreen(),
 ];
@@ -68,9 +90,7 @@ class _HomePageState extends State<HomePage> {
   });
 
 
-  setState(() {
-    _selectedIndex = index;
-  });
+
 }
 
   @override
@@ -119,5 +139,27 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+// Routes to the correct screen based on authentication state.
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
 
+  @override
+  Widget build(BuildContext context) {
+    final auth = context.watch<AppAuthProvider>();
 
+    switch (auth.status) {
+      case AuthStatus.unknown:
+        return const Scaffold(
+          backgroundColor: Color(0xFF04240C),
+          body: Center(
+            child: CircularProgressIndicator(color: Color(0xFFDDD6AE)),
+          ),
+        );
+      case AuthStatus.guest:
+        return const LoginRegisterScreen();
+      case AuthStatus.skipped:
+      case AuthStatus.loggedIn:
+        return const HomePage();
+    }
+  }
+}
