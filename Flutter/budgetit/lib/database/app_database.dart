@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:decimal/decimal.dart';
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'schema.dart';
 import 'daos/category_dao.dart';
 import 'daos/transaction_dao.dart';
@@ -67,6 +71,18 @@ class AppDatabase extends _$AppDatabase {
       // TODO: add proper migration steps when schemaVersion > 1.
     },
   );
+
+  /// Creates the database, deleting the existing file first when [reset] is true.
+  ///
+  /// Only call with [reset] = true in debug mode — never in production.
+  static Future<AppDatabase> create({bool reset = false}) async {
+    if (reset) {
+      final dir = await getApplicationDocumentsDirectory();
+      final file = File(p.join(dir.path, 'budgetit.sqlite'));
+      if (await file.exists()) await file.delete();
+    }
+    return AppDatabase();
+  }
 
   static QueryExecutor _openConnection() => driftDatabase(name: 'budgetit');
 
