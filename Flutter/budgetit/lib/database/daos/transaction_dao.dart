@@ -172,20 +172,25 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
     Decimal? amount,
     TransactionType? type,
     String? shortDescription,
-    String? longDescription,
+    Value<String?> longDescription = const Value.absent(),
     DateTime? transactionDate,
     TransactionSource? source,
     String? currency,
   }) async {
+    if (shortDescription != null && shortDescription.length > 100) {
+      throw ArgumentError('shortDescription must be 100 characters or fewer');
+    }
+    final ldValue = longDescription.present ? longDescription.value : null;
+    if (ldValue != null && ldValue.length > 500) {
+      throw ArgumentError('longDescription must be 500 characters or fewer');
+    }
     final companion = TransactionsCompanion(
       amount: amount != null ? Value(amount) : const Value.absent(),
       type: type != null ? Value(type) : const Value.absent(),
       shortDescription: shortDescription != null
           ? Value(shortDescription)
           : const Value.absent(),
-      longDescription: longDescription != null
-          ? Value(longDescription)
-          : const Value.absent(),
+      longDescription: longDescription,
       transactionDate: transactionDate != null
           ? Value(transactionDate)
           : const Value.absent(),
@@ -288,18 +293,19 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
     )..where((t) => t.transactionId.equals(transactionId))).go();
   }
 
-  /// Retrieves transactions that are mapped to the given [categoryId] via the [TransactionCategoryMap].
+  /// Retrieves active transactions that are mapped to the given [categoryId].
   ///
-  /// Performs a left outer join between [transactions] and [transactionCategoryMap]
-  /// to return full [Transaction] records.
+  /// Performs an inner join between [transactions] and [transactionCategoryMap]
+  /// to return full [Transaction] records. Soft-deleted transactions are excluded.
   Future<List<Transaction>> getTransactionsByCategory(String categoryId) {
     final query = select(transactions).join([
-      leftOuterJoin(
+      innerJoin(
         transactionCategoryMap,
         transactionCategoryMap.transactionId.equalsExp(transactions.id),
       ),
     ]);
     query.where(transactionCategoryMap.categoryId.equals(categoryId));
+    query.where(transactions.deletedAt.isNull());
     return query.map((row) => row.readTable(transactions)).get();
   }
 }
