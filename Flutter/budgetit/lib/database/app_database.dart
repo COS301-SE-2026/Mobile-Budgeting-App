@@ -71,14 +71,14 @@ class AppDatabase extends _$AppDatabase {
   static QueryExecutor _openConnection() => driftDatabase(name: 'budgetit');
 
   /// Accessor for category operations.
-  CategoryDao get categoryDao => CategoryDao(this);
+  late final CategoryDao categoryDao = CategoryDao(this);
 
   /// Accessor for transaction operations.
-  TransactionDao get transactionDao => TransactionDao(this);
+  late final TransactionDao transactionDao = TransactionDao(this);
 
   /// Accessor for budget template and period operations.
-  BudgetDao get budgetDao => BudgetDao(this);
+  late final BudgetDao budgetDao = BudgetDao(this);
 
   /// Accessor for application settings.
-  SettingsDao get settingsDao => SettingsDao(this);
+  late final SettingsDao settingsDao = SettingsDao(this);
 }
