@@ -2,8 +2,11 @@ import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
 
 class BalanceCard extends StatelessWidget {
-
-  const BalanceCard({super.key});
+  final DateTime selectedDate;
+  const BalanceCard({
+    super.key,
+    required this.selectedDate,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +53,7 @@ class BalanceCard extends StatelessWidget {
         children: [
 
           Text(
-            "MONTHLY SPENDING MAY 2026",
+            "DAILY SPENDING FOR ${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
 
             style: TextStyle(
               color: colours.background,
