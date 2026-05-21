@@ -1,12 +1,17 @@
+import 'dart:async';
+
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:budgetit/views/transaction_manager/transaction.manager.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:saropa_drift_advisor/saropa_drift_advisor.dart';
 import 'amplifyconfiguration.dart';
 import 'auth/data/cognito_auth_service.dart';
 import 'auth/providers/auth_provider.dart';
 import 'database/app_database.dart';
+import 'database/database_seeder.dart';
 import 'screens/dashboard.dart';
 import 'screens/login_password_screen.dart';
 
@@ -18,7 +23,14 @@ import 'views/budget_manager/budget_manager_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await _configureAmplify();
-  runApp(const BudgetApp());
+  const skipReseed = bool.fromEnvironment('SKIP_RESEED', defaultValue: false);
+  final shouldReseed = kDebugMode && !skipReseed;
+  final db = await AppDatabase.create(reset: shouldReseed);
+  if (shouldReseed) await DatabaseSeeder(db).seed();
+  runApp(BudgetApp(db: db));
+  if (kDebugMode) {
+    unawaited(db.startDriftViewer(enabled: true));
+  }
 }
 
 Future<void> _configureAmplify() async {
@@ -31,14 +43,16 @@ Future<void> _configureAmplify() async {
 }
 
 class BudgetApp extends StatelessWidget {
-  const BudgetApp({super.key});
+  final AppDatabase db;
+
+  const BudgetApp({super.key, required this.db});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         Provider<AppDatabase>(
-          create: (_) => AppDatabase(),
+          create: (_) => db,
           dispose: (_, db) => db.close(),
         ),
         ChangeNotifierProvider(

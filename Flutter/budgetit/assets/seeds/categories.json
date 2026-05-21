@@ -1,0 +1,20 @@
+[
+  { "name": "Groceries",         "type": "expense", "icon": "58780", "color": "#4CAF50" },
+  { "name": "Rent",              "type": "expense", "icon": "58136", "color": "#795548" },
+  { "name": "Transport",         "type": "expense", "icon": "57815", "color": "#607D8B" },
+  { "name": "Health & Medical",  "type": "expense", "icon": "58262", "color": "#F44336" },
+  { "name": "Entertainment",     "type": "expense", "icon": "58381", "color": "#9C27B0" },
+  { "name": "Dining Out",        "type": "expense", "icon": "58674", "color": "#FF5722" },
+  { "name": "Utilities",         "type": "expense", "icon": "57582", "color": "#FFC107" },
+  { "name": "Clothing",          "type": "expense", "icon": "57693", "color": "#E91E63" },
+  { "name": "Education",         "type": "expense", "icon": "58713", "color": "#3F51B5" },
+  { "name": "Subscriptions",     "type": "expense", "icon": "58904", "color": "#00BCD4" },
+  { "name": "Personal Care",     "type": "expense", "icon": "58840", "color": "#8BC34A" },
+  { "name": "Home & Maintenance","type": "expense", "icon": "57622", "color": "#FF9800" },
+  { "name": "Travel",            "type": "expense", "icon": "58007", "color": "#2196F3" },
+  { "name": "Gifts & Donations", "type": "expense", "icon": "57662", "color": "#EC407A" },
+  { "name": "Salary",            "type": "income",  "icon": "57522", "color": "#4CAF50" },
+  { "name": "Freelance",         "type": "income",  "icon": "57733", "color": "#2196F3" },
+  { "name": "Investments",       "type": "income",  "icon": "59007", "color": "#FF9800" },
+  { "name": "Other Income",      "type": "income",  "icon": "58370", "color": "#9E9E9E" }
+]
