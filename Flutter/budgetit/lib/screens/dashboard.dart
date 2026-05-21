@@ -5,7 +5,7 @@ import '../components/balance_card.dart';
 import '../components/bill_item.dart';
 import '../components/insight_widget.dart';
 import '../components/monthly_trend_widget.dart';
-import '../components/quick_stats_widgets.dart';
+import '../components/spending_chart.dart';
 import '../components/transaction_tile.dart';
 
 class Dashboard extends StatefulWidget {
@@ -41,9 +41,11 @@ class _DashboardState extends State<Dashboard> {
               const SizedBox(height: 20),
 
               // quick stats
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: QuickStatsWidget(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: SpendingChart(total: 'R4.2K',categories: [SpendingCategory(label: 'Housing',percentage: 55, color: colours.tertiary),
+                       SpendingCategory(label: 'Dining', percentage: 25, color: colours.secondary),
+                       SpendingCategory(label: 'Others', percentage: 20, color: colours.primary),],),
               ),
 
               const SizedBox(height: 25),
@@ -80,6 +82,10 @@ class _DashboardState extends State<Dashboard> {
 
               const SizedBox(height: 25),
 
+             
+
+              const SizedBox(height: 25),
+
               // insights section
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -89,8 +95,7 @@ class _DashboardState extends State<Dashboard> {
                     BudgetInsight(
                       title: 'You\'re spending less this month',
 
-                      body:
-                          'Your expenses dropped compared to April.',
+                      body: 'Your expenses dropped compared to April.',
 
                       icon: Icons.trending_down_rounded,
 
@@ -102,8 +107,7 @@ class _DashboardState extends State<Dashboard> {
                     BudgetInsight(
                       title: 'Entertainment budget exceeded',
 
-                      body:
-                          'You\'ve spent more than expected.',
+                      body: 'You\'ve spent more than expected.',
 
                       icon: Icons.movie_rounded,
 
