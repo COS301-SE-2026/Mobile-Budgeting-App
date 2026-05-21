@@ -23,7 +23,7 @@ part 'category_dao.g.dart';
 ///   type: CategoryType.expense,
 /// );
 /// ```
-@DriftAccessor(tables: [Categories, CategoryClosure])
+@DriftAccessor(tables: [Categories, CategoryClosure, TransactionCategoryMap, BudgetTemplates, BudgetPeriods])
 class CategoryDao extends DatabaseAccessor<AppDatabase>
     with _$CategoryDaoMixin {
   /// Singleton UUID generator used to create unique identifiers for categories.
@@ -65,14 +65,16 @@ class CategoryDao extends DatabaseAccessor<AppDatabase>
       createdAt: now,
       updatedAt: now,
     );
-    await into(categories).insert(companion);
-    await into(categoryClosure).insert(
-      CategoryClosureCompanion.insert(
-        ancestorId: id,
-        descendantId: id,
-        depth: 0,
-      ),
-    );
+    await db.transaction(() async {
+      await into(categories).insert(companion);
+      await into(categoryClosure).insert(
+        CategoryClosureCompanion.insert(
+          ancestorId: id,
+          descendantId: id,
+          depth: 0,
+        ),
+      );
+    });
     return (select(categories)..where((t) => t.id.equals(id))).getSingle();
   }
 
@@ -130,15 +132,15 @@ class CategoryDao extends DatabaseAccessor<AppDatabase>
     String id, {
     String? name,
     CategoryType? type,
-    String? icon,
-    String? color,
+    Value<String?> icon = const Value.absent(),
+    Value<String?> color = const Value.absent(),
     bool? isDefault,
   }) async {
     final companion = CategoriesCompanion(
       name: name != null ? Value(name) : const Value.absent(),
       type: type != null ? Value(type) : const Value.absent(),
-      icon: icon != null ? Value(icon) : const Value.absent(),
-      color: color != null ? Value(color) : const Value.absent(),
+      icon: icon,
+      color: color,
       isDefault: isDefault != null ? Value(isDefault) : const Value.absent(),
       updatedAt: Value(_now()),
     );
@@ -158,17 +160,34 @@ class CategoryDao extends DatabaseAccessor<AppDatabase>
     );
   }
 
-  /// Hard-deletes a category and all its closure table rows.
+  /// Hard-deletes a category and all dependent data.
   ///
-  /// Removes all [CategoryClosure] entries where the [id] appears as either
-  /// [CategoryClosure.ancestorId] or [CategoryClosure.descendantId], then
-  /// deletes the category row.
+  /// Within a single transaction:
+  /// 1. Deletes [BudgetPeriods] for all budget templates that reference this category.
+  /// 2. Deletes [BudgetTemplates] that reference this category.
+  /// 3. Deletes [TransactionCategoryMap] entries that reference this category.
+  /// 4. Removes all [CategoryClosure] entries where [id] is ancestor or descendant.
+  /// 5. Deletes the category row itself.
   Future<void> hardDeleteCategory(String id) async {
-    // Delete all closure rows that involve this category
-    await (delete(
-      categoryClosure,
-    )..where((t) => t.ancestorId.equals(id) | t.descendantId.equals(id))).go();
-    await (delete(categories)..where((t) => t.id.equals(id))).go();
+    await db.transaction(() async {
+      final templateIds = await (select(budgetTemplates)
+              ..where((t) => t.categoryId.equals(id)))
+          .map((t) => t.id)
+          .get();
+      if (templateIds.isNotEmpty) {
+        await (delete(budgetPeriods)
+              ..where((t) => t.templateId.isIn(templateIds)))
+            .go();
+      }
+      await (delete(budgetTemplates)..where((t) => t.categoryId.equals(id))).go();
+      await (delete(transactionCategoryMap)
+            ..where((t) => t.categoryId.equals(id)))
+          .go();
+      await (delete(categoryClosure)
+            ..where((t) => t.ancestorId.equals(id) | t.descendantId.equals(id)))
+          .go();
+      await (delete(categories)..where((t) => t.id.equals(id))).go();
+    });
   }
 
   /// Restores a soft-deleted category by clearing its [deletedAt] timestamp.
