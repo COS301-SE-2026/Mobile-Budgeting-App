@@ -1,6 +1,7 @@
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
 import 'package:budgetit/screens/coming_soon_page.dart';
+import 'package:budgetit/screens/profile_page.dart';
 
 class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
   const MainAppbar({super.key});
@@ -61,12 +62,9 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
             color: MyColours().textPrimary,
           ),
           onPressed: () {
-            _openComingSoonPage(
+            Navigator.push(
               context,
-              title: 'Profile Coming Soon',
-              message:
-                  'Your profile page is still being prepared. Soon you will be able to view and manage your personal account details here.',
-              icon: Icons.person_outline,
+              MaterialPageRoute(builder: (_) => const ProfilePage()),
             );
           },
         ),
