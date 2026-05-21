@@ -120,20 +120,20 @@ class _HomePageState extends State<HomePage> {
 
   
  
-    destinations: const [
+    destinations: [
   NavigationDestination(
-    icon: Icon(Icons.home_outlined, color: Color(0xFFDDD6AE)),
-    selectedIcon: Icon(Icons.home, color: Color(0xFFDDD6AE)),
+    icon: const Icon(Icons.home_outlined, color: Color(0xFFDDD6AE)),
+    selectedIcon: Icon(Icons.home, color: MyColours().background),
     label: '',
   ),
   NavigationDestination(
-    icon: Icon(Icons.attach_money, color: Color(0xFFDDD6AE)),
-    selectedIcon: Icon(Icons.attach_money, color: Color(0xFFDDD6AE)),
+    icon: const Icon(Icons.attach_money, color: Color(0xFFDDD6AE)),
+    selectedIcon: Icon(Icons.attach_money, color: MyColours().background),
     label: '',
   ),
   NavigationDestination(
-    icon: Icon(Icons.pie_chart_outline, color: Color(0xFFDDD6AE)),
-    selectedIcon: Icon(Icons.pie_chart, color: Color(0xFFDDD6AE)),
+    icon: const Icon(Icons.pie_chart_outline, color: Color(0xFFDDD6AE)),
+    selectedIcon: Icon(Icons.pie_chart, color: MyColours().background),
     label: '',
   ),
 
