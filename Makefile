@@ -17,10 +17,19 @@ flutter-run-android:
 	cd $(FLUTTER_DIR) && fvm flutter run -d android
 
 flutter-test:
-	cd $(FLUTTER_DIR) && fvm flutter test
+	cd $(FLUTTER_DIR) && fvm flutter test ../../test/unit/ ../../test/widget/ ../../test/integration/
+
+flutter-test-unit:
+	cd $(FLUTTER_DIR) && fvm flutter test ../../test/unit/
+
+flutter-test-widget:
+	cd $(FLUTTER_DIR) && fvm flutter test ../../test/widget/
+
+flutter-test-integration:
+	cd $(FLUTTER_DIR) && fvm flutter test ../../test/integration/
 
 flutter-test-coverage:
-	cd $(FLUTTER_DIR) && fvm flutter test --coverage
+	cd $(FLUTTER_DIR) && fvm flutter test --coverage ../../test/unit/ ../../test/widget/ ../../test/integration/
 
 flutter-build-apk:
 	cd $(FLUTTER_DIR) && fvm flutter build apk --release
@@ -76,6 +85,9 @@ help:
 	@echo ""
 	@echo "  Testing"
 	@echo "    make flutter-test             Run all tests"
+	@echo "    make flutter-test-unit        Run unit tests only"
+	@echo "    make flutter-test-widget      Run widget tests only"
+	@echo "    make flutter-test-integration Run integration tests only"
 	@echo "    make flutter-test-coverage    Run tests with coverage"
 	@echo ""
 	@echo "  Build"
@@ -88,6 +100,7 @@ help:
 	@echo ""
 
 .PHONY: flutter-get flutter-run flutter-run-android flutter-test \
-        flutter-test-coverage flutter-build-apk flutter-build-appbundle \
+        flutter-test-unit flutter-test-widget flutter-test-integration flutter-test-coverage \
+        flutter-build-apk flutter-build-appbundle \
         flutter-clean flutter-analyze flutter-doctor flutter-devices \
         flutter-update setup-flutter help
