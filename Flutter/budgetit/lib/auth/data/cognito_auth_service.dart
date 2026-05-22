@@ -182,6 +182,14 @@ class CognitoAuthService implements AuthService {
   @override
   Future<AppAuthUser?> getCurrentUser() async {
     try {
+      final attributes = await Amplify.Auth.fetchUserAttributes();
+      final emailAttrs = attributes.where(
+        (attr) => attr.userAttributeKey == AuthUserAttributeKey.email,
+      );
+      if (emailAttrs.isNotEmpty) {
+        return AppAuthUser(email: emailAttrs.first.value);
+      }
+      // Fallback — username is the sub (UUID) when no email attribute found
       final user = await Amplify.Auth.getCurrentUser();
       return AppAuthUser(email: user.username);
     } on AuthException {
