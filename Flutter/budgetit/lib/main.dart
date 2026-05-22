@@ -14,6 +14,7 @@ import 'database/app_database.dart';
 import 'database/database_seeder.dart';
 import 'screens/dashboard.dart';
 import 'screens/login_password_screen.dart';
+import 'utils/theme_provider.dart';
 
 import 'shared/widgets/main_appbar.dart';
 
@@ -58,6 +59,9 @@ class BudgetApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => AppAuthProvider(authService: CognitoAuthService()),
         ),
+        ChangeNotifierProvider(
+          create: (_) => ThemeProvider(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -101,6 +105,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // rebuild navigation bar + appbar on theme change
     return Scaffold(
       appBar: MainAppbar(),
       body: _pages[_selectedIndex], // Show the selected page
@@ -145,6 +150,7 @@ class AuthWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // propagate theme to all descendant pages
     final auth = context.watch<AppAuthProvider>();
 
     switch (auth.status) {

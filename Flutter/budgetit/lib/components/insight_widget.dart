@@ -168,7 +168,7 @@ class _InsightCard
       padding: const EdgeInsets.all(16),
 
       decoration: BoxDecoration(
-        color: colours.background,
+        color: colours.navBarColor,
 
         borderRadius:
             BorderRadius.circular(16),
