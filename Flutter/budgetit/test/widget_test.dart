@@ -23,7 +23,6 @@ AppDatabase _openTestDatabase() {
   }
   return AppDatabase.forTesting(NativeDatabase.memory());
 }
-import 'package:budgetit/views/budget_manager/budget_manager_screen.dart';
 
 void main() {
   testWidgets('Budget manager screen loads correctly', (
@@ -38,11 +37,7 @@ void main() {
     // The app should start with the shared bottom navigation.
     expect(find.byType(NavigationBar), findsOneWidget);
     expect(find.byType(NavigationDestination), findsNWidgets(3));
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: BudgetManagerScreen(),
-      ),
-    );
+    await tester.pumpWidget(MaterialApp(home: BudgetManagerScreen(database: db)));
 
     await tester.pumpAndSettle();
 
