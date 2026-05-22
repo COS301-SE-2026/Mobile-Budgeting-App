@@ -16,6 +16,11 @@ class ProfilePage extends StatelessWidget {
     }
   }
 
+  void _handleGoToSignUp(BuildContext context) {
+    Navigator.of(context).popUntil((route) => route.isFirst);
+    context.read<AppAuthProvider>().backToLogin();
+  }
+
   @override
   Widget build(BuildContext context) {
     final colours = MyColours();
@@ -48,7 +53,52 @@ class ProfilePage extends StatelessWidget {
                   color: colours.background,
                 ),
               ),
-              const SizedBox(height: 28),
+              const SizedBox(height: 20),
+
+              // Identity line — email for logged-in users, guest label otherwise
+              if (auth.isLoggedIn && auth.currentUser != null)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: colours.secondary.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: colours.secondary.withValues(alpha: 0.5),
+                    ),
+                  ),
+                  child: Text(
+                    auth.currentUser!.email.contains('@')
+                        ? auth.currentUser!.email
+                        : 'Network User',
+                    style: TextStyle(
+                      color: colours.textPrimary,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                )
+              else
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.person_outline,
+                      size: 16,
+                      color: colours.textPrimary.withValues(alpha: 0.6),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Guest User',
+                      style: TextStyle(
+                        color: colours.textPrimary.withValues(alpha: 0.6),
+                        fontSize: 15,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                ),
+
+              const SizedBox(height: 20),
               Text(
                 'Profile Coming Soon',
                 textAlign: TextAlign.center,
@@ -69,6 +119,7 @@ class ProfilePage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 30),
+
               ElevatedButton.icon(
                 onPressed: () => Navigator.pop(context),
                 icon: const Icon(Icons.arrow_back),
@@ -83,35 +134,19 @@ class ProfilePage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: auth.isLoading ? null : () => _handleLogout(context),
-                  icon: auth.isLoading
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: _red,
-                          ),
-                        )
-                      : const Icon(Icons.logout, color: _red),
-                  label: Text(
-                    'Log Out',
-                    style: TextStyle(
-                      color: auth.isLoading
-                          ? _red.withValues(alpha: 0.5)
-                          : _red,
-                      fontWeight: FontWeight.w600,
-                    ),
+
+              // Sign Up button — only shown for guest users, sits above Log Out
+              if (auth.status == AuthStatus.skipped) ...[
+                ElevatedButton.icon(
+                  onPressed: () => _handleGoToSignUp(context),
+                  icon: const Icon(Icons.person_add_outlined),
+                  label: const Text(
+                    'Sign Up',
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(
-                      color: auth.isLoading
-                          ? _red.withValues(alpha: 0.4)
-                          : _red,
-                    ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: colours.secondary,
+                    foregroundColor: colours.background,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 22,
                       vertical: 14,
@@ -119,6 +154,44 @@ class ProfilePage extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              OutlinedButton.icon(
+                onPressed: auth.isLoading ? null : () => _handleLogout(context),
+                icon: auth.isLoading
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: _red,
+                        ),
+                      )
+                    : const Icon(Icons.logout, color: _red),
+                label: Text(
+                  'Log Out',
+                  style: TextStyle(
+                    color: auth.isLoading
+                        ? _red.withValues(alpha: 0.5)
+                        : _red,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(
+                    color: auth.isLoading
+                        ? _red.withValues(alpha: 0.4)
+                        : _red,
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 22,
+                    vertical: 14,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
               ),

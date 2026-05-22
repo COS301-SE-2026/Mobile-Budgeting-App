@@ -2,6 +2,8 @@ import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
 import 'package:budgetit/screens/coming_soon_page.dart';
 import 'package:budgetit/screens/profile_page.dart';
+import 'package:provider/provider.dart';
+import 'package:budgetit/utils/theme_provider.dart';
 
 class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
   const MainAppbar({super.key});
@@ -29,12 +31,13 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<ThemeProvider>();
     return AppBar(
-      backgroundColor: MyColours().background,
+      backgroundColor: MyColours().navBarColor,
       elevation: 0,
 
       leading: IconButton(
-        icon: Icon(Icons.menu, color: MyColours().textPrimary),
+        icon: Icon(Icons.menu, color: MyColours().cardText),
         onPressed: () {
           _openComingSoonPage(
             context,
@@ -49,7 +52,7 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
       title: Text(
         "Budget IT",
         style: TextStyle(
-          color: MyColours().textPrimary,
+          color: MyColours().cardText,
           fontWeight: FontWeight.bold,
           letterSpacing: 1,
         ),
@@ -57,9 +60,17 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
 
       actions: [
         IconButton(
+          tooltip: theme.isDark ? 'Light mode' : 'Dark mode',
+          icon: Icon(
+            theme.isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+            color: MyColours().cardText,
+          ),
+          onPressed: () => context.read<ThemeProvider>().toggle(),
+        ),
+        IconButton(
           icon: Icon(
             Icons.account_circle_outlined,
-            color: MyColours().textPrimary,
+            color: MyColours().cardText,
           ),
           onPressed: () {
             Navigator.push(
@@ -72,7 +83,7 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: Icon(
             Icons.settings_outlined,
-            color: MyColours().textPrimary,
+            color: MyColours().cardText,
           ),
           onPressed: () {
             _openComingSoonPage(

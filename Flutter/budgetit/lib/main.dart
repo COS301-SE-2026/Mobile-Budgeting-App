@@ -14,6 +14,7 @@ import 'database/app_database.dart';
 import 'database/database_seeder.dart';
 import 'screens/dashboard.dart';
 import 'screens/login_password_screen.dart';
+import 'utils/theme_provider.dart';
 
 import 'shared/widgets/main_appbar.dart';
 
@@ -82,6 +83,9 @@ class BudgetApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => AppAuthProvider(authService: CognitoAuthService()),
         ),
+        ChangeNotifierProvider(
+          create: (_) => ThemeProvider(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -127,9 +131,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final db = context.read<AppDatabase>();
-    final pages = _buildPages(db);
-
+    context.watch<ThemeProvider>(); // rebuild navigation bar + appbar on theme change
     return Scaffold(
       appBar: MainAppbar(),
       body: pages[_selectedIndex],
@@ -165,5 +167,31 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+}
+
+// Routes to the correct screen based on authentication state.
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // propagate theme to all descendant pages
+    final auth = context.watch<AppAuthProvider>();
+
+    switch (auth.status) {
+      case AuthStatus.unknown:
+        return const Scaffold(
+          backgroundColor: Color(0xFF04240C),
+          body: Center(
+            child: CircularProgressIndicator(color: Color(0xFFDDD6AE)),
+          ),
+        );
+      case AuthStatus.guest:
+        return const LoginRegisterScreen();
+      case AuthStatus.skipped:
+      case AuthStatus.loggedIn:
+        return const HomePage();
+    }
   }
 }

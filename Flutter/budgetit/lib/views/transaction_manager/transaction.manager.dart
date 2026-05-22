@@ -4,12 +4,15 @@ import 'package:budgetit/shared/widgets/badge.dart';
 import 'package:flutter/material.dart';
 import 'package:budgetit/shared/widgets/fab.dart';
 import 'package:budgetit/shared/widgets/box.dart';
+import 'package:provider/provider.dart';
+import 'package:budgetit/utils/theme_provider.dart';
 
 class TransactionManager extends StatelessWidget {
   const TransactionManager({super.key});
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>();
     return Scaffold(
       backgroundColor: MyColours().background,
       body: GestureDetector(
