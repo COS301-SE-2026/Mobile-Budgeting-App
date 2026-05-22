@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:decimal/decimal.dart';
 
 import '../../utils/app_colour.dart';
-import 'package:provider/provider.dart';
-import 'package:budgetit/utils/theme_provider.dart';
-import 'package:budgetit/database/app_database.dart';
-import 'package:budgetit/database/schema.dart';
-import 'package:budgetit/utils/icon_mapper.dart';
+import '../../database/app_database.dart';
+import '../../database/schema.dart';
+import '../../utils/icon_mapper.dart';
 
 class BudgetManagerScreen extends StatefulWidget {
   final AppDatabase database;
@@ -64,7 +62,7 @@ class _BudgetCategoryOption {
 
 
   class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
-  MyColours colours = MyColours();
+  final MyColours colours = MyColours();
 
   Future<List<_BudgetManagerItem>> _loadBudgetItems() async {
   final templates = await widget.database.budgetDao.getAllBudgetTemplates();
@@ -167,8 +165,6 @@ void initState() {
 
   @override
   Widget build(BuildContext context) {
-    context.watch<ThemeProvider>();
-    colours = MyColours(); // re-instantiate each build so helper methods see current theme
     return Scaffold(
       backgroundColor: colours.background,
      
@@ -412,12 +408,12 @@ void initState() {
                 width: 34,
                 height: 34,
                 decoration: BoxDecoration(
-                  color: colours.cardText.withValues(alpha: 0.15),
+                  color: colours.secondary,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Icon(
                   icon,
-                  color: colours.cardText,
+                  color: colours.background,
                   size: 20,
                 ),
               ),
@@ -431,7 +427,7 @@ void initState() {
                     Text(
                       title,
                       style: TextStyle(
-                        color: colours.cardText,
+                        color: colours.textPrimary,
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
                       ),
@@ -439,7 +435,7 @@ void initState() {
                     Text(
                       subtitle,
                       style: TextStyle(
-                        color: colours.cardText,
+                        color: colours.textPrimary,
                         fontSize: 10,
                       ),
                     ),
@@ -466,7 +462,7 @@ void initState() {
             child: LinearProgressIndicator(
               value: progress > 1 ? 1 : progress,
               minHeight: 6,
-              backgroundColor: colours.cardText.withValues(alpha: 0.25),
+              backgroundColor: colours.secondary,
               valueColor: AlwaysStoppedAnimation<Color>(progressColor),
             ),
           ),
