@@ -43,30 +43,6 @@ Future<void> _configureAmplify() async {
   }
 }
 
-class AuthWrapper extends StatelessWidget {
-  const AuthWrapper({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final auth = context.watch<AppAuthProvider>();
-
-    switch (auth.status) {
-      case AuthStatus.unknown:
-        return const Scaffold(
-          backgroundColor: Color(0xFF04240C),
-          body: Center(
-            child: CircularProgressIndicator(color: Color(0xFFDDD6AE)),
-          ),
-        );
-      case AuthStatus.guest:
-        return const LoginRegisterScreen();
-      case AuthStatus.skipped:
-      case AuthStatus.loggedIn:
-        return const HomePage();
-    }
-  }
-}
-
 class BudgetApp extends StatelessWidget {
   final AppDatabase db;
 
@@ -134,7 +110,7 @@ class _HomePageState extends State<HomePage> {
     context.watch<ThemeProvider>(); // rebuild navigation bar + appbar on theme change
     return Scaffold(
       appBar: MainAppbar(),
-      body: pages[_selectedIndex],
+      body: _buildPages(context.read<AppDatabase>())[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(10)),
