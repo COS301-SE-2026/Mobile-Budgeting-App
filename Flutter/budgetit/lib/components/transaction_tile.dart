@@ -1,5 +1,7 @@
 import 'package:budgetit/utils/app_colour.dart';
+import 'package:budgetit/utils/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class TransactionTile extends StatelessWidget {
 
@@ -20,7 +22,7 @@ class TransactionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
+    context.watch<ThemeProvider>();
     final colours = MyColours();
 
     return Container(

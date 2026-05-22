@@ -32,11 +32,11 @@ class _MyBadgeState extends State<MyBadge> {
         borderRadius: BorderRadius.circular(10),
         
         border: Border.all(
-          color: _isPressed ? MyColours().primary : MyColours().secondary,
+          color: MyColours().secondary,
           width: 1.5,
         ),
-        
-        color: _isPressed ? MyColours().secondary : MyColours().primary,
+
+        color: _isPressed ? MyColours().secondary : MyColours().background,
       ),
      
       child: Row(
@@ -53,7 +53,7 @@ class _MyBadgeState extends State<MyBadge> {
               fontSize: MyColours().bodyFontSize,
               
             
-              color: _isPressed ? MyColours().background : MyColours().textPrimary,
+              color: _isPressed ? MyColours().background : MyColours().textPrimary.withValues(alpha: 0.85),
             ),
           ),
           

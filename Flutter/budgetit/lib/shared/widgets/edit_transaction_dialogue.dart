@@ -74,7 +74,10 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
 
     return Dialog(
       backgroundColor: colours.background,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: colours.secondary, width: 1.5),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -109,14 +112,15 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
                     ),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
+              Divider(color: colours.secondary.withValues(alpha: 0.35), height: 1),
+              const SizedBox(height: 16),
 
-              
               _FieldLabel('Transaction Name', colours),
               const SizedBox(height: 6),
               TextFormField(
                 controller: _nameController,
-                style: TextStyle(color: colours.textPrimary, fontSize: 14),
+                style: TextStyle(color: colours.cardText, fontSize: 14),
                 decoration: _inputDecoration('e.g. Grocery run', colours),
                 validator: (v) =>
                     (v == null || v.trim().isEmpty) ? 'Name is required' : null,
@@ -128,7 +132,7 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
               const SizedBox(height: 6),
               TextFormField(
                 controller: _amountController,
-                style: TextStyle(color: colours.textPrimary, fontSize: 14),
+                style: TextStyle(color: colours.cardText, fontSize: 14),
                 decoration: _inputDecoration('0.00', colours),
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
@@ -158,9 +162,9 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
                     child: DropdownButton<String>(
                       value: _selectedCategory,
                       isExpanded: true,
-                      dropdownColor: colours.primary,
-                      style: TextStyle(color: colours.textPrimary, fontSize: 14),
-                      icon: Icon(Icons.keyboard_arrow_down, color: colours.secondary),
+                      dropdownColor: colours.navBarColor,
+                      style: TextStyle(color: colours.cardText, fontSize: 14),
+                      icon: Icon(Icons.keyboard_arrow_down, color: colours.cardText),
                       items: widget.categories
                           .map((cat) => DropdownMenuItem(
                                 value: cat,
@@ -221,7 +225,7 @@ Widget _FieldLabel(String text, MyColours colours) => Text(
 InputDecoration _inputDecoration(String hint, MyColours colours) =>
     InputDecoration(
       hintText: hint,
-      hintStyle: TextStyle(color: MyColours().secondary),
+      hintStyle: TextStyle(color: MyColours().cardText.withValues(alpha: 0.5)),
       filled: true,
       fillColor: colours.primary,
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
