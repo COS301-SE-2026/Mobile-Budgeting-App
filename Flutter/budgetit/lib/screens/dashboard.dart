@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:budgetit/utils/app_colour.dart';
-
+import '../database/app_database.dart';
 import '../components/balance_card.dart';
 import '../components/bill_item.dart';
 import '../components/insight_widget.dart';
@@ -18,6 +18,13 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState
     extends State<Dashboard> {
+  late AppDatabase db;
+  @override
+  void initState() {
+    super.initState();
+
+    db = AppDatabase();
+  }
 
   String selectedFilter = "All";
 
