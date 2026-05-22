@@ -182,5 +182,245 @@ void main() {
     });
   });
 
+   // InsightWidget
   
+  group('InsightWidget', () {
+    final tip = BudgetInsight(
+      title: 'Great savings this month',
+      body: 'You are well under budget.',
+      icon: Icons.savings,
+      accentColor: Colors.green,
+      severity: InsightSeverity.tip,
+    );
+    final warning = BudgetInsight(
+      title: 'Budget exceeded',
+      body: 'You spent more than planned.',
+      icon: Icons.warning,
+      accentColor: Colors.orange,
+      severity: InsightSeverity.warning,
+    );
+    final alert = BudgetInsight(
+      title: 'Critical overspend',
+      body: 'Immediate action required.',
+      icon: Icons.error,
+      accentColor: Colors.red,
+      severity: InsightSeverity.alert,
+    );
+
+    testWidgets('empty list renders no content', (tester) async {
+      await tester.pumpWidget(_wrap(const InsightWidget(insights: [])));
+      await tester.pumpAndSettle();
+      expect(find.text('Insight'), findsNothing);
+    });
+
+    testWidgets('single insight renders title and body', (tester) async {
+      await tester.pumpWidget(_wrap(InsightWidget(insights: [tip])));
+      await tester.pumpAndSettle();
+      expect(find.text('Insight'), findsOneWidget);
+      expect(find.text('Great savings this month'), findsOneWidget);
+      expect(find.text('You are well under budget.'), findsOneWidget);
+    });
+
+    testWidgets('single insight shows no navigation chevrons', (tester) async {
+      await tester.pumpWidget(_wrap(InsightWidget(insights: [tip])));
+      await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.chevron_left_rounded), findsNothing);
+      expect(find.byIcon(Icons.chevron_right_rounded), findsNothing);
+    });
+
+    testWidgets('tip severity shows Tip badge', (tester) async {
+      await tester.pumpWidget(_wrap(InsightWidget(insights: [tip])));
+      await tester.pumpAndSettle();
+      expect(find.text('Tip'), findsOneWidget);
+    });
+
+    testWidgets('warning severity shows Warning badge', (tester) async {
+      await tester.pumpWidget(_wrap(InsightWidget(insights: [warning])));
+      await tester.pumpAndSettle();
+      expect(find.text('Warning'), findsOneWidget);
+    });
+
+    testWidgets('alert severity shows Alert badge', (tester) async {
+      await tester.pumpWidget(_wrap(InsightWidget(insights: [alert])));
+      await tester.pumpAndSettle();
+      expect(find.text('Alert'), findsOneWidget);
+    });
+
+    testWidgets('multiple insights show page counter and both chevrons',
+        (tester) async {
+      await tester.pumpWidget(_wrap(InsightWidget(insights: [tip, warning])));
+      await tester.pumpAndSettle();
+      expect(find.text('1/2'), findsOneWidget);
+      expect(find.byIcon(Icons.chevron_left_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.chevron_right_rounded), findsOneWidget);
+    });
+
+    testWidgets('tapping next advances to second insight', (tester) async {
+      await tester.pumpWidget(_wrap(InsightWidget(insights: [tip, warning])));
+      await tester.pumpAndSettle();
+      expect(find.text('Great savings this month'), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.chevron_right_rounded));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Budget exceeded'), findsOneWidget);
+      expect(find.text('2/2'), findsOneWidget);
+    });
+
+    testWidgets('tapping previous from first wraps to last', (tester) async {
+      await tester.pumpWidget(_wrap(InsightWidget(insights: [tip, warning])));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.chevron_left_rounded));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Budget exceeded'), findsOneWidget);
+      expect(find.text('2/2'), findsOneWidget);
+    });
+
+    testWidgets('tapping next from last wraps back to first', (tester) async {
+      await tester.pumpWidget(_wrap(InsightWidget(insights: [tip, warning])));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.chevron_right_rounded));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.chevron_right_rounded));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Great savings this month'), findsOneWidget);
+      expect(find.text('1/2'), findsOneWidget);
+    });
+
+    testWidgets('three-insight carousel cycles forward through all', (tester) async {
+      await tester.pumpWidget(
+          _wrap(InsightWidget(insights: [tip, warning, alert])));
+      await tester.pumpAndSettle();
+      expect(find.text('1/3'), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.chevron_right_rounded));
+      await tester.pumpAndSettle();
+      expect(find.text('2/3'), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.chevron_right_rounded));
+      await tester.pumpAndSettle();
+      expect(find.text('3/3'), findsOneWidget);
+    });
+  });
+
+  
+  // TransactionTile
+  
+  group('TransactionTile', () {
+    testWidgets('renders title, subtitle, and amount', (tester) async {
+      await tester.pumpWidget(_wrap(const TransactionTile(
+        icon: Icons.shopping_cart,
+        title: 'Coffee',
+        subtitle: 'Today',
+        amount: '- R50',
+        isExpense: true,
+      )));
+      await tester.pump();
+      expect(find.text('Coffee'), findsOneWidget);
+      expect(find.text('Today'), findsOneWidget);
+      expect(find.text('- R50'), findsOneWidget);
+    });
+
+    testWidgets('shows TRANSACTION badge on every tile', (tester) async {
+      await tester.pumpWidget(_wrap(const TransactionTile(
+        icon: Icons.shopping_cart,
+        title: 'Coffee',
+        subtitle: 'Today',
+        amount: '- R50',
+        isExpense: true,
+      )));
+      await tester.pump();
+      expect(find.text('TRANSACTION'), findsOneWidget);
+    });
+
+    testWidgets('isExpense true shows "expense" label, not "income"',
+        (tester) async {
+      await tester.pumpWidget(_wrap(const TransactionTile(
+        icon: Icons.shopping_cart,
+        title: 'Groceries',
+        subtitle: 'Today',
+        amount: '- R850',
+        isExpense: true,
+      )));
+      await tester.pump();
+      expect(find.text('expense'), findsOneWidget);
+      expect(find.text('income'), findsNothing);
+    });
+
+    testWidgets('isExpense false shows "income" label, not "expense"',
+        (tester) async {
+      await tester.pumpWidget(_wrap(const TransactionTile(
+        icon: Icons.payments,
+        title: 'Salary',
+        subtitle: 'Yesterday',
+        amount: '+ R22 000',
+        isExpense: false,
+      )));
+      await tester.pump();
+      expect(find.text('income'), findsOneWidget);
+      expect(find.text('expense'), findsNothing);
+    });
+
+    testWidgets('expense tile icon uses red accent color', (tester) async {
+      await tester.pumpWidget(_wrap(const TransactionTile(
+        icon: Icons.shopping_cart,
+        title: 'Groceries',
+        subtitle: 'Today',
+        amount: '- R850',
+        isExpense: true,
+      )));
+      await tester.pump();
+      final icon = tester.widget<Icon>(find.byIcon(Icons.shopping_cart));
+      expect(icon.color, Colors.redAccent);
+    });
+  });
+
+  
+  // BillItem
+  
+  group('BillItem', () {
+    testWidgets('renders title, subtitle, and amount', (tester) async {
+      await tester.pumpWidget(_wrap(BillItem(
+        icon: Icons.electric_bolt,
+        title: 'Electricity',
+        subtitle: 'Due tomorrow',
+        amount: 'R850',
+      )));
+      await tester.pump();
+      expect(find.text('Electricity'), findsOneWidget);
+      expect(find.text('Due tomorrow'), findsOneWidget);
+      expect(find.text('R850'), findsOneWidget);
+    });
+
+    testWidgets('renders with different data correctly', (tester) async {
+      await tester.pumpWidget(_wrap(BillItem(
+        icon: Icons.water,
+        title: 'Water',
+        subtitle: 'Due in 3 days',
+        amount: 'R200',
+      )));
+      await tester.pump();
+      expect(find.text('Water'), findsOneWidget);
+      expect(find.text('Due in 3 days'), findsOneWidget);
+      expect(find.text('R200'), findsOneWidget);
+    });
+
+    testWidgets('renders the provided icon', (tester) async {
+      await tester.pumpWidget(_wrap(BillItem(
+        icon: Icons.movie,
+        title: 'Netflix',
+        subtitle: 'Due tomorrow',
+        amount: 'R199',
+      )));
+      await tester.pump();
+      expect(find.byIcon(Icons.movie), findsOneWidget);
+    });
+  });
+}
+
  
