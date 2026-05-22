@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:budgetit/utils/app_colour.dart';
-import '../database/app_database.dart';
-import '../database/schema.dart';
+import 'package:provider/provider.dart';
+import 'package:budgetit/utils/theme_provider.dart';
+// import '../components/balance_card.dart';
 import '../components/bill_item.dart';
 import '../components/insight_widget.dart';
 import '../components/monthly_trend_widget.dart';
 import '../components/spending_chart.dart';
 import '../components/transaction_tile.dart';
+import '../database/app_database.dart';
+import '../database/schema.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -373,6 +376,7 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>();
     final colours = MyColours();
 
     return Scaffold(
@@ -542,7 +546,7 @@ class _DashboardState extends State<Dashboard> {
 
                         icon: Icons.movie_rounded,
 
-                        accentColor: colours.secondary,
+                        accentColor: colours.redColor,
 
                         severity: InsightSeverity.warning,
                       ),
