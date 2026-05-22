@@ -236,4 +236,227 @@ void main() {
   });
 
   
- 
+  // MyBox
+  
+  group('MyBox', () {
+    Widget makeBox({
+      String text = 'Coffee',
+      double amount = 5.50,
+      String category = 'Food',
+      List<String> categories = const ['Food', 'Transport'],
+      void Function(String, double, IconData, String)? onEdited,
+      VoidCallback? onDelete,
+    }) =>
+        _widget(MyBox(
+          text: text,
+          amount: amount,
+          icon: Icons.coffee,
+          category: category,
+          categories: categories,
+          onEdited: onEdited ?? (n, a, i, c) {},
+          onDelete: onDelete ?? () {},
+        ));
+
+    testWidgets('shows transaction name', (tester) async {
+      _usePhoneSize(tester);
+      await tester.pumpWidget(makeBox(text: 'Coffee'));
+      await tester.pump();
+      expect(find.text('Coffee'), findsOneWidget);
+    });
+
+    testWidgets('shows formatted amount', (tester) async {
+      _usePhoneSize(tester);
+      await tester.pumpWidget(makeBox(amount: 5.50));
+      await tester.pump();
+      expect(find.text('R5.50'), findsOneWidget);
+    });
+
+    testWidgets('shows category label when provided', (tester) async {
+      _usePhoneSize(tester);
+      await tester.pumpWidget(makeBox(category: 'Food'));
+      await tester.pump();
+      expect(find.text('Food'), findsOneWidget);
+    });
+
+    testWidgets('tapping opens EditTransactionDialog', (tester) async {
+      _usePhoneSize(tester);
+      await tester.pumpWidget(makeBox());
+      await tester.pump();
+
+      await tester.tap(find.byType(MyBox));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Edit Transaction'), findsOneWidget);
+    });
+
+    testWidgets('saving in dialog updates the displayed name', (tester) async {
+      _usePhoneSize(tester);
+      await tester.pumpWidget(makeBox(text: 'Coffee'));
+      await tester.pump();
+
+      await tester.tap(find.byType(MyBox));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextFormField).first, 'Tea');
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Tea'), findsOneWidget);
+      expect(find.text('Coffee'), findsNothing);
+    });
+
+    testWidgets('cancel in dialog leaves name unchanged', (tester) async {
+      _usePhoneSize(tester);
+      await tester.pumpWidget(makeBox(text: 'Coffee'));
+      await tester.pump();
+
+      await tester.tap(find.byType(MyBox));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextFormField).first, 'Tea');
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Coffee'), findsOneWidget);
+      expect(find.text('Tea'), findsNothing);
+    });
+
+    testWidgets('delete button in dialog triggers onDelete callback',
+        (tester) async {
+      _usePhoneSize(tester);
+      bool deleted = false;
+      await tester.pumpWidget(makeBox(onDelete: () => deleted = true));
+      await tester.pump();
+
+      await tester.tap(find.byType(MyBox));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.delete_outline));
+      await tester.pumpAndSettle();
+
+      expect(deleted, isTrue);
+    });
+  });
+
+  
+  // EditTransactionDialog
+  
+  group('EditTransactionDialog', () {
+    testWidgets('shows Edit Transaction title', (tester) async {
+      await _openEditDialog(tester);
+      expect(find.text('Edit Transaction'), findsOneWidget);
+    });
+
+    testWidgets('pre-fills name field with provided name', (tester) async {
+      await _openEditDialog(tester, name: 'Coffee');
+      final nameField =
+          tester.widget<TextFormField>(find.byType(TextFormField).first);
+      expect(nameField.controller?.text, 'Coffee');
+    });
+
+    testWidgets('pre-fills amount field with provided amount', (tester) async {
+      await _openEditDialog(tester, amount: 12.50);
+      final amountField =
+          tester.widget<TextFormField>(find.byType(TextFormField).at(1));
+      expect(amountField.controller?.text, '12.50');
+    });
+
+    testWidgets('shows category dropdown when categories are provided',
+        (tester) async {
+      await _openEditDialog(
+          tester, categories: ['Food', 'Transport'], category: 'Food');
+      expect(find.byType(DropdownButton<String>), findsOneWidget);
+      expect(find.text('Category'), findsOneWidget);
+    });
+
+    testWidgets('shows no dropdown when categories list is empty',
+        (tester) async {
+      await _openEditDialog(tester, categories: []);
+      expect(find.byType(DropdownButton<String>), findsNothing);
+    });
+
+    testWidgets('empty name fails validation and shows error', (tester) async {
+      await _openEditDialog(tester, name: 'Coffee');
+      await tester.enterText(find.byType(TextFormField).first, '');
+      await tester.tap(find.text('Save'));
+      await tester.pump();
+      expect(find.text('Name is required'), findsOneWidget);
+    });
+
+    testWidgets('amount field rejects non-numeric input via formatter',
+        (tester) async {
+      await _openEditDialog(tester, amount: 5.50);
+      await tester.enterText(find.byType(TextFormField).at(1), 'abc');
+      await tester.pump();
+      final field =
+          tester.widget<TextFormField>(find.byType(TextFormField).at(1));
+      expect(field.controller?.text, isNot('abc'));
+    });
+
+    testWidgets('empty amount fails validation and shows error', (tester) async {
+      await _openEditDialog(tester);
+      await tester.enterText(find.byType(TextFormField).at(1), '');
+      await tester.tap(find.text('Save'));
+      await tester.pump();
+      expect(find.text('Amount is required'), findsOneWidget);
+    });
+
+    testWidgets('cancel closes dialog without calling onSave', (tester) async {
+      bool saved = false;
+      await _openEditDialog(tester, onSave: (n, a, i, c) => saved = true);
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(find.text('Edit Transaction'), findsNothing);
+      expect(saved, isFalse);
+    });
+
+    testWidgets('save calls onSave with correct name and amount', (tester) async {
+      String? capturedName;
+      double? capturedAmount;
+
+      await _openEditDialog(
+        tester,
+        name: 'Coffee',
+        amount: 5.50,
+        onSave: (n, a, i, c) {
+          capturedName = n;
+          capturedAmount = a;
+        },
+      );
+
+      await tester.enterText(find.byType(TextFormField).first, 'Tea');
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+
+      expect(capturedName, 'Tea');
+      expect(capturedAmount, 5.50);
+    });
+
+    testWidgets('delete button visible when onDelete provided', (tester) async {
+      await _openEditDialog(tester, onDelete: () {});
+      expect(find.byIcon(Icons.delete_outline), findsOneWidget);
+    });
+
+    testWidgets('delete button absent when onDelete is null', (tester) async {
+      await _openEditDialog(tester, onDelete: null);
+      expect(find.byIcon(Icons.delete_outline), findsNothing);
+    });
+  });
+
+  
+  // FABMenu
+  
+  group('FABMenu', () {
+    testWidgets('shows Add Transaction option', (tester) async {
+      await tester.pumpWidget(_widget(const FABMenu()));
+      await tester.pump();
+      expect(find.text('Add Transaction'), findsOneWidget);
+    });
+
+    testWidgets('shows Import PDF/CSV option', (tester) async {
+      await tester.pumpWidget(_widget(const FABMenu()));
+      await tester.pump();
+      expect(find.text('Import PDF/CSV'), findsOneWidget);
+    });
+  });
+}
