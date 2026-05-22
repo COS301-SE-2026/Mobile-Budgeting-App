@@ -116,7 +116,7 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
               Divider(color: colours.secondary.withValues(alpha: 0.35), height: 1),
               const SizedBox(height: 16),
 
-              _FieldLabel('Transaction Name', colours),
+              _fieldLabel('Transaction Name', colours),
               const SizedBox(height: 6),
               TextFormField(
                 controller: _nameController,
@@ -128,7 +128,7 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
               const SizedBox(height: 16),
 
              
-              _FieldLabel('Amount (R)', colours),
+              _fieldLabel('Amount (R)', colours),
               const SizedBox(height: 6),
               TextFormField(
                 controller: _amountController,
@@ -149,7 +149,7 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
 
             
               if (widget.categories.isNotEmpty) ...[
-                _FieldLabel('Category', colours),
+                _fieldLabel('Category', colours),
                 const SizedBox(height: 6),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -213,7 +213,7 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
   }
 }
 
-Widget _FieldLabel(String text, MyColours colours) => Text(
+Widget _fieldLabel(String text, MyColours colours) => Text(
       text,
       style: TextStyle(
         fontSize: 12,

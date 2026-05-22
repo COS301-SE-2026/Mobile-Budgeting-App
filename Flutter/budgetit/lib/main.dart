@@ -59,6 +59,9 @@ class BudgetApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => AppAuthProvider(authService: CognitoAuthService()),
         ),
+        ChangeNotifierProvider(
+          create: (_) => ThemeProvider(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
