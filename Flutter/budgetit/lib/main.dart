@@ -43,6 +43,30 @@ Future<void> _configureAmplify() async {
   }
 }
 
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = context.watch<AppAuthProvider>();
+
+    switch (auth.status) {
+      case AuthStatus.unknown:
+        return const Scaffold(
+          backgroundColor: Color(0xFF04240C),
+          body: Center(
+            child: CircularProgressIndicator(color: Color(0xFFDDD6AE)),
+          ),
+        );
+      case AuthStatus.guest:
+        return const LoginRegisterScreen();
+      case AuthStatus.skipped:
+      case AuthStatus.loggedIn:
+        return const HomePage();
+    }
+  }
+}
+
 class BudgetApp extends StatelessWidget {
   final AppDatabase db;
 
@@ -74,7 +98,7 @@ class BudgetApp extends StatelessWidget {
         routes: {
           '/transaction_manager': (context) => const TransactionManager(),
         },
-        home: const AuthWrapper(),
+        home: AuthWrapper(),
       ),
     );
   }
@@ -91,11 +115,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = [
-    const Dashboard(),
-    const TransactionManager(),
-    BudgetManagerScreen(),
-  ];
+  List<Widget> _buildPages(AppDatabase db) {
+    return [
+      const Dashboard(),
+      const TransactionManager(),
+      BudgetManagerScreen(database: db),
+    ];
+  }
 
   void _onDestinationSelected(int index) {
     setState(() {
@@ -108,7 +134,7 @@ class _HomePageState extends State<HomePage> {
     context.watch<ThemeProvider>(); // rebuild navigation bar + appbar on theme change
     return Scaffold(
       appBar: MainAppbar(),
-      body: _pages[_selectedIndex], // Show the selected page
+      body: pages[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(10)),
