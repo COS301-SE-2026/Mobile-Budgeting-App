@@ -12,9 +12,8 @@ import 'package:budgetit/screens/dashboard.dart';
 Widget _wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
 
 void main() {
-  
   // Dashboard — integration-level: full screen renders correctly
-  
+
   group('Dashboard', () {
     testWidgets('renders without error', (tester) async {
       await tester.pumpWidget(_wrap(const Dashboard()));
@@ -22,23 +21,27 @@ void main() {
       expect(find.byType(Dashboard), findsOneWidget);
     });
 
-    testWidgets('shows Upcoming Bills and Recent Transactions section headings',
-        (tester) async {
-      await tester.pumpWidget(_wrap(const Dashboard()));
-      await tester.pumpAndSettle();
-      expect(find.text('Upcoming Bills'), findsOneWidget);
-      expect(find.text('Recent Transactions'), findsOneWidget);
-    });
+    testWidgets(
+      'shows Upcoming Bills and Recent Transactions section headings',
+      (tester) async {
+        await tester.pumpWidget(_wrap(const Dashboard()));
+        await tester.pumpAndSettle();
+        expect(find.text('Upcoming Bills'), findsOneWidget);
+        expect(find.text('Recent Transactions'), findsOneWidget);
+      },
+    );
 
-    testWidgets('contains BalanceCard, QuickStatsWidget, MonthlyTrendWidget and InsightWidget',
-        (tester) async {
-      await tester.pumpWidget(_wrap(const Dashboard()));
-      await tester.pumpAndSettle();
-      expect(find.byType(BalanceCard), findsOneWidget);
-      expect(find.byType(QuickStatsWidget), findsOneWidget);
-      expect(find.byType(MonthlyTrendWidget), findsOneWidget);
-      expect(find.byType(InsightWidget), findsOneWidget);
-    });
+    testWidgets(
+      'contains BalanceCard, QuickStatsWidget, MonthlyTrendWidget and InsightWidget',
+      (tester) async {
+        await tester.pumpWidget(_wrap(const Dashboard()));
+        await tester.pumpAndSettle();
+        expect(find.byType(BalanceCard), findsOneWidget);
+        expect(find.byType(QuickStatsWidget), findsOneWidget);
+        expect(find.byType(MonthlyTrendWidget), findsOneWidget);
+        expect(find.byType(InsightWidget), findsOneWidget);
+      },
+    );
 
     testWidgets('shows Electricity and Netflix bill items', (tester) async {
       await tester.pumpWidget(_wrap(const Dashboard()));
@@ -57,38 +60,45 @@ void main() {
     testWidgets('body is scrollable', (tester) async {
       await tester.pumpWidget(_wrap(const Dashboard()));
       await tester.pumpAndSettle();
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -400));
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -400),
+      );
       await tester.pumpAndSettle();
       // No layout exception = scrolling works
     });
   });
 
-  
   // BalanceCard
-  
+
   group('BalanceCard', () {
     testWidgets('shows monthly spending header text', (tester) async {
-      await tester.pumpWidget(_wrap(const BalanceCard()));
+      await tester.pumpWidget(
+        _wrap(BalanceCard(selectedDate: DateTime(2026, 5, 1))),
+      );
       await tester.pump();
-      expect(find.text('MONTHLY SPENDING MAY 2026'), findsOneWidget);
+      expect(find.text('DAILY SPENDING FOR 1/5/2026'), findsOneWidget);
     });
 
     testWidgets('shows current spending amount', (tester) async {
-      await tester.pumpWidget(_wrap(const BalanceCard()));
+      await tester.pumpWidget(
+        _wrap(BalanceCard(selectedDate: DateTime(2026, 5, 1))),
+      );
       await tester.pump();
       expect(find.text('R1,850.00'), findsOneWidget);
     });
 
     testWidgets('shows target amount', (tester) async {
-      await tester.pumpWidget(_wrap(const BalanceCard()));
+      await tester.pumpWidget(
+        _wrap(BalanceCard(selectedDate: DateTime(2026, 5, 1))),
+      );
       await tester.pump();
       expect(find.text('Target: R1,950.00'), findsOneWidget);
     });
   });
 
-  
   // QuickStatsWidget
-  
+
   group('QuickStatsWidget', () {
     testWidgets('shows Spending by Category heading', (tester) async {
       await tester.pumpWidget(_wrap(const QuickStatsWidget()));
@@ -96,16 +106,18 @@ void main() {
       expect(find.text('Spending by Category'), findsOneWidget);
     });
 
-    testWidgets('shows TOTAL label and R4.2k value in chart centre',
-        (tester) async {
+    testWidgets('shows TOTAL label and R4.2k value in chart centre', (
+      tester,
+    ) async {
       await tester.pumpWidget(_wrap(const QuickStatsWidget()));
       await tester.pump();
       expect(find.text('TOTAL'), findsOneWidget);
       expect(find.text('R4.2k'), findsOneWidget);
     });
 
-    testWidgets('shows all three category rows with correct percentages',
-        (tester) async {
+    testWidgets('shows all three category rows with correct percentages', (
+      tester,
+    ) async {
       await tester.pumpWidget(_wrap(const QuickStatsWidget()));
       await tester.pump();
       expect(find.text('Housing'), findsOneWidget);
@@ -117,24 +129,52 @@ void main() {
     });
   });
 
-  
   // MonthlyTrendWidget
-  
+
   group('MonthlyTrendWidget', () {
     const threeMonths = [
-      MonthData(month: 'January 2026', shortMonth: 'Jan', income: 5000, spent: 3000),
-      MonthData(month: 'February 2026', shortMonth: 'Feb', income: 5000, spent: 4000),
-      MonthData(month: 'March 2026', shortMonth: 'Mar', income: 5000, spent: 2000),
+      MonthData(
+        month: 'January 2026',
+        shortMonth: 'Jan',
+        income: 5000,
+        spent: 3000,
+      ),
+      MonthData(
+        month: 'February 2026',
+        shortMonth: 'Feb',
+        income: 5000,
+        spent: 4000,
+      ),
+      MonthData(
+        month: 'March 2026',
+        shortMonth: 'Mar',
+        income: 5000,
+        spent: 2000,
+      ),
     ];
 
     testWidgets('shows Monthly Trend heading', (tester) async {
-      await tester.pumpWidget(_wrap(MonthlyTrendWidget(months: threeMonths)));
+      await tester.pumpWidget(
+        _wrap(
+          MonthlyTrendWidget(
+            selectedDate: DateTime(2026, 5, 1),
+            months: threeMonths,
+          ),
+        ),
+      );
       await tester.pump();
-      expect(find.text('Monthly Trend'), findsOneWidget);
+      expect(find.text('Monthly Spending'), findsOneWidget);
     });
 
     testWidgets('renders a label for each month provided', (tester) async {
-      await tester.pumpWidget(_wrap(MonthlyTrendWidget(months: threeMonths)));
+      await tester.pumpWidget(
+        _wrap(
+          MonthlyTrendWidget(
+            selectedDate: DateTime(2026, 5, 1),
+            months: threeMonths,
+          ),
+        ),
+      );
       await tester.pump();
       expect(find.text('Jan'), findsOneWidget);
       expect(find.text('Feb'), findsOneWidget);
@@ -142,15 +182,30 @@ void main() {
     });
 
     testWidgets('tapping a month bar does not throw', (tester) async {
-      await tester.pumpWidget(_wrap(MonthlyTrendWidget(months: threeMonths)));
+      await tester.pumpWidget(
+        _wrap(
+          MonthlyTrendWidget(
+            selectedDate: DateTime(2026, 5, 1),
+            months: threeMonths,
+          ),
+        ),
+      );
       await tester.pump();
       await tester.tap(find.text('Jan'));
       await tester.pumpAndSettle();
     });
 
-    testWidgets('tapping each bar in sequence rebuilds without error',
-        (tester) async {
-      await tester.pumpWidget(_wrap(MonthlyTrendWidget(months: threeMonths)));
+    testWidgets('tapping each bar in sequence rebuilds without error', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          MonthlyTrendWidget(
+            selectedDate: DateTime(2026, 5, 1),
+            months: threeMonths,
+          ),
+        ),
+      );
       await tester.pump();
       for (final label in ['Jan', 'Feb', 'Mar']) {
         await tester.tap(find.text(label));
@@ -161,20 +216,54 @@ void main() {
 
     testWidgets('works with a single month entry', (tester) async {
       const single = [
-        MonthData(month: 'Jan 2026', shortMonth: 'Jan', income: 1000, spent: 500),
+        MonthData(
+          month: 'Jan 2026',
+          shortMonth: 'Jan',
+          income: 1000,
+          spent: 500,
+        ),
       ];
-      await tester.pumpWidget(_wrap(MonthlyTrendWidget(months: single)));
+      await tester.pumpWidget(
+        _wrap(
+          MonthlyTrendWidget(
+            selectedDate: DateTime(2026, 5, 1),
+            months: single,
+          ),
+        ),
+      );
       await tester.pump();
       expect(find.text('Jan'), findsOneWidget);
     });
 
     testWidgets('renders all dashboard months (Mar, Apr, May)', (tester) async {
       const dashboardMonths = [
-        MonthData(month: 'March 2026', shortMonth: 'Mar', income: 22000, spent: 14200),
-        MonthData(month: 'April 2026', shortMonth: 'Apr', income: 22000, spent: 12800),
-        MonthData(month: 'May 2026', shortMonth: 'May', income: 22000, spent: 10000),
+        MonthData(
+          month: 'March 2026',
+          shortMonth: 'Mar',
+          income: 22000,
+          spent: 14200,
+        ),
+        MonthData(
+          month: 'April 2026',
+          shortMonth: 'Apr',
+          income: 22000,
+          spent: 12800,
+        ),
+        MonthData(
+          month: 'May 2026',
+          shortMonth: 'May',
+          income: 22000,
+          spent: 10000,
+        ),
       ];
-      await tester.pumpWidget(_wrap(MonthlyTrendWidget(months: dashboardMonths)));
+      await tester.pumpWidget(
+        _wrap(
+          MonthlyTrendWidget(
+            selectedDate: DateTime(2026, 5, 1),
+            months: dashboardMonths,
+          ),
+        ),
+      );
       await tester.pump();
       expect(find.text('Mar'), findsOneWidget);
       expect(find.text('Apr'), findsOneWidget);
@@ -182,8 +271,8 @@ void main() {
     });
   });
 
-   // InsightWidget
-  
+  // InsightWidget
+
   group('InsightWidget', () {
     final tip = BudgetInsight(
       title: 'Great savings this month',
@@ -246,8 +335,9 @@ void main() {
       expect(find.text('Alert'), findsOneWidget);
     });
 
-    testWidgets('multiple insights show page counter and both chevrons',
-        (tester) async {
+    testWidgets('multiple insights show page counter and both chevrons', (
+      tester,
+    ) async {
       await tester.pumpWidget(_wrap(InsightWidget(insights: [tip, warning])));
       await tester.pumpAndSettle();
       expect(find.text('1/2'), findsOneWidget);
@@ -292,9 +382,12 @@ void main() {
       expect(find.text('1/2'), findsOneWidget);
     });
 
-    testWidgets('three-insight carousel cycles forward through all', (tester) async {
+    testWidgets('three-insight carousel cycles forward through all', (
+      tester,
+    ) async {
       await tester.pumpWidget(
-          _wrap(InsightWidget(insights: [tip, warning, alert])));
+        _wrap(InsightWidget(insights: [tip, warning, alert])),
+      );
       await tester.pumpAndSettle();
       expect(find.text('1/3'), findsOneWidget);
 
@@ -308,18 +401,21 @@ void main() {
     });
   });
 
-  
   // TransactionTile
-  
+
   group('TransactionTile', () {
     testWidgets('renders title, subtitle, and amount', (tester) async {
-      await tester.pumpWidget(_wrap(const TransactionTile(
-        icon: Icons.shopping_cart,
-        title: 'Coffee',
-        subtitle: 'Today',
-        amount: '- R50',
-        isExpense: true,
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          const TransactionTile(
+            icon: Icons.shopping_cart,
+            title: 'Coffee',
+            subtitle: 'Today',
+            amount: '- R50',
+            isExpense: true,
+          ),
+        ),
+      );
       await tester.pump();
       expect(find.text('Coffee'), findsOneWidget);
       expect(find.text('Today'), findsOneWidget);
@@ -327,70 +423,91 @@ void main() {
     });
 
     testWidgets('shows TRANSACTION badge on every tile', (tester) async {
-      await tester.pumpWidget(_wrap(const TransactionTile(
-        icon: Icons.shopping_cart,
-        title: 'Coffee',
-        subtitle: 'Today',
-        amount: '- R50',
-        isExpense: true,
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          const TransactionTile(
+            icon: Icons.shopping_cart,
+            title: 'Coffee',
+            subtitle: 'Today',
+            amount: '- R50',
+            isExpense: true,
+          ),
+        ),
+      );
       await tester.pump();
       expect(find.text('TRANSACTION'), findsOneWidget);
     });
 
-    testWidgets('isExpense true shows "expense" label, not "income"',
-        (tester) async {
-      await tester.pumpWidget(_wrap(const TransactionTile(
-        icon: Icons.shopping_cart,
-        title: 'Groceries',
-        subtitle: 'Today',
-        amount: '- R850',
-        isExpense: true,
-      )));
+    testWidgets('isExpense true shows "expense" label, not "income"', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          const TransactionTile(
+            icon: Icons.shopping_cart,
+            title: 'Groceries',
+            subtitle: 'Today',
+            amount: '- R850',
+            isExpense: true,
+          ),
+        ),
+      );
       await tester.pump();
       expect(find.text('expense'), findsOneWidget);
       expect(find.text('income'), findsNothing);
     });
 
-    testWidgets('isExpense false shows "income" label, not "expense"',
-        (tester) async {
-      await tester.pumpWidget(_wrap(const TransactionTile(
-        icon: Icons.payments,
-        title: 'Salary',
-        subtitle: 'Yesterday',
-        amount: '+ R22 000',
-        isExpense: false,
-      )));
+    testWidgets('isExpense false shows "income" label, not "expense"', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          const TransactionTile(
+            icon: Icons.payments,
+            title: 'Salary',
+            subtitle: 'Yesterday',
+            amount: '+ R22 000',
+            isExpense: false,
+          ),
+        ),
+      );
       await tester.pump();
       expect(find.text('income'), findsOneWidget);
       expect(find.text('expense'), findsNothing);
     });
 
     testWidgets('expense tile icon uses red accent color', (tester) async {
-      await tester.pumpWidget(_wrap(const TransactionTile(
-        icon: Icons.shopping_cart,
-        title: 'Groceries',
-        subtitle: 'Today',
-        amount: '- R850',
-        isExpense: true,
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          const TransactionTile(
+            icon: Icons.shopping_cart,
+            title: 'Groceries',
+            subtitle: 'Today',
+            amount: '- R850',
+            isExpense: true,
+          ),
+        ),
+      );
       await tester.pump();
       final icon = tester.widget<Icon>(find.byIcon(Icons.shopping_cart));
       expect(icon.color, Colors.redAccent);
     });
   });
 
-  
   // BillItem
-  
+
   group('BillItem', () {
     testWidgets('renders title, subtitle, and amount', (tester) async {
-      await tester.pumpWidget(_wrap(BillItem(
-        icon: Icons.electric_bolt,
-        title: 'Electricity',
-        subtitle: 'Due tomorrow',
-        amount: 'R850',
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          BillItem(
+            icon: Icons.electric_bolt,
+            title: 'Electricity',
+            subtitle: 'Due tomorrow',
+            amount: 'R850',
+          ),
+        ),
+      );
       await tester.pump();
       expect(find.text('Electricity'), findsOneWidget);
       expect(find.text('Due tomorrow'), findsOneWidget);
@@ -398,12 +515,16 @@ void main() {
     });
 
     testWidgets('renders with different data correctly', (tester) async {
-      await tester.pumpWidget(_wrap(BillItem(
-        icon: Icons.water,
-        title: 'Water',
-        subtitle: 'Due in 3 days',
-        amount: 'R200',
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          BillItem(
+            icon: Icons.water,
+            title: 'Water',
+            subtitle: 'Due in 3 days',
+            amount: 'R200',
+          ),
+        ),
+      );
       await tester.pump();
       expect(find.text('Water'), findsOneWidget);
       expect(find.text('Due in 3 days'), findsOneWidget);
@@ -411,16 +532,18 @@ void main() {
     });
 
     testWidgets('renders the provided icon', (tester) async {
-      await tester.pumpWidget(_wrap(BillItem(
-        icon: Icons.movie,
-        title: 'Netflix',
-        subtitle: 'Due tomorrow',
-        amount: 'R199',
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          BillItem(
+            icon: Icons.movie,
+            title: 'Netflix',
+            subtitle: 'Due tomorrow',
+            amount: 'R199',
+          ),
+        ),
+      );
       await tester.pump();
       expect(find.byIcon(Icons.movie), findsOneWidget);
     });
   });
 }
-
- 
