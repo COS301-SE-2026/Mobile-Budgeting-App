@@ -269,7 +269,7 @@ class _InsightCard
                     fontSize: 12,
 
                     color: colours
-                        .textPrimary
+                        .cardText
                         .withValues(
                           alpha: 0.6,
                         ),

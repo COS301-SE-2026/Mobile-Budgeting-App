@@ -1,5 +1,7 @@
 import 'package:budgetit/utils/app_colour.dart';
+import 'package:budgetit/utils/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class MonthlyTrendWidget extends StatefulWidget {
 
