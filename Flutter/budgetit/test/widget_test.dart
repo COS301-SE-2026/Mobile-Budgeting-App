@@ -27,11 +27,13 @@ void main() {
   testWidgets('Budget manager screen loads', (WidgetTester tester) async {
     final database = AppDatabase.forTesting(NativeDatabase.memory());
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: BudgetManagerScreen(database: database),
-      ),
-    );
+    await tester.pumpWidget(BudgetApp(db: db));
+    await tester.pumpAndSettle();
+
+    // The app should start with the shared bottom navigation.
+    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.byType(NavigationDestination), findsNWidgets(3));
+    await tester.pumpWidget(MaterialApp(home: BudgetManagerScreen(database: db)));
 
     await tester.pumpAndSettle();
 

@@ -4,6 +4,9 @@ import 'package:decimal/decimal.dart';
 import '../../utils/app_colour.dart';
 import 'package:provider/provider.dart';
 import 'package:budgetit/utils/theme_provider.dart';
+import 'package:budgetit/database/app_database.dart';
+import 'package:budgetit/database/schema.dart';
+import 'package:budgetit/utils/icon_mapper.dart';
 
 class BudgetManagerScreen extends StatefulWidget {
   final AppDatabase database;

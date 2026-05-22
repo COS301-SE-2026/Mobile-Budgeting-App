@@ -79,94 +79,94 @@ class _Fake$CategoryClosureTable_7 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
-class _Fake$TransactionCategoryMapTable_8 extends _i1.SmartFake
+class _Fake$TransactionsTable_8 extends _i1.SmartFake
+    implements _i2.$TransactionsTable {
+  _Fake$TransactionsTable_8(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$TransactionCategoryMapTable_9 extends _i1.SmartFake
     implements _i2.$TransactionCategoryMapTable {
-  _Fake$TransactionCategoryMapTable_8(
+  _Fake$TransactionCategoryMapTable_9(
     Object parent,
     Invocation parentInvocation,
   ) : super(parent, parentInvocation);
 }
 
-class _Fake$BudgetTemplatesTable_9 extends _i1.SmartFake
+class _Fake$BudgetTemplatesTable_10 extends _i1.SmartFake
     implements _i2.$BudgetTemplatesTable {
-  _Fake$BudgetTemplatesTable_9(Object parent, Invocation parentInvocation)
+  _Fake$BudgetTemplatesTable_10(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _Fake$BudgetPeriodsTable_10 extends _i1.SmartFake
+class _Fake$BudgetPeriodsTable_11 extends _i1.SmartFake
     implements _i2.$BudgetPeriodsTable {
-  _Fake$BudgetPeriodsTable_10(Object parent, Invocation parentInvocation)
+  _Fake$BudgetPeriodsTable_11(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeCategoryDaoManager_11 extends _i1.SmartFake
+class _FakeCategoryDaoManager_12 extends _i1.SmartFake
     implements _i5.CategoryDaoManager {
-  _FakeCategoryDaoManager_11(Object parent, Invocation parentInvocation)
+  _FakeCategoryDaoManager_12(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeCategory_12 extends _i1.SmartFake implements _i2.Category {
-  _FakeCategory_12(Object parent, Invocation parentInvocation)
+class _FakeCategory_13 extends _i1.SmartFake implements _i2.Category {
+  _FakeCategory_13(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeFuture_13<T1> extends _i1.SmartFake implements _i6.Future<T1> {
-  _FakeFuture_13(Object parent, Invocation parentInvocation)
+class _FakeFuture_14<T1> extends _i1.SmartFake implements _i6.Future<T1> {
+  _FakeFuture_14(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeInsertStatement_14<T1 extends _i3.Table, D1> extends _i1.SmartFake
+class _FakeInsertStatement_15<T1 extends _i3.Table, D1> extends _i1.SmartFake
     implements _i3.InsertStatement<T1, D1> {
-  _FakeInsertStatement_14(Object parent, Invocation parentInvocation)
+  _FakeInsertStatement_15(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeUpdateStatement_15<T extends _i3.Table, D> extends _i1.SmartFake
+class _FakeUpdateStatement_16<T extends _i3.Table, D> extends _i1.SmartFake
     implements _i3.UpdateStatement<T, D> {
-  _FakeUpdateStatement_15(Object parent, Invocation parentInvocation)
+  _FakeUpdateStatement_16(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeSimpleSelectStatement_16<T1 extends _i3.HasResultSet, D>
+class _FakeSimpleSelectStatement_17<T1 extends _i3.HasResultSet, D>
     extends _i1.SmartFake
     implements _i3.SimpleSelectStatement<T1, D> {
-  _FakeSimpleSelectStatement_16(Object parent, Invocation parentInvocation)
+  _FakeSimpleSelectStatement_17(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeJoinedSelectStatement_17<FirstT extends _i3.HasResultSet, FirstD>
+class _FakeJoinedSelectStatement_18<FirstT extends _i3.HasResultSet, FirstD>
     extends _i1.SmartFake
     implements _i3.JoinedSelectStatement<FirstT, FirstD> {
-  _FakeJoinedSelectStatement_17(Object parent, Invocation parentInvocation)
+  _FakeJoinedSelectStatement_18(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeBaseSelectStatement_18<Row> extends _i1.SmartFake
+class _FakeBaseSelectStatement_19<Row> extends _i1.SmartFake
     implements _i3.BaseSelectStatement<Row> {
-  _FakeBaseSelectStatement_18(Object parent, Invocation parentInvocation)
+  _FakeBaseSelectStatement_19(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeDeleteStatement_19<T1 extends _i3.Table, D1> extends _i1.SmartFake
+class _FakeDeleteStatement_20<T1 extends _i3.Table, D1> extends _i1.SmartFake
     implements _i3.DeleteStatement<T1, D1> {
-  _FakeDeleteStatement_19(Object parent, Invocation parentInvocation)
+  _FakeDeleteStatement_20(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeSelectable_20<T> extends _i1.SmartFake implements _i3.Selectable<T> {
-  _FakeSelectable_20(Object parent, Invocation parentInvocation)
+class _FakeSelectable_21<T> extends _i1.SmartFake implements _i3.Selectable<T> {
+  _FakeSelectable_21(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeGenerationContext_21 extends _i1.SmartFake
+class _FakeGenerationContext_22 extends _i1.SmartFake
     implements _i3.GenerationContext {
-  _FakeGenerationContext_21(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _Fake$TransactionsTable_22 extends _i1.SmartFake
-    implements _i2.$TransactionsTable {
-  _Fake$TransactionsTable_22(Object parent, Invocation parentInvocation)
+  _FakeGenerationContext_22(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -356,14 +356,29 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
           as _i2.$CategoryClosureTable);
 
   @override
+  _i2.$TransactionsTable get transactions =>
+      (super.noSuchMethod(
+            Invocation.getter(#transactions),
+            returnValue: _Fake$TransactionsTable_8(
+              this,
+              Invocation.getter(#transactions),
+            ),
+            returnValueForMissingStub: _Fake$TransactionsTable_8(
+              this,
+              Invocation.getter(#transactions),
+            ),
+          )
+          as _i2.$TransactionsTable);
+
+  @override
   _i2.$TransactionCategoryMapTable get transactionCategoryMap =>
       (super.noSuchMethod(
             Invocation.getter(#transactionCategoryMap),
-            returnValue: _Fake$TransactionCategoryMapTable_8(
+            returnValue: _Fake$TransactionCategoryMapTable_9(
               this,
               Invocation.getter(#transactionCategoryMap),
             ),
-            returnValueForMissingStub: _Fake$TransactionCategoryMapTable_8(
+            returnValueForMissingStub: _Fake$TransactionCategoryMapTable_9(
               this,
               Invocation.getter(#transactionCategoryMap),
             ),
@@ -374,11 +389,11 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
   _i2.$BudgetTemplatesTable get budgetTemplates =>
       (super.noSuchMethod(
             Invocation.getter(#budgetTemplates),
-            returnValue: _Fake$BudgetTemplatesTable_9(
+            returnValue: _Fake$BudgetTemplatesTable_10(
               this,
               Invocation.getter(#budgetTemplates),
             ),
-            returnValueForMissingStub: _Fake$BudgetTemplatesTable_9(
+            returnValueForMissingStub: _Fake$BudgetTemplatesTable_10(
               this,
               Invocation.getter(#budgetTemplates),
             ),
@@ -389,11 +404,11 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
   _i2.$BudgetPeriodsTable get budgetPeriods =>
       (super.noSuchMethod(
             Invocation.getter(#budgetPeriods),
-            returnValue: _Fake$BudgetPeriodsTable_10(
+            returnValue: _Fake$BudgetPeriodsTable_11(
               this,
               Invocation.getter(#budgetPeriods),
             ),
-            returnValueForMissingStub: _Fake$BudgetPeriodsTable_10(
+            returnValueForMissingStub: _Fake$BudgetPeriodsTable_11(
               this,
               Invocation.getter(#budgetPeriods),
             ),
@@ -404,11 +419,11 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
   _i5.CategoryDaoManager get managers =>
       (super.noSuchMethod(
             Invocation.getter(#managers),
-            returnValue: _FakeCategoryDaoManager_11(
+            returnValue: _FakeCategoryDaoManager_12(
               this,
               Invocation.getter(#managers),
             ),
-            returnValueForMissingStub: _FakeCategoryDaoManager_11(
+            returnValueForMissingStub: _FakeCategoryDaoManager_12(
               this,
               Invocation.getter(#managers),
             ),
@@ -432,7 +447,7 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
               #isDefault: isDefault,
             }),
             returnValue: _i6.Future<_i2.Category>.value(
-              _FakeCategory_12(
+              _FakeCategory_13(
                 this,
                 Invocation.method(#insertCategory, [], {
                   #name: name,
@@ -444,7 +459,7 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
               ),
             ),
             returnValueForMissingStub: _i6.Future<_i2.Category>.value(
-              _FakeCategory_12(
+              _FakeCategory_13(
                 this,
                 Invocation.method(#insertCategory, [], {
                   #name: name,
@@ -529,7 +544,7 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
               },
             ),
             returnValue: _i6.Future<_i2.Category>.value(
-              _FakeCategory_12(
+              _FakeCategory_13(
                 this,
                 Invocation.method(
                   #updateCategory,
@@ -545,7 +560,7 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
               ),
             ),
             returnValueForMissingStub: _i6.Future<_i2.Category>.value(
-              _FakeCategory_12(
+              _FakeCategory_13(
                 this,
                 Invocation.method(
                   #updateCategory,
@@ -685,7 +700,7 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(this, Invocation.method(#doWhenOpened, [fn])),
+                _FakeFuture_14<T>(this, Invocation.method(#doWhenOpened, [fn])),
             returnValueForMissingStub:
                 _i10.ifNotNull(
                   _i10.dummyValueOrNull<T>(
@@ -694,7 +709,7 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(this, Invocation.method(#doWhenOpened, [fn])),
+                _FakeFuture_14<T>(this, Invocation.method(#doWhenOpened, [fn])),
           )
           as _i6.Future<T>);
 
@@ -704,11 +719,11 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#into, [table]),
-            returnValue: _FakeInsertStatement_14<T, D>(
+            returnValue: _FakeInsertStatement_15<T, D>(
               this,
               Invocation.method(#into, [table]),
             ),
-            returnValueForMissingStub: _FakeInsertStatement_14<T, D>(
+            returnValueForMissingStub: _FakeInsertStatement_15<T, D>(
               this,
               Invocation.method(#into, [table]),
             ),
@@ -721,11 +736,11 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#update, [table]),
-            returnValue: _FakeUpdateStatement_15<Tbl, R>(
+            returnValue: _FakeUpdateStatement_16<Tbl, R>(
               this,
               Invocation.method(#update, [table]),
             ),
-            returnValueForMissingStub: _FakeUpdateStatement_15<Tbl, R>(
+            returnValueForMissingStub: _FakeUpdateStatement_16<Tbl, R>(
               this,
               Invocation.method(#update, [table]),
             ),
@@ -739,11 +754,11 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
   }) =>
       (super.noSuchMethod(
             Invocation.method(#select, [table], {#distinct: distinct}),
-            returnValue: _FakeSimpleSelectStatement_16<T, R>(
+            returnValue: _FakeSimpleSelectStatement_17<T, R>(
               this,
               Invocation.method(#select, [table], {#distinct: distinct}),
             ),
-            returnValueForMissingStub: _FakeSimpleSelectStatement_16<T, R>(
+            returnValueForMissingStub: _FakeSimpleSelectStatement_17<T, R>(
               this,
               Invocation.method(#select, [table], {#distinct: distinct}),
             ),
@@ -757,11 +772,11 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
   }) =>
       (super.noSuchMethod(
             Invocation.method(#selectOnly, [table], {#distinct: distinct}),
-            returnValue: _FakeJoinedSelectStatement_17<T, R>(
+            returnValue: _FakeJoinedSelectStatement_18<T, R>(
               this,
               Invocation.method(#selectOnly, [table], {#distinct: distinct}),
             ),
-            returnValueForMissingStub: _FakeJoinedSelectStatement_17<T, R>(
+            returnValueForMissingStub: _FakeJoinedSelectStatement_18<T, R>(
               this,
               Invocation.method(#selectOnly, [table], {#distinct: distinct}),
             ),
@@ -774,12 +789,12 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#selectExpressions, [columns]),
-            returnValue: _FakeBaseSelectStatement_18<_i3.TypedResult>(
+            returnValue: _FakeBaseSelectStatement_19<_i3.TypedResult>(
               this,
               Invocation.method(#selectExpressions, [columns]),
             ),
             returnValueForMissingStub:
-                _FakeBaseSelectStatement_18<_i3.TypedResult>(
+                _FakeBaseSelectStatement_19<_i3.TypedResult>(
                   this,
                   Invocation.method(#selectExpressions, [columns]),
                 ),
@@ -792,11 +807,11 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#delete, [table]),
-            returnValue: _FakeDeleteStatement_19<T, D>(
+            returnValue: _FakeDeleteStatement_20<T, D>(
               this,
               Invocation.method(#delete, [table]),
             ),
-            returnValueForMissingStub: _FakeDeleteStatement_19<T, D>(
+            returnValueForMissingStub: _FakeDeleteStatement_20<T, D>(
               this,
               Invocation.method(#delete, [table]),
             ),
@@ -878,7 +893,7 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
               [query],
               {#variables: variables, #readsFrom: readsFrom},
             ),
-            returnValue: _FakeSelectable_20<_i3.QueryRow>(
+            returnValue: _FakeSelectable_21<_i3.QueryRow>(
               this,
               Invocation.method(
                 #customSelect,
@@ -886,7 +901,7 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
                 {#variables: variables, #readsFrom: readsFrom},
               ),
             ),
-            returnValueForMissingStub: _FakeSelectable_20<_i3.QueryRow>(
+            returnValueForMissingStub: _FakeSelectable_21<_i3.QueryRow>(
               this,
               Invocation.method(
                 #customSelect,
@@ -909,7 +924,7 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
               [query],
               {#variables: variables, #readsFrom: readsFrom},
             ),
-            returnValue: _FakeSelectable_20<_i3.QueryRow>(
+            returnValue: _FakeSelectable_21<_i3.QueryRow>(
               this,
               Invocation.method(
                 #customSelectQuery,
@@ -917,7 +932,7 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
                 {#variables: variables, #readsFrom: readsFrom},
               ),
             ),
-            returnValueForMissingStub: _FakeSelectable_20<_i3.QueryRow>(
+            returnValueForMissingStub: _FakeSelectable_21<_i3.QueryRow>(
               this,
               Invocation.method(
                 #customSelectQuery,
@@ -960,7 +975,7 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(
+                _FakeFuture_14<T>(
                   this,
                   Invocation.method(
                     #transaction,
@@ -980,7 +995,7 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(
+                _FakeFuture_14<T>(
                   this,
                   Invocation.method(
                     #transaction,
@@ -1003,7 +1018,7 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(
+                _FakeFuture_14<T>(
                   this,
                   Invocation.method(#exclusively, [action]),
                 ),
@@ -1015,7 +1030,7 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(
+                _FakeFuture_14<T>(
                   this,
                   Invocation.method(#exclusively, [action]),
                 ),
@@ -1054,7 +1069,7 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(
+                _FakeFuture_14<T>(
                   this,
                   Invocation.method(
                     #runWithInterceptor,
@@ -1074,7 +1089,7 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(
+                _FakeFuture_14<T>(
                   this,
                   Invocation.method(
                     #runWithInterceptor,
@@ -1097,7 +1112,7 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
               [component],
               {#hasMultipleTables: hasMultipleTables, #startIndex: startIndex},
             ),
-            returnValue: _FakeGenerationContext_21(
+            returnValue: _FakeGenerationContext_22(
               this,
               Invocation.method(
                 #$write,
@@ -1108,7 +1123,7 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
                 },
               ),
             ),
-            returnValueForMissingStub: _FakeGenerationContext_21(
+            returnValueForMissingStub: _FakeGenerationContext_22(
               this,
               Invocation.method(
                 #$write,
@@ -1134,7 +1149,7 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
               [table, insertable],
               {#startIndex: startIndex},
             ),
-            returnValue: _FakeGenerationContext_21(
+            returnValue: _FakeGenerationContext_22(
               this,
               Invocation.method(
                 #$writeInsertable,
@@ -1142,7 +1157,7 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
                 {#startIndex: startIndex},
               ),
             ),
-            returnValueForMissingStub: _FakeGenerationContext_21(
+            returnValueForMissingStub: _FakeGenerationContext_22(
               this,
               Invocation.method(
                 #$writeInsertable,
@@ -1291,11 +1306,11 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
   _i2.$TransactionsTable get transactions =>
       (super.noSuchMethod(
             Invocation.getter(#transactions),
-            returnValue: _Fake$TransactionsTable_22(
+            returnValue: _Fake$TransactionsTable_8(
               this,
               Invocation.getter(#transactions),
             ),
-            returnValueForMissingStub: _Fake$TransactionsTable_22(
+            returnValueForMissingStub: _Fake$TransactionsTable_8(
               this,
               Invocation.getter(#transactions),
             ),
@@ -1303,14 +1318,29 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
           as _i2.$TransactionsTable);
 
   @override
+  _i2.$CategoriesTable get categories =>
+      (super.noSuchMethod(
+            Invocation.getter(#categories),
+            returnValue: _Fake$CategoriesTable_6(
+              this,
+              Invocation.getter(#categories),
+            ),
+            returnValueForMissingStub: _Fake$CategoriesTable_6(
+              this,
+              Invocation.getter(#categories),
+            ),
+          )
+          as _i2.$CategoriesTable);
+
+  @override
   _i2.$TransactionCategoryMapTable get transactionCategoryMap =>
       (super.noSuchMethod(
             Invocation.getter(#transactionCategoryMap),
-            returnValue: _Fake$TransactionCategoryMapTable_8(
+            returnValue: _Fake$TransactionCategoryMapTable_9(
               this,
               Invocation.getter(#transactionCategoryMap),
             ),
-            returnValueForMissingStub: _Fake$TransactionCategoryMapTable_8(
+            returnValueForMissingStub: _Fake$TransactionCategoryMapTable_9(
               this,
               Invocation.getter(#transactionCategoryMap),
             ),
@@ -1700,7 +1730,7 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(this, Invocation.method(#doWhenOpened, [fn])),
+                _FakeFuture_14<T>(this, Invocation.method(#doWhenOpened, [fn])),
             returnValueForMissingStub:
                 _i10.ifNotNull(
                   _i10.dummyValueOrNull<T>(
@@ -1709,7 +1739,7 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(this, Invocation.method(#doWhenOpened, [fn])),
+                _FakeFuture_14<T>(this, Invocation.method(#doWhenOpened, [fn])),
           )
           as _i6.Future<T>);
 
@@ -1719,11 +1749,11 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#into, [table]),
-            returnValue: _FakeInsertStatement_14<T, D>(
+            returnValue: _FakeInsertStatement_15<T, D>(
               this,
               Invocation.method(#into, [table]),
             ),
-            returnValueForMissingStub: _FakeInsertStatement_14<T, D>(
+            returnValueForMissingStub: _FakeInsertStatement_15<T, D>(
               this,
               Invocation.method(#into, [table]),
             ),
@@ -1736,11 +1766,11 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#update, [table]),
-            returnValue: _FakeUpdateStatement_15<Tbl, R>(
+            returnValue: _FakeUpdateStatement_16<Tbl, R>(
               this,
               Invocation.method(#update, [table]),
             ),
-            returnValueForMissingStub: _FakeUpdateStatement_15<Tbl, R>(
+            returnValueForMissingStub: _FakeUpdateStatement_16<Tbl, R>(
               this,
               Invocation.method(#update, [table]),
             ),
@@ -1754,11 +1784,11 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
   }) =>
       (super.noSuchMethod(
             Invocation.method(#select, [table], {#distinct: distinct}),
-            returnValue: _FakeSimpleSelectStatement_16<T, R>(
+            returnValue: _FakeSimpleSelectStatement_17<T, R>(
               this,
               Invocation.method(#select, [table], {#distinct: distinct}),
             ),
-            returnValueForMissingStub: _FakeSimpleSelectStatement_16<T, R>(
+            returnValueForMissingStub: _FakeSimpleSelectStatement_17<T, R>(
               this,
               Invocation.method(#select, [table], {#distinct: distinct}),
             ),
@@ -1772,11 +1802,11 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
   }) =>
       (super.noSuchMethod(
             Invocation.method(#selectOnly, [table], {#distinct: distinct}),
-            returnValue: _FakeJoinedSelectStatement_17<T, R>(
+            returnValue: _FakeJoinedSelectStatement_18<T, R>(
               this,
               Invocation.method(#selectOnly, [table], {#distinct: distinct}),
             ),
-            returnValueForMissingStub: _FakeJoinedSelectStatement_17<T, R>(
+            returnValueForMissingStub: _FakeJoinedSelectStatement_18<T, R>(
               this,
               Invocation.method(#selectOnly, [table], {#distinct: distinct}),
             ),
@@ -1789,12 +1819,12 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#selectExpressions, [columns]),
-            returnValue: _FakeBaseSelectStatement_18<_i3.TypedResult>(
+            returnValue: _FakeBaseSelectStatement_19<_i3.TypedResult>(
               this,
               Invocation.method(#selectExpressions, [columns]),
             ),
             returnValueForMissingStub:
-                _FakeBaseSelectStatement_18<_i3.TypedResult>(
+                _FakeBaseSelectStatement_19<_i3.TypedResult>(
                   this,
                   Invocation.method(#selectExpressions, [columns]),
                 ),
@@ -1807,11 +1837,11 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#delete, [table]),
-            returnValue: _FakeDeleteStatement_19<T, D>(
+            returnValue: _FakeDeleteStatement_20<T, D>(
               this,
               Invocation.method(#delete, [table]),
             ),
-            returnValueForMissingStub: _FakeDeleteStatement_19<T, D>(
+            returnValueForMissingStub: _FakeDeleteStatement_20<T, D>(
               this,
               Invocation.method(#delete, [table]),
             ),
@@ -1893,7 +1923,7 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
               [query],
               {#variables: variables, #readsFrom: readsFrom},
             ),
-            returnValue: _FakeSelectable_20<_i3.QueryRow>(
+            returnValue: _FakeSelectable_21<_i3.QueryRow>(
               this,
               Invocation.method(
                 #customSelect,
@@ -1901,7 +1931,7 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
                 {#variables: variables, #readsFrom: readsFrom},
               ),
             ),
-            returnValueForMissingStub: _FakeSelectable_20<_i3.QueryRow>(
+            returnValueForMissingStub: _FakeSelectable_21<_i3.QueryRow>(
               this,
               Invocation.method(
                 #customSelect,
@@ -1924,7 +1954,7 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
               [query],
               {#variables: variables, #readsFrom: readsFrom},
             ),
-            returnValue: _FakeSelectable_20<_i3.QueryRow>(
+            returnValue: _FakeSelectable_21<_i3.QueryRow>(
               this,
               Invocation.method(
                 #customSelectQuery,
@@ -1932,7 +1962,7 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
                 {#variables: variables, #readsFrom: readsFrom},
               ),
             ),
-            returnValueForMissingStub: _FakeSelectable_20<_i3.QueryRow>(
+            returnValueForMissingStub: _FakeSelectable_21<_i3.QueryRow>(
               this,
               Invocation.method(
                 #customSelectQuery,
@@ -1975,7 +2005,7 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(
+                _FakeFuture_14<T>(
                   this,
                   Invocation.method(
                     #transaction,
@@ -1995,7 +2025,7 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(
+                _FakeFuture_14<T>(
                   this,
                   Invocation.method(
                     #transaction,
@@ -2018,7 +2048,7 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(
+                _FakeFuture_14<T>(
                   this,
                   Invocation.method(#exclusively, [action]),
                 ),
@@ -2030,7 +2060,7 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(
+                _FakeFuture_14<T>(
                   this,
                   Invocation.method(#exclusively, [action]),
                 ),
@@ -2069,7 +2099,7 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(
+                _FakeFuture_14<T>(
                   this,
                   Invocation.method(
                     #runWithInterceptor,
@@ -2089,7 +2119,7 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(
+                _FakeFuture_14<T>(
                   this,
                   Invocation.method(
                     #runWithInterceptor,
@@ -2112,7 +2142,7 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
               [component],
               {#hasMultipleTables: hasMultipleTables, #startIndex: startIndex},
             ),
-            returnValue: _FakeGenerationContext_21(
+            returnValue: _FakeGenerationContext_22(
               this,
               Invocation.method(
                 #$write,
@@ -2123,7 +2153,7 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
                 },
               ),
             ),
-            returnValueForMissingStub: _FakeGenerationContext_21(
+            returnValueForMissingStub: _FakeGenerationContext_22(
               this,
               Invocation.method(
                 #$write,
@@ -2149,7 +2179,7 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
               [table, insertable],
               {#startIndex: startIndex},
             ),
-            returnValue: _FakeGenerationContext_21(
+            returnValue: _FakeGenerationContext_22(
               this,
               Invocation.method(
                 #$writeInsertable,
@@ -2157,7 +2187,7 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
                 {#startIndex: startIndex},
               ),
             ),
-            returnValueForMissingStub: _FakeGenerationContext_21(
+            returnValueForMissingStub: _FakeGenerationContext_22(
               this,
               Invocation.method(
                 #$writeInsertable,
@@ -2303,14 +2333,29 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
           as _i3.DatabaseConnectionUser);
 
   @override
+  _i2.$CategoriesTable get categories =>
+      (super.noSuchMethod(
+            Invocation.getter(#categories),
+            returnValue: _Fake$CategoriesTable_6(
+              this,
+              Invocation.getter(#categories),
+            ),
+            returnValueForMissingStub: _Fake$CategoriesTable_6(
+              this,
+              Invocation.getter(#categories),
+            ),
+          )
+          as _i2.$CategoriesTable);
+
+  @override
   _i2.$BudgetTemplatesTable get budgetTemplates =>
       (super.noSuchMethod(
             Invocation.getter(#budgetTemplates),
-            returnValue: _Fake$BudgetTemplatesTable_9(
+            returnValue: _Fake$BudgetTemplatesTable_10(
               this,
               Invocation.getter(#budgetTemplates),
             ),
-            returnValueForMissingStub: _Fake$BudgetTemplatesTable_9(
+            returnValueForMissingStub: _Fake$BudgetTemplatesTable_10(
               this,
               Invocation.getter(#budgetTemplates),
             ),
@@ -2321,11 +2366,11 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
   _i2.$BudgetPeriodsTable get budgetPeriods =>
       (super.noSuchMethod(
             Invocation.getter(#budgetPeriods),
-            returnValue: _Fake$BudgetPeriodsTable_10(
+            returnValue: _Fake$BudgetPeriodsTable_11(
               this,
               Invocation.getter(#budgetPeriods),
             ),
-            returnValueForMissingStub: _Fake$BudgetPeriodsTable_10(
+            returnValueForMissingStub: _Fake$BudgetPeriodsTable_11(
               this,
               Invocation.getter(#budgetPeriods),
             ),
@@ -2730,7 +2775,7 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(this, Invocation.method(#doWhenOpened, [fn])),
+                _FakeFuture_14<T>(this, Invocation.method(#doWhenOpened, [fn])),
             returnValueForMissingStub:
                 _i10.ifNotNull(
                   _i10.dummyValueOrNull<T>(
@@ -2739,7 +2784,7 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(this, Invocation.method(#doWhenOpened, [fn])),
+                _FakeFuture_14<T>(this, Invocation.method(#doWhenOpened, [fn])),
           )
           as _i6.Future<T>);
 
@@ -2749,11 +2794,11 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#into, [table]),
-            returnValue: _FakeInsertStatement_14<T, D>(
+            returnValue: _FakeInsertStatement_15<T, D>(
               this,
               Invocation.method(#into, [table]),
             ),
-            returnValueForMissingStub: _FakeInsertStatement_14<T, D>(
+            returnValueForMissingStub: _FakeInsertStatement_15<T, D>(
               this,
               Invocation.method(#into, [table]),
             ),
@@ -2766,11 +2811,11 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#update, [table]),
-            returnValue: _FakeUpdateStatement_15<Tbl, R>(
+            returnValue: _FakeUpdateStatement_16<Tbl, R>(
               this,
               Invocation.method(#update, [table]),
             ),
-            returnValueForMissingStub: _FakeUpdateStatement_15<Tbl, R>(
+            returnValueForMissingStub: _FakeUpdateStatement_16<Tbl, R>(
               this,
               Invocation.method(#update, [table]),
             ),
@@ -2784,11 +2829,11 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
   }) =>
       (super.noSuchMethod(
             Invocation.method(#select, [table], {#distinct: distinct}),
-            returnValue: _FakeSimpleSelectStatement_16<T, R>(
+            returnValue: _FakeSimpleSelectStatement_17<T, R>(
               this,
               Invocation.method(#select, [table], {#distinct: distinct}),
             ),
-            returnValueForMissingStub: _FakeSimpleSelectStatement_16<T, R>(
+            returnValueForMissingStub: _FakeSimpleSelectStatement_17<T, R>(
               this,
               Invocation.method(#select, [table], {#distinct: distinct}),
             ),
@@ -2802,11 +2847,11 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
   }) =>
       (super.noSuchMethod(
             Invocation.method(#selectOnly, [table], {#distinct: distinct}),
-            returnValue: _FakeJoinedSelectStatement_17<T, R>(
+            returnValue: _FakeJoinedSelectStatement_18<T, R>(
               this,
               Invocation.method(#selectOnly, [table], {#distinct: distinct}),
             ),
-            returnValueForMissingStub: _FakeJoinedSelectStatement_17<T, R>(
+            returnValueForMissingStub: _FakeJoinedSelectStatement_18<T, R>(
               this,
               Invocation.method(#selectOnly, [table], {#distinct: distinct}),
             ),
@@ -2819,12 +2864,12 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#selectExpressions, [columns]),
-            returnValue: _FakeBaseSelectStatement_18<_i3.TypedResult>(
+            returnValue: _FakeBaseSelectStatement_19<_i3.TypedResult>(
               this,
               Invocation.method(#selectExpressions, [columns]),
             ),
             returnValueForMissingStub:
-                _FakeBaseSelectStatement_18<_i3.TypedResult>(
+                _FakeBaseSelectStatement_19<_i3.TypedResult>(
                   this,
                   Invocation.method(#selectExpressions, [columns]),
                 ),
@@ -2837,11 +2882,11 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#delete, [table]),
-            returnValue: _FakeDeleteStatement_19<T, D>(
+            returnValue: _FakeDeleteStatement_20<T, D>(
               this,
               Invocation.method(#delete, [table]),
             ),
-            returnValueForMissingStub: _FakeDeleteStatement_19<T, D>(
+            returnValueForMissingStub: _FakeDeleteStatement_20<T, D>(
               this,
               Invocation.method(#delete, [table]),
             ),
@@ -2923,7 +2968,7 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
               [query],
               {#variables: variables, #readsFrom: readsFrom},
             ),
-            returnValue: _FakeSelectable_20<_i3.QueryRow>(
+            returnValue: _FakeSelectable_21<_i3.QueryRow>(
               this,
               Invocation.method(
                 #customSelect,
@@ -2931,7 +2976,7 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
                 {#variables: variables, #readsFrom: readsFrom},
               ),
             ),
-            returnValueForMissingStub: _FakeSelectable_20<_i3.QueryRow>(
+            returnValueForMissingStub: _FakeSelectable_21<_i3.QueryRow>(
               this,
               Invocation.method(
                 #customSelect,
@@ -2954,7 +2999,7 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
               [query],
               {#variables: variables, #readsFrom: readsFrom},
             ),
-            returnValue: _FakeSelectable_20<_i3.QueryRow>(
+            returnValue: _FakeSelectable_21<_i3.QueryRow>(
               this,
               Invocation.method(
                 #customSelectQuery,
@@ -2962,7 +3007,7 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
                 {#variables: variables, #readsFrom: readsFrom},
               ),
             ),
-            returnValueForMissingStub: _FakeSelectable_20<_i3.QueryRow>(
+            returnValueForMissingStub: _FakeSelectable_21<_i3.QueryRow>(
               this,
               Invocation.method(
                 #customSelectQuery,
@@ -3005,7 +3050,7 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(
+                _FakeFuture_14<T>(
                   this,
                   Invocation.method(
                     #transaction,
@@ -3025,7 +3070,7 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(
+                _FakeFuture_14<T>(
                   this,
                   Invocation.method(
                     #transaction,
@@ -3048,7 +3093,7 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(
+                _FakeFuture_14<T>(
                   this,
                   Invocation.method(#exclusively, [action]),
                 ),
@@ -3060,7 +3105,7 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(
+                _FakeFuture_14<T>(
                   this,
                   Invocation.method(#exclusively, [action]),
                 ),
@@ -3099,7 +3144,7 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(
+                _FakeFuture_14<T>(
                   this,
                   Invocation.method(
                     #runWithInterceptor,
@@ -3119,7 +3164,7 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(
+                _FakeFuture_14<T>(
                   this,
                   Invocation.method(
                     #runWithInterceptor,
@@ -3142,7 +3187,7 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
               [component],
               {#hasMultipleTables: hasMultipleTables, #startIndex: startIndex},
             ),
-            returnValue: _FakeGenerationContext_21(
+            returnValue: _FakeGenerationContext_22(
               this,
               Invocation.method(
                 #$write,
@@ -3153,7 +3198,7 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
                 },
               ),
             ),
-            returnValueForMissingStub: _FakeGenerationContext_21(
+            returnValueForMissingStub: _FakeGenerationContext_22(
               this,
               Invocation.method(
                 #$write,
@@ -3179,7 +3224,7 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
               [table, insertable],
               {#startIndex: startIndex},
             ),
-            returnValue: _FakeGenerationContext_21(
+            returnValue: _FakeGenerationContext_22(
               this,
               Invocation.method(
                 #$writeInsertable,
@@ -3187,7 +3232,7 @@ class MockBudgetDao extends _i1.Mock implements _i8.BudgetDao {
                 {#startIndex: startIndex},
               ),
             ),
-            returnValueForMissingStub: _FakeGenerationContext_21(
+            returnValueForMissingStub: _FakeGenerationContext_22(
               this,
               Invocation.method(
                 #$writeInsertable,
@@ -3568,7 +3613,7 @@ class MockSettingsDao extends _i1.Mock implements _i9.SettingsDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(this, Invocation.method(#doWhenOpened, [fn])),
+                _FakeFuture_14<T>(this, Invocation.method(#doWhenOpened, [fn])),
             returnValueForMissingStub:
                 _i10.ifNotNull(
                   _i10.dummyValueOrNull<T>(
@@ -3577,7 +3622,7 @@ class MockSettingsDao extends _i1.Mock implements _i9.SettingsDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(this, Invocation.method(#doWhenOpened, [fn])),
+                _FakeFuture_14<T>(this, Invocation.method(#doWhenOpened, [fn])),
           )
           as _i6.Future<T>);
 
@@ -3587,11 +3632,11 @@ class MockSettingsDao extends _i1.Mock implements _i9.SettingsDao {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#into, [table]),
-            returnValue: _FakeInsertStatement_14<T, D>(
+            returnValue: _FakeInsertStatement_15<T, D>(
               this,
               Invocation.method(#into, [table]),
             ),
-            returnValueForMissingStub: _FakeInsertStatement_14<T, D>(
+            returnValueForMissingStub: _FakeInsertStatement_15<T, D>(
               this,
               Invocation.method(#into, [table]),
             ),
@@ -3604,11 +3649,11 @@ class MockSettingsDao extends _i1.Mock implements _i9.SettingsDao {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#update, [table]),
-            returnValue: _FakeUpdateStatement_15<Tbl, R>(
+            returnValue: _FakeUpdateStatement_16<Tbl, R>(
               this,
               Invocation.method(#update, [table]),
             ),
-            returnValueForMissingStub: _FakeUpdateStatement_15<Tbl, R>(
+            returnValueForMissingStub: _FakeUpdateStatement_16<Tbl, R>(
               this,
               Invocation.method(#update, [table]),
             ),
@@ -3622,11 +3667,11 @@ class MockSettingsDao extends _i1.Mock implements _i9.SettingsDao {
   }) =>
       (super.noSuchMethod(
             Invocation.method(#select, [table], {#distinct: distinct}),
-            returnValue: _FakeSimpleSelectStatement_16<T, R>(
+            returnValue: _FakeSimpleSelectStatement_17<T, R>(
               this,
               Invocation.method(#select, [table], {#distinct: distinct}),
             ),
-            returnValueForMissingStub: _FakeSimpleSelectStatement_16<T, R>(
+            returnValueForMissingStub: _FakeSimpleSelectStatement_17<T, R>(
               this,
               Invocation.method(#select, [table], {#distinct: distinct}),
             ),
@@ -3640,11 +3685,11 @@ class MockSettingsDao extends _i1.Mock implements _i9.SettingsDao {
   }) =>
       (super.noSuchMethod(
             Invocation.method(#selectOnly, [table], {#distinct: distinct}),
-            returnValue: _FakeJoinedSelectStatement_17<T, R>(
+            returnValue: _FakeJoinedSelectStatement_18<T, R>(
               this,
               Invocation.method(#selectOnly, [table], {#distinct: distinct}),
             ),
-            returnValueForMissingStub: _FakeJoinedSelectStatement_17<T, R>(
+            returnValueForMissingStub: _FakeJoinedSelectStatement_18<T, R>(
               this,
               Invocation.method(#selectOnly, [table], {#distinct: distinct}),
             ),
@@ -3657,12 +3702,12 @@ class MockSettingsDao extends _i1.Mock implements _i9.SettingsDao {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#selectExpressions, [columns]),
-            returnValue: _FakeBaseSelectStatement_18<_i3.TypedResult>(
+            returnValue: _FakeBaseSelectStatement_19<_i3.TypedResult>(
               this,
               Invocation.method(#selectExpressions, [columns]),
             ),
             returnValueForMissingStub:
-                _FakeBaseSelectStatement_18<_i3.TypedResult>(
+                _FakeBaseSelectStatement_19<_i3.TypedResult>(
                   this,
                   Invocation.method(#selectExpressions, [columns]),
                 ),
@@ -3675,11 +3720,11 @@ class MockSettingsDao extends _i1.Mock implements _i9.SettingsDao {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#delete, [table]),
-            returnValue: _FakeDeleteStatement_19<T, D>(
+            returnValue: _FakeDeleteStatement_20<T, D>(
               this,
               Invocation.method(#delete, [table]),
             ),
-            returnValueForMissingStub: _FakeDeleteStatement_19<T, D>(
+            returnValueForMissingStub: _FakeDeleteStatement_20<T, D>(
               this,
               Invocation.method(#delete, [table]),
             ),
@@ -3761,7 +3806,7 @@ class MockSettingsDao extends _i1.Mock implements _i9.SettingsDao {
               [query],
               {#variables: variables, #readsFrom: readsFrom},
             ),
-            returnValue: _FakeSelectable_20<_i3.QueryRow>(
+            returnValue: _FakeSelectable_21<_i3.QueryRow>(
               this,
               Invocation.method(
                 #customSelect,
@@ -3769,7 +3814,7 @@ class MockSettingsDao extends _i1.Mock implements _i9.SettingsDao {
                 {#variables: variables, #readsFrom: readsFrom},
               ),
             ),
-            returnValueForMissingStub: _FakeSelectable_20<_i3.QueryRow>(
+            returnValueForMissingStub: _FakeSelectable_21<_i3.QueryRow>(
               this,
               Invocation.method(
                 #customSelect,
@@ -3792,7 +3837,7 @@ class MockSettingsDao extends _i1.Mock implements _i9.SettingsDao {
               [query],
               {#variables: variables, #readsFrom: readsFrom},
             ),
-            returnValue: _FakeSelectable_20<_i3.QueryRow>(
+            returnValue: _FakeSelectable_21<_i3.QueryRow>(
               this,
               Invocation.method(
                 #customSelectQuery,
@@ -3800,7 +3845,7 @@ class MockSettingsDao extends _i1.Mock implements _i9.SettingsDao {
                 {#variables: variables, #readsFrom: readsFrom},
               ),
             ),
-            returnValueForMissingStub: _FakeSelectable_20<_i3.QueryRow>(
+            returnValueForMissingStub: _FakeSelectable_21<_i3.QueryRow>(
               this,
               Invocation.method(
                 #customSelectQuery,
@@ -3843,7 +3888,7 @@ class MockSettingsDao extends _i1.Mock implements _i9.SettingsDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(
+                _FakeFuture_14<T>(
                   this,
                   Invocation.method(
                     #transaction,
@@ -3863,7 +3908,7 @@ class MockSettingsDao extends _i1.Mock implements _i9.SettingsDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(
+                _FakeFuture_14<T>(
                   this,
                   Invocation.method(
                     #transaction,
@@ -3886,7 +3931,7 @@ class MockSettingsDao extends _i1.Mock implements _i9.SettingsDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(
+                _FakeFuture_14<T>(
                   this,
                   Invocation.method(#exclusively, [action]),
                 ),
@@ -3898,7 +3943,7 @@ class MockSettingsDao extends _i1.Mock implements _i9.SettingsDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(
+                _FakeFuture_14<T>(
                   this,
                   Invocation.method(#exclusively, [action]),
                 ),
@@ -3937,7 +3982,7 @@ class MockSettingsDao extends _i1.Mock implements _i9.SettingsDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(
+                _FakeFuture_14<T>(
                   this,
                   Invocation.method(
                     #runWithInterceptor,
@@ -3957,7 +4002,7 @@ class MockSettingsDao extends _i1.Mock implements _i9.SettingsDao {
                   ),
                   (T v) => _i6.Future<T>.value(v),
                 ) ??
-                _FakeFuture_13<T>(
+                _FakeFuture_14<T>(
                   this,
                   Invocation.method(
                     #runWithInterceptor,
@@ -3980,7 +4025,7 @@ class MockSettingsDao extends _i1.Mock implements _i9.SettingsDao {
               [component],
               {#hasMultipleTables: hasMultipleTables, #startIndex: startIndex},
             ),
-            returnValue: _FakeGenerationContext_21(
+            returnValue: _FakeGenerationContext_22(
               this,
               Invocation.method(
                 #$write,
@@ -3991,7 +4036,7 @@ class MockSettingsDao extends _i1.Mock implements _i9.SettingsDao {
                 },
               ),
             ),
-            returnValueForMissingStub: _FakeGenerationContext_21(
+            returnValueForMissingStub: _FakeGenerationContext_22(
               this,
               Invocation.method(
                 #$write,
@@ -4017,7 +4062,7 @@ class MockSettingsDao extends _i1.Mock implements _i9.SettingsDao {
               [table, insertable],
               {#startIndex: startIndex},
             ),
-            returnValue: _FakeGenerationContext_21(
+            returnValue: _FakeGenerationContext_22(
               this,
               Invocation.method(
                 #$writeInsertable,
@@ -4025,7 +4070,7 @@ class MockSettingsDao extends _i1.Mock implements _i9.SettingsDao {
                 {#startIndex: startIndex},
               ),
             ),
-            returnValueForMissingStub: _FakeGenerationContext_21(
+            returnValueForMissingStub: _FakeGenerationContext_22(
               this,
               Invocation.method(
                 #$writeInsertable,

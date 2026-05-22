@@ -134,7 +134,7 @@ class _HomePageState extends State<HomePage> {
     context.watch<ThemeProvider>(); // rebuild navigation bar + appbar on theme change
     return Scaffold(
       appBar: MainAppbar(),
-      body: pages[_selectedIndex],
+      body: _buildPages(context.read<AppDatabase>())[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(10)),
