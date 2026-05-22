@@ -73,7 +73,7 @@ class _MonthlyTrendWidgetState
 
   @override
   Widget build(BuildContext context) {
-
+    context.watch<ThemeProvider>();
     final colours = MyColours();
 
     final maxSpend = widget.months
@@ -86,13 +86,13 @@ class _MonthlyTrendWidgetState
 
       decoration: BoxDecoration(
 
-        color: colours.background,
+        color: colours.navBarColor,
 
         borderRadius:
             BorderRadius.circular(24),
 
         border: Border.all(
-          color: colours.secondary
+          color: colours.cardText
               .withValues(alpha: 0.15),
         ),
       ),

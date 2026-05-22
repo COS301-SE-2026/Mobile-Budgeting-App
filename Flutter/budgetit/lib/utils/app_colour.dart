@@ -19,7 +19,7 @@ class MyColours{
   double headingFontSize1 = 24;
   double headingFontSize2 = 20;
   double headingFontSize3 = 18;
-  
+
   // Always cream — use for text/icons on any green surface (cards, app bar, nav bar).
   Color cardText = const Color(0xFFDDD6AE);
 

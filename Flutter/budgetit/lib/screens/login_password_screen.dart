@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../auth/providers/auth_provider.dart';
 import 'verify_email_screen.dart';
 import 'forgot_password_screen.dart';
+import 'coming_soon_page.dart';
 
 class LoginRegisterScreen extends StatefulWidget {
   const LoginRegisterScreen({super.key});
@@ -74,11 +75,24 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
   // --- Top Bar ---
   Widget _buildTopBar() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Icon(Icons.menu, color: Colors.white),
+          IconButton(
+            icon: const Icon(Icons.menu, color: Colors.white),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const ComingSoonPage(
+                  title: 'Menu Coming Soon',
+                  message:
+                      'The main menu is still being prepared. More navigation options will be added here soon.',
+                  icon: Icons.menu,
+                ),
+              ),
+            ),
+          ),
           const Text(
             'Budget IT',
             style: TextStyle(
@@ -88,7 +102,20 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
               letterSpacing: 1,
             ),
           ),
-          const Icon(Icons.settings, color: Colors.white),
+          IconButton(
+            icon: const Icon(Icons.settings, color: Colors.white),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const ComingSoonPage(
+                  title: 'Settings Coming Soon',
+                  message:
+                      'App settings are still under development. Soon you will be able to customise your preferences here.',
+                  icon: Icons.settings_outlined,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );

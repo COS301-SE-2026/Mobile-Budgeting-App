@@ -62,7 +62,7 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           tooltip: theme.isDark ? 'Light mode' : 'Dark mode',
           icon: Icon(
-            color: MyColours().cardText,
+            theme.isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
             color: MyColours().cardText,
           ),
           onPressed: () => context.read<ThemeProvider>().toggle(),
@@ -70,7 +70,7 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: Icon(
             Icons.account_circle_outlined,
-            color: MyColours().textPrimary,
+            color: MyColours().cardText,
           ),
           onPressed: () {
             Navigator.push(
