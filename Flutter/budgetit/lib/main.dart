@@ -59,9 +59,7 @@ class BudgetApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => AppAuthProvider(authService: CognitoAuthService()),
         ),
-        ChangeNotifierProvider(
-          create: (_) => ThemeProvider(),
-        ),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -74,7 +72,7 @@ class BudgetApp extends StatelessWidget {
         routes: {
           '/transaction_manager': (context) => const TransactionManager(),
         },
-        home: const AuthWrapper(),
+        home: AuthWrapper(),
       ),
     );
   }
@@ -91,11 +89,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = [
-    const Dashboard(),
-    const TransactionManager(),
-    BudgetManagerScreen(),
-  ];
+  List<Widget> _buildPages(AppDatabase db) {
+    return [
+      const Dashboard(),
+      const TransactionManager(),
+      BudgetManagerScreen(database: db),
+    ];
+  }
 
   void _onDestinationSelected(int index) {
     setState(() {
@@ -105,10 +105,13 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    context.watch<ThemeProvider>(); // rebuild navigation bar + appbar on theme change
+    context
+        .watch<
+          ThemeProvider
+        >(); // rebuild navigation bar + appbar on theme change
     return Scaffold(
       appBar: MainAppbar(),
-      body: _pages[_selectedIndex], // Show the selected page
+      body: _buildPages(context.read<AppDatabase>())[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(10)),
