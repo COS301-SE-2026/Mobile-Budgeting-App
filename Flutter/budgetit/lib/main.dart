@@ -6,7 +6,6 @@ import 'package:budgetit/views/transaction_manager/transaction.manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:saropa_drift_advisor/saropa_drift_advisor.dart';
 import 'amplifyconfiguration.dart';
 import 'auth/data/cognito_auth_service.dart';
 import 'auth/providers/auth_provider.dart';

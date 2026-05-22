@@ -6,10 +6,6 @@ part of 'category_dao.dart';
 mixin _$CategoryDaoMixin on DatabaseAccessor<AppDatabase> {
   $CategoriesTable get categories => attachedDatabase.categories;
   $CategoryClosureTable get categoryClosure => attachedDatabase.categoryClosure;
-  $TransactionCategoryMapTable get transactionCategoryMap =>
-      attachedDatabase.transactionCategoryMap;
-  $BudgetTemplatesTable get budgetTemplates => attachedDatabase.budgetTemplates;
-  $BudgetPeriodsTable get budgetPeriods => attachedDatabase.budgetPeriods;
   CategoryDaoManager get managers => CategoryDaoManager(this);
 }
 
@@ -23,16 +19,4 @@ class CategoryDaoManager {
         _db.attachedDatabase,
         _db.categoryClosure,
       );
-  $$TransactionCategoryMapTableTableManager get transactionCategoryMap =>
-      $$TransactionCategoryMapTableTableManager(
-        _db.attachedDatabase,
-        _db.transactionCategoryMap,
-      );
-  $$BudgetTemplatesTableTableManager get budgetTemplates =>
-      $$BudgetTemplatesTableTableManager(
-        _db.attachedDatabase,
-        _db.budgetTemplates,
-      );
-  $$BudgetPeriodsTableTableManager get budgetPeriods =>
-      $$BudgetPeriodsTableTableManager(_db.attachedDatabase, _db.budgetPeriods);
 }
