@@ -1,0 +1,116 @@
+name: Dev CI
+
+on:
+  push:
+    branches:
+      - dev
+      - newdev
+  pull_request:
+    branches:
+      - dev
+      - newdev
+
+jobs:
+  secret-scan:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  detect:
+    name: Detect uninplmented integration tests
+    runs-on: ubuntu-latest
+    needs: secret-scan
+    outputs:
+      has_integation_tests: $${{ steps.detect-tests.has_integration_tests}}
+
+    steps:
+      - uses: actions/checkout@v4
+      - id: detect-tests
+        working-directory: Flutter/budgetit
+        run: |
+          has() {grep -rqlE 'testWidgets|test\(' "$1" 2>dev/null && echo true || echo false; }
+          echo "has_integration_tests=$(has integration_test)" >> "$GITHUB_OUTPUT"
+
+  flutter-ci:
+    name: Flutter CI
+    runs-on: ubuntu-latest
+    needs: secret-scan
+    outputs:
+      coverage_lines: ${{ steps.coverage.output.lines }}
+      coverage_branches: ${{ steps.coverage.output.lines }}
+      coverage_functions: ${{ steps.coverage.outputs.functions }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./github/actions/flutter-setup
+
+      - name: Dart Build Runner
+        working-directory: Flutter/budgetit
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Dart Format
+        working-directory: Flutter/budgetit
+        run: dart format --output=none -set-exit-if-changed .
+
+      - name: Flutter Analyze
+        working-directory: Flutter/budgetit
+        continue-on-error: true
+        run: flutter analyze
+
+      - name: Unit tests
+        run: |
+          flutter test --coverage $(find test -name '*_test.dart' \ -not -path 'test/golden/*' -not -path 'test/performance/*'
+
+      - name: Coverage gate
+        id: coverage
+        working-directory: Flutter/budgetit
+        run: python3 ../../scripts/coverage_gate.py "$GITHUB_OUTPUT"
+
+      - name: Upload Coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: Flutter/budgetit/coverage/lcov.info
+
+  sonarcloud:
+    name: SonarCloud
+    runs-on: ubuntu-latest
+    needs: flutter-ci
+    env:
+      SONAR_TOKEN: $${{ secrets.SONAR_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+          path: Flutter/budgetit/coverage
+
+      - name: SonarCloud Scan
+        if: env.SONAR_TOKEN != ''
+        uses: SonarSource/sonarcloud-github-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [flutter-ci, detect]
+    if: needs.detect.outputs.has_integration_tests == 'true'
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/flutter-setup
+      - name: Integration Tests
+        working-directory: Flutter/budgetit
+        run: flutter test integration_test/
