@@ -3,6 +3,7 @@ name: Update Milestone Badges
 on:
   issues:
     types: [opened, closed, reopened]
+  workflow_dispatch:
 
 permissions:
   contents: write
