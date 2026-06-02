@@ -1,0 +1,83 @@
+name: Update Milestone Badges
+
+on:
+  issues:
+    types: [opened, closed, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  fetch-data:
+    name: Fetch Demo ${{matrix.demo}} Milestone Data
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        demo: [1, 2, 3, 4]
+    steps:
+      - name: Get milestone data
+        uses: Beakyn/gha-get-milestone-data@v1.0.1
+        id: milestone
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          repository: ${{ github.repository }}
+          milestone: ${{ matrix.demo }}
+
+      - name: Calculate Percentage
+        env:
+          MILESTONE_DATA: ${{ steps.milestone.outputs.data }}
+        run: |
+          CLOSED=$(echo "$MILESTONE_DATA" | jq '.closed_issues')
+          OPEN=$(echo "$MILESTONE_DATA" | jq '.open_issues')
+          TOTAL=$((CLOSED + OPEN))
+          if [ "$TOTAL" -eq 0 ] ; then
+           echo "0.0" > demo${{ matrix.demo }}-percent.txt
+          else
+           python3 -c "print($CLOSED / $TOTAL)" > demo${{ matrix.demo }}-percent.txt
+          fi
+
+      - name: Upload Percentage
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo${{ matrix.demo }}-percent
+          path: demo${{ matrix.demo }}-percent.txt
+
+  update-badges:
+    name: Update README Milestone Badges
+    runs-on: ubuntu-latest
+    needs: fetch-data
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all percentages
+        uses: actions/download-artifact@v4
+        with:
+          path: badge-data
+
+      - name: Generate and Inject Badges
+        run: |
+          DEMO1=$(cat badge-data/demo1-percent/demo1-percent.txt)
+          DEMO2=$(cat badge-data/demo2-percent/demo2-percent.txt)
+          DEMO3=$(cat badge-data/demo3-percent/demo3-percent.txt)
+          DEMO4=$(cat badge-data/demo4-percent/demo4-percent.txt)
+
+          python3 scripts/badges/generate_badges/milestones_generate.py \
+            --demo1-percent "$DEMO1" \
+            --demo2-percent "$DEMO2" \
+            --demo3-percent "$DEMO3" \
+            --demo4-percent "$DEMO4"
+
+          python3 scripts/badges/generate_badges/milestones_inject.py \
+            --readme-path README.md \
+            --badge-path /tmp/demo_badges.json
+
+      - name: Commit Changes and Push
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git diff --quiet README.md || (
+            git add README.md &&
+            git commit -m "Chore: Update Milestone Badges" &&
+            git push
+          )
