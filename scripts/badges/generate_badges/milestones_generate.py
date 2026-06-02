@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 import argparse
 import json
-from pathlib import Path
 
 FORMAT = r"png"
 
 
-NOT_STARTED_COLOR = r"E01010"
+NOT_STARTED_COLOR = r"6e6e6e"
 IN_PROGRESS_COLOR = r"F5DB36"
 COMPLETE_COLOR = r"36F57C"
 
@@ -58,5 +57,5 @@ if __name__ == "__main__":
     if args.demo4_percent is not None:
         demo_badges["Demo4"] = generateMilestoneBadge(4, args.demo4_percent)
 
-    with open("tmp/demo_badges.json", "w") as f:
+    with open("/tmp/demo_badges.json", "w") as f:
         json.dump(demo_badges, f)
