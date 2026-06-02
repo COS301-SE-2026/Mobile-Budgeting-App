@@ -9,71 +9,77 @@ permissions:
   contents: write
 
 jobs:
-  fetch-data:
-    name: Fetch Demo ${{matrix.demo}} Milestone Data
+  update-badges:
+    name: Update README Milestone Badges
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        demo: [1, 2, 3, 4]
     steps:
-      - name: Get milestone data
+      - uses: actions/checkout@v4
+
+      - name: Get Demo 1 milestone data
         uses: Beakyn/gha-get-milestone-data@v1.0.1
-        id: milestone
+        id: milestone1
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           repository: ${{ github.repository }}
-          milestone: ${{ matrix.demo }}
+          milestone: 1
 
-      - name: Calculate Percentage
+      - name: Get Demo 2 milestone data
+        uses: Beakyn/gha-get-milestone-data@v1.0.1
+        id: milestone2
         env:
-          MILESTONE_DATA: ${{ steps.milestone.outputs.data }}
-        run: |
-          CLOSED=$(echo "$MILESTONE_DATA" | jq '.closed_issues')
-          OPEN=$(echo "$MILESTONE_DATA" | jq '.open_issues')
-          TOTAL=$((CLOSED + OPEN))
-          if [ "$TOTAL" -eq 0 ] ; then
-           echo "0.0" > demo${{ matrix.demo }}-percent.txt
-          else
-           python3 -c "print($CLOSED / $TOTAL)" > demo${{ matrix.demo }}-percent.txt
-          fi
-
-      - name: Upload Percentage
-        uses: actions/upload-artifact@v4
+          GITHUB_TOKEN: ${{ github.token }}
         with:
-          name: demo${{ matrix.demo }}-percent
-          path: demo${{ matrix.demo }}-percent.txt
+          repository: ${{ github.repository }}
+          milestone: 2
 
-  update-badges:
-    name: Update README Milestone Badges
-    runs-on: ubuntu-latest
-    needs: fetch-data
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download all percentages
-        uses: actions/download-artifact@v4
+      - name: Get Demo 3 milestone data
+        uses: Beakyn/gha-get-milestone-data@v1.0.1
+        id: milestone3
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         with:
-          path: badge-data
+          repository: ${{ github.repository }}
+          milestone: 3
 
-      - name: Generate and Inject Badges
+      - name: Get Demo 4 milestone data
+        uses: Beakyn/gha-get-milestone-data@v1.0.1
+        id: milestone4
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          repository: ${{ github.repository }}
+          milestone: 4
+
+      - name: Calculate completion percentages
+        env:
+          DATA1: ${{ steps.milestone1.outputs.data }}
+          DATA2: ${{ steps.milestone2.outputs.data }}
+          DATA3: ${{ steps.milestone3.outputs.data }}
+          DATA4: ${{ steps.milestone4.outputs.data }}
         run: |
-          DEMO1=$(cat badge-data/demo1-percent/demo1-percent.txt)
-          DEMO2=$(cat badge-data/demo2-percent/demo2-percent.txt)
-          DEMO3=$(cat badge-data/demo3-percent/demo3-percent.txt)
-          DEMO4=$(cat badge-data/demo4-percent/demo4-percent.txt)
+          python3 -c "
+          import json, os
+          for i in range(1, 5):
+              d = json.loads(os.environ[f'DATA{i}'])
+              c = d['closed_issues']
+              t = c + d['open_issues']
+              print(f'DEMO{i}_PCT={0.0 if t == 0 else c / t}')
+          " >> $GITHUB_ENV
 
+      - name: Generate and inject badges
+        run: |
           python3 scripts/badges/generate_badges/milestones_generate.py \
-            --demo1-percent "$DEMO1" \
-            --demo2-percent "$DEMO2" \
-            --demo3-percent "$DEMO3" \
-            --demo4-percent "$DEMO4"
+            --demo1-percent "$DEMO1_PCT" \
+            --demo2-percent "$DEMO2_PCT" \
+            --demo3-percent "$DEMO3_PCT" \
+            --demo4-percent "$DEMO4_PCT"
 
           python3 scripts/badges/generate_badges/milestones_inject.py \
             --readme-path README.md \
             --badge-path /tmp/demo_badges.json
 
-      - name: Commit Changes and Push
+      - name: Commit and push if changed
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
