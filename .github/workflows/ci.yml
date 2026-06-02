@@ -112,6 +112,11 @@ jobs:
     name: Flutter Checks
     runs-on: ubuntu-latest
     needs: repo-checks
+    outputs:
+      coverage_lines: ${{ steps.coverage.outputs.lines }}
+      coverage_branches: ${{ steps.coverage.outputs.branches }}
+      coverage_functions: ${{ steps.coverage.outputs.functions }}
+      coverage_calls: ${{ steps.coverage.outputs.calls }}
 
     steps:
       - name: Checkout repository
@@ -159,14 +164,29 @@ jobs:
       - name: Run Flutter tests
         if: steps.detect_flutter.outputs.found == 'true'
         working-directory: ${{ steps.detect_flutter.outputs.flutter_dir }}
-        run: flutter test
+        run: flutter test --coverage
+
+      - name: Parse coverage metrics
+        id: coverage
+        if: steps.detect_flutter.outputs.found == 'true'
+        working-directory: ${{ steps.detect_flutter.outputs.flutter_dir }}
+        run: |
+          SUMMARY=$(lcov --summary coverage/lcov.info 2>&1)
+          LINES=$(echo "$SUMMARY" | grep "Lines executed" | grep -oP '\d+\.\d+(?=%)')
+          BRANCHES=$(echo "$SUMMARY" | grep "Branches executed" | grep -oP '\d+\.\d+(?=%)')
+          FUNCTIONS=$(echo "$SUMMARY" | grep "Functions executed" | grep -oP '\d+\.\d+(?=%)')
+          CALLS=$(echo "$SUMMARY" | grep "Calls executed" | grep -oP '\d+\.\d+(?=%)')
+          echo "lines=$LINES" >> $GITHUB_OUTPUT
+          echo "branches=$BRANCHES" >> $GITHUB_OUTPUT
+          echo "functions=$FUNCTIONS" >> $GITHUB_OUTPUT
+          echo "calls=$CALLS" >> $GITHUB_OUTPUT
 
       - name: Build Android APK
         if: steps.detect_flutter.outputs.found == 'true'
         working-directory: ${{ steps.detect_flutter.outputs.flutter_dir }}
         run: flutter build apk --release
-  
-        - name: Upload APK artifact
+
+      - name: Upload APK artifact
         if: steps.detect_flutter.outputs.found == 'true'
         uses: actions/upload-artifact@v4
         with:
@@ -194,3 +214,43 @@ jobs:
       - name: Terraform format check
         if: ${{ hashFiles('infra/**/*.tf') != '' }}
         run: terraform fmt -check -recursive infra
+
+  update-badges:
+    name: Update Coverage Badge
+    needs: [repo-checks, backend-checks, flutter-checks, infra-checks]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Generate coverage badges
+        run: |
+          python3 scripts/badges/generate_badges/coverage_generate.py \
+            --lines "${{ needs.flutter-checks.outputs.coverage_lines }}" \
+            --branches "${{ needs.flutter-checks.outputs.coverage_branches }}" \
+            --functions "${{ needs.flutter-checks.outputs.coverage_functions }}" \
+            --calls "${{ needs.flutter-checks.outputs.coverage_calls }}"
+
+      - name: Inject badge into README
+        run: python3 scripts/badges/generate_badges/coverage_inject.py README.md
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet README.md; then
+            echo "No badge changes"
+          else
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git config user.name "github-actions[bot]"
+            git add README.md
+            git commit -m "chore(ci): update coverage badge [skip ci]"
+            git push
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
