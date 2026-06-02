@@ -255,6 +255,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                             limit: budget.limit,
                             progressColor: budget.progressColor,
                             isOverLimit: budget.isOverLimit,
+                            onDelete: () => _confirmDeleteBudget(budget),
                           ),
                           const SizedBox(height: 14),
                         ],
@@ -354,6 +355,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
     required double spent,
     required double limit,
     required Color progressColor,
+    required VoidCallback onDelete,
     bool isOverLimit = false,
   }) {
     final double progress = spent / limit;
@@ -425,13 +427,33 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                 ),
               ),
 
-              Text(
-                "R${spent.toInt()} / R${limit.toInt()}",
-                style: TextStyle(
-                  color: colours.secondary,
-                  fontSize: 12,
-                  fontWeight: isOverLimit ? FontWeight.bold : FontWeight.normal,
-                ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "R${spent.toInt()} / R${limit.toInt()}",
+                    style: TextStyle(
+                      color: colours.secondary,
+                      fontSize: 12,
+                      fontWeight: isOverLimit
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  InkWell(
+                    onTap: onDelete,
+                    borderRadius: BorderRadius.circular(20),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: Icon(
+                        Icons.delete_outline,
+                        color: colours.redColor,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -450,6 +472,89 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _confirmDeleteBudget(_BudgetManagerItem budget) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: colours.background,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: colours.secondary, width: 1.5),
+          ),
+          title: Text(
+            'Delete Budget',
+            style: TextStyle(
+              color: colours.textPrimary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Text(
+            'Are you sure you want to delete the ${budget.title} budget?',
+            style: TextStyle(color: colours.textPrimary),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false);
+              },
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: colours.textPrimary),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colours.redColor,
+                foregroundColor: colours.whiteAccents,
+              ),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldDelete != true) return;
+
+    await widget.database.budgetDao.softDeleteBudgetTemplate(budget.templateId);
+
+    if (!mounted) return;
+
+    _refreshBudgets();
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: colours.redColor,
+          margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          content: Row(
+            children: [
+              Icon(Icons.delete_outline, color: colours.whiteAccents),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  '${budget.title} budget deleted',
+                  style: TextStyle(
+                    color: colours.whiteAccents,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
   }
 
   void _showCreateBudgetDialog(BuildContext context) {
@@ -652,11 +757,11 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
 
                         if (!mounted) return;
 
-                        Navigator.of(dialogContext).pop();
+                        Navigator.of(this.context).pop();
 
                         _refreshBudgets();
 
-                        ScaffoldMessenger.of(context)
+                        ScaffoldMessenger.of(this.context)
                           ..hideCurrentSnackBar()
                           ..showSnackBar(
                             SnackBar(
