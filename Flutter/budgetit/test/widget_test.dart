@@ -15,7 +15,7 @@ void main() {
     );
 
     await tester.pumpAndSettle();
-    expect(find.textContaining('MONTHLY SPENDING'), findsOneWidget);
+    expect(find.text('MONTHLY BUDGET OVERVIEW'), findsOneWidget);
     expect(find.text('Budget Categories'), findsOneWidget);
     expect(find.text('CREATE NEW BUDGET'), findsOneWidget);
     await database.close();

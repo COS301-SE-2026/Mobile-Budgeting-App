@@ -41,6 +41,13 @@ class _BudgetManagerItem {
   bool get isOverLimit => spent > limit;
 }
 
+class _BudgetSummary {
+  final double totalSpent;
+  final double totalTarget;
+
+  const _BudgetSummary({required this.totalSpent, required this.totalTarget});
+}
+
 class _BudgetCategoryOption {
   final String categoryId;
   final String label;
@@ -59,6 +66,9 @@ class _BudgetCategoryOption {
 
 class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
   final MyColours colours = MyColours();
+  String _formatCurrency(double amount) {
+    return 'R${amount.toStringAsFixed(2)}';
+  }
 
   Future<List<_BudgetManagerItem>> _loadBudgetItems() async {
     final templates = await widget.database.budgetDao.getAllBudgetTemplates();
@@ -88,6 +98,22 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
     }
 
     return items;
+  }
+
+  Future<_BudgetSummary> _loadBudgetSummary() async {
+    final budgets = await _loadBudgetItems();
+
+    final totalTarget = budgets.fold<double>(
+      0,
+      (sum, budget) => sum + budget.limit,
+    );
+
+    final totalSpent = budgets.fold<double>(
+      0,
+      (sum, budget) => sum + budget.spent,
+    );
+
+    return _BudgetSummary(totalSpent: totalSpent, totalTarget: totalTarget);
   }
 
   Future<List<_BudgetCategoryOption>> _loadCategoryOptions() async {
@@ -145,17 +171,20 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
     setState(() {
       _budgetItemsFuture = _loadBudgetItems();
       _categoryOptionsFuture = _loadCategoryOptions();
+      _budgetSummaryFuture = _loadBudgetSummary();
     });
   }
 
   late Future<List<_BudgetManagerItem>> _budgetItemsFuture;
   late Future<List<_BudgetCategoryOption>> _categoryOptionsFuture;
+  late Future<_BudgetSummary> _budgetSummaryFuture;
 
   @override
   void initState() {
     super.initState();
     _budgetItemsFuture = _loadBudgetItems();
     _categoryOptionsFuture = _loadCategoryOptions();
+    _budgetSummaryFuture = _loadBudgetSummary();
   }
 
   @override
@@ -309,42 +338,52 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
   }
 
   Widget _summaryCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        color: colours.secondary,
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "MONTHLY SPENDING MAY 2026",
-            style: TextStyle(
-              color: colours.background,
-              fontSize: 14,
-              letterSpacing: 2,
-              fontWeight: FontWeight.w500,
-            ),
+    return FutureBuilder<_BudgetSummary>(
+      future: _budgetSummaryFuture,
+      builder: (context, snapshot) {
+        final summary = snapshot.data;
+
+        final totalSpent = summary?.totalSpent ?? 0;
+        final totalTarget = summary?.totalTarget ?? 0;
+
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(22),
+          decoration: BoxDecoration(
+            color: colours.secondary,
+            borderRadius: BorderRadius.circular(30),
           ),
-          const SizedBox(height: 18),
-          Text(
-            "R1,850.00",
-            style: TextStyle(
-              color: colours.background,
-              fontSize: 42,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1,
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "MONTHLY BUDGET OVERVIEW",
+                style: TextStyle(
+                  color: colours.background,
+                  fontSize: 14,
+                  letterSpacing: 2,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 18),
+              Text(
+                _formatCurrency(totalSpent),
+                style: TextStyle(
+                  color: colours.background,
+                  fontSize: 42,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1,
+                ),
+              ),
+              const SizedBox(height: 18),
+              Text(
+                "Budget target: ${_formatCurrency(totalTarget)}",
+                style: TextStyle(color: colours.background, fontSize: 18),
+              ),
+            ],
           ),
-          const SizedBox(height: 18),
-          Text(
-            "Target: R1,950.00",
-            style: TextStyle(color: colours.background, fontSize: 18),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
