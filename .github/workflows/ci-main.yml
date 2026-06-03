@@ -1,0 +1,246 @@
+name: Main Branch CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  secret-scan:
+    name: Secret Scane
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  detect:
+    name: Detect Unimplmented Test Suites
+    runs-on: ubuntu-latest
+    needs: secret-scan
+    outputs:
+      has_golden: ${{ steps.f.outputs.has_golden }}
+      has_perf: ${{ steps.f.outputs.has_perf }}
+      has_integ: ${{ steps.f.outputs.has_integ }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: f
+        working-directory: Flutter/budgetit
+        run: |
+          has() { grep -rqlE 'testWidgets|test\(' "$1" 2>/dev/null && echo true || echo false; }
+          echo "has_golden=$(has test/golden)" >> "$GITHUB_OUTPUT"
+          echo "has_perf=$(has test/performance)" >> "$GITHUB_OUTPUT"
+          echo "has_integ=$(has integration_test)" >> "$GITHUB_OUTPUT"
+
+  flutter-ci:
+    name: Flutter CI
+    runs-on: ubuntu-latest
+    needs: secret-scan
+    outputs:
+      coverage_lines: ${{ steps.coverage.outputs.lines }}
+      coverage_branches: ${{ steps.coverage.outputs.branches }}
+      coverage_functions: ${{ steps.coverage.outputs.functions }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/flutter-setup
+
+      - name: Run build_runner
+        working-directory: Flutter/budgetit
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Formatting Check
+        working-directory: Flutter/budgetit
+        continue-on-error: true
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze
+        working-directory: Flutter/budgetit
+        continue-on-error: true
+        run: flutter analyze
+
+      - name: Unit Tests (with coverage)
+        working-directory: Flutter/budgetit
+        run: |
+          flutter test --coverage $(find test -name '*_test.dart' -not -path 'test/golden/*' -not -path 'test/performance/*')
+
+      - name: Coverage Gate (70%)
+        working-directory: Flutter/budgetit
+        run: python3 ../../scripts/coverage_gate.py "$GITHUB_OUTPUT"
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: Flutter/budgetit/coverage/lcov.info
+          retention-days: 7
+
+  sonarcloud:
+    name: SonarCloud Analysis
+    runs-on: ubuntu-latest
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+          path: Flutter/budgetit/coverage
+
+      - name: SonarCloud scan
+        if: env.SONAR_TOKEN != ''
+        uses: SonarSource/sonarcloud-github-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOEKN: $${{secrets.SONAR_TOKEN }}
+
+  dependancy-audit:
+    name: Dependancy Security Audit
+    runs-on: ubuntu-latest
+    needs: flutter-ci
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google/osv-scanner-action@v1
+        with:
+          scan-args: |-
+            --lockfile=Flutter/budgetit/pubspec.lock
+
+  golden-tests:
+    name: Golden Tests
+    runs-on: ubuntu-latest
+    needs: [flutter-ci, detect]
+    if: needs.detect.outputs.has_golden == 'true'
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/flutter-setup
+      - name: Run golden tests
+        working-directory: Flutter/budgetit
+        run: flutter test test/golden
+
+  perf-benchmarks:
+    name: Performance Benchmarks
+    runs-on: ubuntu-latest
+    needs: [flutter-ci, detect]
+    if: needs.detect.outputs.has_perf == 'true'
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/flutter-setup
+      - name: Run performance benchmarks
+        working-directory: Flutter/budgetit
+        run: flutter test test/performance
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [flutter-ci, detect]
+    if: needs.detect.outputs.has_integ == 'true'
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/flutter-setup
+      - name: Run integration tests
+        working-directory: Flutter/budgetit
+        run: flutter test integration_test/
+
+  apk-build:
+    name: Build APK
+    runs-on: ubuntu-latest
+    needs: [flutter-ci]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/flutter-setup
+        with:
+          needs-java: "true"
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
+      - name: Accept Android Lisence
+        run: yes | flutter doctor --android-licenses || true
+
+      - name: Build release APK
+        working-directory: Flutter/budgetit
+        run: flutter build apk --release
+
+      - name: Upload APK artifact (release tags)
+        if: StartsWith(github.ref , 'refs/tags/v')
+        uses: actions/upload-artifact@v4
+        with:
+          name: budgetit-releaes-${{ github.ref_name }}
+          path: Flutter/budgetit/build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 90
+
+      - name: Upload APK artifact (main branch pushes)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@v4
+        with:
+          name: budgetit-apk-main-${{ github.sha }}
+          path: Flutter/budgetit/build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 7
+
+  update-badges:
+    name: Update Coverage Badges
+    runs-on: ubuntu-latest
+    needs: flutter-ci
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ hashFiles('scripts/**/*.py') }}
+          restore-keys: |
+            pip-${{ runner.os }}-
+
+      - name: Generate coverage badges
+        run: |
+          python3 scripts/badges/generate_badges/coverage_generate.py \
+                     --lines "${{ needs.flutter-ci.outputs.coverage_lines }}" \
+                     --branches "${{ needs.flutter-ci.outputs.coverage_branches }}" \
+                     --functions "${{ needs.flutter-ci.outputs.coverage_functions }}"
+      - name: Inject badges into README
+        run: python3 scripts/badges/generate_badges/coverage_inject.py --readme-path README.md
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet README.md; then
+            echo "No badge changes"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add README.md
+            git commit -m "chore(ci): update coverage badges [skip ci]"
+            git push
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
