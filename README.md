@@ -19,7 +19,7 @@
 ![Python](https://shieldcn.dev/badge/Python-3776AB.svg?logo=python&logoColor=fff&variant=branded&size=default)
 ![FastAPI](https://shieldcn.dev/badge/FastAPI-009688.svg?logo=fastapi&logoColor=fff&variant=branded&size=default)
 ![PyTest](https://shieldcn.dev/badge/Pytest.png?variant=secondary&logo=ri%3ATbTestPipe&logoColor=049BE4&size=default)
-
+![uv](https://shieldcn.dev/badge/uv-DE5FE9.svg?logo=uv&logoColor=fff&variant=branded&size=default)
           
           
             
