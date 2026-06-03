@@ -39,6 +39,11 @@ void main() {
           ),
         ],
       );
+      when(
+        _dashMock.transactionDao.getTransactionsByDateRange(any, any),
+      ).thenAnswer(
+        (_) async => [transactionFixture(id: 'd3', shortDescription: 'Rent')],
+      );
     });
 
     testWidgets('renders without error', (tester) async {
