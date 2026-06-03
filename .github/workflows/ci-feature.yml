@@ -30,10 +30,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-        with:
-          depth: 0
 
-      - uses: ./github/actions/flutter-setup
+      - uses: ./.github/actions/flutter-setup
       - name: Dart Build Runner
         working-directory: Flutter/budgetit
         run: dart run build_runner build --delete-conflicting-outputs
