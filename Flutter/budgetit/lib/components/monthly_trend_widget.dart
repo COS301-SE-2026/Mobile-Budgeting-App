@@ -42,12 +42,6 @@ class _MonthlyTrendWidgetState extends State<MonthlyTrendWidget> {
     return months[month];
   }
 
-  String _displayMonth(int index) {
-    final date = DateTime(_startMonth.year, _startMonth.month + index);
-
-    return _monthName(date.month);
-  }
-
   String get currentRange {
     final endMonth = DateTime(_startMonth.year, _startMonth.month + 2);
 
