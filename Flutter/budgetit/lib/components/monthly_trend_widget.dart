@@ -263,7 +263,7 @@ class _MonthlyTrendWidgetState extends State<MonthlyTrendWidget> {
 
                               // x axis
                               Text(
-                                _displayMonth(index),
+                                month.shortMonth,
 
                                 style: TextStyle(
                                   color: isSelected
