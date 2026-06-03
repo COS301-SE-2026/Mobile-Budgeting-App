@@ -3,4 +3,16 @@ Flutter/budgetit/linux/*
 Flutter/budgetit/build/*
 Flutter/budgetit/macos/*
 Flutter/budgetit/windows/*
+Flutter/budgetit/android/*
+Flutter/budgetit/web/*
+
+
 Flutter/budgetit/pubspec.lock
+
+scripts/test/act/artifacts/
+scripts/test/act/cache/
+cache/
+Flutter/budgetit/flutter/
+Flutter/budgetit/ios/
+Flutter/budgetit/linux/
+artifacts/
