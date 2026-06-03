@@ -655,7 +655,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
 
                         _refreshBudgets();
 
-                        if (!mounted) return;
+                        if (!context.mounted) return;
                         ScaffoldMessenger.of(context)
                           ..hideCurrentSnackBar()
                           ..showSnackBar(
