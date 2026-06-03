@@ -1,7 +1,7 @@
 name: Flutter Setup
 description: Gets the pub cache , installs Flutter and runs pub get
 inputs:
-  java-required:
+  needs-java:
     description: Whether or not to setup up flutter with java , needed for Android builds
     required: false
     default: "false"
@@ -20,9 +20,9 @@ runs:
       uses: actions/cache@v4
       with:
         path: ~/.pub-cache
-        key: pub-${{ runner.os }}-${{ hashFiles('**/pubspec.lock) }}
+        key: pub-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
         restore-keys: |
-          pub-$${{ runner.os }}-
+          pub-${{ runner.os }}-
 
     - name: Set up flutter
       uses: subosito/flutter-action@v2
