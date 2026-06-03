@@ -19,7 +19,7 @@ NOT_STARTED_ICON = r"false"
 COMPLETE_THRESHOLD = 0.9
 
 
-def generateMilestoneBadge(demo_num: int, percent: float) -> str:
+def generate_milestone_badge(demo_num: int, percent: float) -> str:
     BADGE_LABEL = rf"Demo%20{demo_num}%20%3A%20"
     color = None
     icon = None
@@ -51,13 +51,13 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     if args.demo1_percent is not None:
-        demo_badges["Demo1"] = generateMilestoneBadge(1, args.demo1_percent)
+        demo_badges["Demo1"] = generate_milestone_badge(1, args.demo1_percent)
     if args.demo2_percent is not None:
-        demo_badges["Demo2"] = generateMilestoneBadge(2, args.demo2_percent)
+        demo_badges["Demo2"] = generate_milestone_badge(2, args.demo2_percent)
     if args.demo3_percent is not None:
-        demo_badges["Demo3"] = generateMilestoneBadge(3, args.demo3_percent)
+        demo_badges["Demo3"] = generate_milestone_badge(3, args.demo3_percent)
     if args.demo4_percent is not None:
-        demo_badges["Demo4"] = generateMilestoneBadge(4, args.demo4_percent)
+        demo_badges["Demo4"] = generate_milestone_badge(4, args.demo4_percent)
 
     badge_path = os.path.join(tempfile.gettempdir(), "demo_badges.json")
 
