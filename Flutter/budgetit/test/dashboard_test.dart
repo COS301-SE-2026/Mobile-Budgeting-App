@@ -11,6 +11,7 @@ import 'package:budgetit/components/transaction_tile.dart';
 import 'package:budgetit/screens/dashboard.dart';
 import 'package:budgetit/database/schema.dart';
 import 'package:mockito/mockito.dart';
+import 'package:budgetit/components/spending_chart.dart';
 
 import 'support/fixtures.dart';
 import 'support/mock_db.dart';
@@ -63,12 +64,12 @@ void main() {
     );
 
     testWidgets(
-      'contains BalanceCard, QuickStatsWidget, MonthlyTrendWidget and InsightWidget',
+      'contains the daily spending card , spending chart and monthly trend  and insight widgts ',
       (tester) async {
         await tester.pumpWidget(_wrap(Dashboard(database: _dashMock.db)));
         await tester.pumpAndSettle();
-        expect(find.byType(BalanceCard), findsOneWidget);
-        expect(find.byType(QuickStatsWidget), findsOneWidget);
+        expect(find.textContaining("DAILY SPENDING FOR"), findsOneWidget);
+        expect(find.byType(SpendingChart), findsOneWidget);
         expect(find.byType(MonthlyTrendWidget), findsOneWidget);
         expect(find.byType(InsightWidget), findsOneWidget);
       },
