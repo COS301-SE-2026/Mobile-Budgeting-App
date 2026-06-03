@@ -28,11 +28,13 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
+      - uses: ./github/actions/flutter-setup
       - name: Dart Build Runner
         working-directory: Flutter/budgetit
         run: dart run build_runner build --delete-conflicting-outputs
 
-      - name: Commit dart codegen files to  branch
+      - name: Commit dart codegen files to branch
         if: github.event_name == 'push'
         run: |
           if ! git diff --quiet; then
@@ -45,7 +47,7 @@ jobs:
 
       - name: Dart Format
         working-directory: Flutter/budgetit
-        run: dart format --output=none -set-exit-if-changed .
+        run: dart format --output=none --set-exit-if-changed .
 
       - name: Flutter Analyze
         working-directory: Flutter/budgetit
