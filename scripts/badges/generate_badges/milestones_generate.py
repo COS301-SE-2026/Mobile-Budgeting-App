@@ -27,7 +27,7 @@ def generateMilestoneBadge(demo_num: int, percent: float) -> str:
         icon = NOT_STARTED_ICON
         message = r"Not%20Started"
 
-    elif percent == 1.00:
+    elif percent >= COMPLETE_THRESHOLD:
         message = r"Completed"
         color = COMPLETE_COLOR
         icon = COMPLETE_ICON
@@ -36,7 +36,7 @@ def generateMilestoneBadge(demo_num: int, percent: float) -> str:
         color = IN_PROGRESS_COLOR
         icon = IN_PROGRESS_ICON
 
-    return rf"![badge](https://shieldcn.dev/badge/{BADGE_LABEL}-{message}-{color}.{FORMAT}?logo={icon})"
+    return rf"![badge](https://shieldcn.dev/badge/{BADGE_LABEL}-{message}-{color}.{FORMAT}?logo={icon}&size=default)"
 
 
 if __name__ == "__main__":
