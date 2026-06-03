@@ -117,7 +117,7 @@ jobs:
           path: Flutter/budgetit/coverage
 
       - name: SonarCloud scan
-        uses: SonarSource/sonarqube-scan-action@aecaf43ae57e412bd97d70ef9ce6076e672fe0a9
+        uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOEKN: $${{secrets.SONAR_TOKEN }}
@@ -185,7 +185,7 @@ jobs:
           needs-java: "true"
 
       - name: Cache Gradle
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae
         with:
           path: |
             ~/.gradle/caches
@@ -203,7 +203,7 @@ jobs:
 
       - name: Upload APK artifact (release tags)
         if: startsWith(github.ref, 'refs/tags/v')
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392
         with:
           name: budgetit-release-${{ github.ref_name }}
           path: Flutter/budgetit/build/app/outputs/flutter-apk/app-release.apk
@@ -211,7 +211,7 @@ jobs:
 
       - name: Upload APK artifact (main branch pushes)
         if: github.ref == 'refs/heads/main' && github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/')
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392
         with:
           name: budgetit-apk-main-${{ github.sha }}
           path: Flutter/budgetit/build/app/outputs/flutter-apk/app-release.apk
@@ -233,7 +233,7 @@ jobs:
           python-version: "3.12"
 
       - name: Cache pip
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae
         with:
           path: ~/.cache/pip
           key: pip-${{ runner.os }}-${{ hashFiles('scripts/**/*.py') }}
