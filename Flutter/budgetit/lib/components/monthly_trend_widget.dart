@@ -201,7 +201,9 @@ class _MonthlyTrendWidgetState extends State<MonthlyTrendWidget> {
                     children: List.generate(widget.months.length, (index) {
                       final month = widget.months[index];
 
-                      final height = (month.spent / maxSpend) * 140;
+                      final height = maxSpend == 0
+                          ? 0.0
+                          : (month.spent / maxSpend) * 140;
 
                       final isSelected = _selectedIndex == index;
 
