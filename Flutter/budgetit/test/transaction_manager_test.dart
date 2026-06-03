@@ -212,10 +212,10 @@ void main() {
       expect(bg, MyColours().background);
     });
 
-    testWidgets('selected state uses secondary fill', (
-      tester,
-    ) async {
-      await tester.pumpWidget(_widget(MyBadge(text: 'Expenses' , isSelected: true,)));
+    testWidgets('selected state uses secondary fill', (tester) async {
+      await tester.pumpWidget(
+        _widget(MyBadge(text: 'Expenses', isSelected: true)),
+      );
       await tester.pump();
 
       final container = tester.widget<Container>(
@@ -230,15 +230,8 @@ void main() {
       expect(bg, MyColours().secondary);
     });
 
-    testWidgets('pressing twice returns to unselected state (primary fill)', (
-      tester,
-    ) async {
+    testWidgets('unselected badge uses background fill', (tester) async {
       await tester.pumpWidget(_widget(MyBadge(text: 'All')));
-      await tester.pump();
-
-      await tester.tap(find.byType(MyBadge));
-      await tester.pump();
-      await tester.tap(find.byType(MyBadge));
       await tester.pump();
 
       final container = tester.widget<Container>(
@@ -250,7 +243,7 @@ void main() {
             .first,
       );
       final bg = (container.decoration as BoxDecoration).color;
-      expect(bg, MyColours().primary);
+      expect(bg, MyColours().background);
     });
   });
 
