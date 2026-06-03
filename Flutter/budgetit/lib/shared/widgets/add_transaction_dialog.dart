@@ -161,8 +161,9 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                 validator: (v) {
                   if (v == null || v.isEmpty) return 'Amount is required';
                   final parsed = double.tryParse(v);
-                  if (parsed == null || parsed <= 0)
+                  if (parsed == null || parsed <= 0) {
                     return 'Enter a valid amount';
+                  }
                   return null;
                 },
               ),
