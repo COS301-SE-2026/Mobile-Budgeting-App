@@ -12,7 +12,8 @@ import '../database/app_database.dart';
 import '../database/schema.dart';
 
 class Dashboard extends StatefulWidget {
-  const Dashboard({super.key});
+  final AppDatabase? database;
+  const Dashboard({super.key, this.database});
 
   @override
   State<Dashboard> createState() => _DashboardState();
@@ -20,6 +21,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   late AppDatabase db;
+  late final bool _ownsDb;
   bool isLoading = true;
   //check if the data is loading, then store error msg when it fails
 
@@ -34,7 +36,8 @@ class _DashboardState extends State<Dashboard> {
   void initState() {
     super.initState();
 
-    db = AppDatabase();
+    _ownsDb = widget.database == null;
+    db = widget.database ?? AppDatabase();
     dashboardMonths = _emptyMonthlyTrends();
     spendingCategories = [
       SpendingCategory(
@@ -48,8 +51,10 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   void dispose() {
-    db.close();
-    //dispose to clean up the parent widget resources
+    if (_ownsDb) {
+      db.close();
+    }
+
     super.dispose();
   }
 
