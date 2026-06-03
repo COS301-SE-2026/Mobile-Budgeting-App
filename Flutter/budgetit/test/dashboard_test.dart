@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:provider/provider.dart';
+import 'package:budgetit/utils/theme_provider.dart';
 import 'package:budgetit/components/balance_card.dart';
 import 'package:budgetit/components/bill_item.dart';
 import 'package:budgetit/components/insight_widget.dart';
@@ -9,7 +10,10 @@ import 'package:budgetit/components/quick_stats_widgets.dart';
 import 'package:budgetit/components/transaction_tile.dart';
 import 'package:budgetit/screens/dashboard.dart';
 
-Widget _wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
+Widget _wrap(Widget child) => ChangeNotifierProvider(
+  create: (_) => ThemeProvider(),
+  child: MaterialApp(home: Scaffold(body: child)),
+);
 
 void main() {
   // Dashboard — integration-level: full screen renders correctly
