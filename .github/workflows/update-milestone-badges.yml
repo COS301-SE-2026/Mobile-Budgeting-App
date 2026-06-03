@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
 
       - name: Get Demo 1 milestone data
-        uses: Beakyn/gha-get-milestone-data@v1.0.1
+        uses: Beakyn/gha-get-milestone-data@c331e461afb56bfc633dbef30fbe39528abe29da
         id: milestone1
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -26,7 +26,7 @@ jobs:
           milestone: 1
 
       - name: Get Demo 2 milestone data
-        uses: Beakyn/gha-get-milestone-data@v1.0.1
+        uses: Beakyn/gha-get-milestone-data@c331e461afb56bfc633dbef30fbe39528abe29da
         id: milestone2
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -35,7 +35,7 @@ jobs:
           milestone: 2
 
       - name: Get Demo 3 milestone data
-        uses: Beakyn/gha-get-milestone-data@v1.0.1
+        uses: Beakyn/gha-get-milestone-data@c331e461afb56bfc633dbef30fbe39528abe29da
         id: milestone3
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -44,7 +44,7 @@ jobs:
           milestone: 3
 
       - name: Get Demo 4 milestone data
-        uses: Beakyn/gha-get-milestone-data@v1.0.1
+        uses: Beakyn/gha-get-milestone-data@c331e461afb56bfc633dbef30fbe39528abe29da
         id: milestone4
         env:
           GITHUB_TOKEN: ${{ github.token }}
