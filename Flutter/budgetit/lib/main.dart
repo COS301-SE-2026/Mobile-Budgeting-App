@@ -116,13 +116,13 @@ class _HomePageState extends State<HomePage> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(10)),
           border: Border(
-            top: BorderSide(color: MyColours().secondary, width: 1.5),
+            top: BorderSide(color: MyColours().cardText, width: 1.5),
           ),
         ),
         child: NavigationBar(
           selectedIndex: _selectedIndex,
-          backgroundColor: MyColours().background,
-          indicatorColor: MyColours().secondary,
+          backgroundColor: MyColours().navBarColor,
+          indicatorColor: MyColours().cardText,
           onDestinationSelected: _onDestinationSelected,
           destinations: const [
             NavigationDestination(

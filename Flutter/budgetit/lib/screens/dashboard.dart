@@ -447,7 +447,7 @@ class _DashboardState extends State<Dashboard> {
                             children: [
                               Icon(
                                 Icons.calendar_month,
-                                color: colours.textPrimary,
+                                color: colours.cardText,
                                 size: 18,
                               ),
 
@@ -457,7 +457,7 @@ class _DashboardState extends State<Dashboard> {
                                 "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
 
                                 style: TextStyle(
-                                  color: colours.textPrimary,
+                                  color: colours.cardText,
 
                                   fontWeight: FontWeight.w600,
                                 ),
