@@ -16,3 +16,4 @@ Flutter/budgetit/flutter/
 Flutter/budgetit/ios/
 Flutter/budgetit/linux/
 artifacts/
+Flutter/budgetit/test/database/mock_daos.mocks.dart
