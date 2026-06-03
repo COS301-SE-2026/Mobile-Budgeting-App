@@ -29,6 +29,7 @@
 ![Docker](https://shieldcn.dev/badge/Docker-2496ED.svg?size=default&logo=docker&logoColor=fff&variant=branded)
 ![Github Actions](https://shieldcn.dev/badge/GitHub%20Actions.png?size=default&logo=githubactions)
 ![S3](https://shieldcn.dev/badge/S3.png?size=default&logo=ri%3AFaAws)
+![PostgreSQL](https://shieldcn.dev/badge/PostgreSQL-4169E1.svg?logo=postgresql&logoColor=fff&variant=branded&size=default)
 
 ---
 ## Project Status
