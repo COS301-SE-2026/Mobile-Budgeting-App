@@ -117,7 +117,7 @@ class _MonthlyTrendWidgetState
                 "Monthly Spending",
 
                 style: TextStyle(
-                  color: colours.textPrimary,
+                  color: colours.cardText,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -142,7 +142,7 @@ class _MonthlyTrendWidgetState
 
                     child: Icon(
                       Icons.chevron_left,
-                      color: colours.textPrimary,
+                      color: colours.cardText,
                     ),
                   ),
 
@@ -152,7 +152,7 @@ class _MonthlyTrendWidgetState
                     currentRange,
 
                     style: TextStyle(
-                      color: colours.textPrimary,
+                      color: colours.cardText,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -174,7 +174,7 @@ class _MonthlyTrendWidgetState
 
                     child: Icon(
                       Icons.chevron_right,
-                      color: colours.textPrimary,
+                      color: colours.cardText,
                     ),
                   ),
                 ],
@@ -207,7 +207,7 @@ class _MonthlyTrendWidgetState
                     Text(
                       "R15K",
                       style: TextStyle(
-                        color: colours.textPrimary
+                        color: colours.cardText
                             .withValues(alpha: 0.5),
                         fontSize: 10,
                       ),
@@ -216,7 +216,7 @@ class _MonthlyTrendWidgetState
                     Text(
                       "R10K",
                       style: TextStyle(
-                        color: colours.textPrimary
+                        color: colours.cardText
                             .withValues(alpha: 0.5),
                         fontSize: 10,
                       ),
@@ -225,7 +225,7 @@ class _MonthlyTrendWidgetState
                     Text(
                       "R5K",
                       style: TextStyle(
-                        color: colours.textPrimary
+                        color: colours.cardText
                             .withValues(alpha: 0.5),
                         fontSize: 10,
                       ),
@@ -234,7 +234,7 @@ class _MonthlyTrendWidgetState
                     Text(
                       "0",
                       style: TextStyle(
-                        color: colours.textPrimary
+                        color: colours.cardText
                             .withValues(alpha: 0.5),
                         fontSize: 10,
                       ),
@@ -299,7 +299,7 @@ class _MonthlyTrendWidgetState
                                   style: TextStyle(
                                     color:
                                         colours
-                                            .textPrimary,
+                                            .cardText,
                                     fontSize: 11,
                                     fontWeight:
                                         FontWeight.w500,
@@ -372,9 +372,9 @@ class _MonthlyTrendWidgetState
                                     color:
                                         isSelected
                                             ? colours
-                                                .textPrimary
+                                                .cardText
                                             : colours
-                                                .textPrimary
+                                                .cardText
                                                 .withValues(
                                                   alpha:
                                                       0.6,

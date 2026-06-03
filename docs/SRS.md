@@ -165,23 +165,11 @@ A Registered User has created an account via AWS Cognito and may optionally enab
 **Preconditions:** The app is installed, unlocked, and the user is on the main dashboard.  
 **Postconditions:** The transaction is saved to the encrypted local database and dashboard totals are updated.
 
-**TUCBW:** The user selects the option to add a new transaction.  
-**TUCEW:** The transaction is stored locally and the dashboard reflects the updated totals.
+**TUCBW:** The user selects the option to add, edit or delete a new transaction.  
+**TUCEW:** The transaction is stored or removed locally and the dashboard reflects the updated totals.
 
-**Main Flow:**
 
-1. The user taps "Add Transaction".
-2. The system presents a form with fields: date, description, amount, category, type (income/expense), and currency.
-3. The user fills in the required fields and confirms.
-4. The system validates inputs (required fields populated, positive amount, valid date).
-5. The system saves the transaction to the encrypted local database.
-6. The system updates dashboard totals and returns the user to the dashboard with a success notification.
 
-**Alternative Flows:**
-
-- *Validation Failure:* The system highlights invalid fields with descriptive inline error messages. The form remains open for correction.
-- *Edit Transaction:* The user selects an existing transaction and chooses "Edit". The system pre-populates the form. After editing and confirming, the system validates, saves the updated record, and recalculates summaries.
-- *Delete Transaction:* The user selects a transaction and chooses "Delete". The system prompts for confirmation. On confirm, the transaction is removed and all affected summaries are updated.
 
 ---
 
@@ -192,23 +180,9 @@ A Registered User has created an account via AWS Cognito and may optionally enab
 **Postconditions:** Budget limits are saved per category; the system actively monitors spending against them.
 
 **TUCBW:** The user navigates to the Budget Management screen.  
-**TUCEW:** Budget limits are saved and the system monitors spending in real time, generating alerts when thresholds are crossed.
+**TUCEW:** Budget limits are saved and the system monitors spending in real time, generating alerts when thresholds are crossed, default categories are provided and the user can also make custom categories.
 
-**Main Flow:**
 
-1. The user navigates to "Budgets" from the main menu.
-2. The system displays all categories with their monthly limits and current spending totals.
-3. The user selects a category and sets or updates the monthly budget limit.
-4. The system validates that the limit is a positive value and saves it.
-5. As transactions are added or imported, the system updates each category's spending total.
-6. When spending reaches 80% of the limit, the system generates a budget warning alert on the dashboard.
-7. When spending meets or exceeds the limit, the system generates a budget exceeded alert.
-8. Alerts are displayed in the in-app notification panel until dismissed.
-
-**Alternative Flows:**
-
-- *Custom Category:* The user selects "New Category", enters a name, icon, and colour. The system validates uniqueness and saves the category. The user may then assign a budget limit to it.
-- *Alert Dismissed:* The user dismisses an alert. The system removes it from the active notification view. Future alerts for the same category in the same period are still generated.
 
 ---
 
@@ -221,21 +195,7 @@ A Registered User has created an account via AWS Cognito and may optionally enab
 **TUCBW:** The user selects "Import Statement" from the menu.  
 **TUCEW:** All valid transactions from the statement are saved to the local database.
 
-**Main Flow:**
 
-1. The user selects "Import Statement" and chooses a file from device storage.
-2. The system validates the file format (CSV or PDF) and checks the file is not corrupted.
-3. The system parses the file on-device, extracting date, description, and amount for each transaction row.
-4. The on-device ML model classifies each transaction as income or expense and assigns a category.
-5. The system presents a preview list of extracted transactions with their suggested type and category.
-6. The user reviews the preview, optionally overrides individual category assignments, and confirms the import.
-7. The system saves all transactions to the local database, updates dashboard summaries and budget totals, and deletes any temporary files created during parsing.
-
-**Alternative Flows:**
-
-- *Unsupported Format:* The system displays an error and returns the user to the import screen. No record is created.
-- *Parsing Failure:* The system displays a descriptive error and suggests the user verify the file format or contact their bank.
-- *Duplicate Detection:* Transactions matching existing records (same date, description, and amount) are flagged in the preview. The user can choose to import or skip each flagged item individually.
 
 ---
 
@@ -243,55 +203,16 @@ A Registered User has created an account via AWS Cognito and may optionally enab
 
 **Actor:** User (Guest or Registered)  
 **Preconditions:** The app is unlocked.  
-**Postconditions:** The user views a financial summary or a filtered list of transactions.
+**Postconditions:** The user views a financial summary and a filtered list of transactions.
 
 **TUCBW:** The user opens the application and the dashboard is loaded.  
-**TUCEW:** The user has reviewed their financial summary or navigated to a filtered transaction list.
+**TUCEW:** The user has reviewed their financial summary and navigated to a filtered transaction list.
 
-**Main Flow:**
-
-1. The system loads the dashboard from the local database for the current month.
-2. The system displays total income, total expenses, net balance, and per-category budget progress bars.
-3. The system renders a spending distribution chart from category totals.
-4. The user optionally applies a search filter (category, date range, or keyword).
-5. The system queries the local database and returns matching transactions in real time as the user types.
-6. The user selects a transaction to view its full detail screen.
-
-**Alternative Flows:**
-
-- *Empty State:* If no transactions exist for the current period, the system displays a call-to-action to add a transaction or import a statement.
-- *Combined Filters:* The user may apply multiple filters simultaneously; the system returns only transactions matching all active filters.
-- *Period Selection:* The user may change the reporting period; the system reloads summaries and charts for the selected period.
 
 ---
 
-### UC-05: Secure Local Storage and Authentication
 
-**Actor:** User (Guest or Registered)  
-**Preconditions:** The app is installed on the device.  
-**Postconditions:** The user is authenticated and the encrypted database is accessible.
-
-**TUCBW:** The user opens the application.  
-**TUCEW:** The user is authenticated and the decrypted database is available for the session.
-
-**Main Flow:**
-
-1. The user opens the application.
-2. The system checks whether a PIN has been configured.
-3. If biometric authentication is available and enabled, the system presents the device's biometric prompt.
-4. The user authenticates successfully via biometrics.
-5. The system uses the authentication result to open the encrypted database and loads the dashboard.
-
-**Alternative Flows:**
-
-- *Biometrics Unavailable or Disabled:* The system falls back to the PIN entry screen.
-- *Authentication Fails:* The system increments the failed attempt counter. After five consecutive failures, the app locks for a 30-second timeout before allowing further attempts.
-- *First Launch — Onboarding:* No PIN is configured. The system presents an onboarding flow where the user sets a PIN and optionally enables biometrics. On completion, the encrypted database is initialised and the dashboard loads.
-- *Auto-Lock:* The system monitors for inactivity. After the configured idle period (default 5 minutes), the app locks and requires re-authentication.
-
----
-
-### UC-06: Track Recurring Transactions *(Optional)*
+### UC-05: Track Recurring Transactions 
 
 **Actor:** User (Guest or Registered)  
 **Preconditions:** The app is unlocked.  
@@ -304,7 +225,7 @@ The user defines a recurring transaction with a frequency (daily, weekly, or mon
 
 ---
 
-### UC-07: View Graphical Spending Reports *(Optional)*
+### UC-06: View Graphical Spending Reports
 
 **Actor:** User (Guest or Registered)  
 **Preconditions:** At least one transaction exists in the local database.  
@@ -317,7 +238,7 @@ The system renders charts from local transaction data — at minimum a pie/donut
 
 ---
 
-### UC-08: Export Financial Report *(Optional)*
+### UC-07: Export Financial Report 
 
 **Actor:** User (Guest or Registered)  
 **Preconditions:** At least one transaction exists.  
@@ -330,7 +251,7 @@ The system generates the file entirely on-device without transmitting data exter
 
 ---
 
-### UC-09: Capture Receipt via Camera *(Optional)*
+### UC-08: Capture Receipt via Camera 
 
 **Actor:** User (Guest or Registered)  
 **Preconditions:** The device has a camera. The user is viewing a transaction detail screen.  
@@ -343,7 +264,7 @@ The system requests camera permission only when this feature is first used. The 
 
 ---
 
-### UC-10: AI Spending Analysis and Auto-Categorisation *(Wow Factor)*
+### UC-9: AI Spending Analysis and Auto-Categorisation 
 
 **Actor:** User (Guest or Registered)  
 **Preconditions:** The on-device ML model is loaded. At least one uncategorised transaction exists.  
@@ -352,23 +273,11 @@ The system requests camera permission only when this feature is first used. The 
 **TUCBW:** The user imports a bank statement or adds a transaction, triggering the analysis pipeline.  
 **TUCEW:** All new transactions are categorised and plain-language insights are surfaced on the dashboard.
 
-**Main Flow:**
 
-1. The system detects newly added or imported uncategorised transactions.
-2. The on-device ML model (TensorFlow Lite or ONNX Runtime) processes each transaction's description and amount to predict a category.
-3. The system assigns the predicted category and flags the transaction as ML-categorised.
-4. The system analyses the user's transaction history and identifies categories where spending has consistently exceeded the budget limit across at least two months.
-5. The system produces plain-language insight strings (e.g., "You have overspent on Dining Out for three consecutive months").
-6. Insights are stored and surfaced on the dashboard. No data leaves the device at any step.
-
-**Alternative Flows:**
-
-- *Low Confidence:* If the model's confidence falls below a defined threshold, the transaction is flagged for manual review and presented in a review queue.
-- *User Correction:* If the user overrides an ML-assigned category, the system records this as a labelled training example to improve future predictions.
 
 ---
 
-### UC-11: Anomaly Detection and Predictive Spending *(Wow Factor)*
+### UC-10: Anomaly Detection and Predictive Spending 
 
 **Actor:** User (Guest or Registered)  
 **Preconditions:** At least one full month of transaction history exists in the local database.  
@@ -377,22 +286,11 @@ The system requests camera permission only when this feature is first used. The 
 **TUCBW:** The analysis engine runs after a new transaction is added or a batch import is completed.  
 **TUCEW:** Anomalies are alerted to the user and a spending prediction with confidence range is displayed on the dashboard.
 
-**Main Flow:**
 
-1. The system retrieves historical transactions grouped by category and month.
-2. The system computes a rolling average spend per category per month.
-3. For each new transaction, the system compares its amount against the historical average for its category.
-4. If the amount exceeds the average by a statistically significant margin, the system generates an anomaly alert with a severity classification (LOW, MEDIUM, or HIGH) and surfaces it to the user with the transaction details.
-5. The user may mark a transaction as "expected" to exclude similar transactions from future anomaly scoring.
-6. The system uses historical trend data to compute a spending prediction for the remainder of the current month, displayed on the dashboard alongside a confidence range.
-
-**Alternative Flows:**
-
-- *Insufficient History:* If fewer than one full month of data is available, the prediction feature displays a message indicating the minimum data requirement. Anomaly detection still runs on available data using a best-effort average.
 
 ---
 
-### UC-12: Personal Financial Health Score *(Wow Factor)*
+### UC-11: Personal Financial Health Score 
 
 **Actor:** User (Guest or Registered)  
 **Preconditions:** At least one month of transaction data exists and at least one budget category is defined.  
@@ -401,17 +299,10 @@ The system requests camera permission only when this feature is first used. The 
 **TUCBW:** The user navigates to the "Financial Health" screen, or a new transaction triggers an analysis run.  
 **TUCEW:** An updated health score with plain-language insights is displayed to the user.
 
-**Main Flow:**
-
-1. The system computes the financial health score entirely on-device.
-2. The system evaluates four dimensions: income stability, budget adherence, spending trend direction, and anomaly frequency.
-3. The system produces a composite score from 0 (poor) to 100 (excellent) with plain-language explanations for each dimension.
-4. The score is saved locally and displayed on the dashboard with colour-coded feedback (red/amber/green banding) and the associated insights.
-5. No data is transmitted externally at any step.
 
 ---
 
-### UC-13: Authenticate Online with AWS Cognito *(Optional / Online)*
+### UC-12: Authenticate Online with AWS Cognito 
 
 **Actor:** Registered User  
 **Preconditions:** The device has internet connectivity. The user has not yet logged in.  
@@ -424,7 +315,7 @@ Registration and login are handled via the AWS Cognito SDK. On successful authen
 
 ---
 
-### UC-14: Synchronise Data Across Devices *(Optional / Online)*
+### UC-13: Synchronise Data Across Devices 
 
 **Actor:** Registered User  
 **Preconditions:** The user is logged in on at least two devices. Network connectivity is available.  
@@ -437,7 +328,7 @@ Changes made while offline are queued locally. When connectivity is restored, th
 
 ---
 
-### UC-15: Manage Friends List *(Optional / Online)*
+### UC-14: Manage Friends List 
 
 **Actor:** Registered User  
 **Preconditions:** The user is logged in and has network connectivity.  
@@ -450,7 +341,7 @@ Users search for others by email or username. No financial data is exposed throu
 
 ---
 
-### UC-16: Share and Track Goals with Friends *(Optional / Online)*
+### UC-15: Share and Track Goals with Friends 
 
 **Actor:** Registered User  
 **Preconditions:** The user is logged in, has network connectivity, and has at least one friend.  
@@ -463,109 +354,90 @@ The user defines a shared goal with a name, target amount, and optional end date
 
 ---
 
+### Use Case Diagrams
+
+![Alt text]()
+
+![Alt text]()
+![Alt text]()
+
 ## 5 Functional Requirements
 
-Requirements are assigned to the six subsystems defined in the system architecture: Presentation Layer, Application/Business Logic Layer, Local Data Layer, AI/Processing Layer, Sync Layer, and Online Services Layer.
+Requirements are assigned to the six subsystems as followed: 
 
 ---
 
-### Subsystem 1: Presentation Layer
+#### R1: Transaction Management
 
-Responsible for all user-facing screens, navigation, forms, data visualisations, and feedback messages.
+- **R1.1: Manual Transaction Entry**
+  - R1.1.1: The system shall allow a User to manually create a transaction with date, description, amount and category.
+  - R1.1.2: The system shall allow a User to edit or delete an existing transaction.
+- **R1.2: Transaction Retrieval**
+  - R1.2.1: The system shall allow a User to view all transactions, filterable by category, date range or keyword.
 
-| ID | Requirement |
-|---|---|
-| R-PR-01 | The system shall display a dashboard showing the current month's total income, total expenses, net balance, and per-category budget progress bars. |
-| R-PR-02 | The system shall render a spending distribution chart on the dashboard, at minimum a pie or donut chart broken down by category. |
-| R-PR-03 | The system shall allow the user to search and filter transactions by category, date range, and keyword, with results updating in real time as the user types. |
-| R-PR-04 | The system shall surface budget alerts (warning at 80% and exceeded at 100%) on the dashboard and in an in-app notifications panel. |
-| R-PR-05 | The system shall display the AI-generated financial health score alongside plain-language insights on the dashboard. |
-| R-PR-06 | The system shall display a predicted monthly spending total with a confidence range on the dashboard. |
-| R-PR-07 | The system shall support both light and dark themes, selectable by the user and persisted across sessions. |
-| R-PR-08 | The system shall provide clear feedback for all user actions — including transaction saves, import completions, and authentication events — via confirmations, progress indicators, and error messages. |
+#### R2: Budget Management
 
----
+- **R2.1: Budget Definition**
+  - R2.1.1: The system shall allow a User to define a monthly budget limit per category.
+  - R2.1.2: The system shall support both predefined and custom categories.
+- **R2.2: Budget Alerts**
+  - R2.2.1: The system shall notify a User when spending approaches or exceeds a defined budget limit.
 
-### Subsystem 2: Application / Business Logic Layer
+#### R3: Bank Statement Import & Classification
 
-Responsible for transaction management, budget calculations, alert generation, form validation, and recurring transaction logic.
+- **R3.1: Statement Upload**
+  - R3.1.1: The system shall allow a User to upload a bank statement in CSV or PDF format.
+- **R3.2: Auto-Classification**
+  - R3.2.1: The system shall automatically extract dates, descriptions and amounts from uploaded statements.
+  - R3.2.2: The system shall classify extracted transactions as income or expenses and assign categories.
 
-| ID | Requirement |
-|---|---|
-| R-BL-01 | The system shall allow a user to manually create a transaction specifying date, description, amount, category, and type (income or expense). |
-| R-BL-02 | The system shall allow a user to edit or delete any existing transaction. |
-| R-BL-03 | The system shall allow a user to define a monthly budget limit per category. |
-| R-BL-04 | The system shall support both predefined and custom categories. |
-| R-BL-05 | The system shall generate a budget warning alert when spending in a category reaches 80% of the defined limit. |
-| R-BL-06 | The system shall generate a budget exceeded alert when spending meets or exceeds the defined limit. |
-| R-BL-07 | The system shall validate all user inputs and surface descriptive error messages for invalid data before persisting any record. |
-| R-BL-08 | The system shall support recurring transactions with configurable frequency (daily, weekly, monthly) and an optional end date. |
-| R-BL-09 | The system shall automatically generate a transaction entry from a recurring template on each scheduled due date. |
+#### R4: Dashboard & Reporting
 
----
+- **R4.1: Financial Summary**
+  - R4.1.1: The system shall display a dashboard showing income totals, expense totals and budget summaries.
+  - R4.1.2: The system shall present financial summaries using charts and visual analytics.
 
-### Subsystem 3: Local Data Layer
+#### R5: On-Device AI
 
-Responsible for all persistent on-device data storage, encryption, device authentication, and local file management.
+- **R5.1: Spending Analysis**
+  - R5.1.1: The system shall use an on-device ML model (TensorFlow Lite or ONNX Runtime) to automatically categorise transactions.
+  - R5.1.2: The system shall detect spending categories where a User consistently overspends.
+- **R5.2: Anomaly Detection & Prediction**
+  - R5.2.1: The system shall detect unusual financial activity and sudden spending spikes.
+  - R5.2.2: The system shall predict future spending trends from historical transaction data.
+- **R5.3: Financial Health Score**
+  - R5.3.1: The system shall generate an AI-driven financial health score based on spending behaviour and income stability.
+  - R5.3.2: The system shall provide plain-language insights about financial habits, entirely on-device with no data leaving the phone.
 
-| ID | Requirement |
-|---|---|
-| R-DL-01 | The system shall store all financial data in an encrypted SQLite database (AES-256 via SQLCipher). |
-| R-DL-02 | The system shall require device-level authentication (PIN or biometrics) before granting access to the database. |
-| R-DL-03 | The system shall not write any financial data in plain text to device storage at any point. |
-| R-DL-04 | The system shall store uploaded bank statements in local file storage during processing and permanently delete all temporary files once import is complete. |
-| R-DL-05 | The system shall preserve all local data when the user switches between Guest Mode and Logged-in Mode. |
-| R-DL-06 | The system shall lock the application automatically after a configurable idle period, defaulting to five minutes. |
+#### R6: Online Authentication 
 
----
+- R6.1: The system shall allow a User to optionally register and log in using AWS Cognito.
+- R6.2: The system shall maintain a local session token; core features remain usable without online login.
+- R6.3: The system shall not require online authentication for any core (offline) feature.
 
-### Subsystem 4: AI / Processing Layer
+#### R7: Cross-Device Synchronisation 
 
-Responsible for on-device ML inference, bank statement parsing, transaction categorisation, anomaly detection, predictive spending analysis, and financial health scoring.
+- R7.1: The system shall, when a User is logged in online, synchronise transactions, budgets, and categories across multiple devices owned by the same User.
+- R7.2: The system shall resolve conflicts using a last-write-wins or user-prompted strategy.
+- R7.3: The system shall indicate sync status (syncing, success, failed, offline) within the app.
+- R7.4: The system shall queue local changes when offline and sync automatically when connectivity is restored.
 
-| ID | Requirement |
-|---|---|
-| R-AI-01 | The system shall parse uploaded bank statements in CSV and PDF format entirely on-device, extracting date, description, and amount for each transaction. |
-| R-AI-02 | The system shall classify each extracted transaction as income or expense and assign a category using an on-device ML model (TensorFlow Lite or ONNX Runtime). |
-| R-AI-03 | The system shall automatically categorise manually entered transactions where a category is not provided. |
-| R-AI-04 | The system shall detect categories where the user consistently overspends across at least two months and surface a plain-language insight. |
-| R-AI-05 | The system shall detect unusual financial activity by comparing each transaction's amount against the historical average for its category and flagging significant deviations as anomalies. |
-| R-AI-06 | The system shall predict future spending totals for the current month from historical transaction data and display the prediction with a confidence range. |
-| R-AI-07 | The system shall generate a financial health score from 0 to 100 based on income stability, budget adherence, spending trend, and anomaly frequency. |
-| R-AI-08 | All ML inference shall run entirely on-device; no financial data shall be sent to any external server for AI processing under any circumstances. |
+#### R8: Friends List Management 
 
----
+- R8.1: The system shall allow a logged-in User to send, accept, or decline friend requests.
+- R8.2: The system shall display a list of current friends.
+- R8.3: The system shall allow a User to remove a friend from their list.
+- R8.4: The system shall not expose any financial data through the friends list feature unless explicitly shared via goals (R9).
 
-### Subsystem 5: Sync Layer
+#### R9: Goal Sharing 
 
-Responsible for queuing offline actions, tracking synchronisation state, and resolving data conflicts. This subsystem is inactive in Guest Mode and must not interfere with offline functionality.
-
-| ID | Requirement |
-|---|---|
-| R-SY-01 | The system shall queue all create, update, and delete actions performed while offline into a local sync queue. |
-| R-SY-02 | The system shall automatically flush the sync queue to the remote backend when connectivity is restored. |
-| R-SY-03 | The system shall resolve conflicts between locally modified and remotely modified records using a last-write-wins strategy by default, with user-prompted resolution available for significant divergences. |
-| R-SY-04 | The system shall display the current synchronisation status at all times: Syncing, Up to date, Offline, or Error. |
-| R-SY-05 | If a synchronisation operation fails, the system shall leave local data unchanged and retry at the next available opportunity. |
-| R-SY-06 | The Sync Layer shall be fully inactive in Guest Mode and shall not consume background resources. |
+- R9.1: The system shall allow a logged-in User to create a shared savings or spending goal with one or more friends.
+- R9.2: The system shall allow participants to contribute progress toward the shared goal (e.g., amount saved).
+- R9.3: The system shall show each participant’s contribution and the combined progress.
+- R9.4: The system shall allow a User to leave a shared goal, with remaining participants notified.
+- R9.5: The system shall keep all shared goal data encrypted in transit and at rest on remote servers.
 
 ---
-
-### Subsystem 6: Online Services Layer
-
-Responsible for user authentication, cloud backup, cross-device sync backend communication, and social features. Available exclusively to authenticated users.
-
-| ID | Requirement |
-|---|---|
-| R-OS-01 | The system shall allow a user to optionally register and log in via AWS Cognito. |
-| R-OS-02 | The system shall store the Cognito session token in the device's secure storage and maintain the session across app restarts. |
-| R-OS-03 | The system shall not require online authentication for any core offline feature. |
-| R-OS-04 | The system shall allow a logged-in user to send, accept, and decline friend requests, identified by email or username only. |
-| R-OS-05 | The system shall allow a logged-in user to create a shared savings goal, define a target amount and optional end date, and invite friends as participants. |
-| R-OS-06 | The system shall allow goal participants to record individual contributions and view combined progress toward the goal's target. |
-| R-OS-07 | All data transmitted between the device and remote services shall be encrypted in transit using TLS 1.2 or higher. |
-| R-OS-08 | Shared goal data shall be stored on remote servers with access restricted to goal participants only. |
-
 ---
 
 ## 6 Quality Requirements
@@ -575,11 +447,8 @@ Responsible for user authentication, cloud backup, cross-device sync backend com
 | ID | Requirement | Quantified Measure |
 |---|---|---|
 | QR-P1 | The app shall reach the dashboard from a cold start. | ≤ 2 seconds on a Snapdragon 665-class device with 4 GB RAM |
-| QR-P2 | A transaction shall be saved and the dashboard updated after user confirmation. | ≤ 500 ms |
-| QR-P3 | The dashboard shall load all current-month summaries and charts on navigation. | ≤ 1 second |
-| QR-P4 | A bank statement of up to 500 rows shall be fully parsed, classified, and imported. | ≤ 30 seconds |
-| QR-P5 | The on-device AI analysis pipeline (categorisation, anomaly detection, and health score) shall complete after a batch import. | ≤ 10 seconds |
-| QR-P6 | Transaction search results shall update as the user types. | ≤ 300 ms per query |
+| QR-P2 | The dashboard shall load all current-month summaries and charts on navigation. | ≤ 1 second |
+| QR-P3 | Transaction search results shall update as the user types. | ≤ 300 ms per query |
 
 ---
 
@@ -590,8 +459,7 @@ Responsible for user authentication, cloud backup, cross-device sync backend com
 | QR-S1 | All financial data stored on the device shall be encrypted at rest. | AES-256 via SQLCipher; verified by attempting direct file access without the key |
 | QR-S2 | All data transmitted between the device and remote services shall be encrypted in transit. | TLS 1.2 minimum; verified by network interception tests |
 | QR-S3 | The application shall transmit zero financial data to external servers without explicit user consent. | 0 unauthorised outbound financial data requests; verified by network monitoring tests |
-| QR-S4 | The app shall lock after a period of user inactivity. | Configurable; default 5 minutes |
-| QR-S5 | Repeated failed authentication attempts shall result in a lockout. | App locks after 5 consecutive failures; 30-second timeout per lockout cycle |
+| QR-S4 | Repeated failed authentication attempts shall result in a lockout. | App locks after 5 consecutive failures; 30-second timeout per lockout cycle |
 
 ---
 

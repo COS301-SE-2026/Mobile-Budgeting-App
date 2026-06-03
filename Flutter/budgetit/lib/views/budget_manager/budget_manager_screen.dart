@@ -6,6 +6,9 @@ import '../../database/app_database.dart';
 import '../../database/schema.dart';
 import '../../utils/icon_mapper.dart';
 
+import 'package:provider/provider.dart'; 
+import '../../utils/theme_provider.dart'; //to themetesize 
+
 class BudgetManagerScreen extends StatefulWidget {
   final AppDatabase database;
 
@@ -58,7 +61,7 @@ class _BudgetCategoryOption {
 }
 
 class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
-  final MyColours colours = MyColours();
+  MyColours colours = MyColours(); //this aint to be final, so not final no more
 
   Future<List<_BudgetManagerItem>> _loadBudgetItems() async {
     final templates = await widget.database.budgetDao.getAllBudgetTemplates();
@@ -160,6 +163,8 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>();
+    colours = MyColours();
     return Scaffold(
       backgroundColor: colours.background,
 
@@ -409,7 +414,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     Text(
                       title,
                       style: TextStyle(
-                        color: colours.textPrimary,
+                        color: colours.cardText,
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
                       ),
@@ -417,7 +422,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     Text(
                       subtitle,
                       style: TextStyle(
-                        color: colours.textPrimary,
+                        color: colours.cardText,
                         fontSize: 10,
                       ),
                     ),
@@ -428,7 +433,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
               Text(
                 "R${spent.toInt()} / R${limit.toInt()}",
                 style: TextStyle(
-                  color: colours.secondary,
+                  color: colours.cardText,
                   fontSize: 12,
                   fontWeight: isOverLimit ? FontWeight.bold : FontWeight.normal,
                 ),
@@ -443,7 +448,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
             child: LinearProgressIndicator(
               value: progress > 1 ? 1 : progress,
               minHeight: 6,
-              backgroundColor: colours.secondary,
+              backgroundColor: colours.cardText,
               valueColor: AlwaysStoppedAnimation<Color>(progressColor),
             ),
           ),
