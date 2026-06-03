@@ -212,13 +212,10 @@ void main() {
       expect(bg, MyColours().background);
     });
 
-    testWidgets('pressing once toggles to selected state (secondary fill)', (
+    testWidgets('selected state uses secondary fill', (
       tester,
     ) async {
-      await tester.pumpWidget(_widget(MyBadge(text: 'Expenses')));
-      await tester.pump();
-
-      await tester.tap(find.byType(MyBadge));
+      await tester.pumpWidget(_widget(MyBadge(text: 'Expenses' , isSelected: true,)));
       await tester.pump();
 
       final container = tester.widget<Container>(
