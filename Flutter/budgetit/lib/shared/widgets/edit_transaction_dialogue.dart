@@ -8,7 +8,13 @@ class EditTransactionDialog extends StatefulWidget {
   final IconData icon;
   final String category;
   final List<String> categories;
-  final void Function(String name, double amount, IconData icon, String category) onSave;
+  final void Function(
+    String name,
+    double amount,
+    IconData icon,
+    String category,
+  )
+  onSave;
   final void Function()? onDelete;
 
   const EditTransactionDialog({
@@ -36,8 +42,9 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.name);
-    _amountController =
-        TextEditingController(text: widget.amount.toStringAsFixed(2));
+    _amountController = TextEditingController(
+      text: widget.amount.toStringAsFixed(2),
+    );
     _selectedCategory = widget.categories.contains(widget.category)
         ? widget.category
         : (widget.categories.isNotEmpty ? widget.categories.first : '');
@@ -52,11 +59,12 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
 
   void _save() {
     if (_formKey.currentState!.validate()) {
-      final newAmount = double.tryParse(_amountController.text) ?? widget.amount;
+      final newAmount =
+          double.tryParse(_amountController.text) ?? widget.amount;
       widget.onSave(
         _nameController.text.trim(),
         newAmount,
-        widget.icon, 
+        widget.icon,
         _selectedCategory,
       );
       Navigator.of(context).pop();
@@ -86,7 +94,6 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-            
               Row(
                 children: [
                   Icon(widget.icon, color: colours.secondary, size: 18),
@@ -104,8 +111,11 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
                   if (widget.onDelete != null)
                     IconButton(
                       onPressed: _confirmDelete,
-                      icon: const Icon(Icons.delete_outline,
-                          color: Colors.redAccent, size: 20),
+                      icon: const Icon(
+                        Icons.delete_outline,
+                        color: Colors.redAccent,
+                        size: 20,
+                      ),
                       tooltip: 'Delete',
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
@@ -113,7 +123,10 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
                 ],
               ),
               const SizedBox(height: 12),
-              Divider(color: colours.secondary.withValues(alpha: 0.35), height: 1),
+              Divider(
+                color: colours.secondary.withValues(alpha: 0.35),
+                height: 1,
+              ),
               const SizedBox(height: 16),
 
               _fieldLabel('Transaction Name', colours),
@@ -127,15 +140,15 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
               ),
               const SizedBox(height: 16),
 
-             
               _fieldLabel('Amount (R)', colours),
               const SizedBox(height: 6),
               TextFormField(
                 controller: _amountController,
                 style: TextStyle(color: colours.cardText, fontSize: 14),
                 decoration: _inputDecoration('0.00', colours),
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
                 ],
@@ -147,7 +160,6 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
               ),
               const SizedBox(height: 16),
 
-            
               if (widget.categories.isNotEmpty) ...[
                 _fieldLabel('Category', colours),
                 const SizedBox(height: 6),
@@ -164,15 +176,19 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
                       isExpanded: true,
                       dropdownColor: colours.navBarColor,
                       style: TextStyle(color: colours.cardText, fontSize: 14),
-                      icon: Icon(Icons.keyboard_arrow_down, color: colours.cardText),
+                      icon: Icon(
+                        Icons.keyboard_arrow_down,
+                        color: colours.cardText,
+                      ),
                       items: widget.categories
-                          .map((cat) => DropdownMenuItem(
-                                value: cat,
-                                child: Text(cat),
-                              ))
+                          .map(
+                            (cat) =>
+                                DropdownMenuItem(value: cat, child: Text(cat)),
+                          )
                           .toList(),
                       onChanged: (val) {
-                        if (val != null) setState(() => _selectedCategory = val);
+                        if (val != null)
+                          setState(() => _selectedCategory = val);
                       },
                     ),
                   ),
@@ -180,14 +196,15 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
                 const SizedBox(height: 24),
               ],
 
-              
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: Text('Cancel',
-                        style: TextStyle(color: colours.secondary)),
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(color: colours.secondary),
+                    ),
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton(
@@ -196,12 +213,17 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
                       backgroundColor: colours.secondary,
                       foregroundColor: colours.background,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 10),
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
                     ),
-                    child: const Text('Save',
-                        style: TextStyle(fontWeight: FontWeight.w600)),
+                    child: const Text(
+                      'Save',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
                   ),
                 ],
               ),
@@ -214,13 +236,13 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
 }
 
 Widget _fieldLabel(String text, MyColours colours) => Text(
-      text,
-      style: TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
-        color: colours.secondary,
-      ),
-    );
+  text,
+  style: TextStyle(
+    fontSize: 12,
+    fontWeight: FontWeight.w500,
+    color: colours.secondary,
+  ),
+);
 
 InputDecoration _inputDecoration(String hint, MyColours colours) =>
     InputDecoration(

@@ -6,7 +6,12 @@ class MyBadge extends StatefulWidget {
   final bool isSelected;
   final VoidCallback? onTap;
 
-  const MyBadge({super.key, this.text = '', this.isSelected = false, this.onTap});
+  const MyBadge({
+    super.key,
+    this.text = '',
+    this.isSelected = false,
+    this.onTap,
+  });
 
   @override
   State<MyBadge> createState() => _MyBadgeState();
@@ -34,10 +39,7 @@ class _MyBadgeState extends State<MyBadge> {
         decoration: BoxDecoration(
           shape: BoxShape.rectangle,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: MyColours().secondary,
-            width: 1.5,
-          ),
+          border: Border.all(color: MyColours().secondary, width: 1.5),
           color: isActive ? MyColours().secondary : MyColours().background,
         ),
         child: Row(

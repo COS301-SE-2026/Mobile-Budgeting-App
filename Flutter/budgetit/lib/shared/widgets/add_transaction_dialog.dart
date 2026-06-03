@@ -24,8 +24,18 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
   bool _saving = false;
 
   static const _months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
   ];
 
   @override
@@ -97,7 +107,10 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                 ),
               ),
               const SizedBox(height: 12),
-              Divider(color: colours.secondary.withValues(alpha: 0.35), height: 1),
+              Divider(
+                color: colours.secondary.withValues(alpha: 0.35),
+                height: 1,
+              ),
               const SizedBox(height: 16),
 
               // Type toggle
@@ -106,7 +119,8 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                   _TypeButton(
                     label: 'Expense',
                     selected: _type == TransactionType.expense,
-                    onTap: () => setState(() => _type = TransactionType.expense),
+                    onTap: () =>
+                        setState(() => _type = TransactionType.expense),
                     colours: colours,
                   ),
                   const SizedBox(width: 8),
@@ -126,8 +140,9 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                 controller: _descController,
                 style: TextStyle(color: colours.cardText, fontSize: 14),
                 decoration: _inputDecoration('e.g. Grocery run', colours),
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Description is required' : null,
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? 'Description is required'
+                    : null,
               ),
               const SizedBox(height: 16),
 
@@ -137,14 +152,17 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                 controller: _amountController,
                 style: TextStyle(color: colours.cardText, fontSize: 14),
                 decoration: _inputDecoration('0.00', colours),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
                 ],
                 validator: (v) {
                   if (v == null || v.isEmpty) return 'Amount is required';
                   final parsed = double.tryParse(v);
-                  if (parsed == null || parsed <= 0) return 'Enter a valid amount';
+                  if (parsed == null || parsed <= 0)
+                    return 'Enter a valid amount';
                   return null;
                 },
               ),
@@ -155,7 +173,10 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
               GestureDetector(
                 onTap: _pickDate,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: colours.primary,
                     borderRadius: BorderRadius.circular(8),
@@ -163,8 +184,11 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.calendar_today_outlined,
-                          size: 14, color: colours.cardText),
+                      Icon(
+                        Icons.calendar_today_outlined,
+                        size: 14,
+                        color: colours.cardText,
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         dateLabel,
@@ -180,9 +204,13 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: _saving ? null : () => Navigator.of(context).pop(),
-                    child: Text('Cancel',
-                        style: TextStyle(color: colours.secondary)),
+                    onPressed: _saving
+                        ? null
+                        : () => Navigator.of(context).pop(),
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(color: colours.secondary),
+                    ),
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton(
@@ -191,19 +219,26 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                       backgroundColor: colours.secondary,
                       foregroundColor: colours.background,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 10),
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
                     ),
                     child: _saving
                         ? SizedBox(
                             width: 16,
                             height: 16,
                             child: CircularProgressIndicator(
-                                color: colours.background, strokeWidth: 2),
+                              color: colours.background,
+                              strokeWidth: 2,
+                            ),
                           )
-                        : const Text('Add',
-                            style: TextStyle(fontWeight: FontWeight.w600)),
+                        : const Text(
+                            'Add',
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
                   ),
                 ],
               ),
@@ -256,23 +291,21 @@ class _TypeButton extends StatelessWidget {
 }
 
 Widget _fieldLabel(String text, MyColours colours) => Text(
-      text,
-      style: TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
-        color: colours.secondary,
-      ),
-    );
+  text,
+  style: TextStyle(
+    fontSize: 12,
+    fontWeight: FontWeight.w500,
+    color: colours.secondary,
+  ),
+);
 
 InputDecoration _inputDecoration(String hint, MyColours colours) =>
     InputDecoration(
       hintText: hint,
-      hintStyle:
-          TextStyle(color: MyColours().cardText.withValues(alpha: 0.5)),
+      hintStyle: TextStyle(color: MyColours().cardText.withValues(alpha: 0.5)),
       filled: true,
       fillColor: colours.primary,
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(color: colours.secondary, width: 1),

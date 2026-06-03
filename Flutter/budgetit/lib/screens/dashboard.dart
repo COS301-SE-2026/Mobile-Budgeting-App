@@ -26,9 +26,9 @@ class _DashboardState extends State<Dashboard> {
   String? loadError;
   double dailySpending = 0;
   double monthlySpending = 0;
-  List<MonthData> dashboardMonths = [];//for the monthy chart data
+  List<MonthData> dashboardMonths = []; //for the monthy chart data
   List<SpendingCategory> spendingCategories = [];
-  List<Transaction> recentTransactions = [];//stores what ever is spent recent
+  List<Transaction> recentTransactions = []; //stores what ever is spent recent
 
   @override
   void initState() {
@@ -43,7 +43,7 @@ class _DashboardState extends State<Dashboard> {
         color: MyColours().tertiary.withValues(alpha: 0.35),
       ),
     ];
-    _loadDashboardData();//must load the dashy data bro
+    _loadDashboardData(); //must load the dashy data bro
   }
 
   @override
@@ -475,7 +475,7 @@ class _DashboardState extends State<Dashboard> {
                 if (isLoading)
                   LinearProgressIndicator(
                     color: colours.secondary,
-                    backgroundColor: colours.primary,//loading bar colour
+                    backgroundColor: colours.primary, //loading bar colour
                   ),
 
                 if (loadError != null)

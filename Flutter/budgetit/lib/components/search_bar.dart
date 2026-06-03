@@ -2,44 +2,29 @@ import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
 
 class SearchBar extends StatelessWidget {
-
   const SearchBar({super.key});
 
   @override
   Widget build(BuildContext context) {
-
     final colours = MyColours();
 
     return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
 
-      margin: const EdgeInsets.symmetric(
-        horizontal: 20,
-      ),
-
-      padding: const EdgeInsets.symmetric(
-        horizontal: 15,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 15),
 
       height: 55,
 
       decoration: BoxDecoration(
-
         color: colours.secondary,
 
-        borderRadius:
-            BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(15),
 
-        border: Border.all(
-          color: colours.background
-              .withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: colours.background.withValues(alpha: 0.2)),
 
         boxShadow: [
-
           BoxShadow(
-            color: Colors.black.withValues(
-              alpha: 0.15,
-            ),
+            color: Colors.black.withValues(alpha: 0.15),
 
             blurRadius: 10,
 
@@ -49,13 +34,8 @@ class SearchBar extends StatelessWidget {
       ),
 
       child: Row(
-
         children: [
-
-          Icon(
-            Icons.search,
-            color: colours.background,
-          ),
+          Icon(Icons.search, color: colours.background),
 
           const SizedBox(width: 10),
 
@@ -63,11 +43,9 @@ class SearchBar extends StatelessWidget {
             "Search transactions...",
 
             style: TextStyle(
-              color: colours.background
-                  .withValues(alpha: 0.7),
+              color: colours.background.withValues(alpha: 0.7),
 
-              fontSize:
-                  colours.bodyFontSize,
+              fontSize: colours.bodyFontSize,
             ),
           ),
         ],

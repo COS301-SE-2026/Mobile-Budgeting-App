@@ -58,7 +58,10 @@ class ProfilePage extends StatelessWidget {
               // Identity line — email for logged-in users, guest label otherwise
               if (auth.isLoggedIn && auth.currentUser != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: colours.secondary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(20),
@@ -174,17 +177,13 @@ class ProfilePage extends StatelessWidget {
                 label: Text(
                   'Log Out',
                   style: TextStyle(
-                    color: auth.isLoading
-                        ? _red.withValues(alpha: 0.5)
-                        : _red,
+                    color: auth.isLoading ? _red.withValues(alpha: 0.5) : _red,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(
-                    color: auth.isLoading
-                        ? _red.withValues(alpha: 0.4)
-                        : _red,
+                    color: auth.isLoading ? _red.withValues(alpha: 0.4) : _red,
                   ),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 22,

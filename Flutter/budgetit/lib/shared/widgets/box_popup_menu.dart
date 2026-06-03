@@ -4,10 +4,7 @@ import 'package:budgetit/utils/app_colour.dart';
 enum BoxMenuAction { edit, delete, details }
 
 class BoxPopupMenu extends StatelessWidget {
-  const BoxPopupMenu({
-    super.key,
-    required this.onSelected,
-  });
+  const BoxPopupMenu({super.key, required this.onSelected});
 
   final void Function(BoxMenuAction action) onSelected;
 
@@ -15,29 +12,18 @@ class BoxPopupMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return PopupMenuButton<BoxMenuAction>(
       onSelected: onSelected,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       color: MyColours().secondary,
       elevation: 6,
-      icon: Icon(
-        Icons.more_vert,
-        color: MyColours().background,
-      ),
+      icon: Icon(Icons.more_vert, color: MyColours().background),
       itemBuilder: (context) => [
         PopupMenuItem(
           value: BoxMenuAction.details,
-          child: _MenuRow(
-            icon: Icons.info_outline,
-            label: 'View Details',
-          ),
+          child: _MenuRow(icon: Icons.info_outline, label: 'View Details'),
         ),
         PopupMenuItem(
           value: BoxMenuAction.edit,
-          child: _MenuRow(
-            icon: Icons.edit_outlined,
-            label: 'Edit',
-          ),
+          child: _MenuRow(icon: Icons.edit_outlined, label: 'Edit'),
         ),
         const PopupMenuDivider(),
         PopupMenuItem(
@@ -71,13 +57,7 @@ class _MenuRow extends StatelessWidget {
       children: [
         Icon(icon, size: 18, color: color),
         const SizedBox(width: 10),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            color: color,
-          ),
-        ),
+        Text(label, style: TextStyle(fontSize: 14, color: color)),
       ],
     );
   }

@@ -33,7 +33,10 @@ abstract class AuthService {
   Future<AppAuthResult> signOut();
   Future<AppAuthResult> resetPassword(String email);
   Future<AppAuthResult> confirmResetPassword(
-      String email, String newPassword, String code);
+    String email,
+    String newPassword,
+    String code,
+  );
   Future<AppAuthUser?> getCurrentUser();
 }
 
@@ -60,7 +63,9 @@ class MockAuthService implements AuthService {
         );
       }
       return const AppAuthResult(
-          success: false, errorMessage: 'An account with this email already exists.');
+        success: false,
+        errorMessage: 'An account with this email already exists.',
+      );
     }
     _users[email] = password;
     return const AppAuthResult(success: true);
@@ -74,7 +79,9 @@ class MockAuthService implements AuthService {
       return const AppAuthResult(success: true);
     }
     return const AppAuthResult(
-        success: false, errorMessage: 'Invalid verification code.');
+      success: false,
+      errorMessage: 'Invalid verification code.',
+    );
   }
 
   @override
@@ -82,7 +89,9 @@ class MockAuthService implements AuthService {
     await Future.delayed(const Duration(milliseconds: 500));
     if (!_users.containsKey(email)) {
       return const AppAuthResult(
-          success: false, errorMessage: 'No account found with this email.');
+        success: false,
+        errorMessage: 'No account found with this email.',
+      );
     }
     return const AppAuthResult(success: true);
   }
@@ -92,11 +101,15 @@ class MockAuthService implements AuthService {
     await Future.delayed(const Duration(seconds: 1));
     if (!_users.containsKey(email)) {
       return const AppAuthResult(
-          success: false, errorMessage: 'No account found with this email.');
+        success: false,
+        errorMessage: 'No account found with this email.',
+      );
     }
     if (_users[email] != password) {
       return const AppAuthResult(
-          success: false, errorMessage: 'Incorrect password.');
+        success: false,
+        errorMessage: 'Incorrect password.',
+      );
     }
     if (!_confirmedUsers.contains(email)) {
       return const AppAuthResult(
@@ -121,21 +134,28 @@ class MockAuthService implements AuthService {
     await Future.delayed(const Duration(seconds: 1));
     if (!_users.containsKey(email)) {
       return const AppAuthResult(
-          success: false, errorMessage: 'No account found with this email.');
+        success: false,
+        errorMessage: 'No account found with this email.',
+      );
     }
     return const AppAuthResult(success: true);
   }
 
-    @override
-    Future<AppAuthResult> confirmResetPassword(
-      String email, String newPassword, String code) async {
+  @override
+  Future<AppAuthResult> confirmResetPassword(
+    String email,
+    String newPassword,
+    String code,
+  ) async {
     await Future.delayed(const Duration(seconds: 1));
     if (code.length == 6) {
       _users[email] = newPassword;
       return const AppAuthResult(success: true);
     }
     return const AppAuthResult(
-        success: false, errorMessage: 'Invalid reset code.');
+      success: false,
+      errorMessage: 'Invalid reset code.',
+    );
   }
 
   @override

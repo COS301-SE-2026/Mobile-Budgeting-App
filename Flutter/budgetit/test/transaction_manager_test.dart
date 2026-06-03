@@ -35,33 +35,34 @@ Future<void> _openEditDialog(
   void Function(String, double, IconData, String)? onSave,
   VoidCallback? onDelete,
 }) async {
-  await tester.pumpWidget(MaterialApp(
-    home: Builder(
-      builder: (ctx) => TextButton(
-        onPressed: () => showDialog(
-          context: ctx,
-          builder: (_) => EditTransactionDialog(
-            name: name,
-            amount: amount,
-            icon: Icons.coffee,
-            category: category,
-            categories: categories,
-            onSave: onSave ?? (n, a, i, c) {},
-            onDelete: onDelete,
+  await tester.pumpWidget(
+    MaterialApp(
+      home: Builder(
+        builder: (ctx) => TextButton(
+          onPressed: () => showDialog(
+            context: ctx,
+            builder: (_) => EditTransactionDialog(
+              name: name,
+              amount: amount,
+              icon: Icons.coffee,
+              category: category,
+              categories: categories,
+              onSave: onSave ?? (n, a, i, c) {},
+              onDelete: onDelete,
+            ),
           ),
+          child: const Text('Open'),
         ),
-        child: const Text('Open'),
       ),
     ),
-  ));
+  );
   await tester.tap(find.text('Open'));
   await tester.pumpAndSettle();
 }
 
 void main() {
-  
   // TransactionManager — full screen
-  
+
   group('TransactionManager', () {
     testWidgets('renders without error', (tester) async {
       _usePhoneSize(tester);
@@ -78,7 +79,9 @@ void main() {
       expect(tf.decoration?.hintText, 'Search for Transaction');
     });
 
-    testWidgets('shows All, Income, and Expenses filter badges', (tester) async {
+    testWidgets('shows All, Income, and Expenses filter badges', (
+      tester,
+    ) async {
       _usePhoneSize(tester);
       await tester.pumpWidget(_screen(const TransactionManager()));
       await tester.pump();
@@ -102,8 +105,9 @@ void main() {
       expect(find.text('18 May 2026'), findsOneWidget);
     });
 
-    testWidgets('shows Water, Electricity, and Groceries transactions',
-        (tester) async {
+    testWidgets('shows Water, Electricity, and Groceries transactions', (
+      tester,
+    ) async {
       _usePhoneSize(tester);
       await tester.pumpWidget(_screen(const TransactionManager()));
       await tester.pump();
@@ -120,34 +124,32 @@ void main() {
     });
   });
 
-  
   // SearchBox
-  
+
   group('SearchBox', () {
     testWidgets('shows hint text when not focused', (tester) async {
-      await tester.pumpWidget(_widget(SearchBox(
-        hintText: 'Search for Transaction',
-        onChanged: (_) {},
-      )));
+      await tester.pumpWidget(
+        _widget(
+          SearchBox(hintText: 'Search for Transaction', onChanged: (_) {}),
+        ),
+      );
       await tester.pump();
       final tf = tester.widget<TextField>(find.byType(TextField));
       expect(tf.decoration?.hintText, 'Search for Transaction');
     });
 
     testWidgets('shows search icon when not focused', (tester) async {
-      await tester.pumpWidget(_widget(SearchBox(
-        hintText: 'Search',
-        onChanged: (_) {},
-      )));
+      await tester.pumpWidget(
+        _widget(SearchBox(hintText: 'Search', onChanged: (_) {})),
+      );
       await tester.pump();
       expect(find.byIcon(Icons.search), findsOneWidget);
     });
 
     testWidgets('hides hint text and search icon when focused', (tester) async {
-      await tester.pumpWidget(_widget(SearchBox(
-        hintText: 'Search',
-        onChanged: (_) {},
-      )));
+      await tester.pumpWidget(
+        _widget(SearchBox(hintText: 'Search', onChanged: (_) {})),
+      );
       await tester.pump();
 
       await tester.tap(find.byType(TextField));
@@ -160,10 +162,11 @@ void main() {
 
     testWidgets('onChanged fires with entered text', (tester) async {
       String? captured;
-      await tester.pumpWidget(_widget(SearchBox(
-        hintText: 'Search',
-        onChanged: (val) => captured = val,
-      )));
+      await tester.pumpWidget(
+        _widget(
+          SearchBox(hintText: 'Search', onChanged: (val) => captured = val),
+        ),
+      );
       await tester.pump();
 
       await tester.enterText(find.byType(TextField), 'coffee');
@@ -171,9 +174,8 @@ void main() {
     });
   });
 
-  
   // MyBadge
-  
+
   group('MyBadge', () {
     testWidgets('shows the provided text', (tester) async {
       await tester.pumpWidget(_widget(MyBadge(text: 'All')));
@@ -181,23 +183,27 @@ void main() {
       expect(find.text('All'), findsOneWidget);
     });
 
-    testWidgets('starts in unselected state (primary fill colour)',
-        (tester) async {
+    testWidgets('starts in unselected state (primary fill colour)', (
+      tester,
+    ) async {
       await tester.pumpWidget(_widget(MyBadge(text: 'Income')));
       await tester.pump();
 
       final container = tester.widget<Container>(
-        find.descendant(
-          of: find.byType(MyBadge),
-          matching: find.byType(Container),
-        ).first,
+        find
+            .descendant(
+              of: find.byType(MyBadge),
+              matching: find.byType(Container),
+            )
+            .first,
       );
       final bg = (container.decoration as BoxDecoration).color;
       expect(bg, MyColours().primary);
     });
 
-    testWidgets('pressing once toggles to selected state (secondary fill)',
-        (tester) async {
+    testWidgets('pressing once toggles to selected state (secondary fill)', (
+      tester,
+    ) async {
       await tester.pumpWidget(_widget(MyBadge(text: 'Expenses')));
       await tester.pump();
 
@@ -205,17 +211,20 @@ void main() {
       await tester.pump();
 
       final container = tester.widget<Container>(
-        find.descendant(
-          of: find.byType(MyBadge),
-          matching: find.byType(Container),
-        ).first,
+        find
+            .descendant(
+              of: find.byType(MyBadge),
+              matching: find.byType(Container),
+            )
+            .first,
       );
       final bg = (container.decoration as BoxDecoration).color;
       expect(bg, MyColours().secondary);
     });
 
-    testWidgets('pressing twice returns to unselected state (primary fill)',
-        (tester) async {
+    testWidgets('pressing twice returns to unselected state (primary fill)', (
+      tester,
+    ) async {
       await tester.pumpWidget(_widget(MyBadge(text: 'All')));
       await tester.pump();
 
@@ -225,19 +234,20 @@ void main() {
       await tester.pump();
 
       final container = tester.widget<Container>(
-        find.descendant(
-          of: find.byType(MyBadge),
-          matching: find.byType(Container),
-        ).first,
+        find
+            .descendant(
+              of: find.byType(MyBadge),
+              matching: find.byType(Container),
+            )
+            .first,
       );
       final bg = (container.decoration as BoxDecoration).color;
       expect(bg, MyColours().primary);
     });
   });
 
-  
   // MyBox
-  
+
   group('MyBox', () {
     Widget makeBox({
       String text = 'Coffee',
@@ -246,16 +256,17 @@ void main() {
       List<String> categories = const ['Food', 'Transport'],
       void Function(String, double, IconData, String)? onEdited,
       VoidCallback? onDelete,
-    }) =>
-        _widget(MyBox(
-          text: text,
-          amount: amount,
-          icon: Icons.coffee,
-          category: category,
-          categories: categories,
-          onEdited: onEdited ?? (n, a, i, c) {},
-          onDelete: onDelete ?? () {},
-        ));
+    }) => _widget(
+      MyBox(
+        text: text,
+        amount: amount,
+        icon: Icons.coffee,
+        category: category,
+        categories: categories,
+        onEdited: onEdited ?? (n, a, i, c) {},
+        onDelete: onDelete ?? () {},
+      ),
+    );
 
     testWidgets('shows transaction name', (tester) async {
       _usePhoneSize(tester);
@@ -321,8 +332,9 @@ void main() {
       expect(find.text('Tea'), findsNothing);
     });
 
-    testWidgets('delete button in dialog triggers onDelete callback',
-        (tester) async {
+    testWidgets('delete button in dialog triggers onDelete callback', (
+      tester,
+    ) async {
       _usePhoneSize(tester);
       bool deleted = false;
       await tester.pumpWidget(makeBox(onDelete: () => deleted = true));
@@ -338,9 +350,8 @@ void main() {
     });
   });
 
-  
   // EditTransactionDialog
-  
+
   group('EditTransactionDialog', () {
     testWidgets('shows Edit Transaction title', (tester) async {
       await _openEditDialog(tester);
@@ -349,28 +360,35 @@ void main() {
 
     testWidgets('pre-fills name field with provided name', (tester) async {
       await _openEditDialog(tester, name: 'Coffee');
-      final nameField =
-          tester.widget<TextFormField>(find.byType(TextFormField).first);
+      final nameField = tester.widget<TextFormField>(
+        find.byType(TextFormField).first,
+      );
       expect(nameField.controller?.text, 'Coffee');
     });
 
     testWidgets('pre-fills amount field with provided amount', (tester) async {
       await _openEditDialog(tester, amount: 12.50);
-      final amountField =
-          tester.widget<TextFormField>(find.byType(TextFormField).at(1));
+      final amountField = tester.widget<TextFormField>(
+        find.byType(TextFormField).at(1),
+      );
       expect(amountField.controller?.text, '12.50');
     });
 
-    testWidgets('shows category dropdown when categories are provided',
-        (tester) async {
+    testWidgets('shows category dropdown when categories are provided', (
+      tester,
+    ) async {
       await _openEditDialog(
-          tester, categories: ['Food', 'Transport'], category: 'Food');
+        tester,
+        categories: ['Food', 'Transport'],
+        category: 'Food',
+      );
       expect(find.byType(DropdownButton<String>), findsOneWidget);
       expect(find.text('Category'), findsOneWidget);
     });
 
-    testWidgets('shows no dropdown when categories list is empty',
-        (tester) async {
+    testWidgets('shows no dropdown when categories list is empty', (
+      tester,
+    ) async {
       await _openEditDialog(tester, categories: []);
       expect(find.byType(DropdownButton<String>), findsNothing);
     });
@@ -383,17 +401,21 @@ void main() {
       expect(find.text('Name is required'), findsOneWidget);
     });
 
-    testWidgets('amount field rejects non-numeric input via formatter',
-        (tester) async {
+    testWidgets('amount field rejects non-numeric input via formatter', (
+      tester,
+    ) async {
       await _openEditDialog(tester, amount: 5.50);
       await tester.enterText(find.byType(TextFormField).at(1), 'abc');
       await tester.pump();
-      final field =
-          tester.widget<TextFormField>(find.byType(TextFormField).at(1));
+      final field = tester.widget<TextFormField>(
+        find.byType(TextFormField).at(1),
+      );
       expect(field.controller?.text, isNot('abc'));
     });
 
-    testWidgets('empty amount fails validation and shows error', (tester) async {
+    testWidgets('empty amount fails validation and shows error', (
+      tester,
+    ) async {
       await _openEditDialog(tester);
       await tester.enterText(find.byType(TextFormField).at(1), '');
       await tester.tap(find.text('Save'));
@@ -410,7 +432,9 @@ void main() {
       expect(saved, isFalse);
     });
 
-    testWidgets('save calls onSave with correct name and amount', (tester) async {
+    testWidgets('save calls onSave with correct name and amount', (
+      tester,
+    ) async {
       String? capturedName;
       double? capturedAmount;
 
@@ -443,9 +467,8 @@ void main() {
     });
   });
 
-  
   // FABMenu
-  
+
   group('FABMenu', () {
     testWidgets('shows Add Transaction option', (tester) async {
       await tester.pumpWidget(_widget(const FABMenu()));
