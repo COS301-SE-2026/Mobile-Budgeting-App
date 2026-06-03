@@ -14,7 +14,7 @@ def inject_coverage_badges(
     with open(readme_path, "r") as f:
         content = f.read()
 
-    for metric in ["lines", "branches", "functions", "calls"]:
+    for metric in ["lines", "branches", "functions"]:
         badge_content = badge_data.get(metric)
         if badge_content is not None:
             marker = f"shieldcn-coverage-{metric}"
@@ -24,8 +24,8 @@ def inject_coverage_badges(
             replacement = rf'<span id="{marker}-start"></span>{badge_content}<span id="{marker}-end"></span>'
             content = re.sub(pattern, replacement, content, flags=re.DOTALL)
 
-        with open(readme_path, "w") as f:
-            f.write(content)
+    with open(readme_path, "w") as f:
+        f.write(content)
 
 
 if __name__ == "__main__":

@@ -36,7 +36,6 @@ if __name__ == "__main__":
     parser.add_argument("--lines", required=True, type=float)
     parser.add_argument("--branches", required=True, type=float)
     parser.add_argument("--functions", required=True, type=float)
-    parser.add_argument("--calls", required=True, type=float)
 
     args = parser.parse_args()
 
@@ -44,7 +43,6 @@ if __name__ == "__main__":
         "lines": generate_coverage_badge("Lines", args.lines),
         "branches": generate_coverage_badge("Branches", args.branches),
         "functions": generate_coverage_badge("Functions", args.functions),
-        "calls": generate_coverage_badge("Calls", args.calls),
     }
 
     with open("/tmp/coverage_badges.json", "w") as f:
