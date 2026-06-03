@@ -30,3 +30,28 @@ Transaction transactionFixture({
     currency: currency,
   );
 }
+
+Category categoryFixture({
+  String id = 'cat-1',
+  String name = 'General',
+  CategoryType type = CategoryType.expense,
+  String? icon,
+  String? color,
+  bool isDefault = false,
+  DateTime? createdAt,
+  DateTime? updatedAt,
+  DateTime? deletedAt,
+}) {
+  final now = DateTime(2026, 5, 18);
+  return Category(
+    id: id,
+    name: name,
+    type: type,
+    icon: icon,
+    color: color,
+    isDefault: isDefault,
+    createdAt: createdAt ?? now,
+    updatedAt: updatedAt ?? now,
+    deletedAt: deletedAt,
+  );
+}
