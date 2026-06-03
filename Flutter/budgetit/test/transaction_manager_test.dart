@@ -194,7 +194,7 @@ void main() {
       expect(find.text('All'), findsOneWidget);
     });
 
-    testWidgets('starts in unselected state (primary fill colour)', (
+    testWidgets('starts in unselected state (background fill colour)', (
       tester,
     ) async {
       await tester.pumpWidget(_widget(MyBadge(text: 'Income')));
@@ -209,7 +209,7 @@ void main() {
             .first,
       );
       final bg = (container.decoration as BoxDecoration).color;
-      expect(bg, MyColours().primary);
+      expect(bg, MyColours().background);
     });
 
     testWidgets('pressing once toggles to selected state (secondary fill)', (
