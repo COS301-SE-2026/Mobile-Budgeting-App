@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 import argparse
+import os
 import re
 import sys
+import tempfile
 from pathlib import Path
 
 LINES_HIT_PATTERN = r"^LH:(\d+)"
@@ -65,7 +67,11 @@ if __name__ == "__main__":
         default=70.0,
     )
 
-    parser.add_argument("--output", type=Path, default=Path("/tmp/coverage_output"))
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path(os.path.join(tempfile.gettempdir(), "coverage_output")),
+    )
 
     parser.add_argument("--quiet", action="store_true", default=False)
 

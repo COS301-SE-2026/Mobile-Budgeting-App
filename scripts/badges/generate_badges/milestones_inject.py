@@ -1,9 +1,14 @@
 import argparse
 import json
+import os
 import re
+import tempfile
 
 
-def inject_milestone_badges(readme_path: str, badge_path: str, num_demos: int = 4):
+def inject_milestone_badges(readme_path: str, badge_path: str = "", num_demos: int = 4):
+    if badge_path == "":
+        badge_path = os.path.join(tempfile.gettempdir(), "demo_badges.json")
+
     with open(badge_path, "r") as f:
         milestone_badges = json.load(f)
 
@@ -30,9 +35,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--readme-path", required=False, type=str, default="../../../README.md"
     )
-    parser.add_argument(
-        "--badge-path", required=False, type=str, default="/tmp/demo_badges.json"
-    )
+    parser.add_argument("--badge-path", required=False, type=str, default="")
     parser.add_argument("--num-demos", required=False, type=int, default=4)
     args = parser.parse_args()
     inject_milestone_badges(args.readme_path, args.badge_path, args.num_demos)

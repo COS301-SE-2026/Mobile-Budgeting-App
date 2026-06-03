@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import tempfile
 
 FORMAT = r"png"
 
@@ -45,5 +46,5 @@ if __name__ == "__main__":
         "functions": generate_coverage_badge("Functions", args.functions),
     }
 
-    with open("/tmp/coverage_badges.json", "w") as f:
-        json.dump(badges, f)
+    file = tempfile.TemporaryFile(dir="/tmp/coverage_badges.json", mode="w")
+    json.dump(badges, file)

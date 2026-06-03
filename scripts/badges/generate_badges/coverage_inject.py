@@ -2,12 +2,15 @@
 
 import argparse
 import json
+import os
 import re
+import tempfile
 
 
-def inject_coverage_badges(
-    readme_path: str, badge_path: str = "/tmp/coverage_badges.json"
-):
+def inject_coverage_badges(readme_path: str, badge_path: str = ""):
+    if badge_path == "":
+        badge_path = os.path.join(tempfile.gettempdir(), "coverage_badges.json")
+
     with open(badge_path, "r") as f:
         badge_data = json.load(f)
 
@@ -31,8 +34,6 @@ def inject_coverage_badges(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--readme-path", required=False, type=str, default="README.md")
-    parser.add_argument(
-        "--badge-path", required=False, type=str, default="/tmp/coverage_badges.json"
-    )
+    parser.add_argument("--badge-path", required=False, type=str, default="")
     args = parser.parse_args()
     inject_coverage_badges(args.readme_path, args.badge_path)

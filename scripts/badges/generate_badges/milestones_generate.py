@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import os
+import tempfile
 
 FORMAT = r"png"
 
@@ -22,7 +24,7 @@ def generateMilestoneBadge(demo_num: int, percent: float) -> str:
     color = None
     icon = None
     message = None
-    if percent == 0.0:
+    if percent <= 0.0:
         color = NOT_STARTED_COLOR
         icon = NOT_STARTED_ICON
         message = r"Not%20Started"
@@ -57,5 +59,7 @@ if __name__ == "__main__":
     if args.demo4_percent is not None:
         demo_badges["Demo4"] = generateMilestoneBadge(4, args.demo4_percent)
 
-    with open("/tmp/demo_badges.json", "w") as f:
+    badge_path = os.path.join(tempfile.gettempdir(), "demo_badges.json")
+
+    with open(badge_path, "w") as f:
         json.dump(demo_badges, f)
