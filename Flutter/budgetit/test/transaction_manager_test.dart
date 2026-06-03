@@ -1,6 +1,6 @@
+import 'package:budgetit/database/app_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:budgetit/shared/widgets/badge.dart';
 import 'package:budgetit/shared/widgets/box.dart';
 import 'package:budgetit/shared/widgets/edit_transaction_dialogue.dart';
@@ -8,24 +8,23 @@ import 'package:budgetit/shared/widgets/searchbox.dart';
 import 'package:budgetit/shared/widgets/transac_menu.dart';
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:budgetit/views/transaction_manager/transaction.manager.dart';
+import 'package:mockito/mockito.dart';
 
-// Full-screen widget (already has Scaffold)
-Widget _screen(Widget child) => MaterialApp(home: child);
+import 'support/fixtures.dart';
+import 'support/mock_db.dart';
 
-// Component widget (needs Scaffold wrapper)
-Widget _widget(Widget child) => MaterialApp(home: Scaffold(body: child));
+late MockDb _mock;
 
-// MyBox uses height * 0.07 and MyBadge uses maxWidth * 0.25.
-// Flutter test uses the Ahem font where each glyph is fontSize×fontSize px,
-// so "Expenses" (8 chars, 16 px) = 128 px — wider than 25 % of 800 px (200 px ok).
-// 800×1200 gives: MyBadge maxWidth=200px > 128px ✓, MyBox height=84px ✓.
+Widget _screen(Widget child) => wrapWithProviders(child, db: _mock.db);
+
+Widget _widget(Widget child) => wrapWithTheme(child);
+
 void _usePhoneSize(WidgetTester tester) {
   tester.view.physicalSize = const Size(800, 1200);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.resetPhysicalSize);
 }
 
-// Opens an EditTransactionDialog via showDialog and settles animations.
 Future<void> _openEditDialog(
   WidgetTester tester, {
   String name = 'Coffee',
@@ -61,9 +60,21 @@ Future<void> _openEditDialog(
 }
 
 void main() {
-  // TransactionManager — full screen
-
   group('TransactionManager', () {
+    setUp(() {
+      _mock = MockDb();
+      final transactions = [
+        transactionFixture(id: 't1', shortDescription: 'Water'),
+        transactionFixture(id: 't2', shortDescription: 'Electricity'),
+        transactionFixture(id: 't3', shortDescription: 'Groceries'),
+      ];
+      when(
+        _mock.transactionDao.getAllTransactions(),
+      ).thenAnswer((_) async => transactions);
+      when(
+        _mock.transactionDao.getTransactionsByType(any),
+      ).thenAnswer((_) async => transactions);
+    });
     testWidgets('renders without error', (tester) async {
       _usePhoneSize(tester);
       await tester.pumpWidget(_screen(const TransactionManager()));
