@@ -6,6 +6,8 @@ import sys
 import tempfile
 from pathlib import Path
 
+from safe_path import validate_path
+
 LINES_HIT_PATTERN = r"^LH:(\d+)"
 LINES_FOUND_PATTERN = r"^LF:(\d+)"
 
@@ -80,13 +82,13 @@ if __name__ == "__main__":
     if "COVERAGE_THRESHOLD" in os.environ:
         args.threshold = float(os.environ["COVERAGE_THRESHOLD"])
 
-    if not args.lcov_file.is_file():
-        print(
-            f"::error::Could not find coverage file: {args.lcov_file}", file=sys.stderr
-        )
+    try:
+        lcov_path = validate_path(args.lcov_file, [Path.cwd()], must_exist=True)
+    except (ValueError, FileNotFoundError) as e:
+        print(f"::error::{e}", file=sys.stderr)
         sys.exit(1)
 
-    metrics = parse_lcov(args.lcov_file)
+    metrics = parse_lcov(lcov_path)
 
     if not args.quiet:
         print("Coverage Report:")
@@ -94,7 +96,18 @@ if __name__ == "__main__":
         print(f"-Branches: {metrics['branches']:.1f}%")
         print(f"-Functions: {metrics['functions']:.1f}%")
 
-    write_output(metrics, args.output)
+    output_path = validate_path(
+        args.output,
+        [
+            tempfile.gettempdir(),
+            os.environ.get("RUNNER_TEMP"),
+            Path(os.environ["GITHUB_OUTPUT"]).parent
+            if os.environ.get("GITHUB_OUTPUT")
+            else None,
+            Path.cwd(),
+        ],
+    )
+    write_output(metrics, output_path)
 
     if metrics["lines"] < args.threshold:
         print(

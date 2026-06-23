@@ -2,7 +2,12 @@
 import argparse
 import json
 import os
+import sys
 import tempfile
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from safe_path import validate_path
 
 FORMAT = r"png"
 
@@ -47,6 +52,9 @@ if __name__ == "__main__":
         "functions": generate_coverage_badge("Functions", args.functions),
     }
 
-    file_path = os.path.join(tempfile.gettempdir(), "coverage_badges.json")
+    file_path = validate_path(
+        os.path.join(tempfile.gettempdir(), "coverage_badges.json"),
+        [tempfile.gettempdir()],
+    )
     with open(file_path, "w") as file:
         json.dump(badges, file)

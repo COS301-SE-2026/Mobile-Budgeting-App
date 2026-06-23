@@ -2,7 +2,12 @@
 import argparse
 import json
 import os
+import sys
 import tempfile
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from safe_path import validate_path  
 
 FORMAT = r"png"
 
@@ -59,7 +64,10 @@ if __name__ == "__main__":
     if args.demo4_percent is not None:
         demo_badges["Demo4"] = generate_milestone_badge(4, args.demo4_percent)
 
-    badge_path = os.path.join(tempfile.gettempdir(), "demo_badges.json")
+    badge_path = validate_path(
+        os.path.join(tempfile.gettempdir(), "demo_badges.json"),
+        [tempfile.gettempdir()],
+    )
 
     with open(badge_path, "w") as f:
         json.dump(demo_badges, f)
