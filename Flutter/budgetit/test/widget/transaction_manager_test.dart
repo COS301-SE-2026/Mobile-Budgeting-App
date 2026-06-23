@@ -9,8 +9,8 @@ import 'package:budgetit/utils/app_colour.dart';
 import 'package:budgetit/views/transaction_manager/transaction.manager.dart';
 import 'package:mockito/mockito.dart';
 
-import 'support/fixtures.dart';
-import 'support/mock_db.dart';
+import '../support/fixtures.dart';
+import '../support/mock_db.dart';
 
 late MockDb _mock;
 

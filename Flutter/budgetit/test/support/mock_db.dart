@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:budgetit/database/app_database.dart';
 import 'package:budgetit/utils/theme_provider.dart';
 
-import '../database/mock_daos.mocks.dart';
+import '../unit/database/mock_daos.mocks.dart';
 
 class MockDb {
   MockDb()

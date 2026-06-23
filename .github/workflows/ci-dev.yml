@@ -36,7 +36,7 @@ jobs:
         working-directory: Flutter/budgetit
         run: |
           has() { grep -rqlE 'testWidgets|test\(' "$1" 2>/dev/null && echo true || echo false; }
-          echo "has_integration_tests=$(has integration_test)" >> "$GITHUB_OUTPUT"
+          echo "has_integration_tests=$(has test/integration)" >> "$GITHUB_OUTPUT"
 
   flutter-ci:
     name: Flutter CI
@@ -69,7 +69,7 @@ jobs:
       - name: Unit tests
         working-directory: Flutter/budgetit
         run: |
-          flutter test --coverage $(find test -name '*_test.dart' -not -path 'test/golden/*' -not -path 'test/performance/*')
+          flutter test --coverage $(find test -name '*_test.dart' -not -path 'test/golden/*' -not -path 'test/performance/*' -not -path 'test/integration/*')
 
       - name: Coverage gate
         id: coverage
@@ -132,4 +132,4 @@ jobs:
       - uses: ./.github/actions/flutter-setup
       - name: Integration Tests
         working-directory: Flutter/budgetit
-        run: flutter test integration_test/
+        run: flutter test test/integration/

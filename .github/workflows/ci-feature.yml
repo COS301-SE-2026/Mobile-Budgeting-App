@@ -66,4 +66,4 @@ jobs:
       - name: Unit Tests
         working-directory: Flutter/budgetit
         continue-on-error: true
-        run: flutter test $(find test -name '*_test.dart' -not -path 'test/golden/*' -not -path 'test/performance/*')
+        run: flutter test $(find test -name '*_test.dart' -not -path 'test/golden/*' -not -path 'test/performance/*' -not -path 'test/integration/*')

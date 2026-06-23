@@ -13,8 +13,8 @@ import 'package:budgetit/database/schema.dart';
 import 'package:mockito/mockito.dart';
 import 'package:budgetit/components/spending_chart.dart';
 
-import 'support/fixtures.dart';
-import 'support/mock_db.dart';
+import '../support/fixtures.dart';
+import '../support/mock_db.dart';
 
 late MockDb _dashMock;
 
