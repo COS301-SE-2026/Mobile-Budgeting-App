@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'issues' || github.event_name == 'workflow_dispatch'
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
       - name: Get Demo 1 milestone data
         uses: Beakyn/gha-get-milestone-data@c331e461afb56bfc633dbef30fbe39528abe29da
