@@ -78,7 +78,7 @@ jobs:
 
       - name: Run build_runner
         working-directory: Flutter/budgetit
-        run: dart run build_runner build --delete-conflicting-outputs --build-filter="lib/**.dart"
+        run: dart run build_runner build --delete-conflicting-outputs --build-filter="lib/**.dart" --build-filter="test/**.dart"
 
       - name: Formatting Check
         working-directory: Flutter/budgetit
