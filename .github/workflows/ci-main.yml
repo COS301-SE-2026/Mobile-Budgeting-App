@@ -130,7 +130,18 @@ jobs:
 
   dependency-audit:
     name: Dependency Security Audit
+    needs: flutter-ci
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
     uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@9a498708959aeaef5ef730655706c5a1df1edbc2
+    with:
+      upload-sarif: false
+      scan-args: |-
+        -r
+        --skip-git
+        ./Flutter/budgetit
 
   golden-tests:
     name: Golden Tests
