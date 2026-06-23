@@ -33,37 +33,51 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}}
 
-  detect:
-    name: Detect unimplemented integration tests
+  flutter-ci:
+    name: Flutter CI
     runs-on: ubuntu-latest
     outputs:
-      has_integration_tests: ${{ steps.detect-tests.has_integration_tests}}
+      coverage_lines: ${{ steps.coverage.outputs.lines }}
+      coverage_branches: ${{ steps.coverage.outputs.branches }}
+      coverage_functions: ${{ steps.coverage.outputs.functions }}
+      has_integration_tests: ${{ steps.detect-tests.outputs.has_integration_tests }}
+      has_sonar: ${{ steps.check-sonar.outputs.has_sonar }}
 
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
-      - id: detect-tests
+
+      - name: Detect unimplemented integration tests
+        id: detect-tests
         working-directory: Flutter/budgetit
         run: |
           has() { grep -rqlE 'testWidgets|test\(' "$1" 2>/dev/null && echo true || echo false; }
           echo "has_integration_tests=$(has test/integration)" >> "$GITHUB_OUTPUT"
 
-  flutter-ci:
-    name: Flutter CI
-    runs-on: ubuntu-latest
-    needs: secret-scan
-    outputs:
-      coverage_lines: ${{ steps.coverage.outputs.lines }}
-      coverage_branches: ${{ steps.coverage.outputs.branches }}
-      coverage_functions: ${{ steps.coverage.outputs.functions }}
-
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - name: Check SonarCloud secrets
+        id: check-sonar
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          if [ -n "$SONAR_TOKEN" ]; then
+            echo "has_sonar=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_sonar=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - uses: ./.github/actions/flutter-setup
 
+      - name: Cache build_runner outputs
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8
+        with:
+          path: Flutter/budgetit/.dart_tool/build
+          key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart') }}
+          restore-keys: |
+            build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-
+            build-runner-${{ runner.os }}-
+
       - name: Dart Build Runner
         working-directory: Flutter/budgetit
-        run: dart run build_runner build --delete-conflicting-outputs
+        run: dart run build_runner build --delete-conflicting-outputs --build-filter="lib/**.dart"
 
       - name: Dart Format
         working-directory: Flutter/budgetit
@@ -78,7 +92,7 @@ jobs:
       - name: Unit tests
         working-directory: Flutter/budgetit
         run: |
-          flutter test --coverage $(find test -name '*_test.dart' -not -path 'test/golden/*' -not -path 'test/performance/*' -not -path 'test/integration/*')
+          flutter test --coverage --concurrency=4 $(find test -name '*_test.dart' -not -path 'test/golden/*' -not -path 'test/performance/*' -not -path 'test/integration/*')
 
       - name: Coverage gate
         id: coverage
@@ -91,27 +105,11 @@ jobs:
           name: coverage-report
           path: Flutter/budgetit/coverage/lcov.info
 
-  check-secrets:
-    name: Check Secrets
-    runs-on: ubuntu-latest
-    outputs:
-      has_sonar: ${{ steps.check.outputs.has_sonar }}
-    steps:
-      - id: check
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          if [ -n "$SONAR_TOKEN" ]; then
-            echo "has_sonar=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "has_sonar=false" >> "$GITHUB_OUTPUT"
-          fi
-
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
-    needs: [flutter-ci, check-secrets]
-    if: needs.check-secrets.outputs.has_sonar == "true"
+    needs: flutter-ci
+    if: needs.flutter-ci.outputs.has_sonar == 'true'
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
@@ -133,8 +131,8 @@ jobs:
   integration-tests:
     name: Integration Tests
     runs-on: ubuntu-latest
-    needs: [flutter-ci, detect]
-    if: needs.detect.outputs.has_integration_tests == 'true'
+    needs: flutter-ci
+    if: needs.flutter-ci.outputs.has_integration_tests == 'true'
     continue-on-error: false
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
