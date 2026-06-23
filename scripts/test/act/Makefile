@@ -10,7 +10,7 @@ ACT_FLAGS = --artifact-server-path=$(ARTIFACTS_DIR) --cache-server-path=$(CACHE_
 
 SECRET_SCAN_FLAGS := --env GITLEAKS_ENABLE_UPLOAD_ARTIFACT=false
 
-ME = $(whoami)
+ME = $(shell whoami)
 
 setup-event:
 	@echo "Creating GH event payload ..."
@@ -38,8 +38,8 @@ flutter-ci: setup-event
 sonarcloud: setup-event
 	act -j sonarcloud -W $(WORKFLOW) -s GITHUB_TOKEN="$(GITHUB_TOKEN)" --eventpath $(ACT_EVENT_FILE) $(ACT_FLAGS) $(SECRET_SCAN_FLAGS)
 
-dependancy-audit: setup-event
-	act -j dependancy-audit -W $(WORKFLOW) -s GITHUB_TOKEN="$(GITHUB_TOKEN)" --eventpath $(ACT_EVENT_FILE) $(ACT_FLAGS) $(SECRET_SCAN_FLAGS)
+dependency-audit: setup-event
+	act -j dependency-audit -W $(WORKFLOW) -s GITHUB_TOKEN="$(GITHUB_TOKEN)" --eventpath $(ACT_EVENT_FILE) $(ACT_FLAGS) $(SECRET_SCAN_FLAGS)
 
 apk-build: setup-event
 	act -j apk-build -W $(WORKFLOW) -s GITHUB_TOKEN="$(GITHUB_TOKEN)" --eventpath $(ACT_EVENT_FILE) $(ACT_FLAGS) $(SECRET_SCAN_FLAGS)
@@ -47,8 +47,8 @@ apk-build: setup-event
 update-badges: setup-event
 	act -j update-badges -W $(WORKFLOW) -s GITHUB_TOKEN="$(GITHUB_TOKEN)" --eventpath $(ACT_EVENT_FILE) $(ACT_FLAGS) $(SECRET_SCAN_FLAGS)
 
-golden-test: setup-event
-	act -j golden-test -W $(WORKFLOW) -s GITHUB_TOKEN="$(GITHUB_TOKEN)" --eventpath $(ACT_EVENT_FILE) $(ACT_FLAGS) $(SECRET_SCAN_FLAGS)
+golden-tests: setup-event
+	act -j golden-tests -W $(WORKFLOW) -s GITHUB_TOKEN="$(GITHUB_TOKEN)" --eventpath $(ACT_EVENT_FILE) $(ACT_FLAGS) $(SECRET_SCAN_FLAGS)
 
 perf-benchmarks: setup-event
 	act -j perf-benchmarks -W $(WORKFLOW) -s GITHUB_TOKEN="$(GITHUB_TOKEN)" --eventpath $(ACT_EVENT_FILE) $(ACT_FLAGS) $(SECRET_SCAN_FLAGS)
