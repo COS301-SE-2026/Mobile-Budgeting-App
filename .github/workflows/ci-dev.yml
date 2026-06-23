@@ -68,7 +68,7 @@ jobs:
       - name: Unit tests
         working-directory: Flutter/budgetit
         run: |
-          flutter test --coverage $(find test -name '*_test.dart' -not -path 'test/golden/*' -not -path 'test/performance/*'
+          flutter test --coverage $(find test -name '*_test.dart' -not -path 'test/golden/*' -not -path 'test/performance/*')
 
       - name: Coverage gate
         id: coverage
@@ -89,7 +89,7 @@ jobs:
     steps:
       - id: check
         env:
-          SONAR_TOEN: $${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           if [ -n "$SONAR_TOKEN" ]; then
             echo "has_sonar=true" >> "$GITHUB_OUTPUT"
