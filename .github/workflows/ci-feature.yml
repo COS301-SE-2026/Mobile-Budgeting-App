@@ -4,9 +4,15 @@ on:
   push:
     branches:
       - "feature/**"
+    paths-ignore:
+      - "Flutter/budgetit/**/*.g.dart"
+      - "Flutter/budgetit/**/*.freezed.dart"
   pull_request:
     branches:
       - "feature/**"
+    paths-ignore:
+      - "Flutter/budgetit/**/*.g.dart"
+      - "Flutter/budgetit/**/*.freezed.dart"
 
 jobs:
   secret-scan:
