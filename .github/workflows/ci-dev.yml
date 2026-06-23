@@ -5,10 +5,20 @@ on:
     branches:
       - dev
       - newdev
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - "Flutter/budgetit/**/*.g.dart"
+      - "Flutter/budgetit/**/*.freezed.dart"
   pull_request:
     branches:
       - dev
       - newdev
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - "Flutter/budgetit/**/*.g.dart"
+      - "Flutter/budgetit/**/*.freezed.dart"
 
 jobs:
   secret-scan:
