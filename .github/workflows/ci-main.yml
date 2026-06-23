@@ -4,9 +4,19 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - "Flutter/budgetit/**/*.g.dart"
+      - "Flutter/budgetit/**/*.freezed.dart"
   pull_request:
     branches:
       - main
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - "Flutter/budgetit/**/*.g.dart"
+      - "Flutter/budgetit/**/*.freezed.dart"
 
 jobs:
   secret-scan:
@@ -21,17 +31,22 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}}
 
-  detect:
-    name: Detect Unimplmeneted Test Suites
+  flutter-ci:
+    name: Flutter CI
     runs-on: ubuntu-latest
-    needs: secret-scan
     outputs:
-      has_golden: ${{ steps.f.outputs.has_golden }}
-      has_perf: ${{ steps.f.outputs.has_perf }}
-      has_integ: ${{ steps.f.outputs.has_integ }}
+      coverage_lines: ${{ steps.coverage.outputs.lines }}
+      coverage_branches: ${{ steps.coverage.outputs.branches }}
+      coverage_functions: ${{ steps.coverage.outputs.functions }}
+      has_golden: ${{ steps.detect-tests.outputs.has_golden }}
+      has_perf: ${{ steps.detect-tests.outputs.has_perf }}
+      has_integ: ${{ steps.detect-tests.outputs.has_integ }}
+      has_sonar: ${{ steps.check-sonar.outputs.has_sonar }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
-      - id: f
+
+      - name: Detect unimplemented test suites
+        id: detect-tests
         working-directory: Flutter/budgetit
         run: |
           has() { grep -rqlE 'testWidgets|test\(' "$1" 2>/dev/null && echo true || echo false; }
@@ -39,22 +54,31 @@ jobs:
           echo "has_perf=$(has test/performance)" >> "$GITHUB_OUTPUT"
           echo "has_integ=$(has test/integration)" >> "$GITHUB_OUTPUT"
 
-  flutter-ci:
-    name: Flutter CI
-    runs-on: ubuntu-latest
-    needs: secret-scan
-    outputs:
-      coverage_lines: ${{ steps.coverage.outputs.lines }}
-      coverage_branches: ${{ steps.coverage.outputs.branches }}
-      coverage_functions: ${{ steps.coverage.outputs.functions }}
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - name: Check SonarCloud secrets
+        id: check-sonar
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          if [ -n "$SONAR_TOKEN" ]; then
+            echo "has_sonar=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_sonar=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - uses: ./.github/actions/flutter-setup
 
+      - name: Cache build_runner outputs
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8
+        with:
+          path: Flutter/budgetit/.dart_tool/build
+          key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart') }}
+          restore-keys: |
+            build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-
+            build-runner-${{ runner.os }}-
+
       - name: Run build_runner
         working-directory: Flutter/budgetit
-        run: dart run build_runner build --delete-conflicting-outputs
+        run: dart run build_runner build --delete-conflicting-outputs --build-filter="lib/**.dart"
 
       - name: Formatting Check
         working-directory: Flutter/budgetit
@@ -67,7 +91,7 @@ jobs:
       - name: Unit Tests (with coverage)
         working-directory: Flutter/budgetit
         run: |
-          flutter test --coverage $(find test -name '*_test.dart' -not -path 'test/golden/*' -not -path 'test/performance/*' -not -path 'test/integration/*')
+          flutter test --coverage --concurrency=4 $(find test -name '*_test.dart' -not -path 'test/golden/*' -not -path 'test/performance/*' -not -path 'test/integration/*')
 
       - name: Coverage Gate (70%)
         working-directory: Flutter/budgetit
@@ -82,27 +106,11 @@ jobs:
           path: Flutter/budgetit/coverage/lcov.info
           retention-days: 7
 
-  check-secrets:
-    name: Check Secrets
-    runs-on: ubuntu-latest
-    outputs:
-      has_sonar: ${{ steps.check.outputs.has_sonar }}
-    steps:
-      - id: check
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          if [ -n "$SONAR_TOKEN" ]; then
-            echo "has_sonar=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "has_sonar=false" >> "$GITHUB_OUTPUT"
-          fi
-
   sonarcloud:
     name: SonarCloud Analysis
     runs-on: ubuntu-latest
-    needs: [flutter-ci, check-secrets]
-    if: needs.check-secrets.outputs.has_sonar == 'true'
+    needs: flutter-ci
+    if: needs.flutter-ci.outputs.has_sonar == 'true'
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
@@ -122,14 +130,13 @@ jobs:
 
   dependency-audit:
     name: Dependency Security Audit
-    needs: flutter-ci
     uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@9a498708959aeaef5ef730655706c5a1df1edbc2
 
   golden-tests:
     name: Golden Tests
     runs-on: ubuntu-latest
-    needs: [flutter-ci, detect]
-    if: needs.detect.outputs.has_golden == 'true'
+    needs: flutter-ci
+    if: needs.flutter-ci.outputs.has_golden == 'true'
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
       - uses: ./.github/actions/flutter-setup
@@ -140,8 +147,8 @@ jobs:
   perf-benchmarks:
     name: Performance Benchmarks
     runs-on: ubuntu-latest
-    needs: [flutter-ci, detect]
-    if: needs.detect.outputs.has_perf == 'true'
+    needs: flutter-ci
+    if: needs.flutter-ci.outputs.has_perf == 'true'
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
       - uses: ./.github/actions/flutter-setup
@@ -152,8 +159,8 @@ jobs:
   integration-tests:
     name: Integration Tests
     runs-on: ubuntu-latest
-    needs: [flutter-ci, detect]
-    if: needs.detect.outputs.has_integ == 'true'
+    needs: flutter-ci
+    if: needs.flutter-ci.outputs.has_integ == 'true'
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
       - uses: ./.github/actions/flutter-setup
@@ -164,7 +171,7 @@ jobs:
   apk-build:
     name: Build APK
     runs-on: ubuntu-latest
-    needs: [flutter-ci]
+    needs: flutter-ci
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
