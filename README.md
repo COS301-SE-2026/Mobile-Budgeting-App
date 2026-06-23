@@ -62,8 +62,8 @@
 
 | Branch | Status |
 | --------------- | --------------- | 
-| **Main**            | ![ci status](https://shieldcn.dev/github/ci/COS301-SE-2026/Mobile-Budgeting-App.svg?workflow=ci.yml&branch=main&variant=secondary)    |
-| **Dev**             | ![ci status](https://shieldcn.dev/github/ci/COS301-SE-2026/Mobile-Budgeting-App.svg?workflow=ci.yml&branch=newdev&variant=secondary)  |
+| **Main**            | ![ci status](https://shieldcn.dev/github/ci/COS301-SE-2026/Mobile-Budgeting-App.svg?workflow=ci-main.yml&branch=main&variant=secondary)    |
+| **Dev**             | ![ci status](https://shieldcn.dev/github/ci/COS301-SE-2026/Mobile-Budgeting-App.svg?workflow=ci-dev.yml&branch=newdev&variant=secondary)  |
 
 ---
 
