@@ -1,4 +1,3 @@
-pubspec.lock
 Flutter/budgetit/linux/*
 Flutter/budgetit/build/*
 Flutter/budgetit/macos/*
@@ -7,7 +6,6 @@ Flutter/budgetit/android/*
 Flutter/budgetit/web/*
 
 
-Flutter/budgetit/pubspec.lock
 
 scripts/test/act/artifacts/
 scripts/test/act/cache/
