@@ -110,7 +110,7 @@ class TransactionTile extends StatelessWidget {
                               .withValues(
                                 alpha: 0.15,
                               )
-                          : colours.tertiary
+                          : colours.informational
                               .withValues(
                                 alpha: 0.15,
                               ),
@@ -127,7 +127,7 @@ class TransactionTile extends StatelessWidget {
                   color:
                       isExpense
                           ? Colors.redAccent
-                          : colours.tertiary,
+                          : colours.informational,
                 ),
               ),
 
@@ -198,7 +198,7 @@ class TransactionTile extends StatelessWidget {
                               ? Colors
                                   .redAccent
                               : colours
-                                  .tertiary,
+                                  .informational,
                     ),
                   ),
 
@@ -221,7 +221,7 @@ class TransactionTile extends StatelessWidget {
                                         0.85,
                                   )
                               : colours
-                                  .tertiary
+                                  .informational
                                   .withValues(
                                     alpha:
                                         0.8,

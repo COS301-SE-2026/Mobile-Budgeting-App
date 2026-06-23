@@ -328,9 +328,9 @@ class _MonthlyTrendWidgetState
                                         color:
                                             isSelected
                                                 ? colours
-                                                    .tertiary
+                                                    .informational
                                                 : colours
-                                                    .tertiary
+                                                    .informational
                                                     .withValues(
                                                       alpha:
                                                           0.5,
@@ -347,7 +347,7 @@ class _MonthlyTrendWidgetState
                                                     BoxShadow(
                                                       color:
                                                           colours
-                                                              .tertiary,
+                                                              .informational,
                                                       blurRadius:
                                                           12,
                                                       spreadRadius:

@@ -40,7 +40,7 @@ class _DashboardState extends State<Dashboard> {
       SpendingCategory(
         label: 'No spending',
         percentage: 100, //it should fill the whole chart
-        color: MyColours().tertiary.withValues(alpha: 0.35),
+        color: MyColours().informational.withValues(alpha: 0.35),
       ),
     ];
     _loadDashboardData();//must load the dashy data bro
@@ -200,7 +200,7 @@ class _DashboardState extends State<Dashboard> {
     }
 
     final palette = [
-      colours.tertiary,
+      colours.informational,
       colours.secondary,
       colours.primary,
       Colors.redAccent,
@@ -484,7 +484,7 @@ class _DashboardState extends State<Dashboard> {
                     child: Text(
                       'Could not load dashboard data.',
                       style: TextStyle(
-                        color: colours.redColor,
+                        color: colours.error,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -534,7 +534,7 @@ class _DashboardState extends State<Dashboard> {
 
                         icon: Icons.trending_down_rounded,
 
-                        accentColor: colours.tertiary,
+                        accentColor: colours.error,
 
                         severity: InsightSeverity.tip,
                       ),
@@ -546,7 +546,7 @@ class _DashboardState extends State<Dashboard> {
 
                         icon: Icons.movie_rounded,
 
-                        accentColor: colours.redColor,
+                        accentColor: colours.error,
 
                         severity: InsightSeverity.warning,
                       ),

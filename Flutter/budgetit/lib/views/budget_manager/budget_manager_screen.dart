@@ -374,7 +374,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: colours.redColor,
+                  color: colours.error,
                   borderRadius: BorderRadius.circular(2),
                 ),
                 child: Text(
@@ -613,7 +613,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                             ..showSnackBar(
                               SnackBar(
                                 behavior: SnackBarBehavior.floating,
-                                backgroundColor: colours.redColor,
+                                backgroundColor: colours.error,
                                 margin: const EdgeInsets.symmetric(
                                   horizontal: 18,
                                   vertical: 16,

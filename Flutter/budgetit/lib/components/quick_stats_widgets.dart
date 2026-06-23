@@ -139,7 +139,7 @@ class QuickStatsWidget extends StatelessWidget {
 
                             valueColor:
                                 AlwaysStoppedAnimation(
-                                  colours.tertiary,
+                                  colours.informational,
                                 ),
                           ),
                     ),
@@ -208,7 +208,7 @@ class QuickStatsWidget extends StatelessWidget {
                     const SizedBox(height: 18),
 
                     _CategoryRow(
-                      color: colours.tertiary,
+                      color: colours.informational,
                       title: "Dining",
                       percentage: "25%",
                     ),

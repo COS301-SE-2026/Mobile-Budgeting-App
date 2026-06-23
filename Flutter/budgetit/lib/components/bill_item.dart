@@ -71,7 +71,7 @@ class BillItem extends StatelessWidget {
 
               size: 30,
 
-              color: colours.tertiary,
+              color: colours.informational,
             ),
           ),
 

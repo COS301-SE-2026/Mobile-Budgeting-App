@@ -305,9 +305,9 @@ class _SeverityBadge
 
       InsightSeverity.tip => (
           'Tip',
-          colours.tertiary
+          colours.informational
               .withValues(alpha: 0.15),
-          colours.tertiary,
+          colours.informational,
         ),
 
       InsightSeverity.warning => (
@@ -380,7 +380,7 @@ class _NavButton
         height: 28,
 
         decoration: BoxDecoration(
-          color: colours.tertiary
+          color: colours.informational
               .withValues(alpha: 0.15),
 
           borderRadius:

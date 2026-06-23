@@ -79,7 +79,7 @@ class GoalCard extends StatelessWidget {
 
               Icon(
                 Icons.flag,
-                color: colours.tertiary,
+                color: colours.informational,
               ),
             ],
           ),
@@ -99,7 +99,7 @@ class GoalCard extends StatelessWidget {
                     alpha: 0.2,
                   ),
 
-              color: colours.tertiary,
+              color: colours.informational,
             ),
           ),
 

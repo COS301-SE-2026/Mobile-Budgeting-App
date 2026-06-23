@@ -51,7 +51,7 @@ class _FABState extends State<FAB> {
         height: MediaQuery.of(context).size.height * 0.07,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: _pressed ? MyColours().tertiary : MyColours().secondary,
+          color: _pressed ? MyColours().informational : MyColours().secondary,
           shape: BoxShape.rectangle,
         ),
         child: Align(
