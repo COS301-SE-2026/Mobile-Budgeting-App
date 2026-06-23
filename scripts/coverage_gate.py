@@ -77,6 +77,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    if "COVERAGE_THRESHOLD" in os.environ:
+        args.threshold = float(os.environ["COVERAGE_THRESHOLD"])
+
     if not args.lcov_file.is_file():
         print(
             f"::error::Could not find coverage file: {args.lcov_file}", file=sys.stderr
