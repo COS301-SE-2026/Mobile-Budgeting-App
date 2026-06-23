@@ -64,8 +64,8 @@ jobs:
           for i in range(1, 5):
               data = json.loads(os.environ[f'DATA{i}'])
               closed_issues = data['closed_issues']
-              total = closes_issues + data['open_issues']
-              print(f'DEMO{i}_PCT={0.0 if total == 0 else closed_issues / total_issues}')
+              total = closed_issues + data['open_issues']
+              print(f'DEMO{i}_PCT={0.0 if total == 0 else closed_issues / total}')
           " >> $GITHUB_ENV
 
       - name: Generate and inject badges
