@@ -91,7 +91,7 @@ jobs:
     steps:
       - id: check
         env:
-          SONAR_TOKEN: $${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           if [ -n "$SONAR_TOKEN" ]; then
             echo "has_sonar=true" >> "$GITHUB_OUTPUT"
