@@ -6,7 +6,7 @@ CACHE_DIR := $(CURDIR)/act/cache
 
 GITHUB_TOKEN := $(shell gh auth token)
 
-ACT_FLAGS = --artifact-server-path=$(ARTIFACTS_DIR) --cache-server-path=$(CACHE_DIR)
+ACT_FLAGS = --artifact-server-path=$(ARTIFACTS_DIR) --cache-server-path=$(CACHE_DIR) --verbose
 
 SECRET_SCAN_FLAGS := --env GITLEAKS_ENABLE_UPLOAD_ARTIFACT=false
 
