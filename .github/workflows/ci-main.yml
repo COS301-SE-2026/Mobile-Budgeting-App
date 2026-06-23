@@ -124,7 +124,7 @@ jobs:
           path: Flutter/budgetit/coverage
 
       - name: SonarCloud scan
-        uses: SonarSource/sonarqube-scan-action@713881670b6b36c6da39549040e2d88c70d582e
+        uses: SonarSource/sonarqube-scan-action@713881670b6b3676cda39549040e2d88c70d582e
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
