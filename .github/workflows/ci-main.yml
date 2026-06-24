@@ -205,7 +205,7 @@ jobs:
 
       - name: Build release APK
         working-directory: Flutter/budgetit
-        run: flutter build apk --release
+        run: flutter build apk --release --no-tree-shake-icons
 
       - name: Upload APK artifact (release tags)
         if: startsWith(github.ref, 'refs/tags/v')
