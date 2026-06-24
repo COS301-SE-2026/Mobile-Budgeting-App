@@ -19,7 +19,7 @@ void main() {
     });
   });
 
-  group('iconToDb', () {
+  group('iconFromDb', () {
     test('asserts on a non-Material icon in debug mode', () {
       const custom = IconData(0xe900, fontFamily: 'CustomIcons');
       expect(() => iconToDb(custom), throwsAssertionError);
