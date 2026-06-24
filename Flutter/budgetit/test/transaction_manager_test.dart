@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:budgetit/shared/widgets/badge.dart';
 import 'package:budgetit/shared/widgets/box.dart';
 import 'package:budgetit/shared/widgets/edit_transaction_dialogue.dart';
@@ -8,12 +7,34 @@ import 'package:budgetit/shared/widgets/searchbox.dart';
 import 'package:budgetit/shared/widgets/transac_menu.dart';
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:budgetit/views/transaction_manager/transaction.manager.dart';
+import 'package:provider/provider.dart';
+import 'package:budgetit/utils/theme_provider.dart';
+import 'package:drift/native.dart';
+import 'package:budgetit/database/app_database.dart';
+
 
 // Full-screen widget (already has Scaffold)
-Widget _screen(Widget child) => MaterialApp(home: child);
+Widget _screen(Widget child) {
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => ThemeProvider()),
+      Provider<AppDatabase>.value(value: AppDatabase.forTesting(NativeDatabase.memory())),
+    ],
+    child: MaterialApp(home: child),
+      );
+}
 
 // Component widget (needs Scaffold wrapper)
-Widget _widget(Widget child) => MaterialApp(home: Scaffold(body: child));
+Widget _widget(Widget child) {
+  return MultiProvider(
+    providers: [ 
+      ChangeNotifierProvider(
+                  create: (_) => ThemeProvider()),
+      Provider< AppDatabase>.value(  value: AppDatabase.forTesting(NativeDatabase.memory())),
+    ],
+    child: MaterialApp(home:  Scaffold(body: child)),
+  );
+}
 
 // MyBox uses height * 0.07 and MyBadge uses maxWidth * 0.25.
 // Flutter test uses the Ahem font where each glyph is fontSize×fontSize px,
