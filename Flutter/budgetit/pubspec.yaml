@@ -43,7 +43,7 @@ dependencies:
   cupertino_icons: ^1.0.8
 
 
-  saropa_drift_advisor: ^3.5.1
+  saropa_drift_advisor: ^4.1.10
   uuid: ^4.5.3
   decimal: ^3.0.0
 

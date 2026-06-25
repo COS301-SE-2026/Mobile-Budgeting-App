@@ -652,10 +652,10 @@ packages:
     dependency: transitive
     description:
       name: meta
-      sha256: "23f08335362185a5ea2ad3a4e597f1375e78bce8a040df5c600c8d3552ef2394"
+      sha256: "1741988757a65eb6b36abe716829688cf01910bbf91c34354ff7ec1c3de2b349"
       url: "https://pub.dev"
     source: hosted
-    version: "1.17.0"
+    version: "1.18.0"
   mime:
     dependency: transitive
     description:
@@ -892,10 +892,10 @@ packages:
     dependency: "direct main"
     description:
       name: saropa_drift_advisor
-      sha256: "243d7c45721974c0f51c7af3d7c665f2c8e55b652be31b0c0dda28c5095dda5f"
+      sha256: "44cb31ea11f900594b2a30533987a7c3e01b137af1ca9bff1623efd544f9ed42"
       url: "https://pub.dev"
     source: hosted
-    version: "3.5.1"
+    version: "4.1.10"
   shelf:
     dependency: transitive
     description:
@@ -1017,10 +1017,10 @@ packages:
     dependency: transitive
     description:
       name: test_api
-      sha256: "8161c84903fd860b26bfdefb7963b3f0b68fee7adea0f59ef805ecca346f0c7a"
+      sha256: "949a932224383300f01be9221c39180316445ecb8e7547f70a41a35bf421fb9e"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.10"
+    version: "0.7.11"
   tuple:
     dependency: transitive
     description:
