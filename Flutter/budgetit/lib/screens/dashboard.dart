@@ -12,7 +12,8 @@ import '../database/app_database.dart';
 import '../database/schema.dart';
 
 class Dashboard extends StatefulWidget {
-  const Dashboard({super.key});
+  final AppDatabase? database;
+  const Dashboard({super.key, this.database});
 
   @override
   State<Dashboard> createState() => _DashboardState();
@@ -20,21 +21,23 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   late AppDatabase db;
+  late final bool _ownsDb;
   bool isLoading = true;
   //check if the data is loading, then store error msg when it fails
 
   String? loadError;
   double dailySpending = 0;
   double monthlySpending = 0;
-  List<MonthData> dashboardMonths = [];//for the monthy chart data
+  List<MonthData> dashboardMonths = []; //for the monthy chart data
   List<SpendingCategory> spendingCategories = [];
-  List<Transaction> recentTransactions = [];//stores what ever is spent recent
+  List<Transaction> recentTransactions = []; //stores what ever is spent recent
 
   @override
   void initState() {
     super.initState();
 
-    db = AppDatabase();
+    _ownsDb = widget.database == null;
+    db = widget.database ?? AppDatabase();
     dashboardMonths = _emptyMonthlyTrends();
     spendingCategories = [
       SpendingCategory(
@@ -43,13 +46,15 @@ class _DashboardState extends State<Dashboard> {
         color: MyColours().tertiary.withValues(alpha: 0.35),
       ),
     ];
-    _loadDashboardData();//must load the dashy data bro
+    _loadDashboardData(); //must load the dashy data bro
   }
 
   @override
   void dispose() {
-    db.close();
-    //dispose to clean up the parent widget resources
+    if (_ownsDb) {
+      db.close();
+    }
+
     super.dispose();
   }
 
@@ -475,7 +480,7 @@ class _DashboardState extends State<Dashboard> {
                 if (isLoading)
                   LinearProgressIndicator(
                     color: colours.secondary,
-                    backgroundColor: colours.primary,//loading bar colour
+                    backgroundColor: colours.primary, //loading bar colour
                   ),
 
                 if (loadError != null)

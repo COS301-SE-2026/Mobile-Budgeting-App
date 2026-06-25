@@ -179,8 +179,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               color: _cream,
               size: 20,
             ),
-            onPressed: () =>
-                setState(() => _confirmVisible = !_confirmVisible),
+            onPressed: () => setState(() => _confirmVisible = !_confirmVisible),
           ),
         ),
         const SizedBox(height: 16),
@@ -221,8 +220,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           prefixIcon: Icon(icon, color: _cream, size: 20),
           suffixIcon: suffix,
           border: InputBorder.none,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
         ),
       ),
     );
@@ -240,14 +241,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         ),
         child: Row(
           children: [
-            const Icon(Icons.error_outline,
-                color: Color(0xFFCF6679), size: 16),
+            const Icon(Icons.error_outline, color: Color(0xFFCF6679), size: 16),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 auth.errorMessage!,
-                style:
-                    const TextStyle(color: Color(0xFFCF6679), fontSize: 13),
+                style: const TextStyle(color: Color(0xFFCF6679), fontSize: 13),
               ),
             ),
           ],
@@ -297,9 +296,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Future<void> _handleSendCode(AppAuthProvider auth) async {
     final email = _emailController.text.trim();
     if (email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your email')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please enter your email')));
       return;
     }
     final success = await auth.resetPassword(email);
@@ -324,15 +323,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       return;
     }
     if (newPassword != confirm) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Passwords do not match')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
       return;
     }
     if (newPassword.length < 8) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Password must be at least 8 characters')),
+        const SnackBar(content: Text('Password must be at least 8 characters')),
       );
       return;
     }

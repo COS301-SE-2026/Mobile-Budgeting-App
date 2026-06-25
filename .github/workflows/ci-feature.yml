@@ -1,0 +1,78 @@
+name: Feature Branch CI
+
+on:
+  push:
+    branches:
+      - "feature/**"
+    paths-ignore:
+      - "Flutter/budgetit/**/*.g.dart"
+      - "Flutter/budgetit/**/*.freezed.dart"
+  pull_request:
+    branches:
+      - "feature/**"
+    paths-ignore:
+      - "Flutter/budgetit/**/*.g.dart"
+      - "Flutter/budgetit/**/*.freezed.dart"
+
+jobs:
+  secret-scan:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}}
+
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+
+      - uses: ./.github/actions/flutter-setup
+
+      - name: Cache build_runner outputs
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8
+        with:
+          path: Flutter/budgetit/.dart_tool/build
+          key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart', 'Flutter/budgetit/test/**/*.dart') }}
+          restore-keys: |
+            build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-
+            build-runner-${{ runner.os }}-
+
+      - name: Dart Build Runner
+        working-directory: Flutter/budgetit
+        run: dart run build_runner build --delete-conflicting-outputs --build-filter="lib/**.dart" --build-filter="test/**.dart"
+
+      - name: Commit dart codegen files to branch
+        if: github.event_name == 'push'
+        run: |
+          if ! git diff --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add Flutter/budgetit
+            git commit -m "chore: regenerate build_runner outputs [skip ci]"
+            git push
+          fi
+
+      - name: Dart Format
+        working-directory: Flutter/budgetit
+        continue-on-error: true
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Flutter Analyze
+        working-directory: Flutter/budgetit
+        continue-on-error: true
+        run: flutter analyze
+
+      - name: Unit Tests
+        working-directory: Flutter/budgetit
+        continue-on-error: true
+        run: flutter test --concurrency=4 $(find test -name '*_test.dart' -not -path 'test/golden/*' -not -path 'test/performance/*' -not -path 'test/integration/*')

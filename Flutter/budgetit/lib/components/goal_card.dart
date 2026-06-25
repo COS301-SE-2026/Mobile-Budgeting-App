@@ -17,16 +17,12 @@ class GoalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     final colours = MyColours();
 
     return Container(
       width: double.infinity,
 
-      margin: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 10,
-      ),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
 
       padding: const EdgeInsets.all(20),
 
@@ -35,17 +31,11 @@ class GoalCard extends StatelessWidget {
 
         borderRadius: BorderRadius.circular(25),
 
-        border: Border.all(
-          color: colours.secondary.withValues(
-            alpha: 0.2,
-          ),
-        ),
+        border: Border.all(color: colours.secondary.withValues(alpha: 0.2)),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(
-              alpha: 0.25,
-            ),
+            color: Colors.black.withValues(alpha: 0.25),
 
             blurRadius: 10,
 
@@ -55,49 +45,37 @@ class GoalCard extends StatelessWidget {
       ),
 
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
-
           Row(
-            mainAxisAlignment:
-                MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
             children: [
-
               Text(
                 title,
 
                 style: TextStyle(
                   color: colours.textPrimary,
                   fontSize: 18,
-                  fontWeight:
-                      FontWeight.bold,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
 
-              Icon(
-                Icons.flag,
-                color: colours.tertiary,
-              ),
+              Icon(Icons.flag, color: colours.tertiary),
             ],
           ),
 
           const SizedBox(height: 15),
 
           ClipRRect(
-            borderRadius:
-                BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(10),
 
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 10,
 
-              backgroundColor:
-                  colours.secondary.withValues(
-                    alpha: 0.2,
-                  ),
+              backgroundColor: colours.secondary.withValues(alpha: 0.2),
 
               color: colours.tertiary,
             ),
@@ -106,19 +84,16 @@ class GoalCard extends StatelessWidget {
           const SizedBox(height: 15),
 
           Row(
-            mainAxisAlignment:
-                MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
             children: [
-
               Text(
                 "Saved: $saved",
 
                 style: TextStyle(
                   color: colours.textPrimary,
 
-                  fontWeight:
-                      FontWeight.bold,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
 
@@ -126,10 +101,7 @@ class GoalCard extends StatelessWidget {
                 "Target: $target",
 
                 style: TextStyle(
-                  color: colours.textPrimary
-                      .withValues(
-                    alpha: 0.7,
-                  ),
+                  color: colours.textPrimary.withValues(alpha: 0.7),
                 ),
               ),
             ],

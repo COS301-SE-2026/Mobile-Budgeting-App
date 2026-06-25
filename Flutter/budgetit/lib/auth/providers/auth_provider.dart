@@ -1,12 +1,11 @@
 import 'package:flutter/foundation.dart';
 import '../data/auth_service.dart';
 
-
 enum AuthStatus {
-  unknown,    // app just launched, checking session
-  guest,      // not logged in, using app as guest
-  skipped,    // user chose to skip login 
-  loggedIn,   // successfully authenticated
+  unknown, // app just launched, checking session
+  guest, // not logged in, using app as guest
+  skipped, // user chose to skip login
+  loggedIn, // successfully authenticated
 }
 
 class AppAuthProvider extends ChangeNotifier {
@@ -27,7 +26,7 @@ class AppAuthProvider extends ChangeNotifier {
   bool get needsVerification => _needsVerification;
 
   AppAuthProvider({required AuthService authService})
-      : _authService = authService {
+    : _authService = authService {
     _checkCurrentSession();
   }
 
@@ -156,11 +155,17 @@ class AppAuthProvider extends ChangeNotifier {
 
   // --- Confirm Reset Password ---
   Future<bool> confirmResetPassword(
-      String email, String newPassword, String code) async {
+    String email,
+    String newPassword,
+    String code,
+  ) async {
     _setLoading(true);
     _clearError();
-    final result =
-        await _authService.confirmResetPassword(email, newPassword, code);
+    final result = await _authService.confirmResetPassword(
+      email,
+      newPassword,
+      code,
+    );
     _setLoading(false);
     if (!result.success) {
       _errorMessage = result.errorMessage;
@@ -188,5 +193,4 @@ class AppAuthProvider extends ChangeNotifier {
   void clearNeedsVerification() {
     _needsVerification = false;
   }
-
 }
