@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:decimal/decimal.dart';
 
 import '../../utils/app_colour.dart';
+import '../financial_reports/financial_report_screen.dart';
 import '../../database/app_database.dart';
 import '../../database/schema.dart';
 import '../../utils/icon_mapper.dart';
@@ -191,7 +192,36 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: colours.background,
+  backgroundColor: colours.background,
+  appBar: AppBar(
+    backgroundColor: colours.background,
+    elevation: 0,
+    title: Text(
+      'Budget Manager',
+      style: TextStyle(
+        color: colours.textPrimary,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    actions: [
+      IconButton(
+        tooltip: 'Export financial report',
+        icon: Icon(
+          Icons.file_download_outlined,
+          color: colours.textPrimary,
+        ),
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const FinancialReportScreen(),
+            ),
+          );
+        },
+      ),
+    ],
+  ),
+
+  // body: SafeArea(
 
       body: SafeArea(
         child: SingleChildScrollView(
