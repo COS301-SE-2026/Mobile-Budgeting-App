@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../utils/app_colour.dart';
 
 import '../../models/financial_report.dart';
 import '../../services/financial_report_export_service.dart';
@@ -83,9 +84,10 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const background = Color(0xFF04240C);
-    const secondary = Color(0xFFDDD6AE);
-    const tertiary = Color(0xFF137E84);
+    final colours = MyColours();
+final background = colours.background;
+final secondary = colours.secondary;
+final tertiary = colours.tertiary;
 
     return Scaffold(
       backgroundColor: background,
@@ -122,7 +124,7 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
               label: const Text('Export as CSV'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: secondary,
-                side: const BorderSide(color: secondary),
+                side: BorderSide(color: secondary),
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
             ),
@@ -149,8 +151,9 @@ class _ReportSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const secondary = Color(0xFFDDD6AE);
-    const tertiary = Color(0xFF137E84);
+    final colours = MyColours();
+    final secondary = colours.cardText;
+    final tertiary = colours.tertiary;
 
     return Container(
       padding: const EdgeInsets.all(18),
@@ -162,7 +165,7 @@ class _ReportSummaryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+           Text(
             'June Financial Report',
             style: TextStyle(
               color: secondary,
@@ -191,17 +194,18 @@ class _SummaryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const secondary = Color(0xFFDDD6AE);
+    final colours = MyColours();
+    final secondary = colours.cardText;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: secondary)),
+          Text(label, style: TextStyle(color: secondary)),
           Text(
             'R ${value.toStringAsFixed(2)}',
-            style: const TextStyle(
+            style: TextStyle(
               color: secondary,
               fontWeight: FontWeight.bold,
             ),
