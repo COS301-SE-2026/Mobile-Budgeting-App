@@ -5,6 +5,7 @@ import '../../utils/app_colour.dart';
 import '../../database/app_database.dart';
 import '../../database/schema.dart';
 import '../../utils/icon_mapper.dart';
+import 'budget_detail_screen.dart';
 
 class BudgetManagerScreen extends StatefulWidget {
   final AppDatabase database;
@@ -277,15 +278,30 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                       children: [
                         for (final budget in budgets) ...[
                           _budgetCard(
-                            icon: budget.icon,
-                            title: budget.title,
-                            subtitle: budget.subtitle,
-                            spent: budget.spent,
-                            limit: budget.limit,
-                            progressColor: budget.progressColor,
-                            isOverLimit: budget.isOverLimit,
-                            onDelete: () => _confirmDeleteBudget(budget),
-                          ),
+  icon: budget.icon,
+  title: budget.title,
+  subtitle: budget.subtitle,
+  spent: budget.spent,
+  limit: budget.limit,
+  progressColor: budget.progressColor,
+  isOverLimit: budget.isOverLimit,
+  onTap: () {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => BudgetDetailScreen(
+          title: budget.title,
+          subtitle: budget.subtitle,
+          spent: budget.spent,
+          limit: budget.limit,
+          icon: budget.icon,
+          progressColor: budget.progressColor,
+          isOverLimit: budget.isOverLimit,
+        ),
+      ),
+    );
+  },
+  onDelete: () => _confirmDeleteBudget(budget),
+),
                           const SizedBox(height: 14),
                         ],
                       ],
@@ -388,19 +404,23 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
   }
 
   Widget _budgetCard({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required double spent,
-    required double limit,
-    required Color progressColor,
-    required VoidCallback onDelete,
-    bool isOverLimit = false,
-  }) {
+  required IconData icon,
+  required String title,
+  required String subtitle,
+  required double spent,
+  required double limit,
+  required Color progressColor,
+  required VoidCallback onTap,
+  required VoidCallback onDelete,
+  bool isOverLimit = false,
+}) {
     final double progress = spent / limit;
 
-    return Container(
-      padding: const EdgeInsets.all(14),
+    return InkWell(
+  onTap: onTap,
+  borderRadius: BorderRadius.circular(10),
+  child: Container(
+    padding: const EdgeInsets.all(14),
 
       decoration: BoxDecoration(
         color: colours.primary,
@@ -481,7 +501,9 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                   ),
                   const SizedBox(width: 10),
                   InkWell(
-                    onTap: onDelete,
+                    onTap: () {
+  onDelete();
+},
                     borderRadius: BorderRadius.circular(20),
                     child: Padding(
                       padding: const EdgeInsets.all(4),
@@ -510,6 +532,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
           ),
         ],
       ),
+  ),
     );
   }
 
