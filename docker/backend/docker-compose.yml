@@ -1,0 +1,15 @@
+services:
+  backend-api:
+    build:
+      context: ../..
+      dockerfile: docker/backend/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../../backend/src:/app/src
+    networks:
+      - budgetit-net
+
+networks:
+  budgetit-net:
+    name: budgetit-net
