@@ -92,4 +92,4 @@ services:
 
 networks:
   budgetit-net:
-    name: budgetit-net
+    name: ${NETWORK_NAME:-budgetit-net}
