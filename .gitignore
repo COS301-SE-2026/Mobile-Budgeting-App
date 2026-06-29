@@ -5,6 +5,7 @@ Flutter/budgetit/windows/*
 Flutter/budgetit/android/*
 Flutter/budgetit/web/*
 flutter_*.log
+docker/flutter/.env
 
 
 scripts/test/act/artifacts/

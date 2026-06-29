@@ -1,7 +1,11 @@
 COMPOSE_CMD = $(shell which podman-compose 2>/dev/null || which docker-compose 2>/dev/null || echo docker-compose)
 CONTAINER_CMD ?= $(shell which podman 2>/dev/null || which docker 2>/dev/null || echo docker)
-FLUTTER_COMPOSE = -f flutter/docker-compose.yml
+FLUTTER_COMPOSE = $(if $(wildcard flutter/.env),--env-file flutter/.env) -f flutter/docker-compose.yml
 BACKEND_COMPOSE  = -f backend/docker-compose.yml
+
+-include flutter/.env
+IMAGE_NAME ?= budgetit-flutter:latest
+NETWORK_NAME ?= budgetit-net
 
 .PHONY: flutter-build-image flutter-dev flutter-shell \
         flutter-build-apk flutter-build-aab flutter-build-web flutter-build-linux \
@@ -33,7 +37,7 @@ flutter-test:
 
 flutter-clean:
 	$(COMPOSE_CMD) $(FLUTTER_COMPOSE) down --volumes --remove-orphans
-	$(CONTAINER_CMD) rmi budgetit-flutter:latest 2>/dev/null || true
+	$(CONTAINER_CMD) rmi $(IMAGE_NAME) 2>/dev/null || true
 
 .PHONY: backend-build backend-up backend-down backend-clean
 
@@ -52,7 +56,7 @@ backend-clean:
 .PHONY: clean
 
 clean: flutter-clean backend-clean
-	$(CONTAINER_CMD) network rm budgetit-net 2>/dev/null || true
+	$(CONTAINER_CMD) network rm $(NETWORK_NAME) 2>/dev/null || true
 
 .PHONY: help
 
