@@ -4,7 +4,7 @@ Flutter/budgetit/macos/*
 Flutter/budgetit/windows/*
 Flutter/budgetit/android/*
 Flutter/budgetit/web/*
-
+flutter_*.log
 
 
 scripts/test/act/artifacts/
