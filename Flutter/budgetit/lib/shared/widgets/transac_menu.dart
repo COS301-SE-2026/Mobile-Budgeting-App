@@ -29,15 +29,13 @@ class _FABMenuState extends State<FABMenu> {
             children: [
               TextButton(
                 onPressed: widget.onAddTransaction,
-                onHover: (isHovering) =>
-                    setState(() => isHover1 = isHovering),
+                onHover: (isHovering) => setState(() => isHover1 = isHovering),
                 child: Container(
                   decoration: BoxDecoration(
                     color: isHover1
                         ? MyColours().background
                         : MyColours().secondary,
-                    borderRadius:
-                        const BorderRadius.all(Radius.circular(10)),
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
                     border: Border.all(
                       color: MyColours().background,
                       width: 2,
@@ -63,15 +61,13 @@ class _FABMenuState extends State<FABMenu> {
             children: [
               TextButton(
                 onPressed: () => {},
-                onHover: (isHovering) =>
-                    setState(() => isHover2 = isHovering),
+                onHover: (isHovering) => setState(() => isHover2 = isHovering),
                 child: Container(
                   decoration: BoxDecoration(
                     color: isHover2
                         ? MyColours().background
                         : MyColours().secondary,
-                    borderRadius:
-                        const BorderRadius.all(Radius.circular(10)),
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
                     border: Border.all(
                       color: MyColours().background,
                       width: 2,

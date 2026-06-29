@@ -17,19 +17,19 @@ flutter-run-android:
 	cd $(FLUTTER_DIR) && fvm flutter run -d android
 
 flutter-test:
-	cd $(FLUTTER_DIR) && fvm flutter test ../../test/unit/ ../../test/widget/ ../../test/integration/
+	cd $(FLUTTER_DIR) && fvm flutter test test/
 
 flutter-test-unit:
-	cd $(FLUTTER_DIR) && fvm flutter test ../../test/unit/
+	cd $(FLUTTER_DIR) && fvm flutter test test/unit/
 
 flutter-test-widget:
-	cd $(FLUTTER_DIR) && fvm flutter test ../../test/widget/
+	cd $(FLUTTER_DIR) && fvm flutter test test/widget/
 
 flutter-test-integration:
-	cd $(FLUTTER_DIR) && fvm flutter test ../../test/integration/
+	cd $(FLUTTER_DIR) && fvm flutter test test/integration/
 
 flutter-test-coverage:
-	cd $(FLUTTER_DIR) && fvm flutter test --coverage ../../test/unit/ ../../test/widget/ ../../test/integration/
+	cd $(FLUTTER_DIR) && fvm flutter test --coverage test/unit/ test/widget/ test/integration/
 
 flutter-build-apk:
 	cd $(FLUTTER_DIR) && fvm flutter build apk --release
@@ -44,10 +44,10 @@ flutter-analyze:
 	cd $(FLUTTER_DIR) && fvm flutter analyze
 
 flutter-doctor:
-	Flutter\budgetit\.fvm\flutter_sdk\bin\flutter doctor -v
+	$(FLUTTER_DIR)/.fvm/flutter_sdk/bin/flutter doctor -v
 
 flutter-devices:
-	Flutter\budgetit\.fvm\flutter_sdk\bin\flutter devices
+	$(FLUTTER_DIR)/.fvm/flutter_sdk/bin/flutter devices
 
 flutter-update:
 	cd $(FLUTTER_DIR) && fvm install stable && fvm use stable && fvm flutter pub get

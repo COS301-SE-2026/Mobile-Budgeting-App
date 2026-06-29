@@ -1,6 +1,6 @@
-
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
+
 class MainScaffold extends StatefulWidget {
   const MainScaffold({super.key});
 
@@ -15,9 +15,7 @@ class _MainScaffoldState extends State<MainScaffold> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MyColours().background,
-      body: Center(
-        child: Text('Home Page'),
-      ),
+      body: Center(child: Text('Home Page')),
     );
   }
 }
