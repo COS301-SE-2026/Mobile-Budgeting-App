@@ -1,0 +1,36 @@
+name: Flutter Setup
+description: Gets the pub cache, installs Flutter and runs pub get
+inputs:
+  needs-java:
+    description: Whether or not to setup up flutter with java, needed for Android builds
+    required: false
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Java
+      if: inputs.needs-java == 'true'
+      uses: actions/setup-java@ad2b38190b15e4d6bdf0c97fb4fca8412226d287
+      with:
+        distribution: temurin
+        java-version: 17
+
+    - name: Cache packages from pub
+      uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8
+      with:
+        path: ~/.pub-cache
+        key: pub-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
+        restore-keys: |
+          pub-${{ runner.os }}-
+
+    - name: Set up flutter
+      uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+      with:
+        flutter-version: "3.41.9"
+        cache: true
+
+    - name: Install dependencies
+      shell: bash
+      working-directory: Flutter/budgetit
+      run: flutter pub get

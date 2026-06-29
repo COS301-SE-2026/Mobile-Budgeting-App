@@ -1,0 +1,107 @@
+Flutter crash report.
+Please report a bug at https://github.com/flutter/flutter/issues.
+
+## command
+
+flutter doctor
+
+## exception
+
+PathNotFoundException: PathNotFoundException: Directory listing failed, path = 'C:\Users\jessi\OneDrive\Desktop\COS301_Software Engineering\Capstone DEV OOPs\Mobile-Budgeting-App\Flutter\budgetit\.fvm\flutter_sdk\bin\cache\downloads\storage.googleapis.com\flutter_infra_release\flutter\42d3d75a56efe1a2e9902f52dc8006099c45d937\windows-x64\*' (OS Error: The system cannot find the path specified, errno = 3)
+
+```
+#0      _Directory._fillWithDirectoryListing (dart:io-patch/directory_patch.dart:49:4)
+#1      _Directory.listSync (dart:io/directory_impl.dart:259:5)
+#2      ForwardingDirectory.listSync (package:file/src/forwarding/forwarding_directory.dart:43:12)
+#3      ForwardingDirectory.listSync (package:file/src/forwarding/forwarding_directory.dart:43:12)
+#4      ArtifactUpdater.removeDownloadedFiles (package:flutter_tools/src/cache.dart:1350:23)
+#5      CachedArtifact.update (package:flutter_tools/src/cache.dart:910:21)
+<asynchronous suspension>
+#6      Cache.updateAll (package:flutter_tools/src/cache.dart:761:9)
+<asynchronous suspension>
+#7      FlutterCommand.verifyThenRunCommand (package:flutter_tools/src/runner/flutter_command.dart:1905:7)
+<asynchronous suspension>
+#8      FlutterCommand.run.<anonymous closure> (package:flutter_tools/src/runner/flutter_command.dart:1590:27)
+<asynchronous suspension>
+#9      AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+<asynchronous suspension>
+#10     CommandRunner.runCommand (package:args/command_runner.dart:212:13)
+<asynchronous suspension>
+#11     FlutterCommandRunner.runCommand.<anonymous closure> (package:flutter_tools/src/runner/flutter_command_runner.dart:496:9)
+<asynchronous suspension>
+#12     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+<asynchronous suspension>
+#13     FlutterCommandRunner.runCommand (package:flutter_tools/src/runner/flutter_command_runner.dart:431:5)
+<asynchronous suspension>
+#14     FlutterCommandRunner.run.<anonymous closure> (package:flutter_tools/src/runner/flutter_command_runner.dart:307:33)
+<asynchronous suspension>
+#15     run.<anonymous closure>.<anonymous closure> (package:flutter_tools/runner.dart:104:11)
+<asynchronous suspension>
+#16     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+<asynchronous suspension>
+#17     main (package:flutter_tools/executable.dart:103:3)
+<asynchronous suspension>
+```
+
+## flutter doctor
+
+```
+[33m[!][39m Flutter (Channel stable, 3.41.9, on Microsoft Windows [Version 10.0.26200.8457], locale en-US)
+    [7.2s]
+    [32m•[39m Flutter version 3.41.9 on channel stable at C:\Users\jessi\OneDrive\Desktop\COS301_Software
+      Engineering\Capstone DEV OOPs\Mobile-Budgeting-App\Flutter\budgetit\.fvm\flutter_sdk
+    [33m![39m Warning: `flutter` on your path resolves to C:\Users\jessi\OneDrive\Desktop\flutter\bin\flutter,
+      which is not inside your current Flutter SDK checkout at
+      C:\Users\jessi\OneDrive\Desktop\COS301_Software Engineering\Capstone DEV
+      OOPs\Mobile-Budgeting-App\Flutter\budgetit\.fvm\flutter_sdk. Consider adding
+      C:\Users\jessi\OneDrive\Desktop\COS301_Software Engineering\Capstone DEV
+      OOPs\Mobile-Budgeting-App\Flutter\budgetit\.fvm\flutter_sdk\bin to the front of your path.
+    [33m![39m Warning: `dart` on your path resolves to C:\Users\jessi\OneDrive\Desktop\flutter\bin\dart, which
+      is not inside your current Flutter SDK checkout at
+      C:\Users\jessi\OneDrive\Desktop\COS301_Software Engineering\Capstone DEV
+      OOPs\Mobile-Budgeting-App\Flutter\budgetit\.fvm\flutter_sdk. Consider adding
+      C:\Users\jessi\OneDrive\Desktop\COS301_Software Engineering\Capstone DEV
+      OOPs\Mobile-Budgeting-App\Flutter\budgetit\.fvm\flutter_sdk\bin to the front of your path.
+    [32m•[39m Upstream repository https://github.com/flutter/flutter.git
+    [32m•[39m Framework revision 00b0c91f06 (3 weeks ago), 2026-04-29 10:03:19 -0700
+    [32m•[39m Engine revision 42d3d75a56
+    [32m•[39m Dart version 3.11.5
+    [32m•[39m DevTools version 2.54.2
+    [32m•[39m Feature flags: enable-web, enable-linux-desktop, enable-macos-desktop, enable-windows-desktop,
+      enable-android, enable-ios, cli-animations, enable-native-assets, omit-legacy-version-file,
+      enable-lldb-debugging, enable-uiscene-migration
+    [32m•[39m If those were intentional, you can disregard the above warnings; however it is recommended to use
+      "git" directly to perform update checks and upgrades.
+
+[32m[✓][39m Windows Version (11 Home Single Language 64-bit, 25H2, 2009) [29.1s]
+
+[33m[!][39m Android toolchain - develop for Android devices (Android SDK version 36.1.0) [29.0s]
+    [32m•[39m Android SDK at C:\Users\jessi\AppData\Local\Android\sdk
+    [32m•[39m Emulator version 36.5.11.0 (build_id 15261927) (CL:N/A)
+    [32m•[39m Platform android-36.1, build-tools 36.1.0
+    [32m•[39m Java binary at: C:\Program Files\Android\Android Studio\jbr\bin\java
+      This JDK is specified in your Flutter configuration.
+      To change the current JDK, run: `flutter config --jdk-dir="path/to/jdk"`.
+    [32m•[39m Java version OpenJDK Runtime Environment (build 21.0.10+-14961533-b1163.108)
+    [33m![39m Some Android licenses not accepted. To resolve this, run: flutter doctor --android-licenses
+
+[32m[✓][39m Chrome - develop for the web [2.4s]
+    [32m•[39m Chrome at C:\Program Files\Google\Chrome\Application\chrome.exe
+
+[32m[✓][39m Visual Studio - develop Windows apps (Visual Studio Build Tools 2019 16.11.47) [2.3s]
+    [32m•[39m Visual Studio at C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools
+    [32m•[39m Visual Studio Build Tools 2019 version 16.11.36107.64
+    [32m•[39m Windows 10 SDK version 10.0.19041.0
+
+[32m[✓][39m Connected device (4 available) [8.0s]
+    [32m•[39m sdk gphone64 x86 64 (mobile) • emulator-5554 • android-x64    • Android 15 (API 35) (emulator)
+    [32m•[39m Windows (desktop)            • windows       • windows-x64    • Microsoft Windows [Version
+      10.0.26200.8457]
+    [32m•[39m Chrome (web)                 • chrome        • web-javascript • Google Chrome 148.0.7778.168
+    [32m•[39m Edge (web)                   • edge          • web-javascript • Microsoft Edge 148.0.3967.70
+
+[32m[✓][39m Network resources [3.5s]
+    [32m•[39m All expected network resources are available.
+
+[33m![39m Doctor found issues in 2 categories.
+```

@@ -1,0 +1,7 @@
+[
+  { "category_name": "Groceries",     "amount": "2000.00", "period_type": "monthly", "currency": "ZAR" },
+  { "category_name": "Rent",          "amount": "8000.00", "period_type": "monthly", "currency": "ZAR" },
+  { "category_name": "Transport",     "amount": "800.00",  "period_type": "monthly", "currency": "ZAR" },
+  { "category_name": "Entertainment", "amount": "500.00",  "period_type": "monthly", "currency": "ZAR" },
+  { "category_name": "Dining Out",    "amount": "1000.00", "period_type": "monthly", "currency": "ZAR" }
+]
