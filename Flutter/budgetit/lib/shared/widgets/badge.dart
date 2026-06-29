@@ -35,10 +35,10 @@ class _MyBadgeState extends State<MyBadge> {
           shape: BoxShape.rectangle,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: MyColours().secondary,
-            width: 1.5,
+            color: Colors.black,
+            width: 4,
           ),
-          color: isActive ? MyColours().secondary : MyColours().background,
+          color: isActive ? MyColours().informational : MyColours().category,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -47,12 +47,7 @@ class _MyBadgeState extends State<MyBadge> {
             Text(
               widget.text ?? '',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: MyColours().bodyFontSize,
-                color: isActive
-                    ? MyColours().background
-                    : MyColours().textPrimary.withValues(alpha: 0.85),
-              ),
+              style: MyColours().categorytext,
             ),
           ],
         ),
