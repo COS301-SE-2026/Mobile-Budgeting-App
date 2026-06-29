@@ -10,22 +10,124 @@ class MyColours{
    Color secondary = Color.fromARGB(250,221, 214, 174); 
    Color background = Color.fromARGB(250, 4, 36, 12);
    Color informational = Color.fromARGB(250, 19, 126, 132);
-   Color warning = Color.fromARGB(250, 255, 193, 7);
+   Color warning = Color.fromARGB(250, 255, 180, 171);
     Color error = Color.fromARGB(255, 255, 0, 0);
   Color textPrimary = Color.fromARGB(250,221, 214, 174);
- 
+  Color textMuted = Color.fromARGB(150, 194, 200, 191);
+  Color searchBar = Color.fromARGB(75, 53, 53, 53);
+  Color category = Color.fromARGB(250, 28, 28, 27);
+ Color light = Colors.white;
   Color greenAccents = Color.fromARGB(255, 0, 230, 118);
   Color whiteAccents = Color.fromARGB(255, 255, 255, 255);
   
   double bodyFontSize = 16;
+  double bodyFontSize2 = 14;
   double headingFontSize1 = 24;
   double headingFontSize2 = 20;
   double headingFontSize3 = 18;
+
+
+  double bdSize = 40;
+
+  double theadingFontSize2 = 20;
+  double theadingFontSize3 = 18;
+
+  double bdHeight = 48;
+  double lineheight2 = 30;
+  double lineheight3 = 26;
+  double bodylineheight = 18;
+  double bodylineheight2 = 14;
+  
 
   
   Color cardText = const Color(0xFFDDD6AE);
 
   static bool isDark = true;
+
+  TextStyle get bigDisplay => TextStyle(
+    fontSize: bdSize,
+    fontWeight: FontWeight.w700,
+    color: textPrimary,
+    height: bdHeight / bdSize,
+    letterSpacing: -1.2,
+    fontFamily: 'SpaceGrotesk',
+  );
+
+  TextStyle get h1 => TextStyle(
+    fontSize: theadingFontSize2,
+    fontWeight: FontWeight.w700,
+    color: textPrimary,
+    height: lineheight2 / theadingFontSize2,
+    letterSpacing: 0,
+    fontFamily: 'SpaceGrotesk',
+  );
+
+  TextStyle get h2 => TextStyle(
+    fontSize: headingFontSize2,
+    fontWeight: FontWeight.w700,
+    color: textPrimary,
+    height: lineheight3 / headingFontSize2,
+    letterSpacing: 0,
+    fontFamily: 'SpaceGrotesk',
+  );
+
+  TextStyle get warntext => TextStyle(
+    fontSize: headingFontSize2,
+    fontWeight: FontWeight.w700,
+    color: warning,
+    height: lineheight3 / headingFontSize2,
+    letterSpacing: 0,
+    fontFamily: 'SpaceGrotesk',
+  );
+
+  TextStyle get h4 => TextStyle(
+    fontSize: bodyFontSize2,
+    fontWeight: FontWeight.w700,
+    color: textMuted,
+    height: bodylineheight / bodyFontSize2,
+    letterSpacing: 1.4,
+    fontFamily: 'JetBrainsMono',
+  );
+
+  TextStyle get b1 => TextStyle(
+    fontSize: bodyFontSize2,
+    fontWeight: FontWeight.w500,
+    color: textPrimary,
+    height: bodylineheight / bodyFontSize2,
+    letterSpacing: 0,
+    fontFamily: 'JetBrainsMono',
+  );
+
+  TextStyle get categorytext => TextStyle(
+    fontSize: bodyFontSize2,
+    fontWeight: FontWeight.w700,
+    color: light,
+    height: bodylineheight / bodyFontSize2,
+    letterSpacing: 0,
+    fontFamily: 'HankenGrotesk',
+  );
+
+  TextStyle get altbodytext => TextStyle(
+    fontSize: bodyFontSize2,
+    fontWeight: FontWeight.w500,
+    color: textPrimary,
+    height: bodylineheight / bodyFontSize2,
+    letterSpacing: 0,
+    fontFamily: 'JetBrainsMono',
+  );
+
+  TextStyle get b2 => TextStyle(
+    fontSize: bodyFontSize2,
+    fontWeight: FontWeight.w500,
+    color: textMuted,
+    height: bodylineheight2 / bodyFontSize2,
+    letterSpacing: 0,
+    fontFamily: 'JetBrainsMono',
+  );
+
+  
+
+
 
   MyColours() {
     if (!isDark) {
