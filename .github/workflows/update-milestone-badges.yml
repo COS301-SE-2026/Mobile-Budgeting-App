@@ -11,7 +11,7 @@ permissions:
 jobs:
   update-badges:
     name: Update README Milestone Badges
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     if: github.event_name == 'issues' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0

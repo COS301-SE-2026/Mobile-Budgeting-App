@@ -21,7 +21,7 @@ on:
 jobs:
   secret-scan:
     name: Secret Scan
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
@@ -33,7 +33,7 @@ jobs:
 
   flutter-ci:
     name: Flutter CI
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     outputs:
       coverage_lines: ${{ steps.coverage.outputs.lines }}
       coverage_branches: ${{ steps.coverage.outputs.branches }}
@@ -108,7 +108,7 @@ jobs:
 
   sonarcloud:
     name: SonarCloud Analysis
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: flutter-ci
     if: needs.flutter-ci.outputs.has_sonar == 'true'
     env:
@@ -145,7 +145,7 @@ jobs:
 
   golden-tests:
     name: Golden Tests
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: flutter-ci
     if: needs.flutter-ci.outputs.has_golden == 'true'
     steps:
@@ -157,7 +157,7 @@ jobs:
 
   perf-benchmarks:
     name: Performance Benchmarks
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: flutter-ci
     if: needs.flutter-ci.outputs.has_perf == 'true'
     steps:
@@ -169,7 +169,7 @@ jobs:
 
   integration-tests:
     name: Integration Tests
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: flutter-ci
     if: needs.flutter-ci.outputs.has_integ == 'true'
     steps:
@@ -181,7 +181,7 @@ jobs:
 
   apk-build:
     name: Build APK
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: flutter-ci
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
@@ -225,7 +225,7 @@ jobs:
 
   update-badges:
     name: Update Coverage Badges
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: flutter-ci
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     permissions:
