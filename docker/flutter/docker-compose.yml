@@ -1,0 +1,103 @@
+volumes:
+  gradle-cache:
+  pub-cache:
+
+x-base: &base
+  image: ${IMAGE_NAME:-budgetit-flutter:latest}
+  build:
+    context: ../..
+    dockerfile: docker/flutter/Containerfile
+    args:
+      BASE_IMAGE: ${BASE_IMAGE:-ubuntu:22.04}
+      JAVA_PACKAGE: ${JAVA_PACKAGE:-openjdk-17-jdk-headless}
+      ANDROID_CMDTOOLS_VERSION: ${ANDROID_CMDTOOLS_VERSION:-14742923}
+      ANDROID_API_LEVEL: ${ANDROID_API_LEVEL:-36}
+      ANDROID_BUILD_TOOLS: ${ANDROID_BUILD_TOOLS:-36.0.0}
+      ANDROID_NDK_VERSION: ${ANDROID_NDK_VERSION:-27.0.11902837}
+      FLUTTER_VERSION: ${FLUTTER_VERSION:-3.41.9}
+  working_dir: /workspace/Flutter/budgetit
+  volumes:
+    - ../../Flutter/budgetit:/workspace/Flutter/budgetit:z
+    - gradle-cache:/root/.gradle:z
+    - pub-cache:/root/.pub-cache:z
+  environment:
+    - ANDROID_SDK_ROOT=/opt/android-sdk
+    - ANDROID_HOME=/opt/android-sdk
+    - FLUTTER_SDK=/opt/flutter
+    - GRADLE_USER_HOME=/root/.gradle
+    - PUB_CACHE=/root/.pub-cache
+
+services:
+  dev:
+    <<: *base
+    network_mode: host
+    stdin_open: true
+    tty: true
+    command: ["bash"]
+    environment:
+      - ANDROID_SDK_ROOT=/opt/android-sdk
+      - ANDROID_HOME=/opt/android-sdk
+      - FLUTTER_SDK=/opt/flutter
+      - GRADLE_USER_HOME=/root/.gradle
+      - PUB_CACHE=/root/.pub-cache
+      - ADB_SERVER_SOCKET=tcp:localhost:${ADB_PORT:-5037}
+    volumes:
+      - ../../Flutter/budgetit:/workspace/Flutter/budgetit:z
+      - gradle-cache:/root/.gradle:z
+      - pub-cache:/root/.pub-cache:z
+
+  dev-linux:
+    <<: *base
+    network_mode: host
+    stdin_open: true
+    tty: true
+    security_opt:
+      - label:disable
+    command: ["bash"]
+    environment:
+      - ANDROID_SDK_ROOT=/opt/android-sdk
+      - ANDROID_HOME=/opt/android-sdk
+      - FLUTTER_SDK=/opt/flutter
+      - GRADLE_USER_HOME=/root/.gradle
+      - PUB_CACHE=/root/.pub-cache
+      - DISPLAY=${DISPLAY:-:0}
+      - WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-}
+      - XDG_RUNTIME_DIR=/run/user/${HOST_UID:-1000}
+      - ADB_SERVER_SOCKET=tcp:localhost:${ADB_PORT:-5037}
+    volumes:
+      - ../../Flutter/budgetit:/workspace/Flutter/budgetit:z
+      - gradle-cache:/root/.gradle:z
+      - pub-cache:/root/.pub-cache:z
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /run/user/${HOST_UID:-1000}:/run/user/${HOST_UID:-1000}
+
+  build-apk:
+    <<: *base
+    command: >
+      sh -c "flutter pub get && flutter build apk --release && echo 'APK Build Output : build/app/outputs/flutter-apk/app-release."
+
+  build-aab:
+    <<: *base
+    command: >
+      sh -c "flutter pub get && flutter build appbundle --release && echo 'AAB Build Output : build/app/outputs/bundle/release/app-release.aab"
+
+  build-web:
+    <<: *base
+    command: >
+      sh -c "flutter pub get && flutter build web --release && echo 'Web Build Output: build/web/'"
+
+  build-linux:
+    <<: *base
+    command: >
+      sh -c "flutter pub get && flutter build linux --release && echo 'Linux Build Output: build/linux/x64/release/bundle/'"
+
+  test:
+    <<: *base
+    command: >
+      sh -c "flutter pub get && flutter test --reporter=expanded"
+    networks:
+      - budgetit-net
+
+networks:
+  budgetit-net:
+    name: ${NETWORK_NAME:-budgetit-net}
