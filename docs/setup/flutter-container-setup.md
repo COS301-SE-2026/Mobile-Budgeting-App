@@ -23,6 +23,16 @@ Auto detects container runtime.
 
 ---
 
+## Configuration
+
+Copy the example env file if you want to override defaults:
+
+```bash
+cp docker/flutter/.env.example docker/flutter/.env
+```
+
+---
+
 ## ADB Setup
 
 Enable Developer Options on your phone: Settings -> About phone -> tap Build number 7 times.
