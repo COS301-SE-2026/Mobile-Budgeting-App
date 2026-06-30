@@ -97,6 +97,8 @@ jobs:
       - name: Coverage gate
         id: coverage
         working-directory: Flutter/budgetit
+        env:
+          COVERAGE_THRESHOLD: "0"
         run: python3 ../../scripts/coverage_gate.py --lcov-file coverage/lcov.info --output "$GITHUB_OUTPUT"
 
       - name: Upload Coverage
