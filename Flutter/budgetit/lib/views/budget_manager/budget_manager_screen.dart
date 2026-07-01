@@ -319,14 +319,17 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => BudgetDetailScreen(
-          title: budget.title,
-          subtitle: budget.subtitle,
-          spent: budget.spent,
-          limit: budget.limit,
-          icon: budget.icon,
-          progressColor: budget.progressColor,
-          isOverLimit: budget.isOverLimit,
-        ),
+  database: widget.database,
+  templateId: budget.templateId,
+  categoryId: budget.categoryId,
+  title: budget.title,
+  subtitle: budget.subtitle,
+  spent: budget.spent,
+  limit: budget.limit,
+  icon: budget.icon,
+  progressColor: budget.progressColor,
+  isOverLimit: budget.isOverLimit,
+),
       ),
     );
   },
