@@ -527,81 +527,81 @@ class _DashboardState extends State<Dashboard> {
                 const SizedBox(height: 25),
 
                 // insights
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                // Padding(
+                //   padding: const EdgeInsets.symmetric(horizontal: 20),
 
-                  child: InsightWidget(
-                    insights: [
-                      BudgetInsight(
-                        title: 'You\'re spending less this month',
+                //   child: InsightWidget(
+                //     insights: [
+                //       BudgetInsight(
+                //         title: 'You\'re spending less this month',
 
-                        body: 'Your expenses dropped compared to April.',
+                //         body: 'Your expenses dropped compared to April.',
 
-                        icon: Icons.trending_down_rounded,
+                //         icon: Icons.trending_down_rounded,
 
-                        accentColor: colours.tertiary,
+                //         accentColor: colours.tertiary,
 
-                        severity: InsightSeverity.tip,
-                      ),
+                //         severity: InsightSeverity.tip,
+                //       ),
 
-                      BudgetInsight(
-                        title: 'Entertainment budget exceeded',
+                //       BudgetInsight(
+                //         title: 'Entertainment budget exceeded',
 
-                        body: 'You\'ve spent more than expected.',
+                //         body: 'You\'ve spent more than expected.',
 
-                        icon: Icons.movie_rounded,
+                //         icon: Icons.movie_rounded,
 
-                        accentColor: colours.redColor,
+                //         accentColor: colours.redColor,
 
-                        severity: InsightSeverity.warning,
-                      ),
-                    ],
-                  ),
-                ),
+                //         severity: InsightSeverity.warning,
+                //       ),
+                //     ],
+                //   ),
+                // ),
 
-                const SizedBox(height: 25),
+                // const SizedBox(height: 25),
 
-                // upcoming bills title
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                // // upcoming bills title
+                // Padding(
+                //   padding: const EdgeInsets.symmetric(horizontal: 20),
 
-                  child: Text(
-                    "Upcoming Bills",
+                //   child: Text(
+                //     "Upcoming Bills",
 
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: colours.textPrimary,
-                    ),
-                  ),
-                ),
+                //     style: TextStyle(
+                //       fontSize: 18,
+                //       fontWeight: FontWeight.bold,
+                //       color: colours.textPrimary,
+                //     ),
+                //   ),
+                // ),
 
-                const SizedBox(height: 10),
+                // const SizedBox(height: 10),
 
-                // bills
-                BillItem(
-                  icon: Icons.electric_bolt,
+                // // bills
+                // BillItem(
+                //   icon: Icons.electric_bolt,
 
-                  title: "Electricity",
+                //   title: "Electricity",
 
-                  subtitle: "Due tomorrow",
+                //   subtitle: "Due tomorrow",
 
-                  amount: "R850",
-                ),
+                //   amount: "R850",
+                // ),
 
-                BillItem(
-                  icon: Icons.movie,
+                // BillItem(
+                //   icon: Icons.movie,
 
-                  title: "Netflix",
+                //   title: "Netflix",
 
-                  subtitle: "Due tomorrow",
+                //   subtitle: "Due tomorrow",
 
-                  amount: "R199",
-                ),
+                //   amount: "R199",
+                // ),
 
-                const SizedBox(height: 25),
+                // const SizedBox(height: 25),
 
-                // recent transactions title
+                // // recent transactions title
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
 
