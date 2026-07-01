@@ -3,40 +3,27 @@ import 'package:flutter/material.dart';
 
 class BalanceCard extends StatelessWidget {
   final DateTime selectedDate;
-  const BalanceCard({
-    super.key,
-    required this.selectedDate,
-  });
+  const BalanceCard({super.key, required this.selectedDate});
 
   @override
   Widget build(BuildContext context) {
-
     final colours = MyColours();
 
     return Container(
-
       width: double.infinity,
 
-      margin: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 10,
-      ),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
 
       padding: const EdgeInsets.all(28),
 
       decoration: BoxDecoration(
-
         color: colours.secondary,
 
-        borderRadius:
-            BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(30),
 
         boxShadow: [
-
           BoxShadow(
-            color: Colors.black.withValues(
-              alpha: 0.30,
-            ),
+            color: Colors.black.withValues(alpha: 0.30),
 
             blurRadius: 20,
 
@@ -46,12 +33,9 @@ class BalanceCard extends StatelessWidget {
       ),
 
       child: Column(
-
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
-
           Text(
             "DAILY SPENDING FOR ${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
 
@@ -82,9 +66,7 @@ class BalanceCard extends StatelessWidget {
             "Target: R1,950.00",
 
             style: TextStyle(
-              color: colours.background.withValues(
-                alpha: 0.8,
-              ),
+              color: colours.background.withValues(alpha: 0.8),
 
               fontSize: 20,
 

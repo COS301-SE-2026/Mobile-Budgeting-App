@@ -20,11 +20,8 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => ComingSoonPage(
-          title: title,
-          message: message,
-          icon: icon,
-        ),
+        builder: (_) =>
+            ComingSoonPage(title: title, message: message, icon: icon),
       ),
     );
   }
@@ -81,10 +78,7 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
         ),
 
         IconButton(
-          icon: Icon(
-            Icons.settings_outlined,
-            color: MyColours().cardText,
-          ),
+          icon: Icon(Icons.settings_outlined, color: MyColours().cardText),
           onPressed: () {
             _openComingSoonPage(
               context,

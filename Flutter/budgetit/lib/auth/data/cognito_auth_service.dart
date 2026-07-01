@@ -10,9 +10,7 @@ class CognitoAuthService implements AuthService {
         username: email,
         password: password,
         options: SignUpOptions(
-          userAttributes: {
-            AuthUserAttributeKey.email: email,
-          },
+          userAttributes: {AuthUserAttributeKey.email: email},
         ),
       );
       return const AppAuthResult(success: true);
@@ -46,10 +44,7 @@ class CognitoAuthService implements AuthService {
   @override
   Future<AppAuthResult> confirmSignUp(String email, String code) async {
     try {
-      await Amplify.Auth.confirmSignUp(
-        username: email,
-        confirmationCode: code,
-      );
+      await Amplify.Auth.confirmSignUp(username: email, confirmationCode: code);
       return const AppAuthResult(success: true);
     } on CodeMismatchException {
       return const AppAuthResult(
@@ -156,7 +151,10 @@ class CognitoAuthService implements AuthService {
 
   @override
   Future<AppAuthResult> confirmResetPassword(
-      String email, String newPassword, String code) async {
+    String email,
+    String newPassword,
+    String code,
+  ) async {
     try {
       await Amplify.Auth.confirmResetPassword(
         username: email,

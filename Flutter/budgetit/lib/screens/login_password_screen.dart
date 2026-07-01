@@ -136,10 +136,7 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
         const SizedBox(height: 8),
         const Text(
           'Secure your financial future with precision.',
-          style: TextStyle(
-            color: Colors.white60,
-            fontSize: 13,
-          ),
+          style: TextStyle(color: Colors.white60, fontSize: 13),
         ),
       ],
     );
@@ -188,12 +185,7 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
         color: const Color(0x33DDD6AE),
         borderRadius: BorderRadius.circular(10),
       ),
-      child: Row(
-        children: [
-          _buildTab('Login', 0),
-          _buildTab('Register', 1),
-        ],
-      ),
+      child: Row(children: [_buildTab('Login', 0), _buildTab('Register', 1)]),
     );
   }
 
@@ -272,8 +264,8 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
           color: _cream,
           size: 20,
         ),
-        onPressed: () => setState(
-            () => _confirmPasswordVisible = !_confirmPasswordVisible),
+        onPressed: () =>
+            setState(() => _confirmPasswordVisible = !_confirmPasswordVisible),
       ),
     );
   }
@@ -304,8 +296,10 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
           prefixIcon: Icon(icon, color: _cream, size: 20),
           suffixIcon: suffix,
           border: InputBorder.none,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
         ),
       ),
     );
@@ -318,9 +312,7 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
       child: GestureDetector(
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => const ForgotPasswordScreen(),
-          ),
+          MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
         ),
         child: const Text(
           'Forgot?',
@@ -404,7 +396,10 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
         Expanded(child: Divider(color: Colors.white24)),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 12),
-          child: Text('OR', style: TextStyle(color: Colors.white38, fontSize: 12)),
+          child: Text(
+            'OR',
+            style: TextStyle(color: Colors.white38, fontSize: 12),
+          ),
         ),
         Expanded(child: Divider(color: Colors.white24)),
       ],
@@ -427,10 +422,7 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
             borderRadius: BorderRadius.circular(12),
           ),
         ),
-        child: const Text(
-          'Continue as Guest',
-          style: TextStyle(fontSize: 14),
-        ),
+        child: const Text('Continue as Guest', style: TextStyle(fontSize: 14)),
       ),
     );
   }
@@ -500,23 +492,23 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
         auth.clearNeedsVerification();
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => VerifyEmailScreen(email: email),
-          ),
+          MaterialPageRoute(builder: (_) => VerifyEmailScreen(email: email)),
         );
       }
     } else {
       // Register
       final confirm = _confirmPasswordController.text;
       if (password != confirm) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Passwords do not match')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
         return;
       }
       if (password.length < 8) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Password must be at least 8 characters')),
+          const SnackBar(
+            content: Text('Password must be at least 8 characters'),
+          ),
         );
         return;
       }
@@ -525,9 +517,7 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
         auth.clearNeedsVerification();
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => VerifyEmailScreen(email: email),
-          ),
+          MaterialPageRoute(builder: (_) => VerifyEmailScreen(email: email)),
         );
       }
     }

@@ -49,7 +49,10 @@ void main() {
         icon: Icons.shopping_bag_outlined,
       );
 
-      expect(cat.icon, equals(Icons.shopping_bag_outlined.codePoint.toString()));
+      expect(
+        cat.icon,
+        equals(Icons.shopping_bag_outlined.codePoint.toString()),
+      );
     });
   });
 
@@ -65,7 +68,10 @@ void main() {
         icon: Value(Icons.savings_outlined),
       );
 
-      expect(updated.iconData!.codePoint, equals(Icons.savings_outlined.codePoint));
+      expect(
+        updated.iconData!.codePoint,
+        equals(Icons.savings_outlined.codePoint),
+      );
     });
 
     test('clears icon when updated to null', () async {
@@ -75,10 +81,7 @@ void main() {
         icon: Icons.home_outlined,
       );
 
-      final updated = await dao.updateCategory(
-        cat.id,
-        icon: const Value(null),
-      );
+      final updated = await dao.updateCategory(cat.id, icon: const Value(null));
 
       expect(updated.iconData, isNull);
     });
@@ -92,7 +95,10 @@ void main() {
 
       final updated = await dao.updateCategory(cat.id, name: 'Healthcare');
 
-      expect(updated.iconData!.codePoint, equals(Icons.local_hospital_outlined.codePoint));
+      expect(
+        updated.iconData!.codePoint,
+        equals(Icons.local_hospital_outlined.codePoint),
+      );
     });
   });
 }

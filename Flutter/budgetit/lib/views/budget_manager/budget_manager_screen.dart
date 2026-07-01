@@ -840,6 +840,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                             );
                           return;
                         }
+                        Navigator.of(dialogContext).pop();
 
                         await widget.database.budgetDao.insertBudgetTemplate(
                           categoryId: selectedCategory.categoryId,
@@ -849,11 +850,13 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
 
                         if (!mounted) return;
 
-                        Navigator.of(this.context).pop();
+                        Navigator.of(dialogContext).pop();
 
                         _refreshBudgets();
 
-                        ScaffoldMessenger.of(this.context)
+                        if (!context.mounted) return;
+
+                        ScaffoldMessenger.of(context)
                           ..hideCurrentSnackBar()
                           ..showSnackBar(
                             SnackBar(

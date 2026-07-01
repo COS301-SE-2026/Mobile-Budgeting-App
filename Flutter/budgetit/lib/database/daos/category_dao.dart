@@ -25,7 +25,15 @@ part 'category_dao.g.dart';
 ///   type: CategoryType.expense,
 /// );
 /// ```
-@DriftAccessor(tables: [Categories, CategoryClosure, TransactionCategoryMap, BudgetTemplates, BudgetPeriods])
+@DriftAccessor(
+  tables: [
+    Categories,
+    CategoryClosure,
+    TransactionCategoryMap,
+    BudgetTemplates,
+    BudgetPeriods,
+  ],
+)
 class CategoryDao extends DatabaseAccessor<AppDatabase>
     with _$CategoryDaoMixin {
   /// Singleton UUID generator used to create unique identifiers for categories.
@@ -193,19 +201,20 @@ class CategoryDao extends DatabaseAccessor<AppDatabase>
   /// 5. Deletes the category row itself.
   Future<void> hardDeleteCategory(String id) async {
     await db.transaction(() async {
-      final templateIds = await (select(budgetTemplates)
-              ..where((t) => t.categoryId.equals(id)))
-          .map((t) => t.id)
-          .get();
+      final templateIds = await (select(
+        budgetTemplates,
+      )..where((t) => t.categoryId.equals(id))).map((t) => t.id).get();
       if (templateIds.isNotEmpty) {
-        await (delete(budgetPeriods)
-              ..where((t) => t.templateId.isIn(templateIds)))
-            .go();
+        await (delete(
+          budgetPeriods,
+        )..where((t) => t.templateId.isIn(templateIds))).go();
       }
-      await (delete(budgetTemplates)..where((t) => t.categoryId.equals(id))).go();
-      await (delete(transactionCategoryMap)
-            ..where((t) => t.categoryId.equals(id)))
-          .go();
+      await (delete(
+        budgetTemplates,
+      )..where((t) => t.categoryId.equals(id))).go();
+      await (delete(
+        transactionCategoryMap,
+      )..where((t) => t.categoryId.equals(id))).go();
       await (delete(categoryClosure)
             ..where((t) => t.ancestorId.equals(id) | t.descendantId.equals(id)))
           .go();
