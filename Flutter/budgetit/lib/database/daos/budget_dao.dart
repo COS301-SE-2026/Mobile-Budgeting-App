@@ -296,12 +296,18 @@ class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
             .subtract(const Duration(milliseconds: 1));
       case PeriodType.monthly:
         startDate = DateTime.utc(now.year, now.month, 1);
-        endDate = DateTime.utc(now.year, now.month + 1, 1)
-            .subtract(const Duration(milliseconds: 1));
+        endDate = DateTime.utc(
+          now.year,
+          now.month + 1,
+          1,
+        ).subtract(const Duration(milliseconds: 1));
       case PeriodType.yearly:
         startDate = DateTime.utc(now.year, 1, 1);
-        endDate = DateTime.utc(now.year + 1, 1, 1)
-            .subtract(const Duration(milliseconds: 1));
+        endDate = DateTime.utc(
+          now.year + 1,
+          1,
+          1,
+        ).subtract(const Duration(milliseconds: 1));
     }
 
     return insertBudgetPeriod(

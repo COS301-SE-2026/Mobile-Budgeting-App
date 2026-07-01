@@ -98,6 +98,5 @@ class SettingsDao extends DatabaseAccessor<AppDatabase>
       await getSetting(_kDateFormat) ?? 'yyyy-MM-dd';
 
   /// Sets the user's preferred date format.
-  Future<void> setDateFormat(String format) =>
-      setSetting(_kDateFormat, format);
+  Future<void> setDateFormat(String format) => setSetting(_kDateFormat, format);
 }

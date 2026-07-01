@@ -1,64 +1,35 @@
 import 'package:flutter/material.dart';
 
 class DashboardHeader extends StatelessWidget {
-
   const DashboardHeader({super.key});
 
-  static const Color darkGreen =
-      Color(0xFF04240C);
+  static const Color darkGreen = Color(0xFF04240C);
 
-  static const Color cream =
-      Color(0xFFDDD6AE);
+  static const Color cream = Color(0xFFDDD6AE);
 
   @override
   Widget build(BuildContext context) {
-
     return Padding(
-
-      padding: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 15,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
 
       child: Container(
-
-        padding: const EdgeInsets.symmetric(
-          horizontal: 18,
-          vertical: 14,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
 
         decoration: BoxDecoration(
+          color: cream.withValues(alpha: 0.18),
 
-          color: cream.withValues(
-            alpha: 0.18,
-          ),
+          borderRadius: BorderRadius.circular(18),
 
-          borderRadius:
-              BorderRadius.circular(18),
-
-          border: Border.all(
-            color: cream.withValues(
-              alpha: 0.15,
-            ),
-          ),
+          border: Border.all(color: cream.withValues(alpha: 0.15)),
         ),
 
         child: Row(
-
-          mainAxisAlignment:
-              MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
           children: [
-
             Row(
-
               children: [
-
-                const Icon(
-                  Icons.menu,
-                  color: cream,
-                  size: 20,
-                ),
+                const Icon(Icons.menu, color: cream, size: 20),
 
                 const SizedBox(width: 10),
 
@@ -68,30 +39,21 @@ class DashboardHeader extends StatelessWidget {
                   style: TextStyle(
                     color: cream,
                     fontSize: 20,
-                    fontWeight:
-                        FontWeight.bold,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
             ),
 
             Row(
-
               children: [
-
                 Container(
-
-                  padding:
-                      const EdgeInsets.all(6),
+                  padding: const EdgeInsets.all(6),
 
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
 
-                    border: Border.all(
-                      color: cream.withValues(
-                        alpha: 0.3,
-                      ),
-                    ),
+                    border: Border.all(color: cream.withValues(alpha: 0.3)),
                   ),
 
                   child: const Icon(
@@ -104,18 +66,12 @@ class DashboardHeader extends StatelessWidget {
                 const SizedBox(width: 10),
 
                 Container(
-
-                  padding:
-                      const EdgeInsets.all(6),
+                  padding: const EdgeInsets.all(6),
 
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
 
-                    border: Border.all(
-                      color: cream.withValues(
-                        alpha: 0.3,
-                      ),
-                    ),
+                    border: Border.all(color: cream.withValues(alpha: 0.3)),
                   ),
 
                   child: const Icon(

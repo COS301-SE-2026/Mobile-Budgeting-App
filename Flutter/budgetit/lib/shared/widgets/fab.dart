@@ -30,9 +30,8 @@ class _FABState extends State<FAB> {
           Navigator.of(sheetContext).pop();
           showDialog<void>(
             context: outerContext,
-            builder: (_) => AddTransactionDialog(
-              onAdded: widget.onTransactionAdded,
-            ),
+            builder: (_) =>
+                AddTransactionDialog(onAdded: widget.onTransactionAdded),
           );
         },
       ),

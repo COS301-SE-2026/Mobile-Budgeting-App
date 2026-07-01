@@ -18,10 +18,11 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   static const _glassBorder = Color(0x44DDD6AE);
 
   // One controller per digit box
-  final List<TextEditingController> _controllers =
-      List.generate(6, (_) => TextEditingController());
-  final List<FocusNode> _focusNodes =
-      List.generate(6, (_) => FocusNode());
+  final List<TextEditingController> _controllers = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
+  final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
 
   @override
   void dispose() {
@@ -34,8 +35,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     super.dispose();
   }
 
-  String get _fullCode =>
-      _controllers.map((c) => c.text).join();
+  String get _fullCode => _controllers.map((c) => c.text).join();
 
   @override
   Widget build(BuildContext context) {
@@ -157,9 +157,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                 border: InputBorder.none,
                 counterText: '',
               ),
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-              ],
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               onChanged: (value) {
                 if (value.isNotEmpty && index < 5) {
                   // Auto-advance to next box
@@ -188,14 +186,12 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
         ),
         child: Row(
           children: [
-            const Icon(Icons.error_outline,
-                color: Color(0xFFCF6679), size: 16),
+            const Icon(Icons.error_outline, color: Color(0xFFCF6679), size: 16),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 auth.errorMessage!,
-                style: const TextStyle(
-                    color: Color(0xFFCF6679), fontSize: 13),
+                style: const TextStyle(color: Color(0xFFCF6679), fontSize: 13),
               ),
             ),
           ],
@@ -229,10 +225,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
               )
             : const Text(
                 'Verify →',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
               ),
       ),
     );

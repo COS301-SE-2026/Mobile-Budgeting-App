@@ -7,7 +7,6 @@ class ActionButton extends StatelessWidget {
   final colours = MyColours();
   ActionButton({super.key, required this.icon, required this.label});
 
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -20,7 +19,10 @@ class ActionButton extends StatelessWidget {
 
         borderRadius: BorderRadius.circular(20),
 
-        border: Border.all(color: colours.secondary.withValues(alpha: 0.25), width: 1,),
+        border: Border.all(
+          color: colours.secondary.withValues(alpha: 0.25),
+          width: 1,
+        ),
 
         boxShadow: [
           BoxShadow(
