@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:decimal/decimal.dart';
 
 import '../../utils/app_colour.dart';
+import '../financial_reports/financial_report_screen.dart';
 import '../../database/app_database.dart';
 import '../../database/schema.dart';
 import '../../utils/icon_mapper.dart';
+import 'budget_detail_screen.dart';
 
 class BudgetManagerScreen extends StatefulWidget {
   final AppDatabase database;
@@ -41,6 +43,13 @@ class _BudgetManagerItem {
   bool get isOverLimit => spent > limit;
 }
 
+class _BudgetSummary {
+  final double totalSpent;
+  final double totalTarget;
+
+  const _BudgetSummary({required this.totalSpent, required this.totalTarget});
+}
+
 class _BudgetCategoryOption {
   final String categoryId;
   final String label;
@@ -59,6 +68,9 @@ class _BudgetCategoryOption {
 
 class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
   final MyColours colours = MyColours();
+  String _formatCurrency(double amount) {
+    return 'R${amount.toStringAsFixed(2)}';
+  }
 
   Future<List<_BudgetManagerItem>> _loadBudgetItems() async {
     final templates = await widget.database.budgetDao.getAllBudgetTemplates();
@@ -88,6 +100,22 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
     }
 
     return items;
+  }
+
+  Future<_BudgetSummary> _loadBudgetSummary() async {
+    final budgets = await _loadBudgetItems();
+
+    final totalTarget = budgets.fold<double>(
+      0,
+      (sum, budget) => sum + budget.limit,
+    );
+
+    final totalSpent = budgets.fold<double>(
+      0,
+      (sum, budget) => sum + budget.spent,
+    );
+
+    return _BudgetSummary(totalSpent: totalSpent, totalTarget: totalTarget);
   }
 
   Future<List<_BudgetCategoryOption>> _loadCategoryOptions() async {
@@ -145,23 +173,55 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
     setState(() {
       _budgetItemsFuture = _loadBudgetItems();
       _categoryOptionsFuture = _loadCategoryOptions();
+      _budgetSummaryFuture = _loadBudgetSummary();
     });
   }
 
   late Future<List<_BudgetManagerItem>> _budgetItemsFuture;
   late Future<List<_BudgetCategoryOption>> _categoryOptionsFuture;
+  late Future<_BudgetSummary> _budgetSummaryFuture;
 
   @override
   void initState() {
     super.initState();
     _budgetItemsFuture = _loadBudgetItems();
     _categoryOptionsFuture = _loadCategoryOptions();
+    _budgetSummaryFuture = _loadBudgetSummary();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: colours.background,
+  backgroundColor: colours.background,
+  appBar: AppBar(
+    backgroundColor: colours.background,
+    elevation: 0,
+    title: Text(
+      'Budget Manager',
+      style: TextStyle(
+        color: colours.textPrimary,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    actions: [
+      IconButton(
+        tooltip: 'Export financial report',
+        icon: Icon(
+          Icons.file_download_outlined,
+          color: colours.textPrimary,
+        ),
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const FinancialReportScreen(),
+            ),
+          );
+        },
+      ),
+    ],
+  ),
+
+  // body: SafeArea(
 
       body: SafeArea(
         child: SingleChildScrollView(
@@ -248,14 +308,33 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                       children: [
                         for (final budget in budgets) ...[
                           _budgetCard(
-                            icon: budget.icon,
-                            title: budget.title,
-                            subtitle: budget.subtitle,
-                            spent: budget.spent,
-                            limit: budget.limit,
-                            progressColor: budget.progressColor,
-                            isOverLimit: budget.isOverLimit,
-                          ),
+  icon: budget.icon,
+  title: budget.title,
+  subtitle: budget.subtitle,
+  spent: budget.spent,
+  limit: budget.limit,
+  progressColor: budget.progressColor,
+  isOverLimit: budget.isOverLimit,
+  onTap: () {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => BudgetDetailScreen(
+  database: widget.database,
+  templateId: budget.templateId,
+  categoryId: budget.categoryId,
+  title: budget.title,
+  subtitle: budget.subtitle,
+  spent: budget.spent,
+  limit: budget.limit,
+  icon: budget.icon,
+  progressColor: budget.progressColor,
+  isOverLimit: budget.isOverLimit,
+),
+      ),
+    );
+  },
+  onDelete: () => _confirmDeleteBudget(budget),
+),
                           const SizedBox(height: 14),
                         ],
                       ],
@@ -308,58 +387,73 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
   }
 
   Widget _summaryCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        color: colours.secondary,
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "MONTHLY SPENDING MAY 2026",
-            style: TextStyle(
-              color: colours.background,
-              fontSize: 14,
-              letterSpacing: 2,
-              fontWeight: FontWeight.w500,
-            ),
+    return FutureBuilder<_BudgetSummary>(
+      future: _budgetSummaryFuture,
+      builder: (context, snapshot) {
+        final summary = snapshot.data;
+
+        final totalSpent = summary?.totalSpent ?? 0;
+        final totalTarget = summary?.totalTarget ?? 0;
+
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(22),
+          decoration: BoxDecoration(
+            color: colours.secondary,
+            borderRadius: BorderRadius.circular(30),
           ),
-          const SizedBox(height: 18),
-          Text(
-            "R1,850.00",
-            style: TextStyle(
-              color: colours.background,
-              fontSize: 42,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1,
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "MONTHLY BUDGET OVERVIEW",
+                style: TextStyle(
+                  color: colours.background,
+                  fontSize: 14,
+                  letterSpacing: 2,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 18),
+              Text(
+                _formatCurrency(totalSpent),
+                style: TextStyle(
+                  color: colours.background,
+                  fontSize: 42,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1,
+                ),
+              ),
+              const SizedBox(height: 18),
+              Text(
+                "Budget target: ${_formatCurrency(totalTarget)}",
+                style: TextStyle(color: colours.background, fontSize: 18),
+              ),
+            ],
           ),
-          const SizedBox(height: 18),
-          Text(
-            "Target: R1,950.00",
-            style: TextStyle(color: colours.background, fontSize: 18),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
   Widget _budgetCard({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required double spent,
-    required double limit,
-    required Color progressColor,
-    bool isOverLimit = false,
-  }) {
+  required IconData icon,
+  required String title,
+  required String subtitle,
+  required double spent,
+  required double limit,
+  required Color progressColor,
+  required VoidCallback onTap,
+  required VoidCallback onDelete,
+  bool isOverLimit = false,
+}) {
     final double progress = spent / limit;
 
-    return Container(
-      padding: const EdgeInsets.all(14),
+    return InkWell(
+  onTap: onTap,
+  borderRadius: BorderRadius.circular(10),
+  child: Container(
+    padding: const EdgeInsets.all(14),
 
       decoration: BoxDecoration(
         color: colours.primary,
@@ -425,13 +519,35 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                 ),
               ),
 
-              Text(
-                "R${spent.toInt()} / R${limit.toInt()}",
-                style: TextStyle(
-                  color: colours.secondary,
-                  fontSize: 12,
-                  fontWeight: isOverLimit ? FontWeight.bold : FontWeight.normal,
-                ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "R${spent.toInt()} / R${limit.toInt()}",
+                    style: TextStyle(
+                      color: colours.secondary,
+                      fontSize: 12,
+                      fontWeight: isOverLimit
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  InkWell(
+                    onTap: () {
+  onDelete();
+},
+                    borderRadius: BorderRadius.circular(20),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: Icon(
+                        Icons.delete_outline,
+                        color: colours.redColor,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -449,7 +565,91 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
           ),
         ],
       ),
+  ),
     );
+  }
+
+  Future<void> _confirmDeleteBudget(_BudgetManagerItem budget) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: colours.background,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: colours.secondary, width: 1.5),
+          ),
+          title: Text(
+            'Delete Budget',
+            style: TextStyle(
+              color: colours.textPrimary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Text(
+            'Are you sure you want to delete the ${budget.title} budget?',
+            style: TextStyle(color: colours.textPrimary),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false);
+              },
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: colours.textPrimary),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colours.redColor,
+                foregroundColor: colours.whiteAccents,
+              ),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldDelete != true) return;
+
+    await widget.database.budgetDao.softDeleteBudgetTemplate(budget.templateId);
+
+    if (!mounted) return;
+
+    _refreshBudgets();
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: colours.redColor,
+          margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          content: Row(
+            children: [
+              Icon(Icons.delete_outline, color: colours.whiteAccents),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  '${budget.title} budget deleted',
+                  style: TextStyle(
+                    color: colours.whiteAccents,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
   }
 
   void _showCreateBudgetDialog(BuildContext context) {
@@ -653,9 +853,12 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
 
                         if (!mounted) return;
 
+                        Navigator.of(dialogContext).pop();
+
                         _refreshBudgets();
 
                         if (!context.mounted) return;
+
                         ScaffoldMessenger.of(context)
                           ..hideCurrentSnackBar()
                           ..showSnackBar(
