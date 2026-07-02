@@ -52,17 +52,6 @@ jobs:
         working-directory: Flutter/budgetit
         run: dart run build_runner build --delete-conflicting-outputs --build-filter="lib/**.dart" --build-filter="test/**.dart"
 
-      - name: Commit dart codegen files to branch
-        if: github.event_name == 'push'
-        run: |
-          if ! git diff --quiet; then
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add Flutter/budgetit
-            git commit -m "chore: regenerate build_runner outputs [skip ci]"
-            git push
-          fi
-
   dart-format:
     name: Dart Format
     needs: prepare
