@@ -79,23 +79,48 @@ class _MyBoxState extends State<MyBox> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: _openEditDialog,
+
       onTapDown: (_) => setState(() => _isPressed = true),
       onTapUp: (_) => setState(() => _isPressed = false),
       onTapCancel: () => setState(() => _isPressed = false),
-      child: Container(
+      child: Stack (
+      children: [
+       Container(
         height: MediaQuery.of(context).size.height * 0.1,
         width: MediaQuery.of(context).size.width * 0.9,
+        
         alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.rectangle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black,
-              offset: const Offset(6, 6),
+          color: MyColours().background,
+          boxShadow: [BoxShadow( 
+                    offset: const Offset(6, 6),
+                    color: Colors.black,
+                  )],
+                
               
-            )
-          ],
+          
+        )),
+       Container(
+        height: MediaQuery.of(context).size.height * 0.1,
+        width: MediaQuery.of(context).size.width * 0.9,
+        
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: MyColours().background,
+          
+          
+        )),
+      Container(
+        height: MediaQuery.of(context).size.height * 0.1,
+        width: MediaQuery.of(context).size.width * 0.9,
+        
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          shape: BoxShape.rectangle,
           color: MyColours().primary,
+          
           border: Border.all(
             color: Colors.black,
             width: 4.0,
@@ -139,7 +164,10 @@ class _MyBoxState extends State<MyBox> {
             const SizedBox(width: 12),
           ],
         ),
-      ),
+      )
+      
+      ],
+    ),
     );
   }
 }
