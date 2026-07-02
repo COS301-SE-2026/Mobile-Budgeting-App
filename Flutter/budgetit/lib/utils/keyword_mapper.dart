@@ -1,7 +1,5 @@
-
-
 class KeywordMapper {
-    KeywordMapper.();
+    KeywordMapper._();
 
 
     static const Map<String, String> _rules = {

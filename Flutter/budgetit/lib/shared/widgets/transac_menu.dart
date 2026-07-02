@@ -1,10 +1,12 @@
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
 
+
 class FABMenu extends StatefulWidget {
   final VoidCallback? onAddTransaction;
+  final VoidCallback? onImportStatement;
 
-  const FABMenu({super.key, this.onAddTransaction});
+  const FABMenu({super.key, this.onAddTransaction, this.onImportStatement});
 
   @override
   State<FABMenu> createState() => _FABMenuState();
@@ -62,7 +64,7 @@ class _FABMenuState extends State<FABMenu> {
             mainAxisSize: MainAxisSize.max,
             children: [
               TextButton(
-                onPressed: () => {},
+                onPressed: widget.onImportStatement,
                 onHover: (isHovering) =>
                     setState(() => isHover2 = isHovering),
                 child: Container(
