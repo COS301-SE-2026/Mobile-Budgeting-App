@@ -14,6 +14,10 @@ on:
       - "Flutter/budgetit/**/*.g.dart"
       - "Flutter/budgetit/**/*.freezed.dart"
 
+concurrency:
+  group: ci-feature-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: true
+
 jobs:
   secret-scan:
     name: Secret Scan
@@ -27,12 +31,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}}
 
-  analyze:
-    name: Analyze
+  prepare:
+    name: Prepare
     runs-on: self-hosted
-    continue-on-error: true
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
@@ -62,17 +63,79 @@ jobs:
             git push
           fi
 
-      - name: Dart Format
-        working-directory: Flutter/budgetit
-        continue-on-error: true
-        run: dart format --output=none --set-exit-if-changed .
+  dart-format:
+    name: Dart Format
+    needs: prepare
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
-      - name: Flutter Analyze
-        working-directory: Flutter/budgetit
-        continue-on-error: true
-        run: flutter analyze
+      - uses: ./.github/actions/flutter-setup
 
-      - name: Unit Tests
-        working-directory: Flutter/budgetit
+      - name: Cache build_runner outputs
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8
+        with:
+          path: Flutter/budgetit/.dart_tool/build
+          key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart', 'Flutter/budgetit/test/**/*.dart') }}
+          restore-keys: |
+            build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-
+            build-runner-${{ runner.os }}-
+
+      - uses: ./.github/actions/memoized-step
         continue-on-error: true
+        with:
+          check-name: dart-format
+          working-directory: Flutter/budgetit
+          command: dart format --output=none --set-exit-if-changed .
+
+  flutter-analyze:
+    name: Flutter Analyze
+    needs: prepare
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+
+      - uses: ./.github/actions/flutter-setup
+
+      - name: Cache build_runner outputs
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8
+        with:
+          path: Flutter/budgetit/.dart_tool/build
+          key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart', 'Flutter/budgetit/test/**/*.dart') }}
+          restore-keys: |
+            build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-
+            build-runner-${{ runner.os }}-
+
+      - name: Dart Build Runner
+        working-directory: Flutter/budgetit
+        run: dart run build_runner build --delete-conflicting-outputs --build-filter="lib/**.dart" --build-filter="test/**.dart"
+
+      - uses: ./.github/actions/memoized-step
+        continue-on-error: true
+        with:
+          check-name: flutter-analyze
+          working-directory: Flutter/budgetit
+          command: flutter analyze
+
+  unit-tests:
+    name: Unit Tests
+    needs: prepare
+    runs-on: self-hosted
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+
+      - uses: ./.github/actions/flutter-setup
+
+      - name: Cache build_runner outputs
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8
+        with:
+          path: Flutter/budgetit/.dart_tool/build
+          key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart', 'Flutter/budgetit/test/**/*.dart') }}
+          restore-keys: |
+            build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-
+            build-runner-${{ runner.os }}-
+
+      - name: Run unit tests
+        working-directory: Flutter/budgetit
         run: flutter test --concurrency=4 $(find test -name '*_test.dart' -not -path 'test/golden/*' -not -path 'test/performance/*' -not -path 'test/integration/*')

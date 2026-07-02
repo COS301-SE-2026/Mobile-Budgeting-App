@@ -40,21 +40,29 @@ def generate_coverage_badge(metric: str, percent: float) -> str:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--lines", required=True, type=float)
-    parser.add_argument("--branches", required=True, type=float)
-    parser.add_argument("--functions", required=True, type=float)
-
+    parser.add_argument("--summary-json", required=True, type=Path)
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path(os.path.join(tempfile.gettempdir(), "coverage_badges.json")),
+    )
     args = parser.parse_args()
 
+    try:
+        summary_path = validate_path(args.summary_json, [Path.cwd()], must_exist=True)
+        output_path = validate_path(args.output, [Path.cwd(), Path(tempfile.gettempdir())])
+    except (ValueError, FileNotFoundError) as e:
+        print(f"::error::{e}", file=sys.stderr)
+        sys.exit(1)
+
+    with open(summary_path, encoding="utf-8") as f:
+        metrics = json.load(f)
+
     badges = {
-        "lines": generate_coverage_badge("Lines", args.lines),
-        "branches": generate_coverage_badge("Branches", args.branches),
-        "functions": generate_coverage_badge("Functions", args.functions),
+        "lines": generate_coverage_badge("Lines", metrics["lines"]),
+        "branches": generate_coverage_badge("Branches", metrics["branches"]),
+        "functions": generate_coverage_badge("Functions", metrics["functions"]),
     }
 
-    file_path = validate_path(
-        os.path.join(tempfile.gettempdir(), "coverage_badges.json"),
-        [tempfile.gettempdir()],
-    )
-    with open(file_path, "w") as file:
-        json.dump(badges, file)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(badges, f, indent=2)

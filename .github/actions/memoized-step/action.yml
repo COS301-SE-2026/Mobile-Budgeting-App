@@ -1,0 +1,73 @@
+name: Memoized Step
+description: Run a command, skipping if a successful check run with the same name already exists for the commit SHA. Posts a new check run on success.
+inputs:
+  check-name:
+    description: Logical name for this check
+    required: true
+  commit-sha:
+    description: Commit SHA to memoize on
+    required: false
+    default: ${{ github.event.pull_request.head.sha || github.sha }}
+  working-directory:
+    description: Working directory to run the command in
+    required: false
+    default: .
+  command:
+    description: Command to run if not memoized
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Query prior check runs
+      id: query
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        CHECK_NAME: ${{ inputs.check-name }}
+        REPO: ${{ github.repository }}
+        COMMIT_SHA: ${{ inputs.commit-sha }}
+      run: |
+        set -euo pipefail
+
+        api_url="https://api.github.com/repos/${REPO}/commits/${COMMIT_SHA}/check-runs?per_page=100"
+
+        response=$(curl -fsSL -H "Authorization: token ${GH_TOKEN}" -H "Accept: application/vnd.github+json" "${api_url}")
+
+        hits=$(echo "${response}" | jq --arg name "${CHECK_NAME}" '[.check_runs[] | select(.name == $name and .conclusion == "success")] | length')
+
+        if [ "${hits}" -gt 0 ]; then
+          echo "::notice::${CHECK_NAME} already passed for ${COMMIT_SHA} — skipping"
+          echo "skip=true" >> "${GITHUB_OUTPUT}"
+        else
+          echo "skip=false" >> "${GITHUB_OUTPUT}"
+        fi
+
+    - name: Run command
+      id: run
+      if: steps.query.outputs.skip != 'true'
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: ${{ inputs.command }}
+
+    - name: Post check run
+      if: steps.run.conclusion == 'success'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        CHECK_NAME: ${{ inputs.check-name }}
+        REPO: ${{ github.repository }}
+        COMMIT_SHA: ${{ inputs.commit-sha }}
+        DETAILS_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      run: |
+        payload=$(jq -n --arg name "${CHECK_NAME}" --arg sha "${COMMIT_SHA}" --arg details_url "${DETAILS_URL}" \
+          '{
+            name: $name,
+            head_sha: $sha,
+            status: "completed",
+            conclusion: "success",
+            details_url: $details_url
+          }')
+
+        if ! curl -fsSL -X POST -H "Authorization: token ${GH_TOKEN}" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${REPO}/check-runs" --data "${payload}"; then
+          echo "::warning::Failed to post check run to GitHub API (the actual check still succeeded; this is a side-effect, not the work itself)"
+        fi
