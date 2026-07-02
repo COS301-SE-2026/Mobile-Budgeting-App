@@ -1,14 +1,14 @@
-import '../models/parsed_transaction.dart';
-import '../utils/keyword_mapper.dart';
+import '../../models/import/parsed_transaction.dart';
+import '../../utils/keyword_mapper.dart';
 
 class ClassificationService { 
 
     final Map<String, String> _categoryNameToId;
 
-    ClassificationService(this,_categoryNameToId);
+    ClassificationService(this._categoryNameToId);
 
 
-    void classifyAll ( List<ParsedTransaction> transactions) { //this is to classify all the tranactions in place. 
+    void classifyAll (List<ParsedTransaction> transactions) { //this is to classify all the tranactions in place. 
         for (final transaction in transactions) {
             if ( transaction.categoryOverridden) continue;
             _classifyOne(transaction);
@@ -35,9 +35,9 @@ class ClassificationService {
     }
 
     void _assignFallback(ParsedTransaction pt, String categoryName) { //this is to assgin fallback category to a transaction if no ketywprd match was made.  
-        final id = _categoryNameToID[categoryName];
+        final id = _categoryNameToId[categoryName];
         if ( id != null) { 
-            pt. category = id; pt.categoryName = categoryName;
+            pt.categoryId = id; pt.categoryName = categoryName;
         }
     }
 
