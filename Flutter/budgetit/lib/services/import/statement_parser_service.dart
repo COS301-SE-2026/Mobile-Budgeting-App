@@ -4,6 +4,7 @@ import 'package:decimal/decimal.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 import '../../models/import/parsed_transaction.dart';
+import 'package:pdfrx/pdfrx.dart';
 
 
 
@@ -108,11 +109,14 @@ class StatementParserService {
     }
 
     Future<String> _extractPdfText(String path) async {
-        throw UnimplementedError(
-            'Add pdf_text to pubspec.yaml, then replace this stub:\n'
-            " final doc = await PDFDoc.fromPath('$path');\n"
-            ' return await doc.text:',
-        );
+        final document = await PdfDocument.openFile(path);
+        final buffer = StringBuffer();
+        for (int i = 1; i <= document.pages.length; i++){
+            final page = document.pages[i-1];
+            final text = await page.loadText();
+            buffer.writeln(text.fullText);
+        }
+        return buffer.toString();
     }
 
     List<ParsedTransaction> _parsePdfLines(List<String> lines) {

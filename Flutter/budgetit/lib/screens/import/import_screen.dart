@@ -30,7 +30,7 @@ class _ImportScreenState extends State<ImportScreen> {
         });
 
         try {
-            final result = await FilePicker.platform.pickFiles(
+            final result = await FilePicker.pickFiles(
                 type: FileType.custom,
                 allowedExtensions: ['csv', 'pdf'],
                 allowMultiple: false,
