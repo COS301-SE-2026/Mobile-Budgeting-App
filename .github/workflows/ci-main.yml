@@ -79,7 +79,7 @@ jobs:
 
       - name: Run build_runner
         working-directory: Flutter/budgetit
-        run: dart run build_runner build --delete-conflicting-outputs --build-filter="lib/**.dart" --build-filter="test/**.dart"
+        run: dart run build_runner build --delete-conflicting-outputs
 
   dart-format:
     name: Dart Format
@@ -125,7 +125,7 @@ jobs:
 
       - name: Dart Build Runner
         working-directory: Flutter/budgetit
-        run: dart run build_runner build --delete-conflicting-outputs --build-filter="lib/**.dart" --build-filter="test/**.dart"
+        run: dart run build_runner build --delete-conflicting-outputs
 
       - uses: ./.github/actions/memoized-step
         with:
@@ -153,7 +153,7 @@ jobs:
 
       - name: Dart Build Runner
         working-directory: Flutter/budgetit
-        run: dart run build_runner build --delete-conflicting-outputs --build-filter="lib/**.dart" --build-filter="test/**.dart"
+        run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Unit tests
         working-directory: Flutter/budgetit
