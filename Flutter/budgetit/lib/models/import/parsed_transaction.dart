@@ -24,8 +24,8 @@ class ParsedTransaction {
     }
 
     String get longDescription {
-        final trimmed = description = description.trim();
-        return trimmed.length > 100 ? trimmed.substring(100) : null;
+        final trimmed = description.trim();
+        return trimmed.length > 100 ? trimmed.substring(100) : '';
     }
 
 

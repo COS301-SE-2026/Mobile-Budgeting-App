@@ -4,7 +4,7 @@ import '../../models/import/import_result.dart';
 import '../../services/import/import_orchestrator.dart';
 
 class ImportPreviewScreen extends StatefulWidget {
-    final List<ParsedTransaction> transaction;
+    final List<ParsedTransaction> transactions;
     final ImportOrchestrator orchestrator;
 
     const ImportPreviewScreen({
@@ -14,14 +14,16 @@ class ImportPreviewScreen extends StatefulWidget {
     });
 
     @override
-    State<ImportPreviewSdcreen> createState() => _ImportPreviewScreenState();
+    State<ImportPreviewScreen> createState() => _ImportPreviewScreenState();
 
 }
 
 class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
     bool _committing = false;
 
-    List<ParsedTransactio> get _new => widget.transaction.where((t) => !t.isDuplicate).toList();
+    List<ParsedTransaction> get _new => widget.transactions.where((t) => !t.isDuplicate).toList();
+
+    List<ParsedTransaction> get _duplicates => widget.transactions.where((t) => t.isDuplicate).toList();
 
     Future<void> _commit() async {
         setState(() => _committing = true);
@@ -45,6 +47,7 @@ class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
                 setState(() => _committing = false);
             }
         }
+    }    
 
         void _showResultSheet(ImportResult result) {
             showModalBottomSheet(
@@ -58,7 +61,7 @@ class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
                     onDone: () {
                         Navigator.of(context)
                         ..pop() //sheet then  import screen
-                        ..pop()
+                        ..pop();
                     },
                 ),
             );
@@ -76,78 +79,78 @@ class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
                 appBar: AppBar(
                     title: const Text('Review transactions'),
                     bottom: PreferredSize(
-                    preferredSize: const Size.fromHeight(36),
-                    child: Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                        child: Row(
+                        preferredSize: const Size.fromHeight(36),
+                        child: Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                            child: Row(
+                                children: [
+                                   _SummaryPill(
+                                       label: '$newCount to import', color: colors.primary),
+                                    if (dupCount > 0) ...[
+                                        const SizedBox(width: 8),
+                                         _SummaryPill(
+                                            label: '$dupCount duplicate${dupCount > 1 ? 's' : ''}', color: colors.outline),
+                                        ],
+                                    ],
+                                ),
+                            ),
+                        ),
+                    ),
+
+                   body: ListView(
+                        padding: const EdgeInsets.only(bottom: 100),
                         children: [
-                            _SummaryPill(
-                                label: '$newCount to import', color: colors.primary),
-                            if (dupCount > 0) ...[
-                            const SizedBox(width: 8),
-                            _SummaryPill(
-                                label: '$dupCount duplicate${dupCount > 1 ? 's' : ''}', color: colors.outline),
+                            if(_new.isNotEmpty) ...[
+                                _SectionHeader(title: 'New Transactions'),
+                                ..._new.map((ta) => _TransactionTile(
+                                    tx:ta,
+                                    onCategoryTap: () => _pickCategory(ta),
+                                )),
+                            ],
+
+                            if (_duplicates.isNotEmpty) ...[
+                                _SectionHeader(
+                                    title: 'Possible Dupliucates',
+                                    subtitle: 'These Match transactions already in your records.',
+                                ),
+                                ..._duplicates.map((ta) => _TransactionTile(
+                                    tx:ta,
+                                    dimmed:true,
+                                    onCategoryTap: () => _pickCategory(ta),
+                                    onIncludeToggle: () => setState(()=> ta.isDuplicate = false),
+                                )),
                             ],
                         ],
+                    ),
+
+                    bottomNavigationBar: SafeArea(
+                        child:Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: FilledButton(
+                                onPressed: newCount == 0 || _committing ? null : _commit,
+                                style:FilledButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(vertical: 16),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12)
+                                    ),
+                                ),
+                                child: _committing ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth:2,color:Colors.white
+                                    ),
+                                )
+                                : Text('Import $newCount transaction${newCount != 1 ? 's' : '' }'),
+                            ),
+
                         ),
                     ),
-                    ),
-                ),
+                );
+            }
 
-                body: ListView(
-                    padding: const EdgeInsets.only(bottom: 100),
-                    children: [
-                        if(_new.isNotEmpty) ...[
-                            _SectionHeader(title: 'New Transactions'),
-                            ..._new.map((ta) => _TransactionTile(
-                                ta:ta,
-                                onCategoryTap: () => _pickCategory(ta),
-                            )),
-                        ],
-
-                        if (_duplicates.isNotEmpty) ...[
-                            _SectionHeader(
-                                title: 'Possible Dupliucates',
-                                subtitle: 'These Match transactions already in your records.',
-                            ),
-                            ..._duplicates.map((ta) => _TransactionTile(
-                                ta:ta,
-                                dimmed:true.
-                                onCategoryTap:()=> _pickCategory(ta),
-                                onIncludeToggle:()=> setState(()=> ta.isDuplicate = false),
-                            )),
-                        ],
-                    ],
-                ),
-
-                bottomNavigationBar: SafeArea(
-                    child:Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: FilledButton(
-                            onPressed: newCount == 0 || _committing ? null : _commit,
-                            style:FilledButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BroderRadius.circular(12)
-                                ),
-                            ),
-                            child: _committing ? const SizedBox(
-                                width: 20,
-                                heaight: 20,
-                                child: CircularProgressIndicator(
-                                    strokeWidth:2,color:Colors.white
-                                ),
-                            )
-                            : Text('Import $newCount transaction${newCount != 1 ? 's' : '' }'),
-                        ),
-
-                    ),
-                ),
-            );
-        }
-
-        Fututre<void> _pickCategory(ParsedTransaction ta) async {
-            ScaffoldMessgenger.of(context).showSnackBar(
+        Future<void> _pickCategory(ParsedTransaction ta) async {
+            ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Category picker - wire up your existing dialogue here')),
             );
         }
@@ -289,7 +292,7 @@ class _SummaryPill extends StatelessWidget {
             );
 }
 
-class _ResultSheet extends StatelessWdiget {
+class _ResultSheet extends StatelessWidget {
     final ImportResult result;
     final VoidCallback onDone;
     
@@ -338,7 +341,7 @@ class _ResultSheet extends StatelessWdiget {
 }
 
 
-class _Row extends StatelessWdiget {
+class _Row extends StatelessWidget {
     final String label;
     final String value;
     final bool error;
