@@ -8,7 +8,7 @@ class DuplicateDetector {
     late final Set<String> _existingHashes; 
 
     DuplicateDetector(this._existing){
-        _existingHashes = _existing.map((e)=> e.duplicateHash).toSet();
+        _existingHashes = _existing.map<String>((e)=> e.deduplicationHash).toSet();
     }
 
     void flagDuplicates(List<ParsedTransaction> parsed){

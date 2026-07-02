@@ -1,16 +1,15 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
-import 'package:decimal.dart';
-import '../../databse/app_database.dart';
+import 'package:decimal/decimal.dart';
+import '../../database/app_database.dart';
 import '../../database/daos/transaction_dao.dart';
 import '../../database/daos/category_dao.dart';
 import '../../models/import/parsed_transaction.dart';
 import '../../models/import/import_result.dart';
-import '../../schema.dart';
 import 'statement_parser_service.dart';
 import 'classification_service.dart';
 import 'duplicate_detector.dart';
-
+import 'package:budgetit/database/schema.dart';
 
 class ImportOrchestrator {
     final AppDatabase _db;
@@ -67,7 +66,7 @@ Future<ImportResult> commitImport(
             try {
                 final dbta = await _taDao.insertTransaction(
                     amount: ta.amount,
-                    type: ta.isTncome ? TransactionType.income : TransactionType.expense,
+                    type: ta.isIncome ? TransactionType.income : TransactionType.expense,
 
                     shortDescription: ta.shortDescription,
                     longDescription: ta.longDescription,
@@ -80,7 +79,7 @@ Future<ImportResult> commitImport(
                         transactionId: dbta.id,
                         categoryId: ta.categoryId!,
                         assignmentSource: ta.categoryOverridden
-                        ? AssignemntSource.manual: AssignmentSource.ai,
+                        ? AssignmentSource.manual: AssignmentSource.ai,
                     );
                 }
 
