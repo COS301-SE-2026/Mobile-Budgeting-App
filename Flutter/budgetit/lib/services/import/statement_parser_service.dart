@@ -14,7 +14,7 @@ class StatementParserService {
         if (lower.endsWith('.csv')) {
             return _parseCsv(path);
         }
-        if (lower.endWith('.pdf')) {
+        if (lower.endsWith('.pdf')) {
             return _parsePdf(path);
         }
         throw  UnsupportedError('Unsupported file format. Use CSV or PDF.');
@@ -149,7 +149,7 @@ class StatementParserService {
                     description:description,
                     amount:amount,
                     isIncome:isIncome,
-                    deduplicateHash: _hash(date,amount,description),
+                    deduplicationHash: _hash(date,amount,description),
                     rawData: {'raw_line': trimmed},
                 ));
             } catch (_) {
@@ -162,7 +162,7 @@ class StatementParserService {
 
     int _findCol(List<String> headers, List<String> candidates){
         for(final candidate in candidates) {
-            final idx = headers.inderWhere((h)=> h.contains(candidate));
+            final idx = headers.indexWhere((h)=> h.contains(candidate));
             if(idx != -1){
                 return idx;
             }

@@ -2,6 +2,9 @@ import 'package:budgetit/shared/widgets/add_transaction_dialog.dart';
 import 'package:budgetit/shared/widgets/transac_menu.dart';
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
+import 'package:budgetit/screens/import/import_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:budgetit/database/app_database.dart';
 
 class FAB extends StatefulWidget {
   final VoidCallback? onTransactionAdded;
@@ -14,6 +17,16 @@ class FAB extends StatefulWidget {
 
 class _FABState extends State<FAB> {
   bool _pressed = false;
+
+  void _navigateToImport() {
+    print('Debugg: _navigsteToImport called');
+    Navigator.of(context).pop();
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ImportScreen(db: context.read<AppDatabase>())
+      ),
+    );
+  }
 
   void _showMenu() {
     // Capture context before async gap — FAB stays mounted while sheet is open.
@@ -35,6 +48,7 @@ class _FABState extends State<FAB> {
             ),
           );
         },
+        onImportStatement: _navigateToImport,
       ),
     );
   }
