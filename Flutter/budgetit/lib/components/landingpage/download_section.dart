@@ -76,3 +76,25 @@ class _PlatformBadge extends StatelessWidget {
   }
 }
 
+class _DownloadButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final colours = MyColours();
+    return ElevatedButton(
+      onPressed: () {},
+      style: ElevatedButton.styleFrom(
+        backgroundColor: colours.secondary,
+        foregroundColor: MyColours().background,
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 18),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+      ),
+      child: const Text(
+        "Download the app",
+        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+      ),
+    );
+  }
+}
