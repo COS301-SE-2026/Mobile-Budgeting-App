@@ -70,8 +70,8 @@ class FeaturesSection extends StatelessWidget {
             children: features
                 .map(
                   (feature) => SizedBox(
-                    width: 320,
-                    height: 210,
+                    width: 380,
+                    height: 370,
                     child: _FeatureCard(
                       title: feature["title"]!,
                       description: feature["description"]!,
@@ -111,7 +111,7 @@ class _FeatureCard extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              color: colours.primary,
+              color: colours.whiteAccents,
               fontSize: 28,
               fontWeight: FontWeight.bold,
               height: 1.1,
