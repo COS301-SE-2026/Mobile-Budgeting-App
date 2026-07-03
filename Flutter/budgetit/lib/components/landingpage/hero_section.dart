@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import '../../utils/app_colour.dart';
 
-class HeroSection extends StatelessWidget {
-  final colours = MyColours();
-  final VoidCallback? onGetStarted;
+class HeroSection extends StatefulWidget {
+  final VoidCallback? onGetStarted; //used chatgpt for voidcallback
 
-  HeroSection({super.key, this.onGetStarted});
+  const HeroSection({super.key, this.onGetStarted});
+
+  @override
+  State<HeroSection> createState() => _HeroSectionState();
+}
+  class _HeroSectionState extends State<HeroSection> {
+    final colours = MyColours();
 
   @override
   Widget build(BuildContext context) {
