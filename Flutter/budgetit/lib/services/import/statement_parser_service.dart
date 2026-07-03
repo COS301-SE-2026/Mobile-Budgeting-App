@@ -144,6 +144,7 @@ class StatementParserService {
                 final afterDate = trimmed.substring(dateMatch.end).trim();
                 final beforeAmount = afterDate.substring(0, afterDate.lastIndexOf(amountMatch.group(0)!)).trim();
                 final description = beforeAmount.isEmpty ? afterDate : beforeAmount;
+                final datePattern = RegExp(r'(\d{1,2}[\/\-]\d{2}[\/\-]?\d{0,4})');
 
                 if(description.isEmpty || amount == Decimal.zero){
                     continue;
@@ -203,6 +204,17 @@ class StatementParserService {
         }
 
         throw FormatException('Unrecognized date format: $cleaned');
+
+        final RegExp mmdd = RegExp(r'^(\d{1,2})/(\d{2})$'); //to account for bank statements where date format has no year, based on example statement used in testing.
+        final matchMMDD = mmdd.firstMatch(cleaned);
+        if(matchMMDD != null){
+            return DateTime(
+                DateTime.now().year,
+                int.parse(matchMMDD.group(1)!),
+                int.parse(matchMMDD.group(2)!),
+            );
+        }
+
 }
 
 Decimal _parseAmount(String raw) {
