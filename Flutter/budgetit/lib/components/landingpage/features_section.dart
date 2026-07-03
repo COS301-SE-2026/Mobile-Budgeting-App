@@ -10,15 +10,16 @@ class FeaturesSection extends StatelessWidget {
     final colours = MyColours();
 
     final List<Map<String, String>> features = [
+      
       {
         "title": "Offline-First Transaction Management",
         "description":
-            "Runs entirely on your device with no internet required."
+            "Runs entirely on your device with no internet connection required."
       },
       {
         "title": "Bills & Subscriptions",
         "description":
-            "Track recurring payments in one place. Know what's due, what's scheduled and what you can cut."
+            "Track recurring payments in one place. Know what is due, what is scheduled and what you can cut."
       },
       {
         "title": "Budget Goals",
@@ -31,23 +32,23 @@ class FeaturesSection extends StatelessWidget {
             "Biometric authentication and encryption keep your financial information safe."
       },
       {
-        "title": "Real-time Analytics",
+        "title": "Real time Analytics",
         "description":
             "View spending trends, category breakdowns and monthly insights instantly."
       },
       {
         "title": "Statement Import",
         "description":
-            "Upload CSV or PDF bank statements and BudgetIT automatically categorises transactions."
-      },
+            "Upload CSV or PDF bank statements and Budget IT automatically categorises transactions."
+      },//might change to just bank statement
     ];
 
     return Container(
       width: double.infinity,
-      color: Colors.white,
+      color: MyColours().secondary,
       padding: const EdgeInsets.symmetric(
-        horizontal: 50,
-        vertical: 70,
+        horizontal: 70,
+        vertical: 100,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,7 +58,7 @@ class FeaturesSection extends StatelessWidget {
             style: TextStyle(
               fontSize: 42,
               fontWeight: FontWeight.bold,
-              color: colours.background,
+              color: colours.primary,
             ),
           ),
 
