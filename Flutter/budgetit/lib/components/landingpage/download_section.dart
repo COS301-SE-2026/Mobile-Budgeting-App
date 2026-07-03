@@ -9,7 +9,7 @@ class DownloadSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: colours.background,
+      color: colours.background,//dark green looks great
       padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 60),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -30,7 +30,7 @@ class DownloadSection extends StatelessWidget {
           _PlatformBadge(
             icon: Icons.play_arrow_rounded,
             label: "AVAILABLE ON\nPLAY STORE",
-          ),
+          ),//need the image of the logo
         ],
       ),
     );
@@ -52,7 +52,7 @@ class _PlatformBadge extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 110,
+          width:110,
           height: 110,
           decoration: BoxDecoration(
             color: MyColours().primary,
@@ -74,8 +74,8 @@ class _PlatformBadge extends StatelessWidget {
       ],
     );
   }
-}
-
+}//end
+//making the download button widget
 class _DownloadButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
