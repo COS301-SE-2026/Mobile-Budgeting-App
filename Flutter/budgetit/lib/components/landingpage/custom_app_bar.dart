@@ -74,6 +74,56 @@ class _NavLink extends StatefulWidget {
   final MyColours colours;
   const _NavLink({required this.text, required this.isActive, required this.onTap, required this.colours});
 
-  //@override
-   //State<_NavLink> createState() => _NavLinkState();
+  @override
+   State<_NavLink> createState() => _NavLinkState();
+}
+class _NavLinkState extends State<_NavLink> {
+  bool _isPressed = false;
+  bool _isHovered = false;
+// i used Chatgpt to help me with the hovering state below
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _isPressed = true),
+        onTapUp: (_) => setState(() => _isPressed = false),
+        onTapCancel: () => setState(() => _isPressed = false),
+        onTap: widget.onTap,
+        child: AnimatedScale(
+          scale: _isPressed ? 0.94 : 1.0,
+          duration: const Duration(milliseconds: 100),
+          curve: Curves.easeOut,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 150),
+                  style: TextStyle(
+                    color: _isHovered || widget.isActive
+                        ? widget.colours.greenAccents
+                        : widget.colours.background,
+                    fontWeight: widget.isActive ? FontWeight.bold : FontWeight.w600,
+                    fontSize: 15,
+                  ),
+                  child: Text(widget.text),
+                  ),
+                const SizedBox(height: 4),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  height: 2,
+                  width: widget.isActive ? 22 : (_isHovered ? 14 : 0),
+                  color: widget.colours.secondary,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
