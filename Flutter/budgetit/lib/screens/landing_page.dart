@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../components/landingpage/custom_app_bar.dart';
 import '../components/landingpage/hero_section.dart';
-// import '../components/landingpage/features_section.dart';
-// import '../components/landingpage/import_section.dart';
-// import '../components/landingpage/how_it_works.dart';
+//import '../components/landingpage/features_section.dart';
+import '../components/landingpage/import_section.dart';
+import '../components/landingpage/how_it_works.dart';
 import '../components/landingpage/download_section.dart';
 import '../components/landingpage/about_section.dart';
 import '../components/landingpage/footer.dart';
@@ -15,7 +15,6 @@ class LandingPage extends StatefulWidget {
   @override
   State<LandingPage> createState() => _LandingPageState();
 }
-
 class _LandingPageState extends State<LandingPage> {
   final ScrollController _scrollController = ScrollController();
 
@@ -24,7 +23,7 @@ class _LandingPageState extends State<LandingPage> {
   final _howItWorksKey = GlobalKey();
   final _downloadKey = GlobalKey();
   final _aboutKey = GlobalKey();
-
+////////////////////////////////////////// i used chatgpt to help me with the scrollable part
   static const double _navBarHeight = 80;
 
   String _activeSection = "Home";
@@ -89,34 +88,42 @@ class _LandingPageState extends State<LandingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
+      body: Stack(
+        children: [
 
-              CustomAppBar(),
-
-              HeroSection(
-                onGetStarted: () {
-                // Navigate to the next page
-              },
+          Positioned.fill(
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              child: Column(
+                children: [
+                  HeroSection(
+                    key: _homeKey,
+                    onGetStarted: () {},
+                  ),
+                  //FeaturesSection(key: _featuresKey), this section is not really needed, donot remove now
+                  ImportSection(),
+                  HowItWorks(key: _howItWorksKey),
+                  DownloadSection(key: _downloadKey),
+                  AboutSection(key: _aboutKey),
+                  Footer(),
+                ],
               ),
-
-              // FeaturesSection(),
-
-              // ImportSection(),
-
-              // HowItWorksSection(),
-
-              DownloadSection(),
-
-              AboutSection(),
-
-              Footer(),
-
-            ],
+            ),
           ),
-        ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: CustomAppBar(
+              activeSection: _activeSection,
+              onHomeTap: () => _scrollTo(_homeKey),
+              onFeaturesTap: () => _scrollTo(_featuresKey),
+              onHowItWorksTap: () => _scrollTo(_howItWorksKey),
+              onDownloadTap: () => _scrollTo(_downloadKey),
+              onAboutTap: () => _scrollTo(_aboutKey),
+            ),
+          ),
+        ],
       ),
     );
   }
