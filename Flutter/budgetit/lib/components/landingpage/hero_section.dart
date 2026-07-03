@@ -11,13 +11,14 @@ class HeroSection extends StatefulWidget {
 }
   class _HeroSectionState extends State<HeroSection> {
     final colours = MyColours();
-
-  @override
-  Widget build(BuildContext context) {
+//i used chatgpt to help me with the container  for the box and decorative circles
+    @override
+    Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
+      constraints: const BoxConstraints(minHeight: 1000),
       color: colours.background,
-      padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 60),
+      padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 80),
       child: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -25,20 +26,63 @@ class HeroSection extends StatefulWidget {
           Positioned(
             top: -40,
             left: 20,
-            child: _Circle(size: 100, color: colours.primary),
+            child: _Circle(
+                    size: 100, 
+                    color: colours.primary, 
+                    duration: const Duration(seconds: 3),
+                    amplitude: 10,
+                  ),
           ),
           Positioned(
-            top: 150,
-            right: -100,
-            child: _Circle(size: 500, color: colours.secondary),
+            top: 40,
+            right: 30,
+            child: _Circle(
+                    size: 220, 
+                    color: colours.secondary,
+                    duration: const Duration(seconds: 6),
+                    amplitude: 25,
+                  ),
+          ),
+          Positioned(
+            top: 320,
+            left: 30,
+            child: _Circle(
+              size: 120,
+              color: colours.secondary,
+              duration: const Duration(seconds: 6),
+              amplitude: 25,
+            ),
           ),
           Positioned(
             bottom: -60,
             left: 60,
-            child: _Circle(size: 220, color: colours.secondary),
+            child: _Circle(
+                    size: 220, 
+                    color: colours.secondary,
+                    duration: const Duration(seconds: 4),
+                    amplitude: 18,),
+          ),
+          Positioned(
+            top: 500,
+            right: 250,
+            child: _Circle(
+              size: 90,
+              color: colours.primary,
+              duration: const Duration(seconds: 4),
+              amplitude: 15,
+            ),
           ),
 
-          // Main content
+          Positioned(
+            top: 560,
+            right: 120,
+            child: _Circle(
+              size: 60,
+              color: colours.primary,
+              duration: const Duration(seconds: 5),
+              amplitude: 12,
+            ),
+          ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -53,7 +97,7 @@ class HeroSection extends StatefulWidget {
                         color: colours.textPrimary,
                         fontSize: 44,
                         fontWeight: FontWeight.bold,
-                        fontFamily: 'Georgia', // swap for your serif font
+                        fontFamily: 'Georgia', 
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -62,34 +106,77 @@ class HeroSection extends StatefulWidget {
                       style: TextStyle(
                         color: colours.whiteAccents,
                         fontSize: 18,
-                        fontFamily: 'Courier', // swap for your mono font
+                        fontFamily: 'Courier', 
                       ),
                     ),
                     const SizedBox(height: 40),
-                    Image.asset(
-                      'assets/images/phone_mockup.png',
-                      width: 340,
-                      fit: BoxFit.contain,
-                    ),
+                    Center(
+                      child:  Image.asset(
+                          'assets/images/phone_mockup.jpg',
+                          width: 400,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
                   ],
                 ),
               ),
-              Expanded(
-                flex: 3,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 300),
-                  child: Text(
-                    "Know exactly where your\nMONEY goes",
-                    textAlign: TextAlign.right,
-                    style: TextStyle(
-                      color: colours.background,
-                      fontSize: 26,
-                      fontWeight: FontWeight.w600,
-                    ),
+              
+            ],
+          ),
+          Positioned(
+            right: 120,
+            top: 560,
+            child: SizedBox(
+              width: 280,
+              height: 60,
+              child: OutlinedButton(
+                onPressed: () {},
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: colours.background,
+                  side: BorderSide(
+                    color: colours.whiteAccents,
+                    width: 2,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+               ),
+                child: Text(
+                  "Login",
+                  style: TextStyle(
+                    color: colours.whiteAccents,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-            ],
+            ),
+          ),
+
+          Positioned(
+            right: 120,
+            top: 640,
+            child: SizedBox(
+              width: 280,
+              height: 60,
+              child: ElevatedButton(
+                onPressed: widget.onGetStarted,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colours.whiteAccents,
+                  foregroundColor: colours.background,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  "Get Started",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -97,18 +184,52 @@ class HeroSection extends StatefulWidget {
   }
 }
 
-class _Circle extends StatelessWidget {
+class _Circle extends StatefulWidget {
   final double size;
   final Color color;
-  const _Circle({required this.size, required this.color});
+  final Duration duration;
+  final double amplitude;
+  const _Circle({required this.size, required this.color,this.duration = const Duration(seconds: 5),this.amplitude = 20,});
+  @override
+  State<_Circle> createState() => _CircleState();
+}
+
+class _CircleState extends State<_Circle>
+    with SingleTickerProviderStateMixin {
+
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: widget.duration,
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-    );
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child){
+        final offset = widget.amplitude*(_controller.value - 0.510);
+        return Transform.translate(offset: Offset(0,offset),child: child,);
+      },
+      child: Container(width: widget.size,
+                        height: widget.size,
+                        decoration: BoxDecoration(color: widget.color,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+   );
   }
 }
 
