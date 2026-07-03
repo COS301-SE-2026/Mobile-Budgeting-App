@@ -285,40 +285,40 @@ class _TransactionTile extends StatelessWidget {
     final colours = MyColours();
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: colours.background,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: colours.primary),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            backgroundColor: colours.secondary,
-            child: Icon(icon, color: colours.background, size: 18),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: TextStyle(color: colours.whiteAccents, fontSize: 13)),
-                Text(subtitle, style: TextStyle(color: colours.whiteAccents, fontSize: 10)),
-              ],
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: colours.background,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: colours.primary),
+        ),
+        child: Row(
+          children: [
+            CircleAvatar(
+              backgroundColor: colours.secondary,
+              child: Icon(icon, color: colours.background, size: 18),
             ),
-          ),
-          Text(
-            amount,
-            style: TextStyle(
-              color: isPositive ? Colors.greenAccent : Colors.redAccent,
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: TextStyle(color: colours.whiteAccents, fontSize: 13)),
+                  Text(subtitle, style: TextStyle(color: colours.whiteAccents, fontSize: 10)),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+            Text(
+              amount,
+              style: TextStyle(
+                color: isPositive ? Colors.greenAccent : Colors.redAccent,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+      );
   }
 }
 
