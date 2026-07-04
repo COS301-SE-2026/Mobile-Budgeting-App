@@ -40,15 +40,17 @@ jobs:
       - uses: ./.github/actions/flutter-setup
 
       - name: Cache build_runner outputs
+        id: build-runner-cache
         uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8
         with:
           path: Flutter/budgetit/.dart_tool/build
-          key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart', 'Flutter/budgetit/test/**/*.dart') }}
+          key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart', 'Flutter/budgetit/test/**/*.dart', '!Flutter/budgetit/lib/**/*.g.dart', '!Flutter/budgetit/lib/**/*.freezed.dart', '!Flutter/budgetit/test/**/*.g.dart', '!Flutter/budgetit/test/**/*.freezed.dart') }}
           restore-keys: |
             build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-
             build-runner-${{ runner.os }}-
 
       - name: Dart Build Runner
+        if: steps.build-runner-cache.outputs.cache-hit != 'true'
         working-directory: Flutter/budgetit
         run: dart run build_runner build --delete-conflicting-outputs
 
@@ -65,7 +67,7 @@ jobs:
         uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8
         with:
           path: Flutter/budgetit/.dart_tool/build
-          key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart', 'Flutter/budgetit/test/**/*.dart') }}
+          key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart', 'Flutter/budgetit/test/**/*.dart', '!Flutter/budgetit/lib/**/*.g.dart', '!Flutter/budgetit/lib/**/*.freezed.dart', '!Flutter/budgetit/test/**/*.g.dart', '!Flutter/budgetit/test/**/*.freezed.dart') }}
           restore-keys: |
             build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-
             build-runner-${{ runner.os }}-
@@ -87,15 +89,17 @@ jobs:
       - uses: ./.github/actions/flutter-setup
 
       - name: Cache build_runner outputs
+        id: build-runner-cache
         uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8
         with:
           path: Flutter/budgetit/.dart_tool/build
-          key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart', 'Flutter/budgetit/test/**/*.dart') }}
+          key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart', 'Flutter/budgetit/test/**/*.dart', '!Flutter/budgetit/lib/**/*.g.dart', '!Flutter/budgetit/lib/**/*.freezed.dart', '!Flutter/budgetit/test/**/*.g.dart', '!Flutter/budgetit/test/**/*.freezed.dart') }}
           restore-keys: |
             build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-
             build-runner-${{ runner.os }}-
 
       - name: Dart Build Runner
+        if: steps.build-runner-cache.outputs.cache-hit != 'true'
         working-directory: Flutter/budgetit
         run: dart run build_runner build --delete-conflicting-outputs
 
@@ -120,7 +124,7 @@ jobs:
         uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8
         with:
           path: Flutter/budgetit/.dart_tool/build
-          key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart', 'Flutter/budgetit/test/**/*.dart') }}
+          key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart', 'Flutter/budgetit/test/**/*.dart', '!Flutter/budgetit/lib/**/*.g.dart', '!Flutter/budgetit/lib/**/*.freezed.dart', '!Flutter/budgetit/test/**/*.g.dart', '!Flutter/budgetit/test/**/*.freezed.dart') }}
           restore-keys: |
             build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-
             build-runner-${{ runner.os }}-
