@@ -69,6 +69,31 @@ apk-build: setup-event
 update-badges: setup-event
 	$(ACT) -j update-badges -W $(WORKFLOW) -s GITHUB_TOKEN="$(GITHUB_TOKEN)" --eventpath $(ACT_EVENT_FILE) $(ACT_FLAGS) $(SECRET_SCAN_FLAGS)
 
+ci-main: WORKFLOW := $(REPO_ROOT)/.github/workflows/ci-main.yml
+ci-main: BRANCH := main
+ci-main: setup-event
+	$(ACT) -W $(WORKFLOW) -s GITHUB_TOKEN="$(GITHUB_TOKEN)" --eventpath $(ACT_EVENT_FILE) $(ACT_FLAGS) $(SECRET_SCAN_FLAGS)
+
+ci-dev: WORKFLOW := $(REPO_ROOT)/.github/workflows/ci-dev.yml
+ci-dev: BRANCH := dev
+ci-dev: setup-event
+	$(ACT) -W $(WORKFLOW) -s GITHUB_TOKEN="$(GITHUB_TOKEN)" --eventpath $(ACT_EVENT_FILE) $(ACT_FLAGS) $(SECRET_SCAN_FLAGS)
+
+ci-feature: WORKFLOW := $(REPO_ROOT)/.github/workflows/ci-feature.yml
+ci-feature: BRANCH := feature/feature-name
+ci-feature: setup-event
+	$(ACT) -W $(WORKFLOW) -s GITHUB_TOKEN="$(GITHUB_TOKEN)" --eventpath $(ACT_EVENT_FILE) $(ACT_FLAGS) $(SECRET_SCAN_FLAGS)
+
+lint: dart-format flutter-analyze
+test: unit-tests
+verify: lint test coverage-gate
+
+apk-build: setup-event
+	$(ACT) -j apk-build -W $(WORKFLOW) -s GITHUB_TOKEN="$(GITHUB_TOKEN)" --eventpath $(ACT_EVENT_FILE) $(ACT_FLAGS) $(SECRET_SCAN_FLAGS)
+
+update-badges: setup-event
+	$(ACT) -j update-badges -W $(WORKFLOW) -s GITHUB_TOKEN="$(GITHUB_TOKEN)" --eventpath $(ACT_EVENT_FILE) $(ACT_FLAGS) $(SECRET_SCAN_FLAGS)
+
 # --- whole-workflow targets ---
 ci-main: WORKFLOW := $(REPO_ROOT)/.github/workflows/ci-main.yml
 ci-main: BRANCH := main
