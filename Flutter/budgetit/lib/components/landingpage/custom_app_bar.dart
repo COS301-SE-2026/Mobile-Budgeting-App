@@ -35,7 +35,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 40),
           decoration: BoxDecoration(
-            color: MyColours().whiteAccents,
+            color: MyColours().secondary,
             border: Border(
               bottom: BorderSide(color: colours.background.withAlpha(30), width: 1),
             ),
@@ -80,7 +80,7 @@ class _NavLink extends StatefulWidget {
 class _NavLinkState extends State<_NavLink> {
   bool _isPressed = false;
   bool _isHovered = false;
-// i used Chatgpt to help me with the hovering state below
+// i used AI to help me with the hovering state below 
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
@@ -117,7 +117,7 @@ class _NavLinkState extends State<_NavLink> {
                   duration: const Duration(milliseconds: 200),
                   height: 2,
                   width: widget.isActive ? 22 : (_isHovered ? 14 : 0),
-                  color: widget.colours.secondary,
+                  color: Color.fromARGB(255, 252, 213, 85),
                 ),
               ],
             ),
