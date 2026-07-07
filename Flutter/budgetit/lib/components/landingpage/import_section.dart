@@ -147,7 +147,7 @@ class _Circle extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(color: MyColours().greenAccents, shape: BoxShape.circle),
+      decoration: BoxDecoration(color: Color.fromARGB(255, 252, 213, 85), shape: BoxShape.circle),
     );
   }
 }
