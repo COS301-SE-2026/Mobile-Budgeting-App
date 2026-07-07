@@ -73,6 +73,7 @@ class BudgetApp extends StatelessWidget {
           '/transaction_manager': (context) => const TransactionManager(),
         },
         home: AuthWrapper(),
+        //home: const LandingPage(),
       ),
     );
   }
