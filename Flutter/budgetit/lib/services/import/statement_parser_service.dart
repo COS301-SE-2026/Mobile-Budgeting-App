@@ -102,6 +102,7 @@ class StatementParserService {
     Future<List<ParsedTransaction>> _parsePdf(String path) async {
         try {
             final text = await _extractPdfText(path);
+            print('PDF FULL TEXT:\n$text');
             return _parsePdfLines(text.split('\n'));
         } catch (e) {
             throw FormatException('Could not extract text from PDf: $e');
@@ -120,19 +121,39 @@ class StatementParserService {
     }
 
     List<ParsedTransaction> _parsePdfLines(List<String> lines) {
-        final datePattern = RegExp(r'(\d{2}[\/\-]\d{2}[\/\-]\d{2,4}|\d{4}[\/\-]\d{2}[\/\-]\d{2})',
+        for(final line in lines){
+            print ('PDF LINE: $line');
+        }
+        //final datePattern = RegExp(r'(\d{4}[\/\-]\d{2}[\/\-]\d{2}|\d{1,2}[\/\-]\d{2}[\/\-]\d{2})',
+        final datePattern = RegExp(r'(\d{4}[\/\-]\d{2}[\/\-]\d{2}|\d{1,2}[\/\-]\d{2}[\/\-]\d{2,4}|\d{2}[\/\-]\d{2})',
         );
-        final amountPattern = RegExp(r'([\-]?\d{1,3}(?:[,\s]\d{3})*(?:\.\d{2}))');
+        final amountPattern = RegExp(r'\$?([\-]?\d{1,3}(?:,\d{3})*(?:\.\d{2}))');
+
+        final skipKeywords = ['total','balance','account #','transaction', 'description','summary','page number','statement date', 'beginning balance', 'ending balance',];
+
         final results = <ParsedTransaction>[];
 
-        for (final line in lines) {
-            final trimmed = line.trim();
-            if (trimmed.isEmpty){
-                continue;
-            }
+
+        final pendingLines = <String>[];
+            for (final rawLine in lines) {
+                final trimmed = rawLine.trim();
+                if (trimmed.isEmpty) {
+                    continue;
+                }
+                final lower = trimmed.toLowerCase();
+                if(skipKeywords.any((k) => lower.contains(k))) {
+                    pendingLines.clear();
+                    continue;
+                
+                }
+            
             final dateMatch = datePattern.firstMatch(trimmed);
             final amountMatch = amountPattern.firstMatch(trimmed);
             if(dateMatch==null||amountMatch==null) {
+                pendingLines.add(trimmed);
+                if(pendingLines.length>3){
+                    pendingLines.removeAt(0);
+                }
                 continue;
             }
 
@@ -141,23 +162,37 @@ class StatementParserService {
                 final rawAmount = amountMatch.group(0)!.replaceAll(RegExp(r'[\s,]'),'');
                 final amount = _parseAmount(rawAmount).abs();
                 final isIncome = !rawAmount.startsWith('-');
+                final beforeDate = trimmed.substring(0,dateMatch.start).trim();
                 final afterDate = trimmed.substring(dateMatch.end).trim();
-                final beforeAmount = afterDate.substring(0, afterDate.lastIndexOf(amountMatch.group(0)!)).trim();
-                final description = beforeAmount.isEmpty ? afterDate : beforeAmount;
-                final datePattern = RegExp(r'(\d{1,2}[\/\-]\d{2}[\/\-]?\d{0,4})');
+                final amountStr = amountMatch.group(0)!;
+                final amountPos = afterDate.lastIndexOf(amountStr);
+                //final beforeAmount = afterDate.substring(0, afterDate.lastIndexOf(amountMatch.group(0)!)).trim();
+                //final description = beforeAmount.isEmpty ? afterDate : beforeAmount;
+                final description = amountPos > 0 ? afterDate.substring(0, amountPos).trim() : afterDate.replaceAll(amountStr, '').trim();
+               // final datePattern = RegExp(r'(\d{1,2}[\/\-]\d{2}[\/\-]?\d{0,4})');
 
-                if(description.isEmpty || amount == Decimal.zero){
+               final descriptionParts = <String>[
+                ...pendingLines,
+                if(beforeDate.isNotEmpty) beforeDate,
+                if(description.isNotEmpty) description,
+               ];
+
+               final finalDescription = descriptionParts.join(' ').trim();
+               pendingLines.clear();
+
+                if(finalDescription.isEmpty || amount == Decimal.zero){
                     continue;
                 }
                 results.add(ParsedTransaction(
                     date:date,
-                    description:description,
+                    description:finalDescription,
                     amount:amount,
                     isIncome:isIncome,
-                    deduplicationHash: _hash(date,amount,description),
+                    deduplicationHash: _hash(date,amount,finalDescription),
                     rawData: {'raw_line': trimmed},
                 ));
             } catch (_) {
+                pendingLines.clear();
                 continue;
             }
         }
@@ -203,9 +238,9 @@ class StatementParserService {
         return DateTime(year, int.parse(match3.group(2)!), int.parse(match3.group(1)!));
         }
 
-        throw FormatException('Unrecognized date format: $cleaned');
 
-        final RegExp mmdd = RegExp(r'^(\d{1,2})/(\d{2})$'); //to account for bank statements where date format has no year, based on example statement used in testing.
+
+        final RegExp mmdd = RegExp(r'^(\d{1,2})[\/\-](\d{2})$'); //to account for bank statements where date format has no year, based on example statement used in testing.
         final matchMMDD = mmdd.firstMatch(cleaned);
         if(matchMMDD != null){
             return DateTime(
@@ -214,7 +249,7 @@ class StatementParserService {
                 int.parse(matchMMDD.group(2)!),
             );
         }
-
+        throw FormatException('Unrecognized date format: $cleaned'); //forgot to move this neh
 }
 
 Decimal _parseAmount(String raw) {
