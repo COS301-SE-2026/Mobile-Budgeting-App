@@ -30,7 +30,7 @@ class DownloadSection extends StatelessWidget {
           _PlatformBadge(
             icon: Icons.play_arrow_rounded,
             label: "AVAILABLE ON\nPLAY STORE",
-          ),//need the image of the logo
+          ),//need the image of the
         ],
       ),
     );
