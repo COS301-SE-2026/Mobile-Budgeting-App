@@ -75,10 +75,10 @@ class HeroSection extends StatefulWidget {
 
           Positioned(
             top: 560,
-            right: 120,
+            left: 120,
             child: _Circle(
               size: 60,
-              color: colours.primary,
+              color: Color.fromARGB(255, 252, 213, 85),
               duration: const Duration(seconds: 5),
               amplitude: 12,
             ),
@@ -94,7 +94,7 @@ class HeroSection extends StatefulWidget {
                     Text(
                       "Welcome to Budget IT",
                       style: TextStyle(
-                        color: colours.textPrimary,
+                        color: Color.fromARGB(255, 252, 213, 85),
                         fontSize: 44,
                         fontWeight: FontWeight.bold,
                         fontFamily: 'Georgia', 
