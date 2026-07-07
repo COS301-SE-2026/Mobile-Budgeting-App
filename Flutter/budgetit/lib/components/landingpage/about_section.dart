@@ -17,7 +17,7 @@ class AboutSection extends StatelessWidget {
           Text(
             "About Budget IT",
             style: TextStyle(
-              color: colours.textPrimary,
+              color: Color.fromARGB(255, 252, 213, 85),
               fontSize: 34,
               fontWeight: FontWeight.bold,
               fontFamily: 'Georgia', // for now i will use Georgia @PavthePekka
