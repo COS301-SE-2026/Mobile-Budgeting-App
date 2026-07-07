@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../components/landingpage/custom_app_bar.dart';
 import '../components/landingpage/hero_section.dart';
-//import '../components/landingpage/features_section.dart';
+
 import '../components/landingpage/import_section.dart';
 import '../components/landingpage/how_it_works.dart';
 import '../components/landingpage/download_section.dart';
@@ -100,8 +100,7 @@ class _LandingPageState extends State<LandingPage> {
                     key: _homeKey,
                     onGetStarted: () {},
                   ),
-                  //FeaturesSection(key: _featuresKey), this section is not really needed, donot remove now
-                  ImportSection(),
+                  ImportSection(key: _featuresKey),
                   HowItWorks(key: _howItWorksKey),
                   DownloadSection(key: _downloadKey),
                   AboutSection(key: _aboutKey),
