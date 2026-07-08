@@ -850,12 +850,15 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                           periodType: PeriodType.monthly,
                         );
 
+                        if (!dialogContext.mounted) return;
+
+                        Navigator.of(dialogContext).pop();
+
                         if (!mounted) return;
 
                         _refreshBudgets();
 
-                        if (!context.mounted) return;
-                        ScaffoldMessenger.of(context)
+                        ScaffoldMessenger.of(this.context)
                           ..hideCurrentSnackBar()
                           ..showSnackBar(
                             SnackBar(
