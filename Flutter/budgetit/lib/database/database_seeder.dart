@@ -42,7 +42,9 @@ class DatabaseSeeder {
     final ids = <String, String>{};
     for (final entry in entries) {
       final typeStr = entry['type'] as String;
-      final type = typeStr == 'income' ? CategoryType.income : CategoryType.expense;
+      final type = typeStr == 'income'
+          ? CategoryType.income
+          : CategoryType.expense;
       final iconStr = entry['icon'] as String?;
       final category = await db.categoryDao.insertCategory(
         name: entry['name'] as String,
@@ -57,13 +59,17 @@ class DatabaseSeeder {
   }
 
   Future<void> _seedBudgetTemplates(Map<String, String> categoryIds) async {
-    final raw = await rootBundle.loadString('assets/seeds/budget_templates.json');
+    final raw = await rootBundle.loadString(
+      'assets/seeds/budget_templates.json',
+    );
     final entries = (jsonDecode(raw) as List).cast<Map<String, dynamic>>();
     for (final entry in entries) {
       final categoryId = categoryIds[entry['category_name'] as String];
       if (categoryId == null) continue;
       final periodStr = entry['period_type'] as String;
-      final periodType = PeriodType.values.firstWhere((e) => e.name == periodStr);
+      final periodType = PeriodType.values.firstWhere(
+        (e) => e.name == periodStr,
+      );
       await db.budgetDao.insertBudgetTemplate(
         categoryId: categoryId,
         amount: Decimal.parse(entry['amount'] as String),
@@ -78,7 +84,9 @@ class DatabaseSeeder {
     final entries = (jsonDecode(raw) as List).cast<Map<String, dynamic>>();
     for (final entry in entries) {
       final typeStr = entry['type'] as String;
-      final type = typeStr == 'income' ? TransactionType.income : TransactionType.expense;
+      final type = typeStr == 'income'
+          ? TransactionType.income
+          : TransactionType.expense;
       final tx = await db.transactionDao.insertTransaction(
         amount: Decimal.parse(entry['amount'] as String),
         type: type,

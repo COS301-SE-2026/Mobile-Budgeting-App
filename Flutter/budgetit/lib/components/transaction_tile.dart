@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class TransactionTile extends StatelessWidget {
-
   final IconData icon;
   final String title;
   final String subtitle;
@@ -26,27 +25,18 @@ class TransactionTile extends StatelessWidget {
     final colours = MyColours();
 
     return Container(
-
-      margin: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 10,
-      ),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
 
       padding: const EdgeInsets.all(18),
 
       decoration: BoxDecoration(
-
         color: colours.secondary,
 
-        borderRadius:
-            BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(24),
 
         boxShadow: [
-
           BoxShadow(
-            color: Colors.black.withValues(
-              alpha: 0.18,
-            ),
+            color: Colors.black.withValues(alpha: 0.18),
 
             blurRadius: 12,
 
@@ -56,26 +46,16 @@ class TransactionTile extends StatelessWidget {
       ),
 
       child: Column(
-
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
-
           Container(
-
-            padding:
-                const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
 
             decoration: BoxDecoration(
-              color: colours.background
-                  .withValues(alpha: 0.15),
+              color: colours.background.withValues(alpha: 0.15),
 
-              borderRadius:
-                  BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(20),
             ),
 
             child: Text(
@@ -84,8 +64,7 @@ class TransactionTile extends StatelessWidget {
               style: TextStyle(
                 color: colours.background,
                 fontSize: 11,
-                fontWeight:
-                    FontWeight.bold,
+                fontWeight: FontWeight.bold,
                 letterSpacing: 1.2,
               ),
             ),
@@ -94,29 +73,17 @@ class TransactionTile extends StatelessWidget {
           const SizedBox(height: 18),
 
           Row(
-
             children: [
-
               Container(
-
                 width: 55,
                 height: 55,
 
                 decoration: BoxDecoration(
+                  color: isExpense
+                      ? Colors.redAccent.withValues(alpha: 0.15)
+                      : colours.tertiary.withValues(alpha: 0.15),
 
-                  color:
-                      isExpense
-                          ? Colors.redAccent
-                              .withValues(
-                                alpha: 0.15,
-                              )
-                          : colours.tertiary
-                              .withValues(
-                                alpha: 0.15,
-                              ),
-
-                  borderRadius:
-                      BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(18),
                 ),
 
                 child: Icon(
@@ -124,35 +91,25 @@ class TransactionTile extends StatelessWidget {
 
                   size: 28,
 
-                  color:
-                      isExpense
-                          ? Colors.redAccent
-                          : colours.tertiary,
+                  color: isExpense ? Colors.redAccent : colours.tertiary,
                 ),
               ),
 
               const SizedBox(width: 15),
 
               Expanded(
-
                 child: Column(
-
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
 
                   children: [
-
                     Text(
                       title,
 
-                      style:
-                          TextStyle(
-                            fontSize: 17,
-                            fontWeight:
-                                FontWeight.bold,
-                            color:
-                                colours.background,
-                          ),
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: colours.background,
+                      ),
                     ),
 
                     const SizedBox(height: 5),
@@ -161,16 +118,11 @@ class TransactionTile extends StatelessWidget {
                       subtitle,
 
                       style: TextStyle(
-                        color:
-                            colours.background
-                                .withValues(
-                                  alpha: 0.7,
-                                ),
+                        color: colours.background.withValues(alpha: 0.7),
 
                         fontSize: 13,
 
-                        fontWeight:
-                            FontWeight.w500,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
@@ -178,54 +130,32 @@ class TransactionTile extends StatelessWidget {
               ),
 
               Column(
-
-                crossAxisAlignment:
-                    CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.end,
 
                 children: [
-
                   Text(
                     amount,
 
                     style: TextStyle(
                       fontSize: 17,
 
-                      fontWeight:
-                          FontWeight.bold,
+                      fontWeight: FontWeight.bold,
 
-                      color:
-                          isExpense
-                              ? Colors
-                                  .redAccent
-                              : colours
-                                  .tertiary,
+                      color: isExpense ? Colors.redAccent : colours.tertiary,
                     ),
                   ),
 
                   const SizedBox(height: 4),
 
                   Text(
-                    isExpense
-                        ? "expense"
-                        : "income",
+                    isExpense ? "expense" : "income",
 
                     style: TextStyle(
                       fontSize: 11,
 
-                      color:
-                          isExpense
-                              ? Colors
-                                  .redAccent
-                                  .withValues(
-                                    alpha:
-                                        0.85,
-                                  )
-                              : colours
-                                  .tertiary
-                                  .withValues(
-                                    alpha:
-                                        0.8,
-                                  ),
+                      color: isExpense
+                          ? Colors.redAccent.withValues(alpha: 0.85)
+                          : colours.tertiary.withValues(alpha: 0.8),
                     ),
                   ),
                 ],

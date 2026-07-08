@@ -38,11 +38,7 @@ class ComingSoonPage extends StatelessWidget {
                   color: colours.secondary,
                   borderRadius: BorderRadius.circular(24),
                 ),
-                child: Icon(
-                  icon,
-                  size: 48,
-                  color: colours.background,
-                ),
+                child: Icon(icon, size: 48, color: colours.background),
               ),
               const SizedBox(height: 28),
               Text(

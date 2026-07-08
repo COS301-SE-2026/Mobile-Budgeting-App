@@ -48,4 +48,5 @@ app.*.map.json
 .fvm/flutter_sdk
 .fvm/versions/
 
-pubspec.lock
+
+**/*.mocks.dart

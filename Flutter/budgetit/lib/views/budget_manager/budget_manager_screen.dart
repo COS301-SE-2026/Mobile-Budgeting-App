@@ -192,37 +192,36 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-  backgroundColor: colours.background,
-  appBar: AppBar(
-    backgroundColor: colours.background,
-    elevation: 0,
-    title: Text(
-      'Budget Manager',
-      style: TextStyle(
-        color: colours.textPrimary,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-    actions: [
-      IconButton(
-        tooltip: 'Export financial report',
-        icon: Icon(
-          Icons.file_download_outlined,
-          color: colours.textPrimary,
+      backgroundColor: colours.background,
+      appBar: AppBar(
+        backgroundColor: colours.background,
+        elevation: 0,
+        title: Text(
+          'Budget Manager',
+          style: TextStyle(
+            color: colours.textPrimary,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => const FinancialReportScreen(),
+        actions: [
+          IconButton(
+            tooltip: 'Export financial report',
+            icon: Icon(
+              Icons.file_download_outlined,
+              color: colours.textPrimary,
             ),
-          );
-        },
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const FinancialReportScreen(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
-    ],
-  ),
 
-  // body: SafeArea(
-
+      // body: SafeArea(
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -308,30 +307,30 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                       children: [
                         for (final budget in budgets) ...[
                           _budgetCard(
-  icon: budget.icon,
-  title: budget.title,
-  subtitle: budget.subtitle,
-  spent: budget.spent,
-  limit: budget.limit,
-  progressColor: budget.progressColor,
-  isOverLimit: budget.isOverLimit,
-  onTap: () {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => BudgetDetailScreen(
-          title: budget.title,
-          subtitle: budget.subtitle,
-          spent: budget.spent,
-          limit: budget.limit,
-          icon: budget.icon,
-          progressColor: budget.progressColor,
-          isOverLimit: budget.isOverLimit,
-        ),
-      ),
-    );
-  },
-  onDelete: () => _confirmDeleteBudget(budget),
-),
+                            icon: budget.icon,
+                            title: budget.title,
+                            subtitle: budget.subtitle,
+                            spent: budget.spent,
+                            limit: budget.limit,
+                            progressColor: budget.progressColor,
+                            isOverLimit: budget.isOverLimit,
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => BudgetDetailScreen(
+                                    title: budget.title,
+                                    subtitle: budget.subtitle,
+                                    spent: budget.spent,
+                                    limit: budget.limit,
+                                    icon: budget.icon,
+                                    progressColor: budget.progressColor,
+                                    isOverLimit: budget.isOverLimit,
+                                  ),
+                                ),
+                              );
+                            },
+                            onDelete: () => _confirmDeleteBudget(budget),
+                          ),
                           const SizedBox(height: 14),
                         ],
                       ],
@@ -434,135 +433,138 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
   }
 
   Widget _budgetCard({
-  required IconData icon,
-  required String title,
-  required String subtitle,
-  required double spent,
-  required double limit,
-  required Color progressColor,
-  required VoidCallback onTap,
-  required VoidCallback onDelete,
-  bool isOverLimit = false,
-}) {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required double spent,
+    required double limit,
+    required Color progressColor,
+    required VoidCallback onTap,
+    required VoidCallback onDelete,
+    bool isOverLimit = false,
+  }) {
     final double progress = spent / limit;
 
     return InkWell(
-  onTap: onTap,
-  borderRadius: BorderRadius.circular(10),
-  child: Container(
-    padding: const EdgeInsets.all(14),
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        padding: const EdgeInsets.all(14),
 
-      decoration: BoxDecoration(
-        color: colours.primary,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: colours.secondary, width: 1.0),
-      ),
-      child: Column(
-        children: [
-          if (isOverLimit)
-            Align(
-              alignment: Alignment.centerRight,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: colours.redColor,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-                child: Text(
-                  "OVER LIMIT",
-                  style: TextStyle(
-                    color: colours.whiteAccents,
-                    fontSize: 8,
-                    fontWeight: FontWeight.bold,
+        decoration: BoxDecoration(
+          color: colours.primary,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: colours.secondary, width: 1.0),
+        ),
+        child: Column(
+          children: [
+            if (isOverLimit)
+              Align(
+                alignment: Alignment.centerRight,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colours.redColor,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                  child: Text(
+                    "OVER LIMIT",
+                    style: TextStyle(
+                      color: colours.whiteAccents,
+                      fontSize: 8,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
-            ),
 
-          Row(
-            children: [
-              Container(
-                width: 34,
-                height: 34,
-                decoration: BoxDecoration(
-                  color: colours.secondary,
-                  borderRadius: BorderRadius.circular(6),
+            Row(
+              children: [
+                Container(
+                  width: 34,
+                  height: 34,
+                  decoration: BoxDecoration(
+                    color: colours.secondary,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Icon(icon, color: colours.background, size: 20),
                 ),
-                child: Icon(icon, color: colours.background, size: 20),
-              ),
 
-              const SizedBox(width: 12),
+                const SizedBox(width: 12),
 
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          color: colours.textPrimary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          color: colours.textPrimary,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      title,
+                      "R${spent.toInt()} / R${limit.toInt()}",
                       style: TextStyle(
-                        color: colours.textPrimary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                        color: colours.secondary,
+                        fontSize: 12,
+                        fontWeight: isOverLimit
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                       ),
                     ),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        color: colours.textPrimary,
-                        fontSize: 10,
+                    const SizedBox(width: 10),
+                    InkWell(
+                      onTap: () {
+                        onDelete();
+                      },
+                      borderRadius: BorderRadius.circular(20),
+                      child: Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Icon(
+                          Icons.delete_outline,
+                          color: colours.redColor,
+                          size: 20,
+                        ),
                       ),
                     ),
                   ],
                 ),
-              ),
-
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    "R${spent.toInt()} / R${limit.toInt()}",
-                    style: TextStyle(
-                      color: colours.secondary,
-                      fontSize: 12,
-                      fontWeight: isOverLimit
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  InkWell(
-                    onTap: () {
-  onDelete();
-},
-                    borderRadius: BorderRadius.circular(20),
-                    child: Padding(
-                      padding: const EdgeInsets.all(4),
-                      child: Icon(
-                        Icons.delete_outline,
-                        color: colours.redColor,
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 12),
-
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: LinearProgressIndicator(
-              value: progress > 1 ? 1 : progress,
-              minHeight: 6,
-              backgroundColor: colours.secondary,
-              valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+              ],
             ),
-          ),
-        ],
+
+            const SizedBox(height: 12),
+
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: LinearProgressIndicator(
+                value: progress > 1 ? 1 : progress,
+                minHeight: 6,
+                backgroundColor: colours.secondary,
+                valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+              ),
+            ),
+          ],
+        ),
       ),
-  ),
     );
   }
 
@@ -840,6 +842,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                             );
                           return;
                         }
+                        Navigator.of(dialogContext).pop();
 
                         await widget.database.budgetDao.insertBudgetTemplate(
                           categoryId: selectedCategory.categoryId,
@@ -849,11 +852,10 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
 
                         if (!mounted) return;
 
-                        Navigator.of(this.context).pop();
-
                         _refreshBudgets();
 
-                        ScaffoldMessenger.of(this.context)
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context)
                           ..hideCurrentSnackBar()
                           ..showSnackBar(
                             SnackBar(
