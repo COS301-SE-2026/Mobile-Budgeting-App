@@ -1,35 +1,81 @@
-class FinancialReport {
-  FinancialReport({
-    required this.startDate,
-    required this.endDate,
-    required this.totalIncome,
-    required this.totalExpenses,
-    required this.categoryTotals,
-    required this.transactions,
-  });
+import '../database/app_database.dart';
+import '../database/schema.dart';
+import '../models/financial_report.dart';
 
-  final DateTime startDate;
-  final DateTime endDate;
-  final double totalIncome;
-  final double totalExpenses;
-  final Map<String, double> categoryTotals;
-  final List<FinancialReportTransaction> transactions;
+class FinancialReportService {
+  FinancialReportService(this._database);
 
-  double get netBalance => totalIncome - totalExpenses;
-}
+  final AppDatabase _database;
 
-class FinancialReportTransaction {
-  FinancialReportTransaction({
-    required this.date,
-    required this.description,
-    required this.category,
-    required this.type,
-    required this.amount,
-  });
+  Future<FinancialReport> buildMonthlyReport() async {
+    final now = DateTime.now();
 
-  final DateTime date;
-  final String description;
-  final String category;
-  final String type; // income or expense
-  final double amount;
+    final startDate = DateTime(now.year, now.month, 1);
+    final endDate = DateTime(
+      now.year,
+      now.month + 1,
+      0,
+      23,
+      59,
+      59,
+    );
+
+    final transactions = await _database.transactionDao
+        .getTransactionsByDateRange(startDate, endDate);
+
+    double totalIncome = 0;
+    double totalExpenses = 0;
+    final categoryTotals = <String, double>{};
+    final reportTransactions = <FinancialReportTransaction>[];
+
+    for (final transaction in transactions) {
+      final amount = double.tryParse(transaction.amount.toString()) ?? 0;
+      final isIncome = transaction.type == TransactionType.income;
+
+      final categoryName = await _getCategoryName(transaction.id);
+
+      if (isIncome) {
+        totalIncome += amount;
+      } else {
+        totalExpenses += amount;
+        categoryTotals[categoryName] =
+            (categoryTotals[categoryName] ?? 0) + amount;
+      }
+
+      reportTransactions.add(
+        FinancialReportTransaction(
+          date: transaction.transactionDate,
+          description: transaction.shortDescription,
+          category: categoryName,
+          type: isIncome ? 'Income' : 'Expense',
+          amount: amount,
+        ),
+      );
+    }
+
+    return FinancialReport(
+      startDate: startDate,
+      endDate: endDate,
+      totalIncome: totalIncome,
+      totalExpenses: totalExpenses,
+      categoryTotals: categoryTotals,
+      transactions: reportTransactions,
+    );
+  }
+
+  Future<String> _getCategoryName(String transactionId) async {
+    final mapping = await _database.transactionDao.getCategoryForTransaction(
+      transactionId,
+    );
+
+    if (mapping == null) {
+      return 'Uncategorised';
+    }
+
+    final category = await _database.categoryDao.getCategoryById(
+      mapping.categoryId,
+    );
+
+    return category?.name ?? 'Uncategorised';
+  }
 }
