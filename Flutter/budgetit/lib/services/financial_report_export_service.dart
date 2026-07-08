@@ -1,13 +1,19 @@
-import 'dart:io';
 
-import 'package:path_provider/path_provider.dart';
+import 'web_file_downloader.dart';
+import 'dart:convert';
+
 import 'package:pdf/widgets.dart' as pw;
-import 'package:share_plus/share_plus.dart';
 
 import '../models/financial_report.dart';
 
+
 class FinancialReportExportService {
-  Future<File> exportAsPdf(FinancialReport report) async {
+  FinancialReportExportService({
+    WebFileDownloader? downloader,
+  }) : _downloader = downloader ?? createWebFileDownloader();
+
+  final WebFileDownloader _downloader;
+  Future<void> downloadPdfOnWeb(FinancialReport report) async {
     final pdf = pw.Document();
 
     pdf.addPage(
@@ -53,12 +59,16 @@ class FinancialReportExportService {
       ),
     );
 
-    final file = await _createFile('financial_report.pdf');
-    await file.writeAsBytes(await pdf.save());
-    return file;
+    final bytes = await pdf.save();
+
+    _downloader.downloadBytes(
+      bytes: bytes,
+      fileName: 'financial_report.pdf',
+      mimeType: 'application/pdf',
+    );
   }
 
-  Future<File> exportAsCsv(FinancialReport report) async {
+  Future<void> downloadCsvOnWeb(FinancialReport report) async {
     final rows = <List<dynamic>>[
       ['Financial Report'],
       [
@@ -89,40 +99,30 @@ class FinancialReportExportService {
     ];
 
     final csv = _convertToCsv(rows);
+    final bytes = utf8.encode(csv);
 
-    final file = await _createFile('financial_report.csv');
-    await file.writeAsString(csv);
-    return file;
-  }
-
-  Future<void> shareFile(File file) async {
-    await SharePlus.instance.share(ShareParams(files: [XFile(file.path)]));
-  }
-
-  Future<File> _createFile(String fileName) async {
-    final directory = await getApplicationDocumentsDirectory();
-    return File('${directory.path}/$fileName');
+    _downloader.downloadBytes(
+      bytes: bytes,
+      fileName: 'financial_report.csv',
+      mimeType: 'text/csv',
+    );
   }
 
   String _convertToCsv(List<List<dynamic>> rows) {
-    return rows
-        .map((row) {
-          return row
-              .map((value) {
-                final text = value.toString();
-                final escapedText = text.replaceAll('"', '""');
+    return rows.map((row) {
+      return row.map((value) {
+        final text = value.toString();
+        final escapedText = text.replaceAll('"', '""');
 
-                if (escapedText.contains(',') ||
-                    escapedText.contains('"') ||
-                    escapedText.contains('\n')) {
-                  return '"$escapedText"';
-                }
+        if (escapedText.contains(',') ||
+            escapedText.contains('"') ||
+            escapedText.contains('\n')) {
+          return '"$escapedText"';
+        }
 
-                return escapedText;
-              })
-              .join(',');
-        })
-        .join('\n');
+        return escapedText;
+      }).join(',');
+    }).join('\n');
   }
 
   String _formatDate(DateTime date) {

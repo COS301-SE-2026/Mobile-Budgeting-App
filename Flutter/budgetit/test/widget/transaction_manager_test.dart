@@ -11,30 +11,39 @@ import 'package:provider/provider.dart';
 import 'package:budgetit/utils/theme_provider.dart';
 import 'package:drift/native.dart';
 import 'package:budgetit/database/app_database.dart';
+import 'package:budgetit/database/schema.dart';
+import 'package:mockito/mockito.dart';
 
+import '../support/fixtures.dart';
+import '../support/mock_db.dart';
 
 // Full-screen widget (already has Scaffold)
 Widget _screen(Widget child) {
   return MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => ThemeProvider()),
-      Provider<AppDatabase>.value(value: AppDatabase.forTesting(NativeDatabase.memory())),
+      Provider<AppDatabase>.value(
+        value: AppDatabase.forTesting(NativeDatabase.memory()),
+      ),
     ],
     child: MaterialApp(home: child),
-      );
+  );
 }
 
 // Component widget (needs Scaffold wrapper)
 Widget _widget(Widget child) {
   return MultiProvider(
-    providers: [ 
-      ChangeNotifierProvider(
-                  create: (_) => ThemeProvider()),
-      Provider< AppDatabase>.value(  value: AppDatabase.forTesting(NativeDatabase.memory())),
+    providers: [
+      ChangeNotifierProvider(create: (_) => ThemeProvider()),
+      Provider<AppDatabase>.value(
+        value: AppDatabase.forTesting(NativeDatabase.memory()),
+      ),
     ],
-    child: MaterialApp(home:  Scaffold(body: child)),
+    child: MaterialApp(home: Scaffold(body: child)),
   );
 }
+
+late MockDb _mock;
 
 void _usePhoneSize(WidgetTester tester) {
   tester.view.physicalSize = const Size(800, 1200);

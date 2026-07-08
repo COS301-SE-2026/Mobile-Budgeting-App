@@ -13,17 +13,25 @@ import 'package:provider/provider.dart';
 import 'package:budgetit/database/app_database.dart';
 import 'package:drift/native.dart';
 
+import 'package:budgetit/database/schema.dart';
+import 'package:mockito/mockito.dart';
+
+import '../support/fixtures.dart';
+import '../support/mock_db.dart';
 
 Widget _wrap(Widget child) {
   return MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => ThemeProvider()),
-      Provider<AppDatabase>.value(value: AppDatabase.forTesting(NativeDatabase.memory())),
+      Provider<AppDatabase>.value(
+        value: AppDatabase.forTesting(NativeDatabase.memory()),
+      ),
     ],
     child: MaterialApp(home: Scaffold(body: child)),
   );
-  }
+}
 
+late MockDb _dashMock;
 void main() {
   // Dashboard — integration-level: full screen renders correctly
 
@@ -69,7 +77,7 @@ void main() {
       (tester) async {
         await tester.pumpWidget(_wrap(Dashboard(database: _dashMock.db)));
         await tester.pumpAndSettle();
-       // expect(find.byType(BalanceCard), findsOneWidget); 
+        // expect(find.byType(BalanceCard), findsOneWidget);
         expect(find.byType(QuickStatsWidget), findsOneWidget);
         expect(find.byType(MonthlyTrendWidget), findsOneWidget);
         expect(find.byType(InsightWidget), findsOneWidget);
