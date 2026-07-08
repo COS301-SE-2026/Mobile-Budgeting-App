@@ -3,10 +3,121 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
-
+import 'dart:convert';
+import 'dart:html' as html;
 import '../models/financial_report.dart';
 
 class FinancialReportExportService {
+
+  Future<void> downloadPdfOnWeb(FinancialReport report) async {
+  final pdf = pw.Document();
+
+  pdf.addPage(
+    pw.MultiPage(
+      build: (context) => [
+        pw.Header(level: 0, child: pw.Text('Financial Report')),
+        pw.Text(
+          'Period: ${_formatDate(report.startDate)} - ${_formatDate(report.endDate)}',
+        ),
+        pw.SizedBox(height: 16),
+        pw.Text('Summary'),
+        pw.TableHelper.fromTextArray(
+          headers: ['Item', 'Amount'],
+          data: [
+            ['Total Income', _money(report.totalIncome)],
+            ['Total Expenses', _money(report.totalExpenses)],
+            ['Net Balance', _money(report.netBalance)],
+          ],
+        ),
+        pw.SizedBox(height: 24),
+        pw.Text('Spending by Category'),
+        pw.TableHelper.fromTextArray(
+          headers: ['Category', 'Total'],
+          data: report.categoryTotals.entries
+              .map((entry) => [entry.key, _money(entry.value)])
+              .toList(),
+        ),
+        pw.SizedBox(height: 24),
+        pw.Text('Transactions'),
+        pw.TableHelper.fromTextArray(
+          headers: ['Date', 'Description', 'Category', 'Type', 'Amount'],
+          data: report.transactions.map((tx) {
+            return [
+              _formatDate(tx.date),
+              tx.description,
+              tx.category,
+              tx.type,
+              _money(tx.amount),
+            ];
+          }).toList(),
+        ),
+      ],
+    ),
+  );
+
+  final bytes = await pdf.save();
+  _downloadBytes(
+    bytes: bytes,
+    fileName: 'financial_report.pdf',
+    mimeType: 'application/pdf',
+  );
+}
+
+Future<void> downloadCsvOnWeb(FinancialReport report) async {
+  final rows = <List<dynamic>>[
+    ['Financial Report'],
+    [
+      'Period',
+      '${_formatDate(report.startDate)} - ${_formatDate(report.endDate)}',
+    ],
+    [],
+    ['Summary'],
+    ['Total Income', report.totalIncome],
+    ['Total Expenses', report.totalExpenses],
+    ['Net Balance', report.netBalance],
+    [],
+    ['Spending by Category'],
+    ['Category', 'Total'],
+    ...report.categoryTotals.entries.map((entry) => [entry.key, entry.value]),
+    [],
+    ['Transactions'],
+    ['Date', 'Description', 'Category', 'Type', 'Amount'],
+    ...report.transactions.map((tx) {
+      return [
+        _formatDate(tx.date),
+        tx.description,
+        tx.category,
+        tx.type,
+        tx.amount,
+      ];
+    }),
+  ];
+
+  final csv = _convertToCsv(rows);
+  final bytes = utf8.encode(csv);
+
+  _downloadBytes(
+    bytes: bytes,
+    fileName: 'financial_report.csv',
+    mimeType: 'text/csv',
+  );
+}
+
+void _downloadBytes({
+  required List<int> bytes,
+  required String fileName,
+  required String mimeType,
+}) {
+  final blob = html.Blob([bytes], mimeType);
+  final url = html.Url.createObjectUrlFromBlob(blob);
+
+  final anchor = html.AnchorElement(href: url)
+    ..setAttribute('download', fileName)
+    ..click();
+
+  html.Url.revokeObjectUrl(url);
+}
+
   Future<File> exportAsPdf(FinancialReport report) async {
     final pdf = pw.Document();
 
