@@ -11,7 +11,10 @@ void main() {
     final mock = MockDb();
 
     await tester.pumpWidget(
-      wrapWithProviders(BudgetManagerScreen(database: mock.db), db: mock.db),
+      wrapWithProviders(
+        BudgetManagerScreen(database: mock.db),
+        db: mock.db,
+      ),
     );
 
     await tester.pumpAndSettle();
@@ -29,5 +32,5 @@ void main() {
 
     expect(find.byType(NavigationBar), findsOneWidget);
     expect(find.byType(NavigationDestination), findsNWidgets(3));
-  }, skip: true); // skip auth integration, need mock
+  }, skip: true); // Skip for now, needs mock auth integration.
 }
