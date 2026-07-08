@@ -13,8 +13,6 @@ class FinancialReportExportService {
   }) : _downloader = downloader ?? createWebFileDownloader();
 
   final WebFileDownloader _downloader;
-
-
   Future<void> downloadPdfOnWeb(FinancialReport report) async {
     final pdf = pw.Document();
 
