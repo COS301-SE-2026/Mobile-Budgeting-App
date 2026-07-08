@@ -42,103 +42,112 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
   late double _limit;
   PeriodType _currentPeriodType = PeriodType.monthly;
 
-DateTime _periodStartDate(PeriodType periodType) {
-  final now = DateTime.now();
+  DateTime _periodStartDate(PeriodType periodType) {
+    final now = DateTime.now();
 
-  switch (periodType) {
-    case PeriodType.daily:
-      return DateTime(now.year, now.month, now.day);
+    switch (periodType) {
+      case PeriodType.daily:
+        return DateTime(now.year, now.month, now.day);
 
-    case PeriodType.weekly:
-      return DateTime(now.year, now.month, now.day)
-          .subtract(Duration(days: now.weekday - 1));
+      case PeriodType.weekly:
+        return DateTime(
+          now.year,
+          now.month,
+          now.day,
+        ).subtract(Duration(days: now.weekday - 1));
 
-    case PeriodType.monthly:
-      return DateTime(now.year, now.month);
+      case PeriodType.monthly:
+        return DateTime(now.year, now.month);
 
-    case PeriodType.yearly:
-      return DateTime(now.year);
+      case PeriodType.yearly:
+        return DateTime(now.year);
+    }
   }
-}
 
-DateTime _periodEndDate(PeriodType periodType) {
-  final now = DateTime.now();
+  DateTime _periodEndDate(PeriodType periodType) {
+    final now = DateTime.now();
 
-  switch (periodType) {
-    case PeriodType.daily:
-      return DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
+    switch (periodType) {
+      case PeriodType.daily:
+        return DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
 
-    case PeriodType.weekly:
-      final start = DateTime(now.year, now.month, now.day)
-          .subtract(Duration(days: now.weekday - 1));
-      return start.add(
-        const Duration(days: 6, hours: 23, minutes: 59, seconds: 59),
-      );
+      case PeriodType.weekly:
+        final start = DateTime(
+          now.year,
+          now.month,
+          now.day,
+        ).subtract(Duration(days: now.weekday - 1));
+        return start.add(
+          const Duration(days: 6, hours: 23, minutes: 59, seconds: 59),
+        );
 
-    case PeriodType.monthly:
-      return DateTime(now.year, now.month + 1, 1)
-          .subtract(const Duration(milliseconds: 1));
+      case PeriodType.monthly:
+        return DateTime(
+          now.year,
+          now.month + 1,
+          1,
+        ).subtract(const Duration(milliseconds: 1));
 
-    case PeriodType.yearly:
-      return DateTime(now.year, 12, 31, 23, 59, 59, 999);
+      case PeriodType.yearly:
+        return DateTime(now.year, 12, 31, 23, 59, 59, 999);
+    }
   }
-}
 
-bool _isInCurrentPeriod(Transaction transaction, PeriodType periodType) {
-  final start = _periodStartDate(periodType);
-  final end = _periodEndDate(periodType);
-  
-  final date = transaction.transactionDate;
+  bool _isInCurrentPeriod(Transaction transaction, PeriodType periodType) {
+    final start = _periodStartDate(periodType);
+    final end = _periodEndDate(periodType);
 
-  return date.isAfter(start.subtract(const Duration(milliseconds: 1))) &&
-      date.isBefore(end.add(const Duration(milliseconds: 1)));
-}
+    final date = transaction.transactionDate;
 
-Future<void> _loadBudgetDetailData() async {
-  final template = await widget.database.budgetDao.getBudgetTemplateById(
-    widget.templateId,
-  );
+    return date.isAfter(start.subtract(const Duration(milliseconds: 1))) &&
+        date.isBefore(end.add(const Duration(milliseconds: 1)));
+  }
 
-  final transactions = await widget.database.transactionDao
-      .getTransactionsByCategory(widget.categoryId);
+  Future<void> _loadBudgetDetailData() async {
+    final template = await widget.database.budgetDao.getBudgetTemplateById(
+      widget.templateId,
+    );
 
-  final periodType = template?.periodType ?? PeriodType.monthly;
-  final startDate = _periodStartDate(periodType);
-  final endDate = _periodEndDate(periodType);
+    final transactions = await widget.database.transactionDao
+        .getTransactionsByCategory(widget.categoryId);
 
-  final totalSpent = transactions
-      .where(
-        (transaction) =>
-            transaction.type == TransactionType.expense &&
-            transaction.transactionDate.isAfter(
-              startDate.subtract(const Duration(milliseconds: 1)),
-            ) &&
-            transaction.transactionDate.isBefore(
-              endDate.add(const Duration(milliseconds: 1)),
-            ),
-      )
-      .fold<double>(
-        0,
-        (sum, transaction) => sum + transaction.amount.toDouble(),
-      );
+    final periodType = template?.periodType ?? PeriodType.monthly;
+    final startDate = _periodStartDate(periodType);
+    final endDate = _periodEndDate(periodType);
 
-  if (!mounted) return;
+    final totalSpent = transactions
+        .where(
+          (transaction) =>
+              transaction.type == TransactionType.expense &&
+              transaction.transactionDate.isAfter(
+                startDate.subtract(const Duration(milliseconds: 1)),
+              ) &&
+              transaction.transactionDate.isBefore(
+                endDate.add(const Duration(milliseconds: 1)),
+              ),
+        )
+        .fold<double>(
+          0,
+          (sum, transaction) => sum + transaction.amount.toDouble(),
+        );
 
-  setState(() {
-    _currentPeriodType = periodType;
-    _limit = template?.amount.toDouble() ?? widget.limit;
-    _spent = totalSpent;
-  });
-}
+    if (!mounted) return;
 
-@override
-void initState() {
-  super.initState();
-  _spent = widget.spent;
-  _limit = widget.limit;
+    setState(() {
+      _currentPeriodType = periodType;
+      _limit = template?.amount.toDouble() ?? widget.limit;
+      _spent = totalSpent;
+    });
+  }
 
-  _loadBudgetDetailData();
-}
+  @override
+  void initState() {
+    super.initState();
+    _spent = widget.spent;
+    _limit = widget.limit;
+
+    _loadBudgetDetailData();
+  }
 
   String _formatCurrency(double amount) {
     return 'R${amount.toStringAsFixed(2)}';
@@ -388,16 +397,16 @@ void initState() {
         widget.categoryId,
       ),
       builder: (context, snapshot) {
-       final periodType = _currentPeriodType;
+        final periodType = _currentPeriodType;
 
-final transactions = (snapshot.data ?? [])
-    .where(
-      (transaction) =>
-          transaction.type == TransactionType.expense &&
-          _isInCurrentPeriod(transaction, periodType),
-    )
-    .take(3)
-    .toList();
+        final transactions = (snapshot.data ?? [])
+            .where(
+              (transaction) =>
+                  transaction.type == TransactionType.expense &&
+                  _isInCurrentPeriod(transaction, periodType),
+            )
+            .take(3)
+            .toList();
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -472,7 +481,8 @@ final transactions = (snapshot.data ?? [])
   }
 
   Widget _budgetTips(bool closeToLimit) {
-    String tip = 'Nice work. Keep tracking spending to stay within this budget.';
+    String tip =
+        'Nice work. Keep tracking spending to stay within this budget.';
 
     if (_isOverLimit) {
       tip =
@@ -674,13 +684,13 @@ final transactions = (snapshot.data ?? [])
 
                 await _loadBudgetDetailData();
 
-if (!mounted) return;
-if (!dialogContext.mounted) return;
+                if (!mounted) return;
+                if (!dialogContext.mounted) return;
 
-limitController.dispose();
-Navigator.of(dialogContext).pop();
+                limitController.dispose();
+                Navigator.of(dialogContext).pop();
 
-_showSnackBar(message: 'Budget updated successfully.');
+                _showSnackBar(message: 'Budget updated successfully.');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: colours.secondary,
@@ -784,30 +794,31 @@ _showSnackBar(message: 'Budget updated successfully.');
                   return;
                 }
 
-                final transaction = await widget.database.transactionDao.insertTransaction(
-  amount: Decimal.parse(amount.toString()),
-  type: TransactionType.expense,
-  shortDescription: description,
-  transactionDate: DateTime.now(),
-  source: TransactionSource.manual,
-);
+                final transaction = await widget.database.transactionDao
+                    .insertTransaction(
+                      amount: Decimal.parse(amount.toString()),
+                      type: TransactionType.expense,
+                      shortDescription: description,
+                      transactionDate: DateTime.now(),
+                      source: TransactionSource.manual,
+                    );
 
-await widget.database.transactionDao.assignCategory(
-  transactionId: transaction.id,
-  categoryId: widget.categoryId,
-  assignmentSource: AssignmentSource.manual,
-);
+                await widget.database.transactionDao.assignCategory(
+                  transactionId: transaction.id,
+                  categoryId: widget.categoryId,
+                  assignmentSource: AssignmentSource.manual,
+                );
 
-await _loadBudgetDetailData();
+                await _loadBudgetDetailData();
 
-if (!mounted) return;
-if (!dialogContext.mounted) return;
+                if (!mounted) return;
+                if (!dialogContext.mounted) return;
 
-amountController.dispose();
-descriptionController.dispose();
-Navigator.of(dialogContext).pop();
+                amountController.dispose();
+                descriptionController.dispose();
+                Navigator.of(dialogContext).pop();
 
-_showSnackBar(message: 'Transaction added successfully.');
+                _showSnackBar(message: 'Transaction added successfully.');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: colours.secondary,
@@ -821,10 +832,7 @@ _showSnackBar(message: 'Transaction added successfully.');
     );
   }
 
-  void _showSnackBar({
-    required String message,
-    bool isError = false,
-  }) {
+  void _showSnackBar({required String message, bool isError = false}) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
