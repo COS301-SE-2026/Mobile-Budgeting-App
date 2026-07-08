@@ -1,13 +1,20 @@
-// ignore_for_file: avoid_web_libraries_in_flutter, deprecated_member_use
 
+import 'web_file_downloader.dart';
 import 'dart:convert';
-import 'dart:html' as html;
 
 import 'package:pdf/widgets.dart' as pw;
 
 import '../models/financial_report.dart';
 
+
 class FinancialReportExportService {
+  FinancialReportExportService({
+    WebFileDownloader? downloader,
+  }) : _downloader = downloader ?? createWebFileDownloader();
+
+  final WebFileDownloader _downloader;
+
+
   Future<void> downloadPdfOnWeb(FinancialReport report) async {
     final pdf = pw.Document();
 
@@ -56,7 +63,7 @@ class FinancialReportExportService {
 
     final bytes = await pdf.save();
 
-    _downloadBytes(
+    _downloader.downloadBytes(
       bytes: bytes,
       fileName: 'financial_report.pdf',
       mimeType: 'application/pdf',
@@ -96,47 +103,28 @@ class FinancialReportExportService {
     final csv = _convertToCsv(rows);
     final bytes = utf8.encode(csv);
 
-    _downloadBytes(
+    _downloader.downloadBytes(
       bytes: bytes,
       fileName: 'financial_report.csv',
       mimeType: 'text/csv',
     );
   }
 
-  void _downloadBytes({
-    required List<int> bytes,
-    required String fileName,
-    required String mimeType,
-  }) {
-    final blob = html.Blob([bytes], mimeType);
-    final url = html.Url.createObjectUrlFromBlob(blob);
-
-    html.AnchorElement(href: url)
-      ..setAttribute('download', fileName)
-      ..click();
-
-    html.Url.revokeObjectUrl(url);
-  }
-
   String _convertToCsv(List<List<dynamic>> rows) {
-    return rows
-        .map((row) {
-          return row
-              .map((value) {
-                final text = value.toString();
-                final escapedText = text.replaceAll('"', '""');
+    return rows.map((row) {
+      return row.map((value) {
+        final text = value.toString();
+        final escapedText = text.replaceAll('"', '""');
 
-                if (escapedText.contains(',') ||
-                    escapedText.contains('"') ||
-                    escapedText.contains('\n')) {
-                  return '"$escapedText"';
-                }
+        if (escapedText.contains(',') ||
+            escapedText.contains('"') ||
+            escapedText.contains('\n')) {
+          return '"$escapedText"';
+        }
 
-                return escapedText;
-              })
-              .join(',');
-        })
-        .join('\n');
+        return escapedText;
+      }).join(',');
+    }).join('\n');
   }
 
   String _formatDate(DateTime date) {
