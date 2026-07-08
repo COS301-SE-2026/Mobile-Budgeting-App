@@ -8,7 +8,13 @@ class MyBox extends StatefulWidget {
   final double? amount;
   final String? category;
   final List<String> categories;
-  final void Function(String name, double amount, IconData icon, String category)? onEdited;
+  final void Function(
+    String name,
+    double amount,
+    IconData icon,
+    String category,
+  )?
+  onEdited;
   final void Function()? onDelete;
 
   const MyBox({
@@ -39,7 +45,8 @@ class _MyBoxState extends State<MyBox> {
     _name = widget.text ?? '';
     _amount = widget.amount ?? 0.0;
     _icon = widget.icon ?? Icons.attach_money;
-    _category = widget.category ??
+    _category =
+        widget.category ??
         (widget.categories.isNotEmpty ? widget.categories.first : '');
   }
 
@@ -128,7 +135,9 @@ class _MyBoxState extends State<MyBox> {
               'R${_amount.toStringAsFixed(2)}',
               style: TextStyle(
                 fontSize: MyColours().bodyFontSize,
-                color: _isPressed ? MyColours().background : MyColours().cardText,
+                color: _isPressed
+                    ? MyColours().background
+                    : MyColours().cardText,
               ),
             ),
             const SizedBox(width: 12),

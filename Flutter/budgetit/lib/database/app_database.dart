@@ -25,7 +25,6 @@ part 'app_database.g.dart';
     AppSettings,
   ],
 )
-
 /// The root database connection for the Budgetit application.
 ///
 /// [AppDatabase] is a Drift database that manages the entire budgeting app schema.
@@ -77,24 +76,25 @@ class AppDatabase extends _$AppDatabase {
   ///
   /// Only call with [reset] = true in debug mode — never in production.
   static Future<AppDatabase> create({bool reset = false}) async {
-  if (reset && !kIsWeb) {
-    final dir = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dir.path, 'budgetit.sqlite'));
-    if (await file.exists()) await file.delete();
+    if (reset && !kIsWeb) {
+      final dir = await getApplicationDocumentsDirectory();
+      final file = File(p.join(dir.path, 'budgetit.sqlite'));
+      if (await file.exists()) await file.delete();
+    }
+
+    return AppDatabase();
   }
 
-  return AppDatabase();
-}
+  static QueryExecutor _openConnection() {
+    return driftDatabase(
+      name: 'budgetit',
+      web: DriftWebOptions(
+        sqlite3Wasm: Uri.parse('/sqlite3.wasm'),
+        driftWorker: Uri.parse('/drift_worker.js'),
+      ),
+    );
+  }
 
-static QueryExecutor _openConnection() {
-  return driftDatabase(
-    name: 'budgetit',
-    web: DriftWebOptions(
-      sqlite3Wasm: Uri.parse('/sqlite3.wasm'),
-      driftWorker: Uri.parse('/drift_worker.js'),
-    ),
-  );
-}
   /// Accessor for category operations.
   late final CategoryDao categoryDao = CategoryDao(this);
 
