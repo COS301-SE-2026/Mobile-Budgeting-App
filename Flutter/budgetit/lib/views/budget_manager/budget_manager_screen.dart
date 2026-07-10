@@ -72,6 +72,76 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
     return 'R${amount.toStringAsFixed(2)}';
   }
 
+  Future<double> _calculateSpentForCategory(
+    String categoryId,
+    PeriodType periodType,
+  ) async {
+    final transactions = await widget.database.transactionDao
+        .getTransactionsByCategory(categoryId);
+
+    final now = DateTime.now();
+
+    late final DateTime startDate;
+    late final DateTime endDate;
+
+    switch (periodType) {
+      case PeriodType.daily:
+        startDate = DateTime(now.year, now.month, now.day);
+        endDate = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
+        break;
+
+      case PeriodType.weekly:
+        startDate = DateTime(
+          now.year,
+          now.month,
+          now.day,
+        ).subtract(Duration(days: now.weekday - 1));
+
+        endDate = startDate.add(
+          const Duration(
+            days: 6,
+            hours: 23,
+            minutes: 59,
+            seconds: 59,
+            milliseconds: 999,
+          ),
+        );
+        break;
+
+      case PeriodType.monthly:
+        startDate = DateTime(now.year, now.month);
+
+        endDate = DateTime(
+          now.year,
+          now.month + 1,
+          1,
+        ).subtract(const Duration(milliseconds: 1));
+        break;
+
+      case PeriodType.yearly:
+        startDate = DateTime(now.year);
+
+        endDate = DateTime(now.year, 12, 31, 23, 59, 59, 999);
+        break;
+    }
+
+    return transactions
+        .where(
+          (transaction) =>
+              transaction.type == TransactionType.expense &&
+              transaction.transactionDate.isAfter(
+                startDate.subtract(const Duration(milliseconds: 1)),
+              ) &&
+              transaction.transactionDate.isBefore(
+                endDate.add(const Duration(milliseconds: 1)),
+              ),
+        )
+        .fold<double>(
+          0,
+          (sum, transaction) => sum + transaction.amount.toDouble(),
+        );
+  }
+
   Future<List<_BudgetManagerItem>> _loadBudgetItems() async {
     final templates = await widget.database.budgetDao.getAllBudgetTemplates();
 
@@ -84,13 +154,18 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
 
       if (category == null) continue;
 
+      final spent = await _calculateSpentForCategory(
+        category.id,
+        template.periodType,
+      );
+
       items.add(
         _BudgetManagerItem(
           templateId: template.id,
           categoryId: category.id,
           title: category.name,
           subtitle: _periodTypeLabel(template.periodType),
-          spent: 0,
+          spent: spent,
           limit: template.amount.toDouble(),
           icon: category.iconData ?? Icons.category_outlined,
           progressColor: _colorFromHex(category.color),
@@ -314,8 +389,8 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                             limit: budget.limit,
                             progressColor: budget.progressColor,
                             isOverLimit: budget.isOverLimit,
-                            onTap: () {
-                              Navigator.of(context).push(
+                            onTap: () async {
+                              await Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (_) => BudgetDetailScreen(
                                     database: widget.database,
@@ -331,7 +406,12 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                                   ),
                                 ),
                               );
+
+                              if (!mounted) return;
+
+                              _refreshBudgets();
                             },
+
                             onDelete: () => _confirmDeleteBudget(budget),
                           ),
                           const SizedBox(height: 14),
