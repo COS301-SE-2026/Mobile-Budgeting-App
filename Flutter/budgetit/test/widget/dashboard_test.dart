@@ -7,7 +7,7 @@ import 'package:budgetit/components/monthly_trend_widget.dart';
 import 'package:budgetit/components/quick_stats_widgets.dart';
 import 'package:budgetit/components/transaction_tile.dart';
 import 'package:budgetit/screens/dashboard.dart';
-import 'package:budgetit/utils/app_colour.dart';
+
 import 'package:budgetit/utils/theme_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:budgetit/database/app_database.dart';
