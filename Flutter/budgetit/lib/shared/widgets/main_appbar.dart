@@ -30,7 +30,7 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>();
     return AppBar(
-      backgroundColor: MyColours().navBarColor,
+      backgroundColor: MyColours().background,
       elevation: 0,
 
       leading: IconButton(
