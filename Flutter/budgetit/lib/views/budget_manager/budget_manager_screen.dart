@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:decimal/decimal.dart';
-
+import '../graphical_reports/graphical_reports_screen.dart';
 import '../../utils/app_colour.dart';
 import '../financial_reports/financial_report_screen.dart';
 import '../../database/app_database.dart';
@@ -422,7 +422,40 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                 ),
 
                 const SizedBox(height: 24),
-
+SizedBox(
+  width: double.infinity,
+  height: 48,
+  child: OutlinedButton.icon(
+    onPressed: () async {
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => GraphicalReportsScreen(
+            database: widget.database,
+          ),
+        ),
+      );
+    },
+    icon: const Icon(Icons.bar_chart_outlined),
+    label: const Text(
+      'VIEW GRAPHICAL REPORTS',
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        letterSpacing: 1,
+      ),
+    ),
+    style: OutlinedButton.styleFrom(
+      foregroundColor: colours.textPrimary,
+      side: BorderSide(
+        color: colours.secondary,
+        width: 1.5,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+    ),
+  ),
+),
+const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,
                   height: 48,
@@ -432,6 +465,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     },
                     icon: const Icon(Icons.add_circle_outline),
                     label: const Text(
+                      
                       "CREATE NEW BUDGET",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -447,6 +481,8 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     ),
                   ),
                 ),
+
+                
 
                 const SizedBox(height: 18),
 
