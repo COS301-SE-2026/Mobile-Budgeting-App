@@ -116,6 +116,15 @@ class MyColours{
     fontFamily: 'JetBrainsMono',
   );
 
+  TextStyle get searchtext => TextStyle(
+    fontSize: bodyFontSize2,
+    fontWeight: FontWeight.w500,
+    color: informational,
+    height: bodylineheight / bodyFontSize2,
+    letterSpacing: 0,
+    fontFamily: 'JetBrainsMono',
+  );
+
   TextStyle get b2 => TextStyle(
     fontSize: bodyFontSize2,
     fontWeight: FontWeight.w500,

@@ -216,7 +216,7 @@ class _TransactionManagerState extends State<TransactionManager> {
                   final date = entry.key;
                   final txns = entry.value;
                   return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(

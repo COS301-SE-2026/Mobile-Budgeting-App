@@ -19,9 +19,11 @@ class _FABMenuState extends State<FABMenu> {
     return Container(
       color: MyColours().secondary,
       padding: const EdgeInsets.all(1),
+      alignment: Alignment.center,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
+        mainAxisSize: MainAxisSize.min,
+        
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
