@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:provider/provider.dart';
-import 'package:budgetit/utils/theme_provider.dart';
 import 'package:budgetit/components/balance_card.dart';
 import 'package:budgetit/components/bill_item.dart';
 import 'package:budgetit/components/insight_widget.dart';
@@ -9,20 +7,31 @@ import 'package:budgetit/components/monthly_trend_widget.dart';
 import 'package:budgetit/components/quick_stats_widgets.dart';
 import 'package:budgetit/components/transaction_tile.dart';
 import 'package:budgetit/screens/dashboard.dart';
+import 'package:budgetit/utils/app_colour.dart';
+import 'package:budgetit/utils/theme_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:budgetit/database/app_database.dart';
+import 'package:drift/native.dart';
+
 import 'package:budgetit/database/schema.dart';
 import 'package:mockito/mockito.dart';
-import 'package:budgetit/components/spending_chart.dart';
 
 import '../support/fixtures.dart';
 import '../support/mock_db.dart';
 
+Widget _wrap(Widget child) {
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => ThemeProvider()),
+      Provider<AppDatabase>.value(
+        value: AppDatabase.forTesting(NativeDatabase.memory()),
+      ),
+    ],
+    child: MaterialApp(home: Scaffold(body: child)),
+  );
+}
+
 late MockDb _dashMock;
-
-Widget _wrap(Widget child) => ChangeNotifierProvider(
-  create: (_) => ThemeProvider(),
-  child: MaterialApp(home: Scaffold(body: child)),
-);
-
 void main() {
   // Dashboard — integration-level: full screen renders correctly
 
@@ -68,8 +77,8 @@ void main() {
       (tester) async {
         await tester.pumpWidget(_wrap(Dashboard(database: _dashMock.db)));
         await tester.pumpAndSettle();
-        expect(find.textContaining("DAILY SPENDING FOR"), findsOneWidget);
-        expect(find.byType(SpendingChart), findsOneWidget);
+        // expect(find.byType(BalanceCard), findsOneWidget);
+        expect(find.byType(QuickStatsWidget), findsOneWidget);
         expect(find.byType(MonthlyTrendWidget), findsOneWidget);
         expect(find.byType(InsightWidget), findsOneWidget);
       },

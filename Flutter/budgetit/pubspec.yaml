@@ -35,7 +35,7 @@ dependencies:
     sdk: flutter
   drift: ^2.21.0
   drift_flutter: ^0.2.8
-  path_provider: ^2.1.5
+  path_provider: ^2.1.6
   path: ^1.9.0
 
   # The following adds the Cupertino Icons font to your application.
@@ -46,6 +46,9 @@ dependencies:
   saropa_drift_advisor: ^3.5.1
   uuid: ^4.5.3
   decimal: ^3.0.0
+  csv: ^6.0.0
+  crypto: ^3.0.3
+  pdfrx: ^1.0.0
 
   flutter_pdfview: ^1.4.4
 
@@ -57,6 +60,8 @@ dependencies:
   flutter_secure_storage: ^10.2.0
   # State management
   provider: ^6.1.2
+  pdf: ^3.12.0
+  share_plus: ^12.0.2
 
 
 dependency_overrides:
