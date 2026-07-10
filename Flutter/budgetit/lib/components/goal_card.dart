@@ -62,14 +62,7 @@ class GoalCard extends StatelessWidget {
                 ),
               ),
 
-<<<<<<< HEAD
-              Icon(
-                Icons.flag,
-                color: colours.informational,
-              ),
-=======
-              Icon(Icons.flag, color: colours.tertiary),
->>>>>>> newdev
+              Icon(Icons.flag, color: colours.informational),
             ],
           ),
 
