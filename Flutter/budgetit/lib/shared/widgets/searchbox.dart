@@ -19,12 +19,8 @@ class _SearchBoxState extends State<SearchBox> {
   void initState() {
 
     super.initState();
-<<<<<<< HEAD
     
     _focusNode = FocusNode();   
-=======
-    _focusNode = FocusNode();
->>>>>>> newdev
     _focusNode.addListener(() {
       setState(() {
         _isFocused = _focusNode.hasFocus;
