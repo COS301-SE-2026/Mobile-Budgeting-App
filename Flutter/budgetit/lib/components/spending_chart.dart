@@ -1,6 +1,7 @@
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+
 final colours = MyColours();
 
 class SpendingCategory {
@@ -14,6 +15,7 @@ class SpendingCategory {
     required this.color,
   });
 }
+
 class SpendingChart extends StatelessWidget {
   final List<SpendingCategory> categories;
   final String total;
@@ -101,10 +103,7 @@ class _LegendItem extends StatelessWidget {
   final SpendingCategory cat;
   final MyColours colours;
 
-  const _LegendItem({
-    required this.cat,
-    required this.colours,
-  });
+  const _LegendItem({required this.cat, required this.colours});
 
   @override
   Widget build(BuildContext context) {
@@ -122,10 +121,7 @@ class _LegendItem extends StatelessWidget {
         const SizedBox(width: 6),
         Text(
           '${cat.label} ${cat.percentage.toInt()}%',
-          style: TextStyle(
-            fontSize: 13,
-            color: colours.textPrimary,
-          ),
+          style: TextStyle(fontSize: 13, color: colours.textPrimary),
         ),
       ],
     );

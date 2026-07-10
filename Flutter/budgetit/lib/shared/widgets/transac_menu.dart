@@ -1,10 +1,12 @@
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
 
+
 class FABMenu extends StatefulWidget {
   final VoidCallback? onAddTransaction;
+  final VoidCallback? onImportStatement;
 
-  const FABMenu({super.key, this.onAddTransaction});
+  const FABMenu({super.key, this.onAddTransaction, this.onImportStatement});
 
   @override
   State<FABMenu> createState() => _FABMenuState();
@@ -31,15 +33,13 @@ class _FABMenuState extends State<FABMenu> {
             children: [
               TextButton(
                 onPressed: widget.onAddTransaction,
-                onHover: (isHovering) =>
-                    setState(() => isHover1 = isHovering),
+                onHover: (isHovering) => setState(() => isHover1 = isHovering),
                 child: Container(
                   decoration: BoxDecoration(
                     color: isHover1
                         ? MyColours().background
                         : MyColours().secondary,
-                    borderRadius:
-                        const BorderRadius.all(Radius.circular(10)),
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
                     border: Border.all(
                       color: MyColours().background,
                       width: 2,
@@ -64,7 +64,7 @@ class _FABMenuState extends State<FABMenu> {
             mainAxisSize: MainAxisSize.max,
             children: [
               TextButton(
-                onPressed: () => {},
+                onPressed: widget.onImportStatement,
                 onHover: (isHovering) =>
                     setState(() => isHover2 = isHovering),
                 child: Container(
@@ -72,8 +72,7 @@ class _FABMenuState extends State<FABMenu> {
                     color: isHover2
                         ? MyColours().background
                         : MyColours().secondary,
-                    borderRadius:
-                        const BorderRadius.all(Radius.circular(10)),
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
                     border: Border.all(
                       color: MyColours().background,
                       width: 2,

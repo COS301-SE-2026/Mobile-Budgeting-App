@@ -12,15 +12,19 @@ class SearchBox extends StatefulWidget {
 }
 
 class _SearchBoxState extends State<SearchBox> {
-  late FocusNode _focusNode;   
-  bool _isFocused = false;    
+  late FocusNode _focusNode;
+  bool _isFocused = false;
 
   @override
   void initState() {
 
     super.initState();
+<<<<<<< HEAD
     
     _focusNode = FocusNode();   
+=======
+    _focusNode = FocusNode();
+>>>>>>> newdev
     _focusNode.addListener(() {
       setState(() {
         _isFocused = _focusNode.hasFocus;
@@ -30,7 +34,7 @@ class _SearchBoxState extends State<SearchBox> {
 
   @override
   void dispose() {
-    _focusNode.dispose();      
+    _focusNode.dispose();
     super.dispose();
   }
 

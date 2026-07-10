@@ -9,8 +9,18 @@ class MyBox extends StatefulWidget {
   final String? category;
   final String? date;
   final List<String> categories;
+<<<<<<< HEAD
   final bool isExpense;
   final void Function(String name, double amount, IconData icon, String category)? onEdited;
+=======
+  final void Function(
+    String name,
+    double amount,
+    IconData icon,
+    String category,
+  )?
+  onEdited;
+>>>>>>> newdev
   final void Function()? onDelete;
 
   const MyBox({
@@ -45,7 +55,8 @@ class _MyBoxState extends State<MyBox> {
     _name = widget.text ?? '';
     _amount = widget.amount ?? 0.0;
     _icon = widget.icon ?? Icons.attach_money;
-    _category = widget.category ??
+    _category =
+        widget.category ??
         (widget.categories.isNotEmpty ? widget.categories.first : '');
     _date = widget.date ?? '';
     _isExpense = widget.isExpense;
@@ -158,7 +169,13 @@ class _MyBoxState extends State<MyBox> {
               _isExpense ? '- R${_amount.toStringAsFixed(2)}' : 'R${_amount.toStringAsFixed(2)}',
               style: TextStyle(
                 fontSize: MyColours().bodyFontSize,
+<<<<<<< HEAD
                 color:  _isExpense? _isPressed ? MyColours().background : MyColours().warning : _isPressed ? MyColours().background : MyColours().secondary,
+=======
+                color: _isPressed
+                    ? MyColours().background
+                    : MyColours().cardText,
+>>>>>>> newdev
               ),
             ),
             const SizedBox(width: 12),

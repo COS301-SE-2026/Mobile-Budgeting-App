@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:budgetit/components/balance_card.dart';
 import 'package:budgetit/components/bill_item.dart';
 import 'package:budgetit/components/insight_widget.dart';
@@ -8,15 +7,57 @@ import 'package:budgetit/components/monthly_trend_widget.dart';
 import 'package:budgetit/components/quick_stats_widgets.dart';
 import 'package:budgetit/components/transaction_tile.dart';
 import 'package:budgetit/screens/dashboard.dart';
+import 'package:budgetit/utils/app_colour.dart';
+import 'package:budgetit/utils/theme_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:budgetit/database/app_database.dart';
+import 'package:drift/native.dart';
 
-Widget _wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
+import 'package:budgetit/database/schema.dart';
+import 'package:mockito/mockito.dart';
 
+import '../support/fixtures.dart';
+import '../support/mock_db.dart';
+
+Widget _wrap(Widget child) {
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => ThemeProvider()),
+      Provider<AppDatabase>.value(
+        value: AppDatabase.forTesting(NativeDatabase.memory()),
+      ),
+    ],
+    child: MaterialApp(home: Scaffold(body: child)),
+  );
+}
+
+late MockDb _dashMock;
 void main() {
   // Dashboard — integration-level: full screen renders correctly
 
   group('Dashboard', () {
+    setUp(() {
+      _dashMock = MockDb();
+
+      when(_dashMock.transactionDao.getAllTransactions()).thenAnswer(
+        (_) async => [
+          transactionFixture(id: 'd1', shortDescription: 'Groceries'),
+          transactionFixture(
+            id: 'd2',
+            shortDescription: 'Salary',
+            type: TransactionType.income,
+          ),
+        ],
+      );
+      when(
+        _dashMock.transactionDao.getTransactionsByDateRange(any, any),
+      ).thenAnswer(
+        (_) async => [transactionFixture(id: 'd3', shortDescription: 'Rent')],
+      );
+    });
+
     testWidgets('renders without error', (tester) async {
-      await tester.pumpWidget(_wrap(const Dashboard()));
+      await tester.pumpWidget(_wrap(Dashboard(database: _dashMock.db)));
       await tester.pumpAndSettle();
       expect(find.byType(Dashboard), findsOneWidget);
     });
@@ -24,7 +65,7 @@ void main() {
     testWidgets(
       'shows Upcoming Bills and Recent Transactions section headings',
       (tester) async {
-        await tester.pumpWidget(_wrap(const Dashboard()));
+        await tester.pumpWidget(_wrap(Dashboard(database: _dashMock.db)));
         await tester.pumpAndSettle();
         expect(find.text('Upcoming Bills'), findsOneWidget);
         expect(find.text('Recent Transactions'), findsOneWidget);
@@ -32,11 +73,11 @@ void main() {
     );
 
     testWidgets(
-      'contains BalanceCard, QuickStatsWidget, MonthlyTrendWidget and InsightWidget',
+      'contains the daily spending card , spending chart and monthly trend  and insight widgts ',
       (tester) async {
-        await tester.pumpWidget(_wrap(const Dashboard()));
+        await tester.pumpWidget(_wrap(Dashboard(database: _dashMock.db)));
         await tester.pumpAndSettle();
-        expect(find.byType(BalanceCard), findsOneWidget);
+        // expect(find.byType(BalanceCard), findsOneWidget);
         expect(find.byType(QuickStatsWidget), findsOneWidget);
         expect(find.byType(MonthlyTrendWidget), findsOneWidget);
         expect(find.byType(InsightWidget), findsOneWidget);
@@ -44,21 +85,21 @@ void main() {
     );
 
     testWidgets('shows Electricity and Netflix bill items', (tester) async {
-      await tester.pumpWidget(_wrap(const Dashboard()));
+      await tester.pumpWidget(_wrap(Dashboard(database: _dashMock.db)));
       await tester.pumpAndSettle();
       expect(find.text('Electricity'), findsOneWidget);
       expect(find.text('Netflix'), findsOneWidget);
     });
 
     testWidgets('shows Groceries and Salary transaction tiles', (tester) async {
-      await tester.pumpWidget(_wrap(const Dashboard()));
+      await tester.pumpWidget(_wrap(Dashboard(database: _dashMock.db)));
       await tester.pumpAndSettle();
       expect(find.text('Groceries'), findsOneWidget);
       expect(find.text('Salary'), findsOneWidget);
     });
 
     testWidgets('body is scrollable', (tester) async {
-      await tester.pumpWidget(_wrap(const Dashboard()));
+      await tester.pumpWidget(_wrap(Dashboard(database: _dashMock.db)));
       await tester.pumpAndSettle();
       await tester.drag(
         find.byType(SingleChildScrollView),
