@@ -63,7 +63,7 @@ class _MonthlyTrendWidgetState extends State<MonthlyTrendWidget> {
       padding: const EdgeInsets.all(20),
 
       decoration: BoxDecoration(
-        color: colours.navBarColor,
+        color: colours.background,
 
         borderRadius: BorderRadius.circular(24),
 
@@ -236,57 +236,20 @@ class _MonthlyTrendWidgetState extends State<MonthlyTrendWidget> {
 
                                 decoration: BoxDecoration(
                                   color: isSelected
-                                      ? colours.tertiary
-                                      : colours.tertiary.withValues(alpha: 0.5),
+                                      ? colours.informational
+                                      : colours.informational.withValues(alpha: 0.5),
 
                                   borderRadius: BorderRadius.circular(14),
 
-<<<<<<< HEAD
-                                  decoration:
-                                      BoxDecoration(
-
-                                        color:
-                                            isSelected
-                                                ? colours
-                                                    .informational
-                                                : colours
-                                                    .informational
-                                                    .withValues(
-                                                      alpha:
-                                                          0.5,
-                                                    ),
-
-                                        borderRadius:
-                                            BorderRadius.circular(
-                                              14,
-                                            ),
-
-                                        boxShadow:
-                                            isSelected
-                                                ? [
-                                                    BoxShadow(
-                                                      color:
-                                                          colours
-                                                              .informational,
-                                                      blurRadius:
-                                                          12,
-                                                      spreadRadius:
-                                                          1,
-                                                    ),
-                                                  ]
-                                                : [],
-                                      ),
-=======
                                   boxShadow: isSelected
                                       ? [
                                           BoxShadow(
-                                            color: colours.tertiary,
+                                            color: colours.informational,
                                             blurRadius: 12,
                                             spreadRadius: 1,
                                           ),
                                         ]
                                       : [],
->>>>>>> newdev
                                 ),
                               ),
 
