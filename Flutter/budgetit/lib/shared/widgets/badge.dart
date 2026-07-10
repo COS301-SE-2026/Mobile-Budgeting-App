@@ -39,16 +39,11 @@ class _MyBadgeState extends State<MyBadge> {
         decoration: BoxDecoration(
           shape: BoxShape.rectangle,
           borderRadius: BorderRadius.circular(10),
-<<<<<<< HEAD
           border: Border.all(
             color: Colors.black,
             width: 4,
           ),
           color: isActive ? MyColours().informational : MyColours().category,
-=======
-          border: Border.all(color: MyColours().secondary, width: 1.5),
-          color: isActive ? MyColours().secondary : MyColours().background,
->>>>>>> newdev
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
