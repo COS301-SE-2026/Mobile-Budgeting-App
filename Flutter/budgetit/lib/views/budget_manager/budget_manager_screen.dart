@@ -534,30 +534,6 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
       child: Container(
         padding: const EdgeInsets.all(14),
 
-<<<<<<< HEAD
-      decoration: BoxDecoration(
-        color: colours.primary,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: colours.secondary, width: 1.0),
-      ),
-      child: Column(
-        children: [
-          if (isOverLimit)
-            Align(
-              alignment: Alignment.centerRight,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: colours.error,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-                child: Text(
-                  "OVER LIMIT",
-                  style: TextStyle(
-                    color: colours.whiteAccents,
-                    fontSize: 8,
-                    fontWeight: FontWeight.bold,
-=======
         decoration: BoxDecoration(
           color: colours.primary,
           borderRadius: BorderRadius.circular(10),
@@ -574,7 +550,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: colours.redColor,
+                    color: colours.error,
                     borderRadius: BorderRadius.circular(2),
                   ),
                   child: Text(
@@ -584,7 +560,6 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                       fontSize: 8,
                       fontWeight: FontWeight.bold,
                     ),
->>>>>>> newdev
                   ),
                 ),
               ),
@@ -649,7 +624,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                         padding: const EdgeInsets.all(4),
                         child: Icon(
                           Icons.delete_outline,
-                          color: colours.redColor,
+                          color: colours.error,
                           size: 20,
                         ),
                       ),
@@ -712,7 +687,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                 Navigator.of(dialogContext).pop(true);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: colours.redColor,
+                backgroundColor: colours.error,
                 foregroundColor: colours.whiteAccents,
               ),
               child: const Text('Delete'),
@@ -735,7 +710,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
       ..showSnackBar(
         SnackBar(
           behavior: SnackBarBehavior.floating,
-          backgroundColor: colours.redColor,
+          backgroundColor: colours.error,
           margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),

@@ -212,7 +212,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
         color: colours.primary,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: _isOverLimit ? colours.redColor : colours.secondary,
+          color: _isOverLimit ? colours.error : colours.secondary,
           width: 1.2,
         ),
       ),
@@ -260,7 +260,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: colours.redColor,
+                    color: colours.error,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
@@ -305,7 +305,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
               minHeight: 8,
               backgroundColor: colours.secondary,
               valueColor: AlwaysStoppedAnimation<Color>(
-                _isOverLimit ? colours.redColor : widget.progressColor,
+                _isOverLimit ? colours.error : widget.progressColor,
               ),
             ),
           ),
@@ -315,7 +315,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                 ? 'You are ${_formatCurrency(remaining.abs())} over this budget.'
                 : 'You still have ${_formatCurrency(remaining)} remaining.',
             style: TextStyle(
-              color: _isOverLimit ? colours.redColor : colours.textPrimary,
+              color: _isOverLimit ? colours.error : colours.textPrimary,
               fontSize: 13,
               fontWeight: _isOverLimit ? FontWeight.bold : FontWeight.normal,
             ),
@@ -332,11 +332,11 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
 
     if (_isOverLimit) {
       statusIcon = Icons.warning_amber_outlined;
-      statusColor = colours.redColor;
+      statusColor = colours.error;
       message = 'You have exceeded this budget. Review your recent spending.';
     } else if (closeToLimit) {
       statusIcon = Icons.info_outline;
-      statusColor = Colors.orangeAccent;
+      statusColor = colours.warning;
       message = 'You are close to your limit. Spend carefully.';
     }
 
@@ -838,7 +838,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
       ..showSnackBar(
         SnackBar(
           behavior: SnackBarBehavior.floating,
-          backgroundColor: isError ? colours.redColor : colours.secondary,
+          backgroundColor: isError ? colours.error : colours.secondary,
           content: Text(
             message,
             style: TextStyle(
