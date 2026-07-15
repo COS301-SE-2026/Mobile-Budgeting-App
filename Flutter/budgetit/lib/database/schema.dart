@@ -133,6 +133,10 @@ class Transactions extends Table {
   /// Currency code for the transaction (defaults to 'ZAR').
   TextColumn get currency => text().withDefault(const Constant('ZAR'))();
 
+  // (Nullable) reference to Recurring transaction this was generated from if it is a recurring transaction.
+  TextColumn get recurringId =>
+      text().references(RecurringTransactions, #id).nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -218,6 +222,52 @@ class BudgetPeriods extends Table {
 
   /// When the period was last modified.
   DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Stores recurring transaction templates
+///
+/// Recurring transactions are stored here and generate child transactions in the
+/// [Transactions] table when they occur. Each template has a interval
+/// (`unit`) and number of periods between occurrences (`interval_amount`).
+class RecurringTransactions extends Table {
+  ///UUID for the recurring transaction
+  TextColumn get id => text()();
+
+  /// Transaction amount (stored as a decimal string via [DecimalConverter]).
+  TextColumn get amount => text().map(DecimalConverter())();
+
+  /// Whether this is an income or expense.
+  TextColumn get type => textEnum<TransactionType>()();
+
+  /// Short description of the recurring transaction.
+  TextColumn get shortDescription => text()();
+
+  /// Optional extended description.
+  TextColumn get longDescription => text().nullable()();
+
+  /// When the recurring transaction is scheduled to occur next .
+  DateTimeColumn get nextTransactionDate => dateTime()();
+
+  /// When this record was created in the database.
+  DateTimeColumn get createdAt => dateTime()();
+
+  /// When this record was last modified.
+  DateTimeColumn get updatedAt => dateTime()();
+
+  /// When this recurring template was soft-deleted (null if active).
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  /// Currency code (defaults to 'ZAR').
+  TextColumn get currency => text().withDefault(const Constant('ZAR'))();
+
+  /// Frequency unit: daily, weekly, monthly, or yearly.
+  TextColumn get unit => textEnum<PeriodType>()();
+
+  /// Number of periods between occurrences
+  IntColumn get intervalAmount => integer()();
 
   @override
   Set<Column> get primaryKey => {id};

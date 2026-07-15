@@ -19,6 +19,7 @@ part 'app_database.g.dart';
     Categories,
     CategoryClosure,
     Transactions,
+    RecurringTransactions,
     TransactionCategoryMap,
     BudgetTemplates,
     BudgetPeriods,
@@ -54,10 +55,10 @@ class AppDatabase extends _$AppDatabase {
 
   /// The current schema version of the database.
   ///
-  /// Currently set to 1. Increment this and add migration steps in [migration]
-  /// when the schema changes.
+  /// Increment this and add migration steps in [migration] when the schema
+  /// changes. Currently at 2 after adding RecurringTransactions.
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   /// Migration strategy for the database.
   ///
