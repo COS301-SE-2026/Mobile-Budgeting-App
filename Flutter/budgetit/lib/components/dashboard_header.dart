@@ -53,7 +53,7 @@ class DashboardHeader extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
 
-                    border: Border.all(color: cream.withValues(alpha: 0.3)),
+                    border: Border.all(color: const Color.fromARGB(255, 10, 9, 6).withValues(alpha: 0.3)),
                   ),
 
                   child: const Icon(

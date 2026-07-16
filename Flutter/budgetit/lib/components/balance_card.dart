@@ -37,7 +37,7 @@ class BalanceCard extends StatelessWidget {
 
         children: [
           Text(
-            "DAILY SPENDING FOR ${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+            "TOTAL BALANCE ${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
 
             style: TextStyle(
               color: colours.background,

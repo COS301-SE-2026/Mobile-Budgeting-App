@@ -347,9 +347,9 @@ class _DashboardState extends State<Dashboard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "DAILY SPENDING FOR ${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+            "TOTAL BALANCE ",
             style: TextStyle(
-              color: colours.background,
+              color: colours.textPrimary,
               fontSize: 16,
               fontWeight: FontWeight.w400,
               letterSpacing: 1.2,
@@ -359,7 +359,7 @@ class _DashboardState extends State<Dashboard> {
           Text(
             _formatCurrency(dailySpending),
             style: TextStyle(
-              color: colours.background,
+              color: colours.secondary,
               fontSize: 52,
               fontWeight: FontWeight.bold,
               height: 1,
