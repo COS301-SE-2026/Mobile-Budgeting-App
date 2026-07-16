@@ -9,6 +9,7 @@ import 'schema.dart';
 import 'daos/category_dao.dart';
 import 'daos/transaction_dao.dart';
 import 'daos/budget_dao.dart';
+import 'daos/recurring_transaction_dao.dart';
 import 'daos/settings_dao.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
@@ -104,6 +105,10 @@ class AppDatabase extends _$AppDatabase {
 
   /// Accessor for budget template and period operations.
   late final BudgetDao budgetDao = BudgetDao(this);
+
+  /// Accessor for recurring transaction operations.
+  late final RecurringTransactionDao recurringTransactionDao =
+      RecurringTransactionDao(this);
 
   /// Accessor for application settings.
   late final SettingsDao settingsDao = SettingsDao(this);
