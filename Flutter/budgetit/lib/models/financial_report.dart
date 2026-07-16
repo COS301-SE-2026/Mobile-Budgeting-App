@@ -1,21 +1,24 @@
 class FinancialReport {
   FinancialReport({
-    required this.startDate,
-    required this.endDate,
-    required this.totalIncome,
-    required this.totalExpenses,
-    required this.categoryTotals,
-    required this.transactions,
-  });
+  required this.startDate,
+  required this.endDate,
+  required this.budgetTarget,
+  required this.totalIncome,
+  required this.totalExpenses,
+  required this.categoryTotals,
+  required this.transactions,
+});
 
   final DateTime startDate;
   final DateTime endDate;
   final double totalIncome;
+  final double budgetTarget;
   final double totalExpenses;
   final Map<String, double> categoryTotals;
   final List<FinancialReportTransaction> transactions;
 
   double get netBalance => totalIncome - totalExpenses;
+  double get budgetRemaining => budgetTarget - totalExpenses;
 }
 
 class FinancialReportTransaction {
