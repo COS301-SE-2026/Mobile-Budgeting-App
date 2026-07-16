@@ -73,7 +73,10 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
   Future<List<RecurringTransaction>> getAllRecurringTransactions({
     bool includeDeleted = false,
   }) {
-    throw UnimplementedError();
+    final q = select(recurringTransactions)
+      ..orderBy([(t) => OrderingTerm.asc(t.nextTransactionDate)]);
+    if (!includeDeleted) q.where((t) => t.deletedAt.isNull());
+    return q.get();
   }
 
   Future<List<RecurringTransaction>> getRecurringTransactionsByType(
