@@ -65,7 +65,9 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     String id, {
     bool includeDeleted = false,
   }) {
-    throw UnimplementedError();
+    final q = select(recurringTransactions)..where((t) => t.id.equals(id));
+    if (!includeDeleted) q.where((t) => t.deletedAt.isNull());
+    return q.getSingleOrNull();
   }
 
   Future<List<RecurringTransaction>> getAllRecurringTransactions({
