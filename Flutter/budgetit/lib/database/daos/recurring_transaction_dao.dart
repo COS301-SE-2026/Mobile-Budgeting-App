@@ -100,8 +100,43 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     PeriodType? unit,
     int? intervalAmount,
     String? currency,
-  }) {
-    throw UnimplementedError();
+  }) async {
+    if (shortDescription != null && shortDescription.length > 100) {
+      throw ArgumentError('shortDescription must be 100 characters or less');
+    }
+    final ldValue = longDescription.present ? longDescription.value : null;
+    if (ldValue != null && ldValue.length > 500) {
+      throw ArgumentError('longDescription must be 500 characters or less');
+    }
+    final exists = await (select(
+      recurringTransactions,
+    )..where((t) => t.id.equals(id) & t.deletedAt.isNull())).getSingleOrNull();
+    if (exists == null) {
+      throw Exception('Recurring transaction not found or is soft-deleted');
+    }
+    final companion = RecurringTransactionsCompanion(
+      amount: amount != null ? Value(amount) : const Value.absent(),
+      type: type != null ? Value(type) : const Value.absent(),
+      shortDescription: shortDescription != null
+          ? Value(shortDescription)
+          : const Value.absent(),
+      longDescription: longDescription,
+      nextTransactionDate: nextTransactionDate != null
+          ? Value(nextTransactionDate)
+          : const Value.absent(),
+      unit: unit != null ? Value(unit) : const Value.absent(),
+      intervalAmount: intervalAmount != null
+          ? Value(intervalAmount)
+          : const Value.absent(),
+      currency: currency != null ? Value(currency) : const Value.absent(),
+      updatedAt: Value(_now()),
+    );
+    await (update(
+      recurringTransactions,
+    )..where((t) => t.id.equals(id))).write(companion);
+    return (select(
+      recurringTransactions,
+    )..where((t) => t.id.equals(id))).getSingle();
   }
 
   Future<void> softDeleteRecurringTransaction(String id) async {
