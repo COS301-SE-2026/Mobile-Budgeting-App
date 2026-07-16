@@ -26,8 +26,39 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     required PeriodType unit,
     required int intervalAmount,
     String currency = 'ZAR',
-  }) {
-    throw UnimplementedError();
+  }) async {
+    if (shortDescription.length > 100) {
+      throw ArgumentError('shortDescription must be 100 characters or less');
+    }
+    if (longDescription != null && longDescription.length > 500) {
+      throw ArgumentError('longDescription must be 500 characters or less');
+    }
+    if (amount <= Decimal.zero) {
+      throw ArgumentError('amount must be bigger than zero');
+    }
+    if (intervalAmount <= 0) {
+      throw ArgumentError('intervalAmount must be bigger than zero');
+    }
+    final id = _uuid.v4();
+    final now = _now();
+    await into(recurringTransactions).insert(
+      RecurringTransactionsCompanion.insert(
+        id: id,
+        amount: amount,
+        type: type,
+        shortDescription: shortDescription,
+        longDescription: Value(longDescription),
+        nextTransactionDate: nextTransactionDate,
+        createdAt: now,
+        updatedAt: now,
+        unit: unit,
+        intervalAmount: intervalAmount,
+        currency: Value(currency),
+      ),
+    );
+    return (select(
+      recurringTransactions,
+    )..where((t) => t.id.equals(id))).getSingle();
   }
 
   Future<RecurringTransaction?> getRecurringTransactionById(
