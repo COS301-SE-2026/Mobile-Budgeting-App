@@ -170,7 +170,11 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     DateTime before, {
     bool includeDeleted = false,
   }) {
-    throw UnimplementedError();
+    final q = select(recurringTransactions)
+      ..where((t) => t.nextTransactionDate.isSmallerOrEqualValue(before))
+      ..orderBy([(t) => OrderingTerm.asc(t.nextTransactionDate)]);
+    if (!includeDeleted) q.where((t) => t.deletedAt.isNull());
+    return q.get();
   }
 
   Future<RecurringTransaction> advanceNextDate(String id) {
