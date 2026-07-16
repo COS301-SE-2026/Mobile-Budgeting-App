@@ -83,7 +83,11 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     TransactionType type, {
     bool includeDeleted = false,
   }) {
-    throw UnimplementedError();
+    final q = select(recurringTransactions)
+      ..where((t) => t.type.equalsValue(type))
+      ..orderBy([(t) => OrderingTerm.asc(t.nextTransactionDate)]);
+    if (!includeDeleted) q.where((t) => t.deletedAt.isNull());
+    return q.get();
   }
 
   Future<RecurringTransaction> updateRecurringTransaction(
