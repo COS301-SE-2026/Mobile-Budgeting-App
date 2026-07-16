@@ -95,12 +95,21 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     throw UnimplementedError();
   }
 
-  Future<void> softDeleteRecurringTransaction(String id) {
-    throw UnimplementedError();
+  Future<void> softDeleteRecurringTransaction(String id) async {
+    final now = _now();
+    await (update(recurringTransactions)..where((t) => t.id.equals(id))).write(
+      RecurringTransactionsCompanion(
+        deletedAt: Value(now),
+        updatedAt: Value(now),
+      ),
+    );
   }
 
-  Future<void> hardDeleteRecurringTransaction(String id) {
-    throw UnimplementedError();
+  Future<void> hardDeleteRecurringTransaction(String id) async {
+    await (update(transactions)..where((t) => t.recurringId.equals(id))).write(
+      const TransactionsCompanion(recurringId: Value(null)),
+    );
+    await (delete(recurringTransactions)..where((t) => t.id.equals(id))).go();
   }
 
   Future<void> restoreRecurringTransaction(String id) {
