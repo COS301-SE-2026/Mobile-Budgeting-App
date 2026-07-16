@@ -114,8 +114,14 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     await (delete(recurringTransactions)..where((t) => t.id.equals(id))).go();
   }
 
-  Future<void> restoreRecurringTransaction(String id) {
-    throw UnimplementedError();
+  Future<void> restoreRecurringTransaction(String id) async {
+    final now = _now();
+    await (update(recurringTransactions)..where((t) => t.id.equals(id))).write(
+      RecurringTransactionsCompanion(
+        deletedAt: const Value(null),
+        updatedAt: Value(now),
+      ),
+    );
   }
 
   Future<List<RecurringTransaction>> getDueRecurringTransactions(
