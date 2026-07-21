@@ -1002,6 +1002,31 @@ class $RecurringTransactionsTable extends RecurringTransactions
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _startDateMeta = const VerificationMeta(
+    'startDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> startDate = GeneratedColumn<DateTime>(
+    'start_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _categoryIdMeta = const VerificationMeta(
+    'categoryId',
+  );
+  @override
+  late final GeneratedColumn<String> categoryId = GeneratedColumn<String>(
+    'category_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES categories (id)',
+    ),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1016,6 +1041,8 @@ class $RecurringTransactionsTable extends RecurringTransactions
     currency,
     unit,
     intervalAmount,
+    startDate,
+    categoryId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1104,6 +1131,20 @@ class $RecurringTransactionsTable extends RecurringTransactions
     } else if (isInserting) {
       context.missing(_intervalAmountMeta);
     }
+    if (data.containsKey('start_date')) {
+      context.handle(
+        _startDateMeta,
+        startDate.isAcceptableOrUnknown(data['start_date']!, _startDateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startDateMeta);
+    }
+    if (data.containsKey('category_id')) {
+      context.handle(
+        _categoryIdMeta,
+        categoryId.isAcceptableOrUnknown(data['category_id']!, _categoryIdMeta),
+      );
+    }
     return context;
   }
 
@@ -1167,6 +1208,14 @@ class $RecurringTransactionsTable extends RecurringTransactions
         DriftSqlType.int,
         data['${effectivePrefix}interval_amount'],
       )!,
+      startDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}start_date'],
+      )!,
+      categoryId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}category_id'],
+      ),
     );
   }
 
@@ -1219,6 +1268,12 @@ class RecurringTransaction extends DataClass
 
   /// Number of periods between occurrences
   final int intervalAmount;
+
+  /// Date of the first occurrence of this transaction
+  final DateTime startDate;
+
+  /// (Nullable) category for recurring transactions , inherited by generated children.
+  final String? categoryId;
   const RecurringTransaction({
     required this.id,
     required this.amount,
@@ -1232,6 +1287,8 @@ class RecurringTransaction extends DataClass
     required this.currency,
     required this.unit,
     required this.intervalAmount,
+    required this.startDate,
+    this.categoryId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1264,6 +1321,10 @@ class RecurringTransaction extends DataClass
       );
     }
     map['interval_amount'] = Variable<int>(intervalAmount);
+    map['start_date'] = Variable<DateTime>(startDate);
+    if (!nullToAbsent || categoryId != null) {
+      map['category_id'] = Variable<String>(categoryId);
+    }
     return map;
   }
 
@@ -1285,6 +1346,10 @@ class RecurringTransaction extends DataClass
       currency: Value(currency),
       unit: Value(unit),
       intervalAmount: Value(intervalAmount),
+      startDate: Value(startDate),
+      categoryId: categoryId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(categoryId),
     );
   }
 
@@ -1312,6 +1377,8 @@ class RecurringTransaction extends DataClass
         serializer.fromJson<String>(json['unit']),
       ),
       intervalAmount: serializer.fromJson<int>(json['intervalAmount']),
+      startDate: serializer.fromJson<DateTime>(json['startDate']),
+      categoryId: serializer.fromJson<String?>(json['categoryId']),
     );
   }
   @override
@@ -1334,6 +1401,8 @@ class RecurringTransaction extends DataClass
         $RecurringTransactionsTable.$converterunit.toJson(unit),
       ),
       'intervalAmount': serializer.toJson<int>(intervalAmount),
+      'startDate': serializer.toJson<DateTime>(startDate),
+      'categoryId': serializer.toJson<String?>(categoryId),
     };
   }
 
@@ -1350,6 +1419,8 @@ class RecurringTransaction extends DataClass
     String? currency,
     PeriodType? unit,
     int? intervalAmount,
+    DateTime? startDate,
+    Value<String?> categoryId = const Value.absent(),
   }) => RecurringTransaction(
     id: id ?? this.id,
     amount: amount ?? this.amount,
@@ -1365,6 +1436,8 @@ class RecurringTransaction extends DataClass
     currency: currency ?? this.currency,
     unit: unit ?? this.unit,
     intervalAmount: intervalAmount ?? this.intervalAmount,
+    startDate: startDate ?? this.startDate,
+    categoryId: categoryId.present ? categoryId.value : this.categoryId,
   );
   RecurringTransaction copyWithCompanion(RecurringTransactionsCompanion data) {
     return RecurringTransaction(
@@ -1388,6 +1461,10 @@ class RecurringTransaction extends DataClass
       intervalAmount: data.intervalAmount.present
           ? data.intervalAmount.value
           : this.intervalAmount,
+      startDate: data.startDate.present ? data.startDate.value : this.startDate,
+      categoryId: data.categoryId.present
+          ? data.categoryId.value
+          : this.categoryId,
     );
   }
 
@@ -1405,7 +1482,9 @@ class RecurringTransaction extends DataClass
           ..write('deletedAt: $deletedAt, ')
           ..write('currency: $currency, ')
           ..write('unit: $unit, ')
-          ..write('intervalAmount: $intervalAmount')
+          ..write('intervalAmount: $intervalAmount, ')
+          ..write('startDate: $startDate, ')
+          ..write('categoryId: $categoryId')
           ..write(')'))
         .toString();
   }
@@ -1424,6 +1503,8 @@ class RecurringTransaction extends DataClass
     currency,
     unit,
     intervalAmount,
+    startDate,
+    categoryId,
   );
   @override
   bool operator ==(Object other) =>
@@ -1440,7 +1521,9 @@ class RecurringTransaction extends DataClass
           other.deletedAt == this.deletedAt &&
           other.currency == this.currency &&
           other.unit == this.unit &&
-          other.intervalAmount == this.intervalAmount);
+          other.intervalAmount == this.intervalAmount &&
+          other.startDate == this.startDate &&
+          other.categoryId == this.categoryId);
 }
 
 class RecurringTransactionsCompanion
@@ -1457,6 +1540,8 @@ class RecurringTransactionsCompanion
   final Value<String> currency;
   final Value<PeriodType> unit;
   final Value<int> intervalAmount;
+  final Value<DateTime> startDate;
+  final Value<String?> categoryId;
   final Value<int> rowid;
   const RecurringTransactionsCompanion({
     this.id = const Value.absent(),
@@ -1471,6 +1556,8 @@ class RecurringTransactionsCompanion
     this.currency = const Value.absent(),
     this.unit = const Value.absent(),
     this.intervalAmount = const Value.absent(),
+    this.startDate = const Value.absent(),
+    this.categoryId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   RecurringTransactionsCompanion.insert({
@@ -1486,6 +1573,8 @@ class RecurringTransactionsCompanion
     this.currency = const Value.absent(),
     required PeriodType unit,
     required int intervalAmount,
+    required DateTime startDate,
+    this.categoryId = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        amount = Value(amount),
@@ -1495,7 +1584,8 @@ class RecurringTransactionsCompanion
        createdAt = Value(createdAt),
        updatedAt = Value(updatedAt),
        unit = Value(unit),
-       intervalAmount = Value(intervalAmount);
+       intervalAmount = Value(intervalAmount),
+       startDate = Value(startDate);
   static Insertable<RecurringTransaction> custom({
     Expression<String>? id,
     Expression<String>? amount,
@@ -1509,6 +1599,8 @@ class RecurringTransactionsCompanion
     Expression<String>? currency,
     Expression<String>? unit,
     Expression<int>? intervalAmount,
+    Expression<DateTime>? startDate,
+    Expression<String>? categoryId,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1525,6 +1617,8 @@ class RecurringTransactionsCompanion
       if (currency != null) 'currency': currency,
       if (unit != null) 'unit': unit,
       if (intervalAmount != null) 'interval_amount': intervalAmount,
+      if (startDate != null) 'start_date': startDate,
+      if (categoryId != null) 'category_id': categoryId,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1542,6 +1636,8 @@ class RecurringTransactionsCompanion
     Value<String>? currency,
     Value<PeriodType>? unit,
     Value<int>? intervalAmount,
+    Value<DateTime>? startDate,
+    Value<String?>? categoryId,
     Value<int>? rowid,
   }) {
     return RecurringTransactionsCompanion(
@@ -1557,6 +1653,8 @@ class RecurringTransactionsCompanion
       currency: currency ?? this.currency,
       unit: unit ?? this.unit,
       intervalAmount: intervalAmount ?? this.intervalAmount,
+      startDate: startDate ?? this.startDate,
+      categoryId: categoryId ?? this.categoryId,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1608,6 +1706,12 @@ class RecurringTransactionsCompanion
     if (intervalAmount.present) {
       map['interval_amount'] = Variable<int>(intervalAmount.value);
     }
+    if (startDate.present) {
+      map['start_date'] = Variable<DateTime>(startDate.value);
+    }
+    if (categoryId.present) {
+      map['category_id'] = Variable<String>(categoryId.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1629,6 +1733,8 @@ class RecurringTransactionsCompanion
           ..write('currency: $currency, ')
           ..write('unit: $unit, ')
           ..write('intervalAmount: $intervalAmount, ')
+          ..write('startDate: $startDate, ')
+          ..write('categoryId: $categoryId, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -4179,6 +4285,34 @@ final class $$CategoriesTableReferences
   $$CategoriesTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static MultiTypedResultKey<
+    $RecurringTransactionsTable,
+    List<RecurringTransaction>
+  >
+  _recurringTransactionsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.recurringTransactions,
+        aliasName: $_aliasNameGenerator(
+          db.categories.id,
+          db.recurringTransactions.categoryId,
+        ),
+      );
+
+  $$RecurringTransactionsTableProcessedTableManager
+  get recurringTransactionsRefs {
+    final manager = $$RecurringTransactionsTableTableManager(
+      $_db,
+      $_db.recurringTransactions,
+    ).filter((f) => f.categoryId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _recurringTransactionsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
     $TransactionCategoryMapTable,
     List<TransactionCategoryMapData>
   >
@@ -4284,6 +4418,32 @@ class $$CategoriesTableFilterComposer
     column: $table.deletedAt,
     builder: (column) => ColumnFilters(column),
   );
+
+  Expression<bool> recurringTransactionsRefs(
+    Expression<bool> Function($$RecurringTransactionsTableFilterComposer f) f,
+  ) {
+    final $$RecurringTransactionsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.recurringTransactions,
+          getReferencedColumn: (t) => t.categoryId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$RecurringTransactionsTableFilterComposer(
+                $db: $db,
+                $table: $db.recurringTransactions,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 
   Expression<bool> transactionCategoryMapRefs(
     Expression<bool> Function($$TransactionCategoryMapTableFilterComposer f) f,
@@ -4428,6 +4588,32 @@ class $$CategoriesTableAnnotationComposer
   GeneratedColumn<DateTime> get deletedAt =>
       $composableBuilder(column: $table.deletedAt, builder: (column) => column);
 
+  Expression<T> recurringTransactionsRefs<T extends Object>(
+    Expression<T> Function($$RecurringTransactionsTableAnnotationComposer a) f,
+  ) {
+    final $$RecurringTransactionsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.recurringTransactions,
+          getReferencedColumn: (t) => t.categoryId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$RecurringTransactionsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.recurringTransactions,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
   Expression<T> transactionCategoryMapRefs<T extends Object>(
     Expression<T> Function($$TransactionCategoryMapTableAnnotationComposer a) f,
   ) {
@@ -4494,6 +4680,7 @@ class $$CategoriesTableTableManager
           (Category, $$CategoriesTableReferences),
           Category,
           PrefetchHooks Function({
+            bool recurringTransactionsRefs,
             bool transactionCategoryMapRefs,
             bool budgetTemplatesRefs,
           })
@@ -4567,18 +4754,41 @@ class $$CategoriesTableTableManager
               .toList(),
           prefetchHooksCallback:
               ({
+                recurringTransactionsRefs = false,
                 transactionCategoryMapRefs = false,
                 budgetTemplatesRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
+                    if (recurringTransactionsRefs) db.recurringTransactions,
                     if (transactionCategoryMapRefs) db.transactionCategoryMap,
                     if (budgetTemplatesRefs) db.budgetTemplates,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
                     return [
+                      if (recurringTransactionsRefs)
+                        await $_getPrefetchedData<
+                          Category,
+                          $CategoriesTable,
+                          RecurringTransaction
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CategoriesTableReferences
+                              ._recurringTransactionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CategoriesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).recurringTransactionsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.categoryId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                       if (transactionCategoryMapRefs)
                         await $_getPrefetchedData<
                           Category,
@@ -4642,6 +4852,7 @@ typedef $$CategoriesTableProcessedTableManager =
       (Category, $$CategoriesTableReferences),
       Category,
       PrefetchHooks Function({
+        bool recurringTransactionsRefs,
         bool transactionCategoryMapRefs,
         bool budgetTemplatesRefs,
       })
@@ -5044,6 +5255,8 @@ typedef $$RecurringTransactionsTableCreateCompanionBuilder =
       Value<String> currency,
       required PeriodType unit,
       required int intervalAmount,
+      required DateTime startDate,
+      Value<String?> categoryId,
       Value<int> rowid,
     });
 typedef $$RecurringTransactionsTableUpdateCompanionBuilder =
@@ -5060,6 +5273,8 @@ typedef $$RecurringTransactionsTableUpdateCompanionBuilder =
       Value<String> currency,
       Value<PeriodType> unit,
       Value<int> intervalAmount,
+      Value<DateTime> startDate,
+      Value<String?> categoryId,
       Value<int> rowid,
     });
 
@@ -5075,6 +5290,28 @@ final class $$RecurringTransactionsTableReferences
     super.$_table,
     super.$_typedResult,
   );
+
+  static $CategoriesTable _categoryIdTable(_$AppDatabase db) =>
+      db.categories.createAlias(
+        $_aliasNameGenerator(
+          db.recurringTransactions.categoryId,
+          db.categories.id,
+        ),
+      );
+
+  $$CategoriesTableProcessedTableManager? get categoryId {
+    final $_column = $_itemColumn<String>('category_id');
+    if ($_column == null) return null;
+    final manager = $$CategoriesTableTableManager(
+      $_db,
+      $_db.categories,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_categoryIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
 
   static MultiTypedResultKey<$TransactionsTable, List<Transaction>>
   _transactionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
@@ -5170,6 +5407,34 @@ class $$RecurringTransactionsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<DateTime> get startDate => $composableBuilder(
+    column: $table.startDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CategoriesTableFilterComposer get categoryId {
+    final $$CategoriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.categoryId,
+      referencedTable: $db.categories,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CategoriesTableFilterComposer(
+            $db: $db,
+            $table: $db.categories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   Expression<bool> transactionsRefs(
     Expression<bool> Function($$TransactionsTableFilterComposer f) f,
   ) {
@@ -5264,6 +5529,34 @@ class $$RecurringTransactionsTableOrderingComposer
     column: $table.intervalAmount,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<DateTime> get startDate => $composableBuilder(
+    column: $table.startDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CategoriesTableOrderingComposer get categoryId {
+    final $$CategoriesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.categoryId,
+      referencedTable: $db.categories,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CategoriesTableOrderingComposer(
+            $db: $db,
+            $table: $db.categories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$RecurringTransactionsTableAnnotationComposer
@@ -5319,6 +5612,32 @@ class $$RecurringTransactionsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<DateTime> get startDate =>
+      $composableBuilder(column: $table.startDate, builder: (column) => column);
+
+  $$CategoriesTableAnnotationComposer get categoryId {
+    final $$CategoriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.categoryId,
+      referencedTable: $db.categories,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CategoriesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.categories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   Expression<T> transactionsRefs<T extends Object>(
     Expression<T> Function($$TransactionsTableAnnotationComposer a) f,
   ) {
@@ -5358,7 +5677,7 @@ class $$RecurringTransactionsTableTableManager
           $$RecurringTransactionsTableUpdateCompanionBuilder,
           (RecurringTransaction, $$RecurringTransactionsTableReferences),
           RecurringTransaction,
-          PrefetchHooks Function({bool transactionsRefs})
+          PrefetchHooks Function({bool categoryId, bool transactionsRefs})
         > {
   $$RecurringTransactionsTableTableManager(
     _$AppDatabase db,
@@ -5396,6 +5715,8 @@ class $$RecurringTransactionsTableTableManager
                 Value<String> currency = const Value.absent(),
                 Value<PeriodType> unit = const Value.absent(),
                 Value<int> intervalAmount = const Value.absent(),
+                Value<DateTime> startDate = const Value.absent(),
+                Value<String?> categoryId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => RecurringTransactionsCompanion(
                 id: id,
@@ -5410,6 +5731,8 @@ class $$RecurringTransactionsTableTableManager
                 currency: currency,
                 unit: unit,
                 intervalAmount: intervalAmount,
+                startDate: startDate,
+                categoryId: categoryId,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -5426,6 +5749,8 @@ class $$RecurringTransactionsTableTableManager
                 Value<String> currency = const Value.absent(),
                 required PeriodType unit,
                 required int intervalAmount,
+                required DateTime startDate,
+                Value<String?> categoryId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => RecurringTransactionsCompanion.insert(
                 id: id,
@@ -5440,6 +5765,8 @@ class $$RecurringTransactionsTableTableManager
                 currency: currency,
                 unit: unit,
                 intervalAmount: intervalAmount,
+                startDate: startDate,
+                categoryId: categoryId,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -5450,38 +5777,75 @@ class $$RecurringTransactionsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({transactionsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (transactionsRefs) db.transactions],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (transactionsRefs)
-                    await $_getPrefetchedData<
-                      RecurringTransaction,
-                      $RecurringTransactionsTable,
-                      Transaction
-                    >(
-                      currentTable: table,
-                      referencedTable: $$RecurringTransactionsTableReferences
-                          ._transactionsRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$RecurringTransactionsTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).transactionsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where(
-                            (e) => e.recurringId == item.id,
-                          ),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({categoryId = false, transactionsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (transactionsRefs) db.transactions,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (categoryId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.categoryId,
+                                    referencedTable:
+                                        $$RecurringTransactionsTableReferences
+                                            ._categoryIdTable(db),
+                                    referencedColumn:
+                                        $$RecurringTransactionsTableReferences
+                                            ._categoryIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (transactionsRefs)
+                        await $_getPrefetchedData<
+                          RecurringTransaction,
+                          $RecurringTransactionsTable,
+                          Transaction
+                        >(
+                          currentTable: table,
+                          referencedTable:
+                              $$RecurringTransactionsTableReferences
+                                  ._transactionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$RecurringTransactionsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).transactionsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.recurringId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -5498,7 +5862,7 @@ typedef $$RecurringTransactionsTableProcessedTableManager =
       $$RecurringTransactionsTableUpdateCompanionBuilder,
       (RecurringTransaction, $$RecurringTransactionsTableReferences),
       RecurringTransaction,
-      PrefetchHooks Function({bool transactionsRefs})
+      PrefetchHooks Function({bool categoryId, bool transactionsRefs})
     >;
 typedef $$TransactionsTableCreateCompanionBuilder =
     TransactionsCompanion Function({
