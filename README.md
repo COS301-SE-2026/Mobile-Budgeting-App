@@ -81,11 +81,12 @@
 
 ### Code Coverage <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/codecov/codecov-plain.svg" height=32px width=32px />
 
-| Coverage Type | Percentage |
-| --------------- | --------------- |
-| **Lines** | <span id="shieldcn-coverage-lines-start"></span>![badge](https://shieldcn.dev/badge/Lines-pending-6e6e6e.png)<span id="shieldcn-coverage-lines-end"></span> |
-| **Branches** | <span id="shieldcn-coverage-branches-start"></span>![badge](https://shieldcn.dev/badge/Branches-pending-6e6e6e.png)<span id="shieldcn-coverage-branches-end"></span> |
-| **Functions** | <span id="shieldcn-coverage-functions-start"></span>![badge](https://shieldcn.dev/badge/Functions-pending-6e6e6e.png)<span id="shieldcn-coverage-functions-end"></span> |
+| Branch | Coverage |
+| --- | --- |
+| **main** | ![coverage](https://shieldcn.dev/codecov/github/COS301-SE-2026/Mobile-Budgeting-App/main.svg?variant=branded) |
+| **newdev** | ![coverage](https://shieldcn.dev/codecov/github/COS301-SE-2026/Mobile-Budgeting-App/newdev.svg?variant=branded) |
+
+[![Codecov Dashboard](https://shieldcn.dev/badge/Codecov%20Dashboard-F01F7A.svg?logo=codecov&logoColor=fff&variant=branded)](https://app.codecov.io/gh/COS301-SE-2026/Mobile-Budgeting-App)
 
 ---
 

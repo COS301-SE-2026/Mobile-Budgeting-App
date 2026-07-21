@@ -173,10 +173,6 @@ jobs:
         run: |
           flutter test --coverage --concurrency=4 $(find test -name '*_test.dart' -not -path 'test/golden/*' -not -path 'test/performance/*' -not -path 'test/integration/*')
 
-      - name: Parse coverage
-        working-directory: Flutter/budgetit
-        run: python3 ../../scripts/coverage_parse.py --lcov-file coverage/lcov.info --output coverage/summary.json
-
       - name: Upload coverage (lcov)
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
@@ -189,13 +185,6 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: Flutter/budgetit/coverage/lcov.info
           fail_ci_if_error: true
-
-      - name: Upload coverage (summary)
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-        with:
-          name: coverage-summary
-          path: Flutter/budgetit/coverage/summary.json
-          retention-days: 7
 
   sonarcloud:
     name: SonarCloud

@@ -172,23 +172,12 @@ jobs:
         working-directory: Flutter/budgetit
         run: flutter test --coverage --concurrency=4 $(find test -name '*_test.dart' -not -path 'test/golden/*' -not -path 'test/performance/*' -not -path 'test/integration/*')
 
-      - name: Parse coverage
-        working-directory: Flutter/budgetit
-        run: python3 ../../scripts/coverage_parse.py --lcov-file coverage/lcov.info --output coverage/summary.json
-
       - name: Upload coverage (lcov)
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: coverage-lcov
           path: Flutter/budgetit/coverage/lcov.info
           retention-days: 90
-
-      - name: Upload coverage (summary)
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-        with:
-          name: coverage-summary
-          path: Flutter/budgetit/coverage/summary.json
-          retention-days: 7
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v7
@@ -314,50 +303,4 @@ jobs:
           path: Flutter/budgetit/build/app/outputs/flutter-apk/app-release.apk
           retention-days: 7
 
-  update-badges:
-    name: Update Coverage Badges
-    runs-on: self-hosted
-    needs: unit-tests
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
-      - name: Download coverage summary
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
-        with:
-          name: coverage-summary
-          path: Flutter/budgetit/coverage
-
-      - name: Set up Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
-        with:
-          python-version: "3.12"
-
-      - name: Cache pip
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8
-        with:
-          path: ~/.cache/pip
-          key: pip-${{ runner.os }}-${{ hashFiles('scripts/**/*.py') }}
-          restore-keys: |
-            pip-${{ runner.os }}-
-
-      - name: Generate coverage badges
-        run: python3 scripts/badges/generate_badges/coverage_generate.py --summary-json Flutter/budgetit/coverage/summary.json
-      - name: Inject badges into README
-        run: python3 scripts/badges/generate_badges/coverage_inject.py --readme-path README.md
-
-      - name: Commit if changed
-        run: |
-          if git diff --quiet README.md; then
-            echo "No badge changes"
-          else
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add README.md
-            git commit -m "chore(ci): update coverage badges [skip ci]"
-            git push
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
