@@ -124,36 +124,51 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     int? intervalAmount,
     String? currency,
   }) async {
-    if (shortDescription != null && shortDescription.length > 100) {
+    
+    if (shortDescription != null && shortDescription.length > _maxShortDescriptionLength) {
       throw ArgumentError('shortDescription must be 100 characters or less');
     }
+
     final ldValue = longDescription.present ? longDescription.value : null;
-    if (ldValue != null && ldValue.length > 500) {
+    
+    if (ldValue != null && ldValue.length > _maxLongDescriptionLength) {
       throw ArgumentError('longDescription must be 500 characters or less');
     }
+
     final exists = await (select(
       recurringTransactions,
     )..where((t) => t.id.equals(id) & t.deletedAt.isNull())).getSingleOrNull();
+
     if (exists == null) {
       throw Exception('Recurring transaction not found or is soft-deleted');
     }
+
     final companion = RecurringTransactionsCompanion(
       amount: amount != null ? Value(amount) : const Value.absent(),
+      
       type: type != null ? Value(type) : const Value.absent(),
+      
       shortDescription: shortDescription != null
           ? Value(shortDescription)
           : const Value.absent(),
+      
       longDescription: longDescription,
+      
       nextTransactionDate: nextTransactionDate != null
           ? Value(nextTransactionDate)
           : const Value.absent(),
+      
       unit: unit != null ? Value(unit) : const Value.absent(),
+      
       intervalAmount: intervalAmount != null
           ? Value(intervalAmount)
           : const Value.absent(),
+      
       currency: currency != null ? Value(currency) : const Value.absent(),
+      
       updatedAt: Value(_now()),
     );
+    
     await (update(
       recurringTransactions,
     )..where((t) => t.id.equals(id))).write(companion);
@@ -202,10 +217,13 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
 
   DateTime _addInterval(DateTime date, PeriodType unit, int intervalAmount) {
     switch (unit) {
+
       case PeriodType.daily:
         return date.add(Duration(days: intervalAmount));
+
       case PeriodType.weekly:
         return date.add(Duration(days: intervalAmount * 7));
+
       case PeriodType.monthly:
         final targetMonth = date.month + intervalAmount;
         final yearOffset = (targetMonth - 1) ~/ 12;
@@ -214,6 +232,7 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
         final lastDay = DateTime(year, month + 1, 0).day;
         final day = date.day > lastDay ? lastDay : date.day;
         return DateTime(year, month, day);
+
       case PeriodType.yearly:
         final year = date.year + intervalAmount;
         final lastDay = DateTime(year, date.month + 1, 0).day;
@@ -226,20 +245,24 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     final record = await (select(
       recurringTransactions,
     )..where((t) => t.id.equals(id))).getSingleOrNull();
+
     if (record == null) {
       throw Exception('Recurring transaction not found');
     }
+
     final newDate = _addInterval(
       record.nextTransactionDate,
       record.unit,
       record.intervalAmount,
     );
+
     await (update(recurringTransactions)..where((t) => t.id.equals(id))).write(
       RecurringTransactionsCompanion(
         nextTransactionDate: Value(newDate),
         updatedAt: Value(_now()),
       ),
     );
+    
     return _getByIdOrThrow(id);
   }
 
