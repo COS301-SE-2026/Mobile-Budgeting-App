@@ -241,7 +241,14 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
 
       case PeriodType.monthly:
         final next = currentDate.add(months: intervalAmount).dateTime;
-        final targetDay = _clampDayForMonth(next.year, next.month, next.day);
+        final daysInCurrentMonth = DateTime(date.year, date.month + 1, 0).day;
+        final wasClamped =
+            date.day != startDate.day && date.day == daysInCurrentMonth;
+        final targetDay = _clampDayForMonth(
+          next.year,
+          next.month,
+          wasClamped ? startDate.day : next.day,
+        );
         return DateTime(next.year, next.month, targetDay);
 
       case PeriodType.yearly:
