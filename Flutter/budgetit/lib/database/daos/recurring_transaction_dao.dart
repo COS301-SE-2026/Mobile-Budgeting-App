@@ -240,6 +240,13 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     }
   }
 
+  /// Returns [day] if the target month has at least that many days,
+  /// else the last valid day of the month.
+  int _clampDayForMonth(int year, int month, int day) {
+    final daysInMonth = DateTime(year, month + 1, 0).day;
+    return day > daysInMonth ? daysInMonth : day;
+  }
+
   Future<RecurringTransaction> advanceNextDate(String id) async {
     final record = await (select(
       recurringTransactions,
