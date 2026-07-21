@@ -28,6 +28,10 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     }
   }
 
+
+  static const _maxShortDescriptionLength = 100 ;
+  static const _maxLongDescriptionLength = 500 ; 
+
   Future<RecurringTransaction> insertRecurringTransaction({
     required Decimal amount,
     required TransactionType type,
@@ -38,20 +42,26 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     required int intervalAmount,
     String currency = 'ZAR',
   }) async {
-    if (shortDescription.length > 100) {
+    
+    if (shortDescription.length > _maxShortDescriptionLength) {
       throw ArgumentError('shortDescription must be 100 characters or less');
     }
-    if (longDescription != null && longDescription.length > 500) {
+
+    if (longDescription != null && longDescription.length > _maxLongDescriptionLength) {
       throw ArgumentError('longDescription must be 500 characters or less');
     }
+
     if (amount <= Decimal.zero) {
       throw ArgumentError('amount must be bigger than zero');
     }
+
     if (intervalAmount <= 0) {
       throw ArgumentError('intervalAmount must be bigger than zero');
     }
+
     final id = _uuid.v4();
     final now = _now();
+    
     await into(recurringTransactions).insert(
       RecurringTransactionsCompanion.insert(
         id: id,
