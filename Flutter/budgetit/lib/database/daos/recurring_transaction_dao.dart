@@ -177,8 +177,49 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     return q.get();
   }
 
-  Future<RecurringTransaction> advanceNextDate(String id) {
-    throw UnimplementedError();
+  DateTime _addInterval(DateTime date, PeriodType unit, int intervalAmount) {
+    switch (unit) {
+      case PeriodType.daily:
+        return date.add(Duration(days: intervalAmount));
+      case PeriodType.weekly:
+        return date.add(Duration(days: intervalAmount * 7));
+      case PeriodType.monthly:
+        final targetMonth = date.month + intervalAmount;
+        final yearOffset = (targetMonth - 1) ~/ 12;
+        final month = ((targetMonth - 1) % 12) + 1;
+        final year = date.year + yearOffset;
+        final lastDay = DateTime(year, month + 1, 0).day;
+        final day = date.day > lastDay ? lastDay : date.day;
+        return DateTime(year, month, day);
+      case PeriodType.yearly:
+        final year = date.year + intervalAmount;
+        final lastDay = DateTime(year, date.month + 1, 0).day;
+        final day = date.day > lastDay ? lastDay : date.day;
+        return DateTime(year, date.month, day);
+    }
+  }
+
+  Future<RecurringTransaction> advanceNextDate(String id) async {
+    final record = await (select(
+      recurringTransactions,
+    )..where((t) => t.id.equals(id))).getSingleOrNull();
+    if (record == null) {
+      throw Exception('Recurring transaction not found');
+    }
+    final newDate = _addInterval(
+      record.nextTransactionDate,
+      record.unit,
+      record.intervalAmount,
+    );
+    await (update(recurringTransactions)..where((t) => t.id.equals(id))).write(
+      RecurringTransactionsCompanion(
+        nextTransactionDate: Value(newDate),
+        updatedAt: Value(_now()),
+      ),
+    );
+    return (select(
+      recurringTransactions,
+    )..where((t) => t.id.equals(id))).getSingle();
   }
 
   Future<List<Transaction>> getTransactionsForRecurring(
