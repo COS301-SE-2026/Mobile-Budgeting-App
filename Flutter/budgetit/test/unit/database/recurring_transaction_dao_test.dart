@@ -28,6 +28,8 @@ void main() {
     int intervalAmount = 1,
     String? currency,
     String? longDescription,
+    DateTime? startDate,
+    String? categoryId,
   }) {
     return dao.insertRecurringTransaction(
       amount: amount ?? Decimal.parse('100.00'),
@@ -37,6 +39,8 @@ void main() {
       nextTransactionDate: nextTransactionDate ?? DateTime(2026, 5, 20),
       unit: unit,
       intervalAmount: intervalAmount,
+      startDate: startDate ?? DateTime(2026, 5, 20),
+      categoryId: categoryId,
       currency: currency ?? 'ZAR',
     );
   }
@@ -50,6 +54,7 @@ void main() {
         nextTransactionDate: DateTime(2026, 5, 20),
         unit: PeriodType.monthly,
         intervalAmount: 1,
+        startDate: DateTime(2026, 5, 20),
       );
 
       expect(recurring.amount, equals(Decimal.parse('250.00')));
@@ -58,6 +63,7 @@ void main() {
       expect(recurring.nextTransactionDate, equals(DateTime(2026, 5, 20)));
       expect(recurring.unit, equals(PeriodType.monthly));
       expect(recurring.intervalAmount, equals(1));
+      expect(recurring.startDate, equals(DateTime(2026, 5, 20)));
     });
 
     test('sets createdAt and updatedAt', () async {
@@ -88,6 +94,7 @@ void main() {
         nextTransactionDate: DateTime(2026, 8, 1),
         unit: PeriodType.monthly,
         intervalAmount: 1,
+        startDate: DateTime(2026, 8, 1),
       );
 
       expect(recurring.longDescription, equals('Monthly rent payment'));
@@ -110,6 +117,7 @@ void main() {
             nextTransactionDate: DateTime(2026, 5, 20),
             unit: PeriodType.monthly,
             intervalAmount: 1,
+            startDate: DateTime(2026, 5, 20),
           ),
           throwsA(isA<ArgumentError>()),
         );
@@ -124,6 +132,7 @@ void main() {
         nextTransactionDate: DateTime(2026, 1, 1),
         unit: PeriodType.monthly,
         intervalAmount: 1,
+        startDate: DateTime(2026, 1, 1),
       );
 
       expect(recurring.shortDescription.length, equals(100));
@@ -141,6 +150,7 @@ void main() {
             nextTransactionDate: DateTime(2026, 1, 1),
             unit: PeriodType.monthly,
             intervalAmount: 1,
+            startDate: DateTime(2026, 1, 1),
           ),
           throwsA(isA<ArgumentError>()),
         );
@@ -156,6 +166,7 @@ void main() {
         nextTransactionDate: DateTime(2026, 5, 20),
         unit: PeriodType.monthly,
         intervalAmount: 1,
+        startDate: DateTime(2026, 5, 20),
       );
 
       expect(recurring.longDescription!.length, equals(500));
@@ -170,6 +181,7 @@ void main() {
           nextTransactionDate: DateTime(2026, 5, 20),
           unit: PeriodType.monthly,
           intervalAmount: 1,
+          startDate: DateTime(2026, 5, 20),
         ),
         throwsA(isA<ArgumentError>()),
       );
@@ -184,6 +196,7 @@ void main() {
           nextTransactionDate: DateTime(2026, 5, 20),
           unit: PeriodType.monthly,
           intervalAmount: 1,
+          startDate: DateTime(2026, 5, 20),
         ),
         throwsA(isA<ArgumentError>()),
       );
@@ -198,6 +211,7 @@ void main() {
           nextTransactionDate: DateTime(2026, 5, 20),
           unit: PeriodType.monthly,
           intervalAmount: 0,
+          startDate: DateTime(2026, 5, 20),
         ),
         throwsA(isA<ArgumentError>()),
       );
@@ -212,9 +226,32 @@ void main() {
           nextTransactionDate: DateTime(2026, 5, 20),
           unit: PeriodType.monthly,
           intervalAmount: -1,
+          startDate: DateTime(2026, 5, 20),
         ),
         throwsA(isA<ArgumentError>()),
       );
+    });
+
+    test('stores categoryId when provided', () async {
+      final categoryId = 'category-123';
+      final recurring = await dao.insertRecurringTransaction(
+        amount: Decimal.parse('100.00'),
+        type: TransactionType.expense,
+        shortDescription: 'Cat rent',
+        nextTransactionDate: DateTime(2026, 5, 20),
+        unit: PeriodType.monthly,
+        intervalAmount: 1,
+        startDate: DateTime(2026, 5, 20),
+        categoryId: categoryId,
+      );
+
+      expect(recurring.categoryId, equals(categoryId));
+    });
+
+    test('categoryId is null when not provided', () async {
+      final recurring = await insertRecurring();
+
+      expect(recurring.categoryId, isNull);
     });
   });
 
@@ -451,6 +488,7 @@ void main() {
         nextTransactionDate: DateTime(2026, 5, 20),
         unit: PeriodType.monthly,
         intervalAmount: 1,
+        startDate: DateTime(2026, 5, 20),
       );
 
       final updated = await dao.updateRecurringTransaction(
@@ -470,6 +508,7 @@ void main() {
         nextTransactionDate: DateTime(2026, 5, 20),
         unit: PeriodType.monthly,
         intervalAmount: 1,
+        startDate: DateTime(2026, 5, 20),
       );
 
       final updated = await dao.updateRecurringTransaction(
@@ -818,6 +857,7 @@ void main() {
         nextTransactionDate: DateTime(2026, 1, 15),
         unit: PeriodType.monthly,
         intervalAmount: 2,
+        startDate: DateTime(2026, 1, 15),
       );
 
       final advanced = await dao.advanceNextDate(recurring.id);
@@ -825,16 +865,78 @@ void main() {
       expect(advanced.nextTransactionDate, equals(DateTime(2026, 3, 15)));
     });
 
-    test('handles end-of-month for monthly', () async {
+    test(
+      'handles the end of the month for monthly period type by clamping to last valid day',
+      () async {
+        final recurring = await insertRecurring(
+          nextTransactionDate: DateTime(2026, 1, 31),
+          unit: PeriodType.monthly,
+          intervalAmount: 1,
+          startDate: DateTime(2026, 1, 31),
+        );
+
+        final advanced = await dao.advanceNextDate(recurring.id);
+
+        expect(advanced.nextTransactionDate, equals(DateTime(2026, 2, 28)));
+      },
+    );
+
+    test(
+      'bounces back to original day after short month (no date drift)',
+      () async {
+        final recurring = await insertRecurring(
+          nextTransactionDate: DateTime(2026, 1, 31),
+          unit: PeriodType.monthly,
+          intervalAmount: 1,
+          startDate: DateTime(2026, 1, 31),
+        );
+
+        var advanced = await dao.advanceNextDate(recurring.id);
+        expect(advanced.nextTransactionDate, equals(DateTime(2026, 2, 28)));
+
+        advanced = await dao.advanceNextDate(advanced.id);
+        expect(advanced.nextTransactionDate, equals(DateTime(2026, 3, 31)));
+
+        advanced = await dao.advanceNextDate(advanced.id);
+        expect(advanced.nextTransactionDate, equals(DateTime(2026, 4, 30)));
+
+        advanced = await dao.advanceNextDate(advanced.id);
+        expect(advanced.nextTransactionDate, equals(DateTime(2026, 5, 31)));
+      },
+    );
+
+    test('January 31 over a full year recovers correctly (no drift)', () async {
       final recurring = await insertRecurring(
         nextTransactionDate: DateTime(2026, 1, 31),
         unit: PeriodType.monthly,
         intervalAmount: 1,
+        startDate: DateTime(2026, 1, 31),
       );
 
-      final advanced = await dao.advanceNextDate(recurring.id);
+      final expected = [
+        DateTime(2026, 2, 28),
+        DateTime(2026, 3, 31),
+        DateTime(2026, 4, 30),
+        DateTime(2026, 5, 31),
+        DateTime(2026, 6, 30),
+        DateTime(2026, 7, 31),
+        DateTime(2026, 8, 31),
+        DateTime(2026, 9, 30),
+        DateTime(2026, 10, 31),
+        DateTime(2026, 11, 30),
+        DateTime(2026, 12, 31),
+        DateTime(2027, 1, 31),
+      ];
 
-      expect(advanced.nextTransactionDate, equals(DateTime(2026, 2, 28)));
+      var current = recurring;
+      for (final expectedDate in expected) {
+        current = await dao.advanceNextDate(current.id);
+        expect(
+          current.nextTransactionDate,
+          equals(expectedDate),
+          reason: 'Failed at month step for $expectedDate',
+        );
+      }
     });
 
     test('handles leap year February 29 for yearly', () async {
@@ -842,6 +944,7 @@ void main() {
         nextTransactionDate: DateTime(2028, 2, 29),
         unit: PeriodType.yearly,
         intervalAmount: 1,
+        startDate: DateTime(2028, 2, 29),
       );
 
       final advanced = await dao.advanceNextDate(recurring.id);
@@ -854,6 +957,7 @@ void main() {
         nextTransactionDate: DateTime(2026, 12, 31),
         unit: PeriodType.monthly,
         intervalAmount: 1,
+        startDate: DateTime(2026, 12, 31),
       );
 
       final advanced = await dao.advanceNextDate(recurring.id);
@@ -866,6 +970,7 @@ void main() {
         nextTransactionDate: DateTime(2026, 6, 1),
         unit: PeriodType.yearly,
         intervalAmount: 1,
+        startDate: DateTime(2026, 6, 1),
       );
 
       final advanced = await dao.advanceNextDate(recurring.id);
@@ -878,6 +983,7 @@ void main() {
         nextTransactionDate: DateTime(2026, 6, 1),
         unit: PeriodType.weekly,
         intervalAmount: 1,
+        startDate: DateTime(2026, 6, 1),
       );
 
       final advanced = await dao.advanceNextDate(recurring.id);
@@ -890,6 +996,7 @@ void main() {
         nextTransactionDate: DateTime(2020, 1, 1),
         unit: PeriodType.monthly,
         intervalAmount: 1,
+        startDate: DateTime(2020, 1, 1),
       );
 
       final advanced = await dao.advanceNextDate(recurring.id);
@@ -902,6 +1009,7 @@ void main() {
         nextTransactionDate: DateTime(2026, 6, 1),
         unit: PeriodType.monthly,
         intervalAmount: 1,
+        startDate: DateTime(2026, 6, 1),
       );
       final originalSeconds =
           recurring.updatedAt.microsecondsSinceEpoch ~/ 1000000;
@@ -922,6 +1030,22 @@ void main() {
         throwsA(isA<Exception>()),
       );
     });
+
+    test(
+      'daily and weekly period types are not affected by day clamping',
+      () async {
+        final recurring = await insertRecurring(
+          nextTransactionDate: DateTime(2026, 1, 31),
+          unit: PeriodType.daily,
+          intervalAmount: 1,
+          startDate: DateTime(2026, 1, 31),
+        );
+
+        final advanced = await dao.advanceNextDate(recurring.id);
+
+        expect(advanced.nextTransactionDate, equals(DateTime(2026, 2, 1)));
+      },
+    );
   });
 
   group('RecurringTransactionDao.getTransactionsForRecurring', () {
