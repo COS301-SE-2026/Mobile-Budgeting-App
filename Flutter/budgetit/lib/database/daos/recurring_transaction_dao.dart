@@ -19,19 +19,22 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
   DateTime _now() => DateTime.now().toUtc();
 
   Future<RecurringTransaction> _getByIdOrThrow(String id) {
-    final query = select(recurringTransactions)..where((t) => t.id.equals(id)) ;
+    final query = select(recurringTransactions)..where((t) => t.id.equals(id));
     return query.getSingle();
   }
 
-  void _applyDeletedFilter(GeneratedColumn<DateTime> deletedAtColumn , SimpleSelectStatement query , bool includeDeleted) {
-    if (!includeDeleted){
+  void _applyDeletedFilter(
+    GeneratedColumn<DateTime> deletedAtColumn,
+    SimpleSelectStatement query,
+    bool includeDeleted,
+  ) {
+    if (!includeDeleted) {
       query.where((_) => deletedAtColumn.isNull());
     }
   }
 
-
-  static const _maxShortDescriptionLength = 100 ;
-  static const _maxLongDescriptionLength = 500 ; 
+  static const _maxShortDescriptionLength = 100;
+  static const _maxLongDescriptionLength = 500;
 
   Future<RecurringTransaction> insertRecurringTransaction({
     required Decimal amount,
@@ -45,12 +48,12 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     String? categoryId,
     String currency = 'ZAR',
   }) async {
-    
     if (shortDescription.length > _maxShortDescriptionLength) {
       throw ArgumentError('shortDescription must be 100 characters or less');
     }
 
-    if (longDescription != null && longDescription.length > _maxLongDescriptionLength) {
+    if (longDescription != null &&
+        longDescription.length > _maxLongDescriptionLength) {
       throw ArgumentError('longDescription must be 500 characters or less');
     }
 
@@ -64,7 +67,7 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
 
     final id = _uuid.v4();
     final now = _now();
-    
+
     await into(recurringTransactions).insert(
       RecurringTransactionsCompanion.insert(
         id: id,
@@ -82,8 +85,8 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
         currency: Value(currency),
       ),
     );
-    
-    return _getByIdOrThrow(id) ; 
+
+    return _getByIdOrThrow(id);
   }
 
   Future<RecurringTransaction?> getRecurringTransactionById(
@@ -91,7 +94,7 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     bool includeDeleted = false,
   }) {
     final query = select(recurringTransactions)..where((t) => t.id.equals(id));
-    _applyDeletedFilter(recurringTransactions.deletedAt, query, includeDeleted) ; 
+    _applyDeletedFilter(recurringTransactions.deletedAt, query, includeDeleted);
     return query.getSingleOrNull();
   }
 
@@ -100,8 +103,8 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
   }) {
     final query = select(recurringTransactions)
       ..orderBy([(t) => OrderingTerm.asc(t.nextTransactionDate)]);
-    
-    _applyDeletedFilter(recurringTransactions.deletedAt, query, includeDeleted) ;
+
+    _applyDeletedFilter(recurringTransactions.deletedAt, query, includeDeleted);
 
     return query.get();
   }
@@ -114,7 +117,7 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
       ..where((t) => t.type.equalsValue(type))
       ..orderBy([(t) => OrderingTerm.asc(t.nextTransactionDate)]);
 
-    _applyDeletedFilter(recurringTransactions.deletedAt, query, includeDeleted) ;
+    _applyDeletedFilter(recurringTransactions.deletedAt, query, includeDeleted);
     return query.get();
   }
 
@@ -130,13 +133,13 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     String? currency,
     DateTime? startDate,
   }) async {
-    
-    if (shortDescription != null && shortDescription.length > _maxShortDescriptionLength) {
+    if (shortDescription != null &&
+        shortDescription.length > _maxShortDescriptionLength) {
       throw ArgumentError('shortDescription must be 100 characters or less');
     }
 
     final ldValue = longDescription.present ? longDescription.value : null;
-    
+
     if (ldValue != null && ldValue.length > _maxLongDescriptionLength) {
       throw ArgumentError('longDescription must be 500 characters or less');
     }
@@ -151,35 +154,35 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
 
     final companion = RecurringTransactionsCompanion(
       amount: amount != null ? Value(amount) : const Value.absent(),
-      
+
       type: type != null ? Value(type) : const Value.absent(),
-      
+
       shortDescription: shortDescription != null
           ? Value(shortDescription)
           : const Value.absent(),
-      
+
       longDescription: longDescription,
-      
+
       nextTransactionDate: nextTransactionDate != null
           ? Value(nextTransactionDate)
           : const Value.absent(),
-      
+
       unit: unit != null ? Value(unit) : const Value.absent(),
-      
+
       intervalAmount: intervalAmount != null
           ? Value(intervalAmount)
           : const Value.absent(),
-      
+
       currency: currency != null ? Value(currency) : const Value.absent(),
-      
+
       updatedAt: Value(_now()),
     );
-    
+
     await (update(
       recurringTransactions,
     )..where((t) => t.id.equals(id))).write(companion);
-    
-    return _getByIdOrThrow(id) ;
+
+    return _getByIdOrThrow(id);
   }
 
   Future<void> softDeleteRecurringTransaction(String id) async {
@@ -217,7 +220,7 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
       ..where((t) => t.nextTransactionDate.isSmallerOrEqualValue(before))
       ..orderBy([(t) => OrderingTerm.asc(t.nextTransactionDate)]);
 
-    _applyDeletedFilter(recurringTransactions.deletedAt, query, includeDeleted) ;
+    _applyDeletedFilter(recurringTransactions.deletedAt, query, includeDeleted);
     return query.get();
   }
 
@@ -230,12 +233,11 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     final currentDate = Jiffy.parseFromDateTime(date);
 
     switch (unit) {
-
       case PeriodType.daily:
-        return currentDate.add(days: intervalAmount).dateTime ;
+        return currentDate.add(days: intervalAmount).dateTime;
 
       case PeriodType.weekly:
-        return currentDate.add(days: intervalAmount * 7 ).dateTime ; 
+        return currentDate.add(days: intervalAmount * 7).dateTime;
 
       case PeriodType.monthly:
         final next = currentDate.add(months: intervalAmount).dateTime;
@@ -243,7 +245,7 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
         return DateTime(next.year, next.month, targetDay);
 
       case PeriodType.yearly:
-        return currentDate.add(years: intervalAmount).dateTime ; 
+        return currentDate.add(years: intervalAmount).dateTime;
     }
   }
 
@@ -284,10 +286,11 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     String recurringId, {
     bool includeDeleted = false,
   }) {
-    final query = select(transactions)..where((t) => t.recurringId.equals(recurringId)) ;
-    
-    _applyDeletedFilter(transactions.deletedAt, query, includeDeleted) ; 
+    final query = select(transactions)
+      ..where((t) => t.recurringId.equals(recurringId));
 
-    return query.get() ;
+    _applyDeletedFilter(transactions.deletedAt, query, includeDeleted);
+
+    return query.get();
   }
 }
