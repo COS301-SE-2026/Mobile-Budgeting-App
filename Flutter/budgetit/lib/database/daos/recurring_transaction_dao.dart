@@ -226,6 +226,12 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     String recurringId, {
     bool includeDeleted = false,
   }) {
-    throw UnimplementedError();
+    final query = select(transactions)..where((t) => t.recurringId.equals(recurringId)) ;
+    
+    if(!includeDeleted){
+      query.where((t) => t.deletedAt.isNull()) ;
+    }
+
+    return query.get() ;
   }
 }
