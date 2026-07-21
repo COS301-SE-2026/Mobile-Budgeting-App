@@ -1,8 +1,8 @@
 name: Flutter Setup
-description: Gets the pub cache, installs Flutter and runs pub get
+description: Skip Flutter SDK install if already installed at the expected version; otherwise install via subosito, optionally set up Java, then run pub get.
 inputs:
   needs-java:
-    description: Whether or not to setup up flutter with java, needed for Android builds
+    description: Whether to set up Java (needed for Android builds)
     required: false
     default: "false"
 
@@ -16,19 +16,24 @@ runs:
         distribution: temurin
         java-version: 17
 
-    - name: Cache packages from pub
-      uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8
-      with:
-        path: ~/.pub-cache
-        key: pub-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
-        restore-keys: |
-          pub-${{ runner.os }}-
+    - name: Check Flutter installation
+      id: check
+      shell: bash
+      working-directory: Flutter/budgetit
+      run: |
+        detected=$(flutter --version 2>&1 | head -1 || true)
+        echo "Detected Flutter: ${detected:-<not found>}"
+        if echo "${detected}" | grep -q '^Flutter 3.41.9'; then
+          echo "skip_install=true" >> "${GITHUB_OUTPUT}"
+        else
+          echo "skip_install=false" >> "${GITHUB_OUTPUT}"
+        fi
 
-    - name: Set up flutter
-      uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+    - name: Install Flutter
+      if: steps.check.outputs.skip_install != 'true'
+      uses: subosito/flutter-action@1508160852fb97248640997f7cfb38da241df0ba
       with:
         flutter-version: "3.41.9"
-        cache: true
 
     - name: Install dependencies
       shell: bash
