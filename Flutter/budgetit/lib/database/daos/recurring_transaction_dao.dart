@@ -41,6 +41,8 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     required DateTime nextTransactionDate,
     required PeriodType unit,
     required int intervalAmount,
+    required DateTime startDate,
+    String? categoryId,
     String currency = 'ZAR',
   }) async {
     
@@ -75,6 +77,8 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
         updatedAt: now,
         unit: unit,
         intervalAmount: intervalAmount,
+        startDate: startDate,
+        categoryId: Value(categoryId),
         currency: Value(currency),
       ),
     );
@@ -124,6 +128,7 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     PeriodType? unit,
     int? intervalAmount,
     String? currency,
+    DateTime? startDate,
   }) async {
     
     if (shortDescription != null && shortDescription.length > _maxShortDescriptionLength) {
@@ -248,6 +253,7 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
       record.nextTransactionDate,
       record.unit,
       record.intervalAmount,
+      record.startDate,
     );
 
     await (update(recurringTransactions)..where((t) => t.id.equals(id))).write(
