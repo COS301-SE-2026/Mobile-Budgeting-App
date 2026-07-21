@@ -57,6 +57,7 @@ dependencies:
   flutter_secure_storage: ^10.2.0
   # State management
   provider: ^6.1.2
+  jiffy: ^6.4.5
 
 
 dependency_overrides:
