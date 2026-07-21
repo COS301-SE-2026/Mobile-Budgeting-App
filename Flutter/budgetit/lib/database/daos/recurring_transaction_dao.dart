@@ -17,6 +17,11 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
 
   DateTime _now() => DateTime.now().toUtc();
 
+  Future<RecurringTransaction> _getByIdOrThrow(String id) {
+    final query = select(recurringTransactions)..where((t) => t.id.equals(id)) ;
+    return query.getSingle();
+  }
+
   Future<RecurringTransaction> insertRecurringTransaction({
     required Decimal amount,
     required TransactionType type,
@@ -56,9 +61,8 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
         currency: Value(currency),
       ),
     );
-    return (select(
-      recurringTransactions,
-    )..where((t) => t.id.equals(id))).getSingle();
+    
+    return _getByIdOrThrow(id) ; 
   }
 
   Future<RecurringTransaction?> getRecurringTransactionById(
@@ -134,9 +138,8 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     await (update(
       recurringTransactions,
     )..where((t) => t.id.equals(id))).write(companion);
-    return (select(
-      recurringTransactions,
-    )..where((t) => t.id.equals(id))).getSingle();
+    
+    return _getByIdOrThrow(id) ;
   }
 
   Future<void> softDeleteRecurringTransaction(String id) async {
@@ -217,9 +220,7 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
         updatedAt: Value(_now()),
       ),
     );
-    return (select(
-      recurringTransactions,
-    )..where((t) => t.id.equals(id))).getSingle();
+    return _getByIdOrThrow(id);
   }
 
   Future<List<Transaction>> getTransactionsForRecurring(
