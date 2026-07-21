@@ -221,8 +221,13 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     return query.get();
   }
 
-  DateTime _addInterval(DateTime date, PeriodType unit, int intervalAmount) {
-    final currentDate = Jiffy.parseFromDateTime(date) ;
+  DateTime _addInterval(
+    DateTime date,
+    PeriodType unit,
+    int intervalAmount,
+    DateTime startDate,
+  ) {
+    final currentDate = Jiffy.parseFromDateTime(date);
 
     switch (unit) {
 
@@ -233,7 +238,9 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
         return currentDate.add(days: intervalAmount * 7 ).dateTime ; 
 
       case PeriodType.monthly:
-        return currentDate.add(months: intervalAmount).dateTime ; 
+        final next = currentDate.add(months: intervalAmount).dateTime;
+        final targetDay = _clampDayForMonth(next.year, next.month, next.day);
+        return DateTime(next.year, next.month, targetDay);
 
       case PeriodType.yearly:
         return currentDate.add(years: intervalAmount).dateTime ; 
