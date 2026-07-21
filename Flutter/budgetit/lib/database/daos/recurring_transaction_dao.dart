@@ -22,6 +22,12 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     return query.getSingle();
   }
 
+  void _applyDeletedFilter(GeneratedColumn<DateTime> deletedAtColumn , SimpleSelectStatement query , bool includeDeleted) {
+    if (!includeDeleted){
+      query.where((_) => deletedAtColumn.isNull());
+    }
+  }
+
   Future<RecurringTransaction> insertRecurringTransaction({
     required Decimal amount,
     required TransactionType type,
@@ -70,7 +76,7 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     bool includeDeleted = false,
   }) {
     final q = select(recurringTransactions)..where((t) => t.id.equals(id));
-    if (!includeDeleted) q.where((t) => t.deletedAt.isNull());
+    _applyDeletedFilter(recurringTransactions.deletedAt, q, includeDeleted) ; 
     return q.getSingleOrNull();
   }
 
@@ -79,7 +85,9 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
   }) {
     final q = select(recurringTransactions)
       ..orderBy([(t) => OrderingTerm.asc(t.nextTransactionDate)]);
-    if (!includeDeleted) q.where((t) => t.deletedAt.isNull());
+    
+    _applyDeletedFilter(recurringTransactions.deletedAt, q, includeDeleted) ;
+
     return q.get();
   }
 
@@ -90,7 +98,8 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     final q = select(recurringTransactions)
       ..where((t) => t.type.equalsValue(type))
       ..orderBy([(t) => OrderingTerm.asc(t.nextTransactionDate)]);
-    if (!includeDeleted) q.where((t) => t.deletedAt.isNull());
+
+    _applyDeletedFilter(recurringTransactions.deletedAt, q, includeDeleted) ;
     return q.get();
   }
 
@@ -176,7 +185,8 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     final q = select(recurringTransactions)
       ..where((t) => t.nextTransactionDate.isSmallerOrEqualValue(before))
       ..orderBy([(t) => OrderingTerm.asc(t.nextTransactionDate)]);
-    if (!includeDeleted) q.where((t) => t.deletedAt.isNull());
+
+    _applyDeletedFilter(recurringTransactions.deletedAt, q, includeDeleted) ;
     return q.get();
   }
 
@@ -229,9 +239,7 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
   }) {
     final query = select(transactions)..where((t) => t.recurringId.equals(recurringId)) ;
     
-    if(!includeDeleted){
-      query.where((t) => t.deletedAt.isNull()) ;
-    }
+    _applyDeletedFilter(transactions.deletedAt, query, includeDeleted) ; 
 
     return query.get() ;
   }
