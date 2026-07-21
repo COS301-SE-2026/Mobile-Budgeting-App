@@ -35,6 +35,14 @@ runs:
       with:
         flutter-version: "3.41.9"
 
+    - name: Cache pub dependencies
+      uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8
+      with:
+        path: ~/.pub-cache
+        key: pub-cache-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}
+        restore-keys: |
+          pub-cache-${{ runner.os }}-
+
     - name: Install dependencies
       shell: bash
       working-directory: Flutter/budgetit
