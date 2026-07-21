@@ -1,5 +1,6 @@
 import 'package:decimal/decimal.dart';
 import 'package:drift/drift.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:uuid/uuid.dart';
 import '../app_database.dart';
 import '../schema.dart';
@@ -216,28 +217,21 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
   }
 
   DateTime _addInterval(DateTime date, PeriodType unit, int intervalAmount) {
+    final currentDate = Jiffy.parseFromDateTime(date) ;
+
     switch (unit) {
 
       case PeriodType.daily:
-        return date.add(Duration(days: intervalAmount));
+        return currentDate.add(days: intervalAmount).dateTime ;
 
       case PeriodType.weekly:
-        return date.add(Duration(days: intervalAmount * 7));
+        return currentDate.add(days: intervalAmount * 7 ).dateTime ; 
 
       case PeriodType.monthly:
-        final targetMonth = date.month + intervalAmount;
-        final yearOffset = (targetMonth - 1) ~/ 12;
-        final month = ((targetMonth - 1) % 12) + 1;
-        final year = date.year + yearOffset;
-        final lastDay = DateTime(year, month + 1, 0).day;
-        final day = date.day > lastDay ? lastDay : date.day;
-        return DateTime(year, month, day);
+        return currentDate.add(months: intervalAmount).dateTime ; 
 
       case PeriodType.yearly:
-        final year = date.year + intervalAmount;
-        final lastDay = DateTime(year, date.month + 1, 0).day;
-        final day = date.day > lastDay ? lastDay : date.day;
-        return DateTime(year, date.month, day);
+        return currentDate.add(years: intervalAmount).dateTime ; 
     }
   }
 
@@ -262,7 +256,7 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
         updatedAt: Value(_now()),
       ),
     );
-    
+
     return _getByIdOrThrow(id);
   }
 
