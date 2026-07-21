@@ -269,6 +269,12 @@ class RecurringTransactions extends Table {
   /// Number of periods between occurrences
   IntColumn get intervalAmount => integer()();
 
+  /// Date of the first occurrence of this transaction
+  DateTimeColumn get startDate => dateTime()();
+
+  /// (Nullable) category for recurring transactions , inherited by generated children.
+  TextColumn get categoryId => text().references(Categories, #id).nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
