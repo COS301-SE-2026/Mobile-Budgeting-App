@@ -85,32 +85,32 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     String id, {
     bool includeDeleted = false,
   }) {
-    final q = select(recurringTransactions)..where((t) => t.id.equals(id));
-    _applyDeletedFilter(recurringTransactions.deletedAt, q, includeDeleted) ; 
-    return q.getSingleOrNull();
+    final query = select(recurringTransactions)..where((t) => t.id.equals(id));
+    _applyDeletedFilter(recurringTransactions.deletedAt, query, includeDeleted) ; 
+    return query.getSingleOrNull();
   }
 
   Future<List<RecurringTransaction>> getAllRecurringTransactions({
     bool includeDeleted = false,
   }) {
-    final q = select(recurringTransactions)
+    final query = select(recurringTransactions)
       ..orderBy([(t) => OrderingTerm.asc(t.nextTransactionDate)]);
     
-    _applyDeletedFilter(recurringTransactions.deletedAt, q, includeDeleted) ;
+    _applyDeletedFilter(recurringTransactions.deletedAt, query, includeDeleted) ;
 
-    return q.get();
+    return query.get();
   }
 
   Future<List<RecurringTransaction>> getRecurringTransactionsByType(
     TransactionType type, {
     bool includeDeleted = false,
   }) {
-    final q = select(recurringTransactions)
+    final query = select(recurringTransactions)
       ..where((t) => t.type.equalsValue(type))
       ..orderBy([(t) => OrderingTerm.asc(t.nextTransactionDate)]);
 
-    _applyDeletedFilter(recurringTransactions.deletedAt, q, includeDeleted) ;
-    return q.get();
+    _applyDeletedFilter(recurringTransactions.deletedAt, query, includeDeleted) ;
+    return query.get();
   }
 
   Future<RecurringTransaction> updateRecurringTransaction(
@@ -192,12 +192,12 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     DateTime before, {
     bool includeDeleted = false,
   }) {
-    final q = select(recurringTransactions)
+    final query = select(recurringTransactions)
       ..where((t) => t.nextTransactionDate.isSmallerOrEqualValue(before))
       ..orderBy([(t) => OrderingTerm.asc(t.nextTransactionDate)]);
 
-    _applyDeletedFilter(recurringTransactions.deletedAt, q, includeDeleted) ;
-    return q.get();
+    _applyDeletedFilter(recurringTransactions.deletedAt, query, includeDeleted) ;
+    return query.get();
   }
 
   DateTime _addInterval(DateTime date, PeriodType unit, int intervalAmount) {
