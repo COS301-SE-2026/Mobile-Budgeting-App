@@ -1,5 +1,5 @@
 name: Flutter Setup
-description: Skip Flutter SDK install if already installed at the expected version; otherwise install via subosito, optionally set up Java, then run pub get.
+description: Install Flutter using FVM with the version in .fvmrc, optionally set up Java, then run pub get.
 inputs:
   needs-java:
     description: Whether to set up Java (needed for Android builds)
@@ -16,24 +16,31 @@ runs:
         distribution: temurin
         java-version: 17
 
-    - name: Check Flutter installation
-      id: check
+    - name: Cache FVM Flutter SDKs
+      uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8
+      with:
+        path: ~/fvm/versions
+        key: fvm-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/.fvmrc') }}
+        restore-keys: |
+          fvm-${{ runner.os }}-
+
+    - name: Install FVM
       shell: bash
-      working-directory: Flutter/budgetit
       run: |
-        detected=$(flutter --version 2>&1 | head -1 || true)
-        echo "Detected Flutter: ${detected:-<not found>}"
-        if echo "${detected}" | grep -q '^Flutter 3.41.9'; then
-          echo "skip_install=true" >> "${GITHUB_OUTPUT}"
-        else
-          echo "skip_install=false" >> "${GITHUB_OUTPUT}"
+        if ! command -v fvm &> /dev/null; then
+          dart pub global activate fvm
+          echo "$HOME/.pub-cache/bin" >> "${GITHUB_PATH}"
         fi
 
-    - name: Install Flutter
-      if: steps.check.outputs.skip_install != 'true'
-      uses: subosito/flutter-action@1508160852fb97248640997f7cfb38da241df0ba
-      with:
-        flutter-version: "3.41.9"
+    - name: Install Flutter SDK (via FVM)
+      shell: bash
+      working-directory: Flutter/budgetit
+      run: fvm install
+
+    - name: Configure PATH
+      shell: bash
+      working-directory: Flutter/budgetit
+      run: echo "$(pwd)/.fvm/flutter_sdk/bin" >> "${GITHUB_PATH}"
 
     - name: Cache pub dependencies
       uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8
