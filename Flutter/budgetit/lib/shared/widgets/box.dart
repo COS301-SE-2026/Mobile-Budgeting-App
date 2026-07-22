@@ -86,11 +86,11 @@ class _MyBoxState extends State<MyBox> {
       onTapCancel: () => setState(() => _isPressed = false),
       child: Stack (
       children: [
+       
        Container(
         height: MediaQuery.of(context).size.height * 0.1,
         width: MediaQuery.of(context).size.width * 0.9,
-        
-        alignment: Alignment.center,
+         alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.rectangle,
           color: MyColours().background,
@@ -101,18 +101,8 @@ class _MyBoxState extends State<MyBox> {
                 
               
           
-        )),
-       Container(
-        height: MediaQuery.of(context).size.height * 0.1,
-        width: MediaQuery.of(context).size.width * 0.9,
-        
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          shape: BoxShape.rectangle,
-          color: MyColours().background,
-          
-          
-        )),
+        )
+        ),
       Container(
         height: MediaQuery.of(context).size.height * 0.1,
         width: MediaQuery.of(context).size.width * 0.9,
@@ -159,7 +149,7 @@ class _MyBoxState extends State<MyBox> {
               _isExpense ? '- R${_amount.toStringAsFixed(2)}' : 'R${_amount.toStringAsFixed(2)}',
               style: TextStyle(
                 fontSize: MyColours().bodyFontSize,
-                color:  _isExpense? _isPressed ? MyColours().background : MyColours().warning : _isPressed ? MyColours().background : MyColours().secondary,
+                color:  _isExpense? _isPressed ? MyColours().background : MyColours().error : _isPressed ? MyColours().background : MyColours().secondary,
               ),
             ),
             const SizedBox(width: 12),

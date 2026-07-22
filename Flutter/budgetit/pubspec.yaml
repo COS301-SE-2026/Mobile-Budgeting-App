@@ -112,6 +112,9 @@ flutter:
     - family: JetBrainsMono
       fonts:
         - asset: lib/utils/fonts/JetBrainsMono-Regular.ttf
+    - family: PressStart2P
+      fonts:
+        - asset: lib/utils/fonts/PressStart2P-Regular.ttf
 
 
 

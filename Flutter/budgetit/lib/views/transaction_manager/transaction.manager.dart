@@ -189,7 +189,7 @@ class _TransactionManagerState extends State<TransactionManager> {
                   children: [
                     Text(
                       'RECENT TRANSACTIONS',
-                      style: MyColours().h4,
+                      style: MyColours().h2,
                     ),
                   ],
                 ),
@@ -221,7 +221,8 @@ class _TransactionManagerState extends State<TransactionManager> {
                       Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16.0,
-                          vertical: 20,
+                          vertical: 10,
+                          
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
