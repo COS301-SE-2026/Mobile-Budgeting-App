@@ -46,4 +46,4 @@ runs:
     - name: Install dependencies
       shell: bash
       working-directory: Flutter/budgetit
-      run: flutter pub get
+      run: flutter pub get --enforce-lockfile
