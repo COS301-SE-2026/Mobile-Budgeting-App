@@ -63,9 +63,12 @@ class BudgetApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'BudgetIt',
+        
+        
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          
+          
           useMaterial3: true,
         ),
         initialRoute: '/',
@@ -73,6 +76,7 @@ class BudgetApp extends StatelessWidget {
           '/transaction_manager': (context) => const TransactionManager(),
         },
         home: AuthWrapper(),
+
       ),
     );
   }
@@ -81,6 +85,7 @@ class BudgetApp extends StatelessWidget {
 // Separate stateful widget for the home screen with bottom navigation
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -108,16 +113,14 @@ class _HomePageState extends State<HomePage> {
     context
         .watch<
           ThemeProvider
-        >(); // rebuild navigation bar + appbar on theme change
+        >(); 
     return Scaffold(
       appBar: MainAppbar(),
       body: _buildPages(context.read<AppDatabase>())[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(10)),
-          border: Border(
-            top: BorderSide(color: MyColours().secondary, width: 1.5),
-          ),
+          
         ),
         child: NavigationBar(
           selectedIndex: _selectedIndex,
