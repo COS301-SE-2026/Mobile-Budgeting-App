@@ -13,10 +13,12 @@ class MyColours {
   Color primary = Color.fromARGB(23,221, 214, 174);
    Color secondary = Color.fromARGB(250,221, 214, 174); 
    Color background = Color.fromARGB(250, 4, 36, 12);
+   Color get blendedprimary => Color.alphaBlend(primary, background);
    Color informational = Color.fromARGB(250, 19, 126, 132);
    Color warning = Color.fromARGB(250, 255, 180, 171);
     Color error = Color.fromARGB(255, 255, 0, 0);
   Color textPrimary = Color.fromARGB(250,221, 214, 174);
+  Color get textSecondary => blendedprimary;
   Color textMuted = Color.fromARGB(150, 194, 200, 191);
   Color searchBar = Color.fromARGB(75, 53, 53, 53);
   Color category = Color.fromARGB(250, 28, 28, 27);
@@ -26,6 +28,9 @@ class MyColours {
 
   double bodyFontSize = 16;
   double bodyFontSize2 = 14;
+  double bodyFontSize3 = 12;
+  double bodyFontSize4 = 10;  
+
   double headingFontSize1 = 24;
   double headingFontSize2 = 20;
   double headingFontSize3 = 18;
@@ -41,6 +46,8 @@ class MyColours {
   double lineheight3 = 26;
   double bodylineheight = 18;
   double bodylineheight2 = 14;
+  double bodylineheight3 = 12;
+  double bodylineheight4 = 10;
   
 
   
@@ -111,6 +118,15 @@ class MyColours {
     fontFamily: 'HankenGrotesk',
   );
 
+  TextStyle get budgetheader => TextStyle(
+    fontSize: bodyFontSize,
+    fontWeight: FontWeight.w500,
+    color: textPrimary,
+    height: bodylineheight / bodyFontSize,
+    letterSpacing: 0,
+    fontFamily: 'HankenGrotesk',
+  );
+
   TextStyle get altbodytext => TextStyle(
     fontSize: bodyFontSize2,
     fontWeight: FontWeight.w500,
@@ -138,9 +154,34 @@ class MyColours {
     fontFamily: 'JetBrainsMono',
   );
 
+
+
+TextStyle get b3 => TextStyle(
+    fontSize: bodyFontSize2,
+    fontWeight: FontWeight.w500,
+    color: textSecondary,
+    height: bodylineheight2 / bodyFontSize2,
+    letterSpacing: 0,
+    fontFamily: 'SpaceGrotesk',
+  );
   
-
-
+TextStyle get b5 => TextStyle(
+    fontSize: bodyFontSize4,
+    fontWeight: FontWeight.w500,
+    color: textMuted,
+    height: bodylineheight4 / bodyFontSize4,
+    letterSpacing: 0,
+    fontFamily: 'SpaceGrotesk',
+  );
+  
+TextStyle get b4 => TextStyle(
+    fontSize: bodyFontSize3,
+    fontWeight: FontWeight.w500,
+    color: textMuted,
+    height: bodylineheight3 / bodyFontSize3,
+    letterSpacing: 0,
+    fontFamily: 'SpaceGrotesk',
+  );
 
   MyColours() {
     if (!isDark) {
@@ -148,6 +189,6 @@ class MyColours {
       secondary = const Color(0xFF04240C);
       textPrimary = const Color(0xFF04240C);
       primary     = const Color(0xFF04240C); 
-      
+     
 
   }}}
