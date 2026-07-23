@@ -15,7 +15,7 @@ import 'database/database_seeder.dart';
 import 'screens/dashboard.dart';
 import 'screens/login_password_screen.dart';
 import 'utils/theme_provider.dart';
-
+import 'screens/landing_page.dart';
 import 'shared/widgets/main_appbar.dart';
 
 import 'package:budgetit/utils/app_colour.dart';

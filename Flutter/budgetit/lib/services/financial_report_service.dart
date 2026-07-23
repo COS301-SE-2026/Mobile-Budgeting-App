@@ -11,14 +11,7 @@ class FinancialReportService {
     final now = DateTime.now();
 
     final startDate = DateTime(now.year, now.month, 1);
-    final endDate = DateTime(
-      now.year,
-      now.month + 1,
-      0,
-      23,
-      59,
-      59,
-    );
+    final endDate = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
 
     final transactions = await _database.transactionDao
         .getTransactionsByDateRange(startDate, endDate);
@@ -53,9 +46,25 @@ class FinancialReportService {
       );
     }
 
+    final budgetTemplates = await _database.budgetDao.getAllBudgetTemplates();
+
+    double totalBudgetTarget = 0;
+
+    for (final template in budgetTemplates) {
+      final activePeriod = await _database.budgetDao.getActiveBudgetPeriod(
+        template.id,
+        DateTime.now().toUtc(),
+      );
+
+      final budgetAmount = activePeriod?.budgetedAmount ?? template.amount;
+
+      totalBudgetTarget += double.tryParse(budgetAmount.toString()) ?? 0;
+    }
+
     return FinancialReport(
       startDate: startDate,
       endDate: endDate,
+      budgetTarget: totalBudgetTarget,
       totalIncome: totalIncome,
       totalExpenses: totalExpenses,
       categoryTotals: categoryTotals,
