@@ -105,5 +105,41 @@ void main() {
 
     });
 
-    
+    test('flat histore predicts similar amounts', () {
+        final result = service.predict([
+            _month(2026,1,1000),
+            _month(2026,2,1000),
+            _month(2026,3,1000),
+            _month(2026,4,1000),
+        ]);
+        expect(result, isNotNull);
+        expect(result!.predictedAmount, closeTo(100,50));
+    });
+
+    test('predictCurrentMonth blends actual with regression', () {
+        final history = [
+            _month(2026,3,1000),
+            _month(2026,4,1100),
+            _month(2026,5,1050),
+        ];
+        final result = service.predictCurrentMonth(
+            history,
+            currentMonthActual: 600,
+            dayOfMonth: 15,
+            daysInMonth: 30,
+        );
+        expect(result, isNotNull);
+        expect(result!.predictedAmount, greaterThan(0));
+    });
+    test('prediction label formats correctly', () {
+        final result = service.predict([
+            _month(2026,5,1000),
+            _month(2026,6,1100),
+        ]);
+        expect(result!.label, equals('July 2026'));
+        expect(result.shortLabel, equals('Jul'));
+    });
+
+
+
 }
