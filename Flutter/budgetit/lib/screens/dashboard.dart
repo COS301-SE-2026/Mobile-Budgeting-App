@@ -23,14 +23,14 @@ class _DashboardState extends State<Dashboard> {
   late AppDatabase db;
   late final bool _ownsDb;
   bool isLoading = true;
-  //check if the data is loading, then store error msg when it fails
+  
 
   String? loadError;
   double dailySpending = 0;
   double monthlySpending = 0;
-  List<MonthData> dashboardMonths = []; //for the monthy chart data
+  List<MonthData> dashboardMonths = []; 
   List<SpendingCategory> spendingCategories = [];
-  List<Transaction> recentTransactions = []; //stores what ever is spent recent
+  List<Transaction> recentTransactions = []; 
 
   @override
   void initState() {
@@ -42,11 +42,11 @@ class _DashboardState extends State<Dashboard> {
     spendingCategories = [
       SpendingCategory(
         label: 'No spending',
-        percentage: 100, //it should fill the whole chart
+        percentage: 100, 
         color: MyColours().informational.withValues(alpha: 0.35),
       ),
     ];
-    _loadDashboardData(); //must load the dashy data bro
+    _loadDashboardData(); 
   }
 
   @override
@@ -334,12 +334,12 @@ class _DashboardState extends State<Dashboard> {
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         color: colours.secondary,
-        borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: Colors.black, width: 4),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.30),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: Colors.black,
+            
+            offset: const Offset(6 ,6),
           ),
         ],
       ),
@@ -398,7 +398,7 @@ class _DashboardState extends State<Dashboard> {
               children: [
                 const SizedBox(height: 20),
 
-                // dashboard title + date picker
+                
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
 
@@ -407,13 +407,9 @@ class _DashboardState extends State<Dashboard> {
 
                     children: [
                       Text(
-                        "Dashboard",
+                        "DASHBOARD",
 
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: colours.textPrimary,
-                        ),
+                        style: colours.h2,
                       ),
 
                       GestureDetector(
@@ -441,11 +437,11 @@ class _DashboardState extends State<Dashboard> {
                             horizontal: 14,
                             vertical: 10,
                           ),
-
+                          
                           decoration: BoxDecoration(
-                            color: colours.primary,
+                            color: colours.bg2,
 
-                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: Colors.black, width: 4),
                           ),
 
                           child: Row(
@@ -461,11 +457,7 @@ class _DashboardState extends State<Dashboard> {
                               Text(
                                 "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
 
-                                style: TextStyle(
-                                  color: colours.textPrimary,
-
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                style: colours.b1,
                               ),
                             ],
                           ),
@@ -480,7 +472,7 @@ class _DashboardState extends State<Dashboard> {
                 if (isLoading)
                   LinearProgressIndicator(
                     color: colours.secondary,
-                    backgroundColor: colours.primary, //loading bar colour
+                    backgroundColor: colours.primary,
                   ),
 
                 if (loadError != null)
@@ -495,130 +487,101 @@ class _DashboardState extends State<Dashboard> {
                     ),
                   ),
 
-                // cream spending card
+                
                 _buildDailySpendingCard(colours),
 
-                const SizedBox(height: 25),
+                const SizedBox(height: 10),
 
-                // pie chart
+               
+                
+
+                
+                
+
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Stack(
+                    children: [
+                      TextButton(
+                        onPressed: () {},
+                        child: 
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                        Container(
+                          height: MediaQuery.heightOf(context) * 0.08,
+                          width: MediaQuery.widthOf(context) * 0.35,
+                          decoration: BoxDecoration(
+                            border: Border.all(color:Colors.black, width: 4),
+                            color: colours.secondary,
+                            
+                            
+                          ),
+                          child: 
+                          
+                          Padding(
+                            padding: EdgeInsetsGeometry.directional(top: 25),
+                            child: 
+                          Text(
+                            "INSIGHTS",
+                            textAlign: TextAlign.center,
+                            
+                            style: colours.b3,
+                          ),
+                          ),
+                        ),
 
-                  child: SpendingChart(
-                    total: _formatCompactCurrency(monthlySpending),
-
-                    categories: spendingCategories,
-                  ),
-                ),
-
-                const SizedBox(height: 25),
-
-                // monthly trends
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-
-                  child: MonthlyTrendWidget(
-                    selectedDate: selectedDate,
-
-                    months: dashboardMonths,
-                  ),
-                ),
-
-                const SizedBox(height: 25),
-
-                // insights
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-
-                  child: InsightWidget(
-                    insights: [
-                      BudgetInsight(
-                        title: 'You\'re spending less this month',
-
-                        body: 'Your expenses dropped compared to April.',
-
-                        icon: Icons.trending_down_rounded,
-
-                        accentColor: colours.error,
-
-                        severity: InsightSeverity.tip,
+                        SizedBox(width:  MediaQuery.widthOf(context) * 0.10,),
+                         Container(
+                          height: MediaQuery.heightOf(context) * 0.08,
+                          width: MediaQuery.widthOf(context) * 0.35,
+                          decoration: BoxDecoration(
+                            border: Border.all(color:Colors.black, width: 4),
+                            color: colours.secondary,
+                            
+                            
+                          ),
+                          child: 
+                          
+                          Padding(
+                            padding: EdgeInsetsGeometry.directional(top: 25),
+                            child: 
+                          Text(
+                            "REPORTS",
+                            textAlign: TextAlign.center,
+                            
+                            style: colours.b3,
+                          ),
+                          ),
+                        ),
+                          
+                          ],
+                          
+                          ),
+                      
                       ),
-
-                      BudgetInsight(
-                        title: 'Entertainment budget exceeded',
-
-                        body: 'You\'ve spent more than expected.',
-
-                        icon: Icons.movie_rounded,
-
-                        accentColor: colours.error,
-
-                        severity: InsightSeverity.warning,
-                      ),
-                    ],
-                  ),
+                  
+                  
+                    ]
+                  )
                 ),
+            
+                
+                const SizedBox(height: 25), 
 
-                const SizedBox(height: 25),
-
-                // upcoming bills title
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
 
                   child: Text(
-                    "Upcoming Bills",
+                    "RECENT TRANSACTIONS",
 
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: colours.textPrimary,
-                    ),
+                    style: colours.h2,
                   ),
                 ),
 
                 const SizedBox(height: 10),
 
-                // bills
-                BillItem(
-                  icon: Icons.electric_bolt,
-
-                  title: "Electricity",
-
-                  subtitle: "Due tomorrow",
-
-                  amount: "R850",
-                ),
-
-                BillItem(
-                  icon: Icons.movie,
-
-                  title: "Netflix",
-
-                  subtitle: "Due tomorrow",
-
-                  amount: "R199",
-                ),
-
-                const SizedBox(height: 25),
-
-                // recent transactions title
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-
-                  child: Text(
-                    "Recent Transactions",
-
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: colours.textPrimary,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-
-                // transactions
+                
                 if (recentTransactions.isEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(

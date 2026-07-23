@@ -154,7 +154,7 @@ class MyColours {
   TextStyle get searchtext => TextStyle(
     fontSize: bodyFontSize2,
     fontWeight: FontWeight.w500,
-    color: informational,
+    color: light,
     height: bodylineheight2 / bodyFontSize2,
     letterSpacing: 0,
     fontFamily: 'JetBrainsMono',
