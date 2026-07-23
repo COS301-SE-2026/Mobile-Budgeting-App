@@ -17,19 +17,11 @@ class BalanceCard extends StatelessWidget {
       padding: const EdgeInsets.all(28),
 
       decoration: BoxDecoration(
-        color: colours.secondary,
+        color: colours.bg2,
 
-        borderRadius: BorderRadius.circular(30),
+        
 
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.30),
-
-            blurRadius: 20,
-
-            offset: const Offset(0, 10),
-          ),
-        ],
+        
       ),
 
       child: Column(
@@ -39,12 +31,7 @@ class BalanceCard extends StatelessWidget {
           Text(
             "DAILY SPENDING FOR ${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
 
-            style: TextStyle(
-              color: colours.background,
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-              letterSpacing: 1.2,
-            ),
+            style: colours.h4,
           ),
 
           const SizedBox(height: 20),
