@@ -144,7 +144,7 @@ class _MonthlyTrendWidgetState extends State<MonthlyTrendWidget> {
 
             child: Row(
               children: [
-                // y axis
+                
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
@@ -226,7 +226,7 @@ class _MonthlyTrendWidgetState extends State<MonthlyTrendWidget> {
 
                               const SizedBox(height: 8),
 
-                              // bar
+                              
                               AnimatedContainer(
                                 duration: const Duration(milliseconds: 300),
 
@@ -239,7 +239,7 @@ class _MonthlyTrendWidgetState extends State<MonthlyTrendWidget> {
                                       ? colours.informational
                                       : colours.informational.withValues(alpha: 0.5),
 
-                                  borderRadius: BorderRadius.circular(14),
+                                  
 
                                   boxShadow: isSelected
                                       ? [
@@ -255,7 +255,7 @@ class _MonthlyTrendWidgetState extends State<MonthlyTrendWidget> {
 
                               const SizedBox(height: 12),
 
-                              // x axis
+                            
                               Text(
                                 month.shortMonth,
 
