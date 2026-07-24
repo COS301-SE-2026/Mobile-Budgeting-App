@@ -28,6 +28,8 @@ jobs:
   secret-scan:
     name: Secret Scan
     runs-on: ubuntu-slim
+    permissions:
+      security-events: write
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
@@ -36,6 +38,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}}
+      - name: Upload SARIF to GitHub Security tab
+        if: success() || failure()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
 
   prepare:
     name: Prepare
@@ -168,45 +175,23 @@ jobs:
         run: |
           flutter test --coverage --concurrency=4 $(find test -name '*_test.dart' -not -path 'test/golden/*' -not -path 'test/performance/*' -not -path 'test/integration/*')
 
-      - name: Parse coverage
-        working-directory: Flutter/budgetit
-        run: python3 ../../scripts/coverage_parse.py --lcov-file coverage/lcov.info --output coverage/summary.json
-
       - name: Upload coverage (lcov)
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: coverage-lcov
           path: Flutter/budgetit/coverage/lcov.info
 
-      - name: Upload coverage (summary)
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f
         with:
-          name: coverage-summary
-          path: Flutter/budgetit/coverage/summary.json
-          retention-days: 7
-
-  coverage-gate:
-    name: Coverage Gate
-    needs: unit-tests
-    runs-on: self-hosted
-    env:
-      COVERAGE_THRESHOLD: "0"
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
-
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
-        with:
-          name: coverage-summary
-          path: Flutter/budgetit/coverage
-
-      - name: Run gate
-        working-directory: Flutter/budgetit
-        run: python3 ../../scripts/coverage_gate.py --coverage-json coverage/summary.json
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: Flutter/budgetit/coverage/lcov.info
+          fail_ci_if_error: true
 
   sonarcloud:
     name: SonarCloud
     runs-on: self-hosted
-    needs: [prepare, coverage-gate]
+    needs: [prepare, unit-tests]
     if: needs.prepare.outputs.has_sonar == 'true'
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
