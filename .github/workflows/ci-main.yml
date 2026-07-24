@@ -39,6 +39,7 @@ jobs:
     name: Prepare
     runs-on: self-hosted
     outputs:
+
       has_golden: ${{ steps.detect-tests.outputs.has_golden }}
       has_perf: ${{ steps.detect-tests.outputs.has_perf }}
       has_integ: ${{ steps.detect-tests.outputs.has_integ }}

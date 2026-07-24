@@ -131,4 +131,5 @@ jobs:
 
       - name: Run unit tests
         working-directory: Flutter/budgetit
+
         run: flutter test --concurrency=4 $(find test -name '*_test.dart' -not -path 'test/golden/*' -not -path 'test/performance/*' -not -path 'test/integration/*')
