@@ -138,7 +138,7 @@ jobs:
 
       - name: Run unit tests
         working-directory: Flutter/budgetit
-
+        run: flutter test --coverage --concurrency=4 $(find test -name '*_test.dart' -not -path 'test/golden/*' -not -path 'test/performance/*' -not -path 'test/integration/*')
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f
