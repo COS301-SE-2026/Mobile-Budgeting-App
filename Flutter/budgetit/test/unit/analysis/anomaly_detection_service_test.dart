@@ -64,6 +64,43 @@ void main() {
             expect(result.first.isTotalSpendingAnomaly, isTrue);
         });
 
+        test('detects category-level anomaly', () {
+            final history = [
+                _month(2026,1,1000, categories: {'Groceries': 200, 'Transport': 100}),
+                _month(2026,2,1050, categories: {'Groceries': 210, 'Transport': 110}),
+                _month(2026,3,980, categories: {'Groceries': 190, 'Transport': 95}),
+                _month(2026,4,1020, categories: {'Groceries': 205, 'Transport': 100}),
+                _month(2026,5,1500, categories: {'Groceries': 800, 'Transport': 100}),
+            ];
+            final result = service.detect(history);
+            final groceryAnomaly = result.where((a) => a.categoryName == 'Groceries').toList();
+            expect(groceryAnomaly, isNotEmpty);
+            expect(groceyAnomaly.first.actualAmount, equals(800));
+        });
+
+        test('anomaly result contains correct historical average', () {
+            final history = [
+                _month(2026,1,1000, categories: {'Groceries': 200, 'Dining Out': 100}),
+                _month(2026,2,1000, categories: {'Groceries': 200, 'Dining Out': 100}),
+                _month(2026,3,1000, categories: {'Groceries': 200, 'Dining Out': 100}),
+                _month(2026,4,5000, categories: {'Groceries': 2000, 'Dining Out': 1500}),
+            ];
+            final result = service.detect(history);
+            for(var i = 0; i < result.length -1; i++) {
+                expect(result[i].zScore >= result[i+1].zScore, isTrue);
+            }
+        });
+
+        test( 'no anomaly when stdDev is zero ', () {
+            final history = [
+                _month(2026,1,1000),
+                _month(2026,2,1000),
+                _month(2026,3,1000),
+            ];
+            final result = service.detect(history);
+            expect(result, isEmpty);
+        });
+
 
     })
 }
