@@ -40,5 +40,27 @@ void main() {
             expect(scanner.lastScanned, isNull);
             expect(scanner.lastError, isNull);
         });
+
+        test('isStale return true before the first scan', () {
+            expect(scanner.isStale(), isTrue);
+        });
+
+        test('scan completes and sets lastScannned', () async{
+            await scanner.scan();
+            expect(scanner.isScanning, isFalse);
+            expect(scanner.lastScanned, isNotNull);
+            expect(scanner.lastError, isNull);
+        });
+
+        test('scan with no history reutrns empty anomalies and null predicition', () async{
+            await scanner.scan();
+            expect(scanner.anomalies, isEmpty);
+            expect(scanner.prediction, isNull);
+        });
+
+
+
+
+        
     })
 }
