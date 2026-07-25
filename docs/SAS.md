@@ -144,7 +144,6 @@
     - # API Contracts
        The Mobile Budgeting App exposes RESTful APIs for optional online services including authentication, synchronisation, friend management, and shared savings goals. Core budgeting functionality does not depend on these APIs and remains fully operational offline.
        ## Authentication API
-
        POST /auth/login
 
        Authenticates a registered user using AWS Cognito credentials.
@@ -175,36 +174,7 @@
 
        ## Synchronisation API
 
-       POST /sync/upload
-
-       Uploads locally modified records to the cloud.
-
-       Request
-
-       {
-       "deviceId": "device123",
-       "lastSync": "2026-06-25T10:30:00Z",
-       "transactions": [ ... ]
-       }
-
-       Response
-
-       {
-       "status": "success",
-       "uploadedRecords": 15
-       }
-       GET /sync/download
-
-       Downloads new or updated records from the cloud.
-
-       Response
-
-       {
-       "transactions": [ ... ],
-       "budgets": [ ... ],
-       "categories": [ ... ]
-       }
-
+       
        ## Friends API
 
        Provides endpoints for managing friends and collaborative financial goals.
@@ -227,6 +197,7 @@
 
 - # Deployment
   ## Deployment Requirements
+  
   ## Deployment Architecture
      The Mobile Budgeting App follows a hybrid deployment model consisting of an Android client application with optional cloud-based backend services.
 
