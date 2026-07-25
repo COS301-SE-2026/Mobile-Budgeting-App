@@ -1,0 +1,59 @@
+import 'dart.io';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:decimal/decimal.dart';
+import 'package:budgetit/services/import/statement_parser_service.dart';
+
+void main() {
+    late _TestableParser parser;
+
+    setUp(() {
+        parser = _TestableParser();
+
+    });
+
+    group('_parseDate', () {
+        test('parses yyyy-mm-dd', () {
+            final result = parser.testParseDate('2026-05-15');
+            expect(result, equals(DateTime(2026,5,15)));
+        });
+
+        test('parses dd/mm/yyyy' () {
+            final result = parser.testParseDate('15/05/2026');
+            expect(result, equals(DateTime(2026,5,15)));
+        });
+
+        test('parses dd-mm-yyyy', () {
+            final result = parser.testParseDate('15-05-2026');
+            expect(result, equals(DateTime(2026,5,15)));
+
+        });
+
+        test('parses dd/mm/yy' () {
+            final result = parser.testParseDate('15/05/26');
+            expect(result, equals(DateTime(2026,05,15)));
+        });
+
+        test('parses mm/dd using current year', () {
+            final result = parser.testParseDate('05/15');
+            expect(result.month, equals(5));
+            expect(result.day, equals(15));
+            expect(result.year, equals(DateTime.now().year));
+        });
+        
+        test('throws FormatException for unrecognized format', () {
+            ezpect(() => parser.testParseDate('not-a-date'), throwsA(isA<FormatException>()));
+        });
+
+        test('throws FormatException for empty string', () {
+            expect(() => parser.testParseDate(''), throwsA(isA<FormatException>()));
+        });
+
+        test('throws FormatException for partial date', () {
+            expect(() => parser.testParseDate('2026-05'), throwsA(isA<FormatException>()));
+        });
+
+    });
+
+
+    
+}
