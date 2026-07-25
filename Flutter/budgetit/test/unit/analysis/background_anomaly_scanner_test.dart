@@ -58,9 +58,34 @@ void main() {
             expect(scanner.prediction, isNull);
         });
 
+        test('concurrent scan calls are ignored', () async {
+            int notifyCount = 0;
+            scanner.addListener(() => notifyCount++);
+            final f1 = scanner.scan();
+            final f2 = scanner.scan();
+            await Future.wait([f1, f1]);
+
+            expect(notifyCount, lessThanOrEqualTo(3));
+        });
+
+        test('clear resets alls tate', () async {
+            await scanner.scan();
+            scanner.clear();
+
+            expect(scanner.anomalies, isEmpty);
+            expect(scanner.prediction, isNull);
+            expect(scanner.lastScanned, isNull);
+            expect(scanner.lastError, isNull);
+        });
+
+        test('isStale resunts false immediately after scan', () async{
+            await scanner.scan();
+            expect(scanner.isStale(maxAge: const Duration(minutes: 30)), isFalse);
+        });
 
 
 
-        
+
+
     })
 }
