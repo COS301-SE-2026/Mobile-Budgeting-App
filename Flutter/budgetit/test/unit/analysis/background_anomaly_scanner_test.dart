@@ -82,10 +82,26 @@ void main() {
             await scanner.scan();
             expect(scanner.isStale(maxAge: const Duration(minutes: 30)), isFalse);
         });
+        test('isStale returns true when maxAge is exceeded', () async {
+            await scanner.scan();
+            expect(scanner.isStale(maxAge: Duration.zero), isTrue);
+        });
+
+        test('anomalies list is unmodifiable', () async {
+            await scanner.scan();
+            expect(() => (scanner.anomalies as List).add(null), throwsUnsupportedError);
+        });
+
+        test('notifies listeners when scan completes', () async {
+            bool notified = false;
+            scanner.addListener(() => notified = true);
+            await scanner.scan();
+            expect(notified, isTrue);
+        });
 
 
 
 
 
-    })
+    });
 }
