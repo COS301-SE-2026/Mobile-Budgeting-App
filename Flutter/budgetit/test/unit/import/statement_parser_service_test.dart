@@ -55,5 +55,41 @@ void main() {
     });
 
 
-    
+    group('_parseAmount', () {
+        test('parses simple positive amounts', () {
+            expect(parser.testParseAmount('100.00'), equals(Decimal.parse('100.00')));
+
+        });
+
+        test('parse negative amount', () {
+            expect( parser.testParseAmount(-450.00), equals(Decimal.parse('-450.00')));
+        });
+
+        test('parses amount with commas', () {
+            expect(parser.testParseAmount('1,234.00'), equals(Decimal.parse('1234,00')));
+        });
+
+        test('parse amount in brackets as negative', () {
+            expect(parser.testParseAmount('(200.00)'), equals(Decimal.parse('-200.00')));
+        });
+        
+        test('parse dollar amount/no prefix amounts ', () {
+            expect(parser.testParseAmount('1000.00'), equals(Decimal.parse('1000.00'))); // parsePDFLines removes $ so eh, test for no prefix
+        });
+
+        test('0 returned for empty string', () {
+            expect(parser.testParseAmount(''), equals(Decimal.zero));
+        });
+
+        test('0 parsed correctly', () {
+            expect(parser.testParseAmount('0.00'), equals(Decimal.zero));
+        });
+
+        test('parse larger amount with comma', () { //because what if yk
+            expect(parser.testParseAmount('10,000.00'), equals(Decimal.parse('10000.00')));
+            expect(parser.testParseAmount('100,000.00'), equals(Decimal.parse('100000.00')));
+        });
+
+
+    });
 }
