@@ -8,7 +8,7 @@ class AnomalyDetectionService {
 
     static const double _lowThreshold  = 1.5;
     static const double _mediumThreshold = 2.0;
-    static const double highThreshold = 2.5;
+    static const double _highThreshold = 2.5;
 
     List<AnomalyResult> detect(List<MonthlySpendingSummary> history) {
         if (history.length < minMonthsRequired) {
