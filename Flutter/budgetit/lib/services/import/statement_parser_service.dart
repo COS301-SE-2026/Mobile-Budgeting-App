@@ -261,8 +261,7 @@ Decimal parseAmount(String raw) {
     if (raw.isEmpty) {
         return Decimal.zero;
     }
-    var cleaned = raw .replaceAll(RegExp(r'[()]'), '') 
-    .replaceAll(',', '');
+    var cleaned = raw.replaceAll(',', '').trim();
     final negative = cleaned.startsWith('(') && cleaned.endsWith(')');
     cleaned = cleaned.replaceAll(RegExp(r'[()]'), '');
     if (cleaned.isEmpty) {

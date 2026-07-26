@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:budgetit/services/analysis/predicitve_spending_service.dart';
+import 'package:budgetit/services/analysis/predictive_spending_service.dart';
 import 'package:budgetit/models/monthly_spending_summary.dart';
 
 void main() {
-    late PredictiveSpending service;
+    late PredictiveSpendingService service;
 
     setUp(() {
         service = PredictiveSpendingService();
@@ -16,7 +16,8 @@ void main() {
             month: month,
             totalExpenses: expenses,
             totalIncome: 0,
-            expensesByCategory: expenses > 0 ? 1 : 0,
+            expensesByCategory: {},
+            transactionCount: expenses > 0 ? 1 : 0,
         );
     }
 
@@ -26,49 +27,49 @@ void main() {
             final results = service.predict([
                 _month(2026, 5, 1000),
             ]);
-            expect(result, isNull);
+            expect(results, isNull);
         });
 
         
         test('returns null when all months have Zero spending', () {
-            final result = service.predict([
+            final results= service.predict([
                 _month(2026, 4, 0),
                 _month(2026, 5, 0),
             ]);
-            expect(result, isNull);
+            expect(results, isNull);
 
         });
 
         test('predicts next month after last in history', (){
-            final result = service.predict([
+            final results= service.predict([
                 _month(2026, 4, 1000),
                 _month(2026, 5, 1100),
             ]);
-            expect(result, isNotNull);
-            expect(result!.month, equals(6));
-            expect(result.year, equals(2026));
+            expect(results, isNotNull);
+            expect(results!.month, equals(6));
+            expect(results.year, equals(2026));
         });
 
         test('prediction rolls over to next year correctly', () {
-            final result = service.predict([
+            final results= service.predict([
                 _month(2026, 1, 5000),
                 _month(2026, 2, 3000),
                 _month(2026, 3, 1000),
                 _month(2026, 4, 500),
             ]);
-            expect(result, isNotNull)
-            expect(result!.predictedAmount, greaterThanOrEqualTo(0));
+            expect(results, isNotNull);
+            expect(results!.predictedAmount, greaterThanOrEqualTo(0));
 
         });
 
         test('upper bound is greater >= to predicted amount', (){
-            final result = service.predict([
+            final results= service.predict([
                 _month(2026, 4, 1000),
                 _month(2026, 5, 1200),
                 _month(2026, 6, 1100),
             ]);
-            expect(result, isNotNull);
-            expect(result!.upperBound, greateThanOrEqualTo(resul.predictedAmount));
+            expect(results, isNotNull);
+            expect(results!.upperBound, greaterThanOrEqualTo(results.predictedAmount));
         });
 
 
@@ -87,33 +88,29 @@ void main() {
             ]);
             expect(result2, isNotNull);
             expect(result6, isNotNull);
-            expect(result6!.confidence, greaterThan(result!.confidence));
+            expect(result6!.confidence, greaterThan(result2!.confidence));
         });
 
 
 
         test('isReliable is true when monthsUsed >= 2', () {
-            final result = service.predict([
+            final results= service.predict([
                 _month(2026,4,1000),
                 _month(2026,5,1100),
 
             ]);
-            expect(result!.isReliable, isTrue);
-        });
-        expect(result!.isReliable, isTrue),
+            expect(results!.isReliable, isTrue);
+        }); 
 
-
-    });
-
-    test('flat histore predicts similar amounts', () {
-        final result = service.predict([
+        test('flat histore predicts similar amounts', () {
+        final results= service.predict([
             _month(2026,1,1000),
             _month(2026,2,1000),
             _month(2026,3,1000),
             _month(2026,4,1000),
         ]);
-        expect(result, isNotNull);
-        expect(result!.predictedAmount, closeTo(100,50));
+        expect(results, isNotNull);
+        expect(results!.predictedAmount, closeTo(1000,50));
     });
 
     test('predictCurrentMonth blends actual with regression', () {
@@ -122,24 +119,27 @@ void main() {
             _month(2026,4,1100),
             _month(2026,5,1050),
         ];
-        final result = service.predictCurrentMonth(
+        final results= service.predictCurrentMonth(
             history,
             currentMonthActual: 600,
             dayOfMonth: 15,
             daysInMonth: 30,
         );
-        expect(result, isNotNull);
-        expect(result!.predictedAmount, greaterThan(0));
+        expect(results, isNotNull);
+        expect(results!.predictedAmount, greaterThan(0));
     });
     test('prediction label formats correctly', () {
-        final result = service.predict([
+        final results= service.predict([
             _month(2026,5,1000),
             _month(2026,6,1100),
         ]);
-        expect(result!.label, equals('July 2026'));
-        expect(result.shortLabel, equals('Jul'));
+        expect(results!.label, equals('July 2026'));
+        expect(results.shortLabel, equals('Jul'));
+    });
+    
+           
     });
 
-
+    
 
 }

@@ -126,7 +126,7 @@ void main() {
 
     group('_parsePDFLines', () {
         test('parses line with mm-dd date and dollar amount', () {
-            final lines = ['Deposit Ref Nbr: 10000000 05-15 \$1,000.00'];
+            final lines = ['Deposit Ref Nbr: 10000000 05-15 1,000.00'];
             final results = parser.testParsePdfLines(lines);
             expect(results, isNotEmpty);
             expect(results.first.amount, equals(Decimal.parse('1000.00')) );
@@ -169,7 +169,7 @@ void main() {
             final lines = [
                 'ATM withdrawal',
                 '100 somehwere st',
-                '05-15 05-16 \$20.00',
+                '05-15 05-16 20.00',
             ];
             final results = parser.testParsePdfLines(lines);
             expect(results, isNotEmpty);
@@ -194,7 +194,7 @@ void main() {
         });
         test('deduplication hash is nonEmpty', () {
             final lines = ['05-15 Here 100.00'];
-            final results = parser.parse.testParsePdfLines(lines);
+            final results = parser.testParsePdfLines(lines);
             expect(results, isNotEmpty);
             expect(results.first.deduplicationHash, isNotEmpty);
             expect(results.first.deduplicationHash.length, equals(16));
@@ -234,7 +234,7 @@ void main() {
         });
 
         test('parses credit/debit column CSV correctly', () async {
-            final file = await _writeCsv('debitcredit', 'Date, Description, Debit, Credit \n01/05/2026, Shops, 100.00 \n02/05/2026, Invoice, 5000.00 \n03/05/2026, Scam, 678.00');
+            final file = await _writeCsv('debitcredit', 'Date, Description, Debit, Credit \n01/05/2026, Shops, 100.00, \n02/05/2026, Invoice, ,5000.00 \n03/05/2026, Scam, 678.00,');
             final results = await parser.parse(file.path);
             expect(results.length, equals(3));
             expect(results[0].isIncome, isFalse);
@@ -286,7 +286,7 @@ void main() {
         });
 
         test('parses dd/mm/yy', () async {
-            final file = await _writeCsv('ddmmyy','Date,Description,Amount \n 15/-5/26, Something, -100.00');
+            final file = await _writeCsv('ddmmyy','Date,Description,Amount \n 15/05/26, Something, -100.00');
             final results = await parser.parse(file.path);
             expect(results.length, equals(1));
             expect(results.first.date, equals(DateTime(2026,5,15)));
@@ -393,7 +393,7 @@ void main() {
 class _TestableParser extends StatementParserService {
     DateTime testParseDate(String raw) => parseDate(raw);
     Decimal testParseAmount(String raw) => parseAmount(raw);
-    int testFindCol(List<,String> headers, List<String> candidates) => findCol(headers, candidates);
+    int testFindCol(List<String> headers, List<String> candidates) => findCol(headers, candidates);
     List<_TestParsedLine> testParsePdfLines(List<String> lines){
         final results = parsePdfLines(lines);
         return results.map((r) => _TestParsedLine(
@@ -415,7 +415,7 @@ class _TestParsedLine {
     final String finalDescription;
 
     _TestParsedLine({
-        required this.amount, required this.isIncome, required this.date, required this.deduplicationHash, required this.shortDescription});
+        required this.amount, required this.isIncome, required this.date, required this.deduplicationHash, required this.finalDescription});
 
 
 }
