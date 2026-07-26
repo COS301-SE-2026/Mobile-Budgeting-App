@@ -202,4 +202,132 @@ void main() {
 
 
     });
+
+
+    group('CSV parsing', () {
+        late Directory tempDir;
+
+        setUp(() async {
+            tempDir = await Directory.systemTemp.createTemp('parser_test_');
+        });
+        
+        tearDown(() async {
+            await tempDir.delete(recursive: true);
+        });
+
+        Future<File> _writeCsv(String name, String content) async {
+            final file = File('${tempDir.path}/$name.csv');
+            await file.writeAsString(content);
+            return file;
+        }
+
+        test('parses single-amount column CSV correctly', () async {
+            final file = await _writeCsv('single', 'Date, Description, Amount \n2026-05-01,ExpenseHere,-400.00 \n2026-05-02, ThisIsIncome, 25000.00 \n2026-05-03, ExpenseThere,-100.00 ' );
+            final results = await parser.parse(file.path);
+            expect(results.length, equals(3));
+            expect(results[0].description, equals('ExpenseHere'));
+            expect(results[0].amount, equals(Decimal.parse('400.00')));
+            expect(results[0].isIncome, isFalse);
+            expect(results[1].isIncome, isTrue);
+            expect(results[1].amount, equals(Decimal.parse('25000.00')));
+            expect(results[2].description, equals('ExpenseThere'));
+        });
+
+        test('parses credit/debit column CSV correctly', () async {
+            final file = await _writeCsv('debitcredit', 'Date, Description, Debit, Credit \n01/05/2026, Shops, 100.00 \n02/05/2026, Invoice, 5000.00 \n03/05/2026, Scam, 678.00');
+            final results = await parser.parse(file.path);
+            expect(results.length, equals(3));
+            exoect(results[0].isIncome, isFalse);
+            expect(results[0].amount, equals(Decimal.parse('100.00')));
+            expect(results[1].isIncome, isTrue);
+            expect(results[1].amount, equals(Decimal.parse('5000.00')));
+            expect(results[2].isIncome, isFalse);
+        });
+
+        test('skips empty rows', () async {
+            final file = await _writeCsv('emptyRows', 'Date, Description,Amount \n 2026-05-01, Here, 100.00 \n' '\n 2026-05-03, There, -100.00 ');
+            final results = await parser.parse(file.path);
+            expect(results.length, equals(2));
+        });
+
+        test('skips malformed rows without thrwoing', () async {
+            final file = await _writeCsv('malformed', 'Date,Description,Amount \n2026-05-01, Valid, -100.00 \nnot-so-valid, NotValid, pol \n2026-05-03, AlsoValid, -200.00');
+            final results = await parse.parse(file.path);
+            expect(results.length, equals(2));
+        });
+
+        test('throws formatexception when no date colunm found', () async {
+            final file = await _writeCsv('nodate', 'Reference,Description,Amount \n REF001, Here, -400.00');
+            expect(() async => await parser.parse(file.path), throwsA(isA<FormatException>()));
+        });
+
+        test('throws formatexception when no decsription column found', () async {
+            final file = await _wrtieCsv('nodesc', 'Date,Memo,Amount \n2026-05-01,Here,-100.00');
+            expect(() async => await parser.parse(file.path), throwsA(isA<FormatException>()));
+        });
+
+        test('throws Formatexception when csv has no data rows', () async {
+            final file = await _writeCsv('empty', 'Date, Description,Amount\n');
+            expect(() async => await parser.parse(file.path), throwsA(isA<FormatException>()));
+        });
+
+        test('parses dd/mm/yyyy date format', () async {
+            final file = await _writeCsv('ddmmyyyy', 'Date,Description,Amount \n15-05-2026,Here, -100.00');
+            final results = await parser.parse(file.path);
+            expect(results.length, equals(1));
+            expect(results.first.date, equals(DateTime(2026,5,15)));
+        });
+
+        test('parses dd-mm-yyyy date format', () async {
+            final file = await writeCsv('ddmmyyyy_dash', 'Date,Description,Amount \n 15-05-2026, There, -50.00');
+            final results = await parser.parse(file.path);
+            expect(result.length, equals(1));
+            expect(results.first.date, equals(DateTime(2026,5,15)));
+        });
+
+        test('parses dd/mm/yy', () async {
+            final file = await_writeDsv('ddmmyy','Date,Description,Amount \n 15/-5/26, Something, -100.00');
+            final results = await parser.parse(file.path);
+            expect(results.length, equals(1));
+            expect(results.first.date, equals(DateTime(2026,5,15)));
+        });
+
+        test('deduplication hash is 16 characters for each resut', () async {
+            final file = await _writeCsv('hash' , 'Date,Description,Amount \n2026-05-01, This, -100.00 \n2026-05-02, That, 10000.00');
+            final results = await parser.parse(file.path);
+            for (final r in results){
+                expect(r.deduplicationHash.length, equals(16));
+            }
+        });
+
+        test('different transaction produce different hashes', () async {
+            final file = await _writeCsv('uniquehash', 'Date,Description,Amount \n2026-05-01, This, -100.00 \n2026-05-02,That,-200.00');
+            final results = await parser.parse(file.path);
+            expect(results[0].deduplicationHash, isNot(equals(results[1].deduplicationHash)));
+        });
+
+        test('shortDescription trims to 100 chars', () async {
+            final longDesc = 'A' * 120;
+            final file = await _writeCsv('longdesc', 'Date,Description,Amount \n2026-05-01,$longDesc, -100.00');
+            final results = await parser.parse(file.path);
+            expect(results.length, equals(1));
+            expect(results.first.shortDescription.length, equals(100));
+        });
+
+        test('longDescription contains overflow beyond chars', () async {
+            final longDesc = 'A' * 120;
+            final file = await _writeCsv('longdesc2', 'Date,Description,Amount \n2026-05-01, $longDesc, -100.00');
+            fianl results = await parser.parse(file.path);
+            expect(results.first.longDescription, isNotNull);
+            expect(results.first.longDescription!.length, equals(20));
+        });
+
+        test('positive amount in single column marks as income', () async {
+            final file = await _writeCsv('income', 'Date,Description,Amount \n 2026-05-01,thisisincome, 10000.00');
+            final results = await parser.parse(file.path);
+            expect(reuslts.first.isIncome, isTrue);
+        });
+
+
+    })
 }
