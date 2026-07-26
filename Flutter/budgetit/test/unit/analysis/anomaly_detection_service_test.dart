@@ -75,7 +75,7 @@ void main() {
             final result = service.detect(history);
             final groceryAnomaly = result.where((a) => a.categoryName == 'Groceries').toList();
             expect(groceryAnomaly, isNotEmpty);
-            expect(groceyAnomaly.first.actualAmount, equals(800));
+            expect(groceryAnomaly.first.actualAmount, equals(800));
         });
 
         test('anomaly result contains correct historical average', () {
@@ -104,8 +104,8 @@ void main() {
         test('severity colours and icons are non-null for all severities', () {
             for (final severity in AnomalySeverity.values) {
                 expect(AnomalyDetectionService.severityColor(severity), isNotNull);
-                expect(AnomlayDetectionService.severityIcon(severity), isNotNull);
-                expect(AnomalyDetectionService.severityLabel(severity), isNotEmpty)
+                expect(AnomalyDetectionService.severityIcon(severity), isNotNull);
+                expect(AnomalyDetectionService.severityLabel(severity), isNotEmpty);
             }
         });
 
