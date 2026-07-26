@@ -27,13 +27,13 @@ void main() {
 
     group('TransactionHistroyService', () {
         test('getMonthlyHistory returns correct number of months', () async {
-            when(mockTxDao.getTransactionByDateRange(any,any)).thenAnswer((_) async => []);
+            when(mockTxDao.getTransactionsByDateRange(any,any)).thenAnswer((_) async => []);
             final result = await service.getMonthlyHistory(monthsBack: 3);
             expect(result.length, equal(3));
         });
 
         test('getMonthlyHistory months are ordered olderst to newest', () async {
-            when(mockTxDao.getTransactionByDateRange(any,any)).thenAnswer((_) async => []);
+            when(mockTxDao.getTransactionsByDateRange(any,any)).thenAnswer((_) async => []);
             final result = await service.getMonthlyHistory(monthsBack: 3);
             for (var i=0;1<result.length-1;i++){
                 final current = DateTime(result[i].year, result[i].month);
@@ -51,7 +51,7 @@ void main() {
         });
 
         test('summary has zero totals when no transaction exist', () async {
-            when(mockTxDao.getTransactionByDateRange(any,any)).thenAnswer((_) async => []);
+            when(mockTxDao.getTransactionsByDateRange(any,any)).thenAnswer((_) async => []);
 
             final summary = await service.getSummaryForMonth(2026,5);
             expect(summary.totalExpenses, equals(0));
