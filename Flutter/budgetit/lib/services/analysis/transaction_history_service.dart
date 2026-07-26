@@ -45,7 +45,7 @@ class TransactionHistoryService {
     ) async {
         final start = DateTime(year, month, 1);
         final end = DateTime(year, month +1, 0, 23, 59, 59, 999); //these numbers are the last day of the month, 23:59:59.999 to consider the entire day of the last day of the month.
-        final transactions = await _db.transactionDao.getTransactionByDateRange(
+        final transactions = await _db.transactionDao.getTransactionsByDateRange(
             start,
             end,
         );
@@ -60,7 +60,7 @@ class TransactionHistoryService {
             
             if(tx.type == TransactionType.expense) {
                 totalExpenses += amount;
-                transactioCount++;
+                transactionCount++;
 
                 final mapping = await _db.transactionDao.getCategoryForTransaction(tx.id);
                 final categoryName = mapping == null ? 'Uncategorised' : await _resolveCategoryName(mapping.categoryId);
