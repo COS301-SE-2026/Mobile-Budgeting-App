@@ -13,12 +13,12 @@ class BackgroundAnomalyScanner extends ChangeNotifier {
     final TransactionHistoryService _historyService;
     final PredictiveSpendingService _predictiveService;
 
-    static const int _historyMonths - 6;
+    static const int _historyMonths = 6;
     bool _scanning = false;
     bool get isScanning => _scanning;
 
-    List<AnomalyResult> anomalies = [];
-    List<AnomalyResults> get anomalies => List.unmodifiable(_anomlaies);
+    List<AnomalyResult> _anomalies = [];
+    List<AnomalyResult> get anomalies => List.unmodifiable(_anomalies);
 
     SpendingPrediction? _prediction;
     SpendingPrediction? get prediction => _prediction;
@@ -48,14 +48,14 @@ class BackgroundAnomalyScanner extends ChangeNotifier {
 
             final anomalies = _anomalyService.detect(history);
 
-            final now = DateTime.now()
+            final now = DateTime.now();
             final currentMonthSummary = await _historyService.getSummaryForMonth(
                 now.year,
                 now.month,
             );
             final prediction = _predictionService.predictCurrentMonth(
                 history,
-                currentMonthActual: currentMonthSummary.totalExpenses,
+                currentMonthActual: currentMonthSummary?.totalExpenses ?? 0,
                 dayOfMonth: DateTime(now.year, now.month + 1, 0).day,
             );
 
@@ -72,7 +72,7 @@ class BackgroundAnomalyScanner extends ChangeNotifier {
     }
 
     void clear() {
-        _anomlaies = [];
+        _anomalies = [];
         _prediction = null;
         _lastScanned = null;
         _lastError = null;
