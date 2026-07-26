@@ -72,6 +72,27 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
     return 'R${amount.toStringAsFixed(2)}';
   }
 
+  String _currentMonthYearLabel() {
+    final now = DateTime.now();
+
+    const months = [
+      'JANUARY',
+      'FEBRUARY',
+      'MARCH',
+      'APRIL',
+      'MAY',
+      'JUNE',
+      'JULY',
+      'AUGUST',
+      'SEPTEMBER',
+      'OCTOBER',
+      'NOVEMBER',
+      'DECEMBER',
+    ];
+
+    return '${months[now.month - 1]} ${now.year}';
+  }
+
   Future<double> _calculateSpentForCategory(
     String categoryId,
     PeriodType periodType,
@@ -313,7 +334,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
 
                     
                     Text(
-                      "JUNE 2024",
+                      _currentMonthYearLabel(),
                       style: TextStyle(
                         color: colours.textPrimary,
                         fontSize: 9,
@@ -416,40 +437,36 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                 ),
 
                 const SizedBox(height: 24),
-SizedBox(
-  width: double.infinity,
-  height: 48,
-  child: OutlinedButton.icon(
-    onPressed: () async {
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => GraphicalReportsScreen(
-            database: widget.database,
-          ),
-        ),
-      );
-    },
-    icon: const Icon(Icons.bar_chart_outlined),
-    label: const Text(
-      'VIEW GRAPHICAL REPORTS',
-      style: TextStyle(
-        fontWeight: FontWeight.bold,
-        letterSpacing: 1,
-      ),
-    ),
-    style: OutlinedButton.styleFrom(
-      foregroundColor: colours.textPrimary,
-      side: BorderSide(
-        color: colours.secondary,
-        width: 1.5,
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-    ),
-  ),
-),
-const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      await Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              GraphicalReportsScreen(database: widget.database),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.bar_chart_outlined),
+                    label: const Text(
+                      'VIEW GRAPHICAL REPORTS',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: colours.textPrimary,
+                      side: BorderSide(color: colours.secondary, width: 1.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,
                   height: 48,
@@ -476,8 +493,6 @@ const SizedBox(height: 12),
                   ),
                   
                 ),
-
-                
 
                 const SizedBox(height: 18),
 
