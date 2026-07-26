@@ -262,7 +262,7 @@ void main() {
         });
 
         test('throws formatexception when no decsription column found', () async {
-            final file = await _wrtieCsv('nodesc', 'Date,Memo,Amount \n2026-05-01,Here,-100.00');
+            final file = await _writeCsv('nodesc', 'Date,Memo,Amount \n2026-05-01,Here,-100.00');
             expect(() async => await parser.parse(file.path), throwsA(isA<FormatException>()));
         });
 
@@ -281,12 +281,12 @@ void main() {
         test('parses dd-mm-yyyy date format', () async {
             final file = await _writeCsv('ddmmyyyy_dash', 'Date,Description,Amount \n 15-05-2026, There, -50.00');
             final results = await parser.parse(file.path);
-            expect(result.length, equals(1));
+            expect(results.length, equals(1));
             expect(results.first.date, equals(DateTime(2026,5,15)));
         });
 
         test('parses dd/mm/yy', () async {
-            final file = await _writeDsv('ddmmyy','Date,Description,Amount \n 15/-5/26, Something, -100.00');
+            final file = await _writeCsv('ddmmyy','Date,Description,Amount \n 15/-5/26, Something, -100.00');
             final results = await parser.parse(file.path);
             expect(results.length, equals(1));
             expect(results.first.date, equals(DateTime(2026,5,15)));
@@ -387,4 +387,35 @@ void main() {
         });
 
     });
+}
+
+
+class _TestableParser extends StatementParserService {
+    DateTime testParseDate(String raw) => parseDate(raw);
+    Decimal testParseAmount(String raw) => parseAmount(raw);
+    int testFindCol(List<,String> headers, List<String> candidates) => findCol(headers, candidates);
+    List<_TestParsedLine> testParsePdfLines(List<String> lines){
+        final results = parsePdfLines(lines);
+        return results.map((r) => _TestParsedLine(
+            amount: r.amount,
+            isIncome: r.isIncome,
+            date: r.date,
+            deduplicationHash: r.deduplicationHash,
+            finalDescription: r.shortDescription,
+        )).toList();
+    }
+}
+
+
+class _TestParsedLine {
+    final Decimal amount;
+    final bool isIncome;
+    final DateTime date;
+    final String deduplicationHash;
+    final String finalDescription;
+
+    _TestParsedLine({
+        required this.amount, required this.isIncome, required this.date, required this.deduplicationHash, required this.shortDescription});
+
+
 }
