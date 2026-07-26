@@ -20,10 +20,16 @@ on:
       - "Flutter/budgetit/**/*.g.dart"
       - "Flutter/budgetit/**/*.freezed.dart"
 
+concurrency:
+  group: ci-dev-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: true
+
 jobs:
   secret-scan:
     name: Secret Scan
     runs-on: ubuntu-slim
+    permissions:
+      security-events: write
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
@@ -32,17 +38,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}}
+      - name: Upload SARIF to GitHub Security tab
+        if: success() || failure()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
 
-  flutter-ci:
-    name: Flutter CI
+  prepare:
+    name: Prepare
     runs-on: self-hosted
     outputs:
-      coverage_lines: ${{ steps.coverage.outputs.lines }}
-      coverage_branches: ${{ steps.coverage.outputs.branches }}
-      coverage_functions: ${{ steps.coverage.outputs.functions }}
       has_integration_tests: ${{ steps.detect-tests.outputs.has_integration_tests }}
       has_sonar: ${{ steps.check-sonar.outputs.has_sonar }}
-
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
@@ -67,51 +74,123 @@ jobs:
       - uses: ./.github/actions/flutter-setup
 
       - name: Cache build_runner outputs
+        id: build-runner-cache
         uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8
         with:
           path: Flutter/budgetit/.dart_tool/build
-          key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart', 'Flutter/budgetit/test/**/*.dart') }}
+          key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart', 'Flutter/budgetit/test/**/*.dart', '!Flutter/budgetit/lib/**/*.g.dart', '!Flutter/budgetit/lib/**/*.freezed.dart', '!Flutter/budgetit/test/**/*.g.dart', '!Flutter/budgetit/test/**/*.freezed.dart') }}
           restore-keys: |
             build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-
             build-runner-${{ runner.os }}-
 
       - name: Dart Build Runner
+        if: steps.build-runner-cache.outputs.cache-hit != 'true'
         working-directory: Flutter/budgetit
-        run: dart run build_runner build --delete-conflicting-outputs --build-filter="lib/**.dart" --build-filter="test/**.dart"
+        run: dart run build_runner build --delete-conflicting-outputs
 
-      - name: Dart Format
-        working-directory: Flutter/budgetit
-        continue-on-error: true
-        run: dart format --output=none --set-exit-if-changed .
+  dart-format:
+    name: Dart Format
+    needs: prepare
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
-      - name: Flutter Analyze
-        working-directory: Flutter/budgetit
+      - uses: ./.github/actions/flutter-setup
+
+      - name: Cache build_runner outputs
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8
+        with:
+          path: Flutter/budgetit/.dart_tool/build
+          key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart', 'Flutter/budgetit/test/**/*.dart', '!Flutter/budgetit/lib/**/*.g.dart', '!Flutter/budgetit/lib/**/*.freezed.dart', '!Flutter/budgetit/test/**/*.g.dart', '!Flutter/budgetit/test/**/*.freezed.dart') }}
+          restore-keys: |
+            build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-
+            build-runner-${{ runner.os }}-
+
+      - uses: ./.github/actions/memoized-step
         continue-on-error: true
-        run: flutter analyze
+        with:
+          check-name: dart-format
+          working-directory: Flutter/budgetit
+          command: dart format --output=none --set-exit-if-changed .
+
+  flutter-analyze:
+    name: Flutter Analyze
+    needs: prepare
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+
+      - uses: ./.github/actions/flutter-setup
+
+      - name: Cache build_runner outputs
+        id: build-runner-cache
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8
+        with:
+          path: Flutter/budgetit/.dart_tool/build
+          key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart', 'Flutter/budgetit/test/**/*.dart', '!Flutter/budgetit/lib/**/*.g.dart', '!Flutter/budgetit/lib/**/*.freezed.dart', '!Flutter/budgetit/test/**/*.g.dart', '!Flutter/budgetit/test/**/*.freezed.dart') }}
+          restore-keys: |
+            build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-
+            build-runner-${{ runner.os }}-
+
+      - name: Dart Build Runner
+        if: steps.build-runner-cache.outputs.cache-hit != 'true'
+        working-directory: Flutter/budgetit
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - uses: ./.github/actions/memoized-step
+        continue-on-error: true
+        with:
+          check-name: flutter-analyze
+          working-directory: Flutter/budgetit
+          command: flutter analyze
+
+  unit-tests:
+    name: Unit Tests
+    needs: prepare
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+
+      - uses: ./.github/actions/flutter-setup
+
+      - name: Cache build_runner outputs
+        id: build-runner-cache
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8
+        with:
+          path: Flutter/budgetit/.dart_tool/build
+          key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart', 'Flutter/budgetit/test/**/*.dart', '!Flutter/budgetit/lib/**/*.g.dart', '!Flutter/budgetit/lib/**/*.freezed.dart', '!Flutter/budgetit/test/**/*.g.dart', '!Flutter/budgetit/test/**/*.freezed.dart') }}
+          restore-keys: |
+            build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-
+            build-runner-${{ runner.os }}-
+
+      - name: Dart Build Runner
+        if: steps.build-runner-cache.outputs.cache-hit != 'true'
+        working-directory: Flutter/budgetit
+        run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Unit tests
         working-directory: Flutter/budgetit
         run: |
           flutter test --coverage --concurrency=4 $(find test -name '*_test.dart' -not -path 'test/golden/*' -not -path 'test/performance/*' -not -path 'test/integration/*')
 
-      - name: Coverage gate
-        id: coverage
-        working-directory: Flutter/budgetit
-        env:
-          COVERAGE_THRESHOLD: "0"
-        run: python3 ../../scripts/coverage_gate.py --lcov-file coverage/lcov.info --output "$GITHUB_OUTPUT"
-
-      - name: Upload Coverage
+      - name: Upload coverage (lcov)
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: coverage-report
+          name: coverage-lcov
           path: Flutter/budgetit/coverage/lcov.info
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: Flutter/budgetit/coverage/lcov.info
+          fail_ci_if_error: true
 
   sonarcloud:
     name: SonarCloud
     runs-on: self-hosted
-    needs: flutter-ci
-    if: needs.flutter-ci.outputs.has_sonar == 'true'
+    needs: [prepare, unit-tests]
+    if: needs.prepare.outputs.has_sonar == 'true'
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
@@ -121,7 +200,7 @@ jobs:
 
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
-          name: coverage-report
+          name: coverage-lcov
           path: Flutter/budgetit/coverage
 
       - name: SonarCloud Scan
@@ -133,9 +212,8 @@ jobs:
   integration-tests:
     name: Integration Tests
     runs-on: self-hosted
-    needs: flutter-ci
-    if: needs.flutter-ci.outputs.has_integration_tests == 'true'
-    continue-on-error: false
+    needs: prepare
+    if: needs.prepare.outputs.has_integration_tests == 'true'
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
       - uses: ./.github/actions/flutter-setup

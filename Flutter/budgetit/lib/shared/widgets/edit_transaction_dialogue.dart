@@ -174,7 +174,7 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
                     child: DropdownButton<String>(
                       value: _selectedCategory,
                       isExpanded: true,
-                      dropdownColor: colours.navBarColor,
+                      dropdownColor: colours.background,
                       style: TextStyle(color: colours.cardText, fontSize: 14),
                       icon: Icon(
                         Icons.keyboard_arrow_down,

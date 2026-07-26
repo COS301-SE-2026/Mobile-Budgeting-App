@@ -72,6 +72,27 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
     return 'R${amount.toStringAsFixed(2)}';
   }
 
+  String _currentMonthYearLabel() {
+    final now = DateTime.now();
+
+    const months = [
+      'JANUARY',
+      'FEBRUARY',
+      'MARCH',
+      'APRIL',
+      'MAY',
+      'JUNE',
+      'JULY',
+      'AUGUST',
+      'SEPTEMBER',
+      'OCTOBER',
+      'NOVEMBER',
+      'DECEMBER',
+    ];
+
+    return '${months[now.month - 1]} ${now.year}';
+  }
+
   Future<double> _calculateSpentForCategory(
     String categoryId,
     PeriodType periodType,
@@ -267,19 +288,25 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: colours.background,
-      appBar: AppBar(
-        backgroundColor: colours.background,
-        elevation: 0,
-        title: Text(
-          'Budget Manager',
-          style: TextStyle(
-            color: colours.textPrimary,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          IconButton(
+     backgroundColor: colours.background,
+     
+
+      // body: SafeArea(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 22),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _summaryCard(),
+
+                const SizedBox(height: 14),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                IconButton(
             tooltip: 'Export financial report',
             icon: Icon(
               Icons.file_download_outlined,
@@ -293,34 +320,21 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
               );
             },
           ),
-        ],
-      ),
-
-      // body: SafeArea(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 22),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _summaryCard(),
-
-                const SizedBox(height: 28),
+                ],
+            ),
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    
                     Text(
-                      "Budget Categories",
-                      style: TextStyle(
-                        color: colours.textPrimary,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      "BUDGET CATEGORIES",
+                      style: colours.h2,
                     ),
+
+                    
                     Text(
-                      "JUNE 2024",
+                      _currentMonthYearLabel(),
                       style: TextStyle(
                         color: colours.textPrimary,
                         fontSize: 9,
@@ -337,8 +351,9 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Center(
-                        child: CircularProgressIndicator(
+                        child: LinearProgressIndicator(
                           color: colours.secondary,
+                          borderRadius: BorderRadius.zero,
                         ),
                       );
                     }
@@ -422,40 +437,36 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                 ),
 
                 const SizedBox(height: 24),
-SizedBox(
-  width: double.infinity,
-  height: 48,
-  child: OutlinedButton.icon(
-    onPressed: () async {
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => GraphicalReportsScreen(
-            database: widget.database,
-          ),
-        ),
-      );
-    },
-    icon: const Icon(Icons.bar_chart_outlined),
-    label: const Text(
-      'VIEW GRAPHICAL REPORTS',
-      style: TextStyle(
-        fontWeight: FontWeight.bold,
-        letterSpacing: 1,
-      ),
-    ),
-    style: OutlinedButton.styleFrom(
-      foregroundColor: colours.textPrimary,
-      side: BorderSide(
-        color: colours.secondary,
-        width: 1.5,
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-    ),
-  ),
-),
-const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      await Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              GraphicalReportsScreen(database: widget.database),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.bar_chart_outlined),
+                    label: const Text(
+                      'VIEW GRAPHICAL REPORTS',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: colours.textPrimary,
+                      side: BorderSide(color: colours.secondary, width: 1.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,
                   height: 48,
@@ -463,26 +474,25 @@ const SizedBox(height: 12),
                     onPressed: () {
                       _showCreateBudgetDialog(context);
                     },
-                    icon: const Icon(Icons.add_circle_outline),
-                    label: const Text(
-                      
+                   
+                    label: Text(
                       "CREATE NEW BUDGET",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1,
-                      ),
+                      style: MyColours().b3,
                     ),
+
                     style: ElevatedButton.styleFrom(
                       backgroundColor: colours.secondary,
                       foregroundColor: colours.background,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                       // borderRadius: BorderRadius.circular(10),
+                       side: BorderSide(color: Colors.black, width: 4),
+
                       ),
                     ),
-                  ),
-                ),
 
-                
+                  ),
+                  
+                ),
 
                 const SizedBox(height: 18),
 
@@ -514,35 +524,32 @@ const SizedBox(height: 12),
           width: double.infinity,
           padding: const EdgeInsets.all(22),
           decoration: BoxDecoration(
-            color: colours.secondary,
-            borderRadius: BorderRadius.circular(30),
+            color: colours.blendedprimary,
+            border: Border.all(color: Colors.black, width: 4),
+            boxShadow: [
+              BoxShadow(
+                
+                offset: const Offset(6, 6),
+                blurRadius: 0,
+              ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 "MONTHLY BUDGET OVERVIEW",
-                style: TextStyle(
-                  color: colours.background,
-                  fontSize: 14,
-                  letterSpacing: 2,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: colours.b1,
               ),
               const SizedBox(height: 18),
               Text(
                 _formatCurrency(totalSpent),
-                style: TextStyle(
-                  color: colours.background,
-                  fontSize: 42,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1,
-                ),
+                style: colours.bigDisplay,
               ),
               const SizedBox(height: 18),
               Text(
                 "Budget target: ${_formatCurrency(totalTarget)}",
-                style: TextStyle(color: colours.background, fontSize: 18),
+                style: colours.b1,
               ),
             ],
           ),
@@ -564,16 +571,26 @@ const SizedBox(height: 12),
   }) {
     final double progress = spent / limit;
 
-    return InkWell(
+    return InkWell( 
       onTap: onTap,
       borderRadius: BorderRadius.circular(10),
-      child: Container(
+      child: Stack (
+      children: [ 
+     
+        Positioned.fill(
+          child: Transform.translate(offset: Offset(6, 6), child: Container(color: Colors.black,),)
+        ),
+        
+       
+        
+
+        Container(
         padding: const EdgeInsets.all(14),
 
         decoration: BoxDecoration(
-          color: colours.primary,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: colours.secondary, width: 1.0),
+          color: colours.blendedprimary,
+          
+          border: Border.all(color: Colors.black, width: 4),
         ),
         child: Column(
           children: [
@@ -586,7 +603,7 @@ const SizedBox(height: 12),
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: colours.redColor,
+                    color: colours.error,
                     borderRadius: BorderRadius.circular(2),
                   ),
                   child: Text(
@@ -607,9 +624,9 @@ const SizedBox(height: 12),
                   height: 34,
                   decoration: BoxDecoration(
                     color: colours.secondary,
-                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: Colors.black, width: 2),
                   ),
-                  child: Icon(icon, color: colours.background, size: 20),
+                  child: Icon(icon, color: Colors.black, size: 20),
                 ),
 
                 const SizedBox(width: 12),
@@ -620,18 +637,11 @@ const SizedBox(height: 12),
                     children: [
                       Text(
                         title,
-                        style: TextStyle(
-                          color: colours.textPrimary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
+                        style: colours.budgetheader,
                       ),
                       Text(
                         subtitle,
-                        style: TextStyle(
-                          color: colours.textPrimary,
-                          fontSize: 10,
-                        ),
+                        style: colours.b5,
                       ),
                     ],
                   ),
@@ -642,25 +652,19 @@ const SizedBox(height: 12),
                   children: [
                     Text(
                       "R${spent.toInt()} / R${limit.toInt()}",
-                      style: TextStyle(
-                        color: colours.secondary,
-                        fontSize: 12,
-                        fontWeight: isOverLimit
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                      ),
+                      style: colours.b4,
                     ),
                     const SizedBox(width: 10),
                     InkWell(
                       onTap: () {
                         onDelete();
                       },
-                      borderRadius: BorderRadius.circular(20),
+                     customBorder: Border.all(color: Colors.black, width: 4),
                       child: Padding(
                         padding: const EdgeInsets.all(4),
                         child: Icon(
                           Icons.delete_outline,
-                          color: colours.redColor,
+                          color: colours.error,
                           size: 20,
                         ),
                       ),
@@ -673,7 +677,7 @@ const SizedBox(height: 12),
             const SizedBox(height: 12),
 
             ClipRRect(
-              borderRadius: BorderRadius.circular(10),
+             
               child: LinearProgressIndicator(
                 value: progress > 1 ? 1 : progress,
                 minHeight: 6,
@@ -684,6 +688,7 @@ const SizedBox(height: 12),
           ],
         ),
       ),
+    ] ), 
     );
   }
 
@@ -723,7 +728,7 @@ const SizedBox(height: 12),
                 Navigator.of(dialogContext).pop(true);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: colours.redColor,
+                backgroundColor: colours.error,
                 foregroundColor: colours.whiteAccents,
               ),
               child: const Text('Delete'),
@@ -746,7 +751,7 @@ const SizedBox(height: 12),
       ..showSnackBar(
         SnackBar(
           behavior: SnackBarBehavior.floating,
-          backgroundColor: colours.redColor,
+          backgroundColor: colours.error,
           margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
@@ -826,8 +831,8 @@ const SizedBox(height: 12),
                 return AlertDialog(
                   backgroundColor: colours.background,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: colours.secondary, width: 1.5),
+              
+                    side: BorderSide(color: Colors.black, width: 4),
                   ),
                   title: Text(
                     'Create New Budget',
@@ -931,7 +936,7 @@ const SizedBox(height: 12),
                             ..showSnackBar(
                               SnackBar(
                                 behavior: SnackBarBehavior.floating,
-                                backgroundColor: colours.redColor,
+                                backgroundColor: colours.error,
                                 margin: const EdgeInsets.symmetric(
                                   horizontal: 18,
                                   vertical: 16,
