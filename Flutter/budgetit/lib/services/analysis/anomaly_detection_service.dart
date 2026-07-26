@@ -19,7 +19,7 @@ class AnomalyDetectionService {
 
         anomalies.addAll(_detectTotalSpendingAnomalies(history));
         anomalies.addAll(_detectCategoryAnomalies(history));
-        anomlaies.sort((a,b) => b.zScore.compareTo(a.zScore));
+        anomalies.sort((a,b) => b.zScore.compareTo(a.zScore));
         return anomalies;
     }
 
@@ -61,7 +61,7 @@ class AnomalyDetectionService {
             final mean = _mean(baselineValues);
             final stdDev = _stdDev(baselineValues, mean);
 
-            if(std==0){
+            if(stdDev==0){
                 continue;
             }
 
@@ -70,7 +70,7 @@ class AnomalyDetectionService {
             if (z >= _lowThreshold) {
                 final severity = _severityFromZ(z);
                 results.add(AnomalyResult(
-                    ctegoryName: category,
+                    categoryName: category,
                     monthLabel: current.label,
                     actualAmount: currentAmount,
                     historicalAverage: mean,
@@ -116,7 +116,7 @@ class AnomalyDetectionService {
         final pct = (((actual - avg) / avg) * 100).toStringAsFixed(0);
         return switch (severity) {
             AnomalySeverity.high => 'Spending spike detected - $pct% above normal',
-            AnomalySeverity.high => 'Spending is notably higher than usual',
+            AnomalySeverity.medium => 'Spending is notably higher than usual',
             AnomalySeverity.low => 'Spending is slightly above your average',
         };
     }
@@ -138,7 +138,7 @@ class AnomalyDetectionService {
         return switch (severity) {
             AnomalySeverity.high => 'Unusal $category spending',
             AnomalySeverity.medium => '$category spending is higher than normal',
-            AnomalySeverity.high => '$category spending increased this month',
+            AnomalySeverity.low => '$category spending increased this month',
         };
     }
 
@@ -163,7 +163,7 @@ class AnomalyDetectionService {
         };
     }
 
-    static Colour severityColour(AnomalySeverity severity) {
+    static Color severityColour(AnomalySeverity severity) {
         return switch (severity) {
             AnomalySeverity.high => Colors.redAccent,
             AnomalySeverity.medium => Colors.orangeAccent,
