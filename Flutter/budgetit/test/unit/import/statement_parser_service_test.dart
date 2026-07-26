@@ -1,4 +1,4 @@
-import 'dart.io';
+import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:decimal/decimal.dart';
 import 'package:budgetit/services/import/statement_parser_service.dart';
@@ -17,7 +17,7 @@ void main() {
             expect(result, equals(DateTime(2026,5,15)));
         });
 
-        test('parses dd/mm/yyyy' () {
+        test('parses dd/mm/yyyy', () {
             final result = parser.testParseDate('15/05/2026');
             expect(result, equals(DateTime(2026,5,15)));
         });
@@ -28,7 +28,7 @@ void main() {
 
         });
 
-        test('parses dd/mm/yy' () {
+        test('parses dd/mm/yy', () {
             final result = parser.testParseDate('15/05/26');
             expect(result, equals(DateTime(2026,05,15)));
         });
@@ -41,7 +41,7 @@ void main() {
         });
         
         test('throws FormatException for unrecognized format', () {
-            ezpect(() => parser.testParseDate('not-a-date'), throwsA(isA<FormatException>()));
+            expect(() => parser.testParseDate('not-a-date'), throwsA(isA<FormatException>()));
         });
 
         test('throws FormatException for empty string', () {
@@ -62,11 +62,11 @@ void main() {
         });
 
         test('parse negative amount', () {
-            expect( parser.testParseAmount(-450.00), equals(Decimal.parse('-450.00')));
+            expect(parser.testParseAmount('-450.00'), equals(Decimal.parse('-450.00')));
         });
 
         test('parses amount with commas', () {
-            expect(parser.testParseAmount('1,234.00'), equals(Decimal.parse('1234,00')));
+            expect(parser.testParseAmount('1,234.00'), equals(Decimal.parse('1234.00')));
         });
 
         test('parse amount in brackets as negative', () {
@@ -129,39 +129,39 @@ void main() {
             final lines = ['Deposit Ref Nbr: 10000000 05-15 \$1,000.00'];
             final results = parser.testParsePdfLines(lines);
             expect(results, isNotEmpty);
-            expect(results.first.amount, equals(Decimal,parse('1000.00')) );
+            expect(results.first.amount, equals(Decimal.parse('1000.00')) );
             expect(results.first.isIncome, isTrue);
             expect(results.first.date.month, equals(5));
             expect(results.first.date.day, equals(15));
         });
 
-        test('parse line with yyyy0mm-dd date', () {
+        test('parse line with yyyy-mm-dd date', () {
             final lines = ['2026-05-15 CHECKERS SOMEWHERE 450.00'];
             final results = parser.testParsePdfLines(lines);
             expect(results, isNotEmpty);
-            expect(resul;ts.first.date, equals(DateTime(2026,5,15)));
+            expect(results.first.date, equals(DateTime(2026,5,15)));
         });
 
-        test('slips lines containing skip keywords' () {
+        test('slips lines containing skip keywords', () {
             final lines = [
                 'Total Deposits \$1,000.00',
                 'Beginning Balance \$5,000.00',
                 '05-15 Valid Transavtion 100.00',
             ];
-            final results = parser.testPdfLines(lines);
+            final results = parser.testParsePdfLines(lines);
             expect(results.length, equals(1));
             expect(results.first.amount, equals(Decimal.parse('100.00')));
         });
 
         test('skips empty lines', () {
             final lines = ['', '  ', '05-15 Deposit 200.00'];
-            final results = parser.testPdfLines(lines);
+            final results = parser.testParsePdfLines(lines);
             expect(results.length, equals(1));
         });
 
         test('skip lines with 0 amount', () {
             final lines = ['05-15 visa purchase 0.00'];
-            final results = parser.testPdfLines(lines);
+            final results = parser.testParsePdfLines(lines);
             expect(results, isEmpty);
         });
 
@@ -171,14 +171,14 @@ void main() {
                 '100 somehwere st',
                 '05-15 05-16 \$20.00',
             ];
-            final results = parser.testPdfLines(lines);
+            final results = parser.testParsePdfLines(lines);
             expect(results, isNotEmpty);
-            expect(results,first.finalDescription.toLowerCase(), contains('atm withdrawal'));
+            expect(results.first.finalDescription.toLowerCase(), contains('atm withdrawal'));
         });
 
         test('negative amount mark transaction as expense', () {
             final lines = ['05-15 ATM withdrawal -100.00'];
-            final results = parser.testPdflines(lines);
+            final results = parser.testParsePdfLines(lines);
             expect(results, isNotEmpty);
             expect(results.first.isIncome, isFalse);
         });
@@ -237,7 +237,7 @@ void main() {
             final file = await _writeCsv('debitcredit', 'Date, Description, Debit, Credit \n01/05/2026, Shops, 100.00 \n02/05/2026, Invoice, 5000.00 \n03/05/2026, Scam, 678.00');
             final results = await parser.parse(file.path);
             expect(results.length, equals(3));
-            exoect(results[0].isIncome, isFalse);
+            expect(results[0].isIncome, isFalse);
             expect(results[0].amount, equals(Decimal.parse('100.00')));
             expect(results[1].isIncome, isTrue);
             expect(results[1].amount, equals(Decimal.parse('5000.00')));
@@ -252,7 +252,7 @@ void main() {
 
         test('skips malformed rows without thrwoing', () async {
             final file = await _writeCsv('malformed', 'Date,Description,Amount \n2026-05-01, Valid, -100.00 \nnot-so-valid, NotValid, pol \n2026-05-03, AlsoValid, -200.00');
-            final results = await parse.parse(file.path);
+            final results = await parser.parse(file.path);
             expect(results.length, equals(2));
         });
 
@@ -279,14 +279,14 @@ void main() {
         });
 
         test('parses dd-mm-yyyy date format', () async {
-            final file = await writeCsv('ddmmyyyy_dash', 'Date,Description,Amount \n 15-05-2026, There, -50.00');
+            final file = await _writeCsv('ddmmyyyy_dash', 'Date,Description,Amount \n 15-05-2026, There, -50.00');
             final results = await parser.parse(file.path);
             expect(result.length, equals(1));
             expect(results.first.date, equals(DateTime(2026,5,15)));
         });
 
         test('parses dd/mm/yy', () async {
-            final file = await_writeDsv('ddmmyy','Date,Description,Amount \n 15/-5/26, Something, -100.00');
+            final file = await _writeDsv('ddmmyy','Date,Description,Amount \n 15/-5/26, Something, -100.00');
             final results = await parser.parse(file.path);
             expect(results.length, equals(1));
             expect(results.first.date, equals(DateTime(2026,5,15)));
@@ -317,7 +317,7 @@ void main() {
         test('longDescription contains overflow beyond chars', () async {
             final longDesc = 'A' * 120;
             final file = await _writeCsv('longdesc2', 'Date,Description,Amount \n2026-05-01, $longDesc, -100.00');
-            fianl results = await parser.parse(file.path);
+            final results = await parser.parse(file.path);
             expect(results.first.longDescription, isNotNull);
             expect(results.first.longDescription!.length, equals(20));
         });
@@ -325,11 +325,12 @@ void main() {
         test('positive amount in single column marks as income', () async {
             final file = await _writeCsv('income', 'Date,Description,Amount \n 2026-05-01,thisisincome, 10000.00');
             final results = await parser.parse(file.path);
-            expect(reuslts.first.isIncome, isTrue);
+            expect(results.first.isIncome, isTrue);
         });
 
         test('negative amount single column marks as expense', () async {
             final file = await _writeCsv('expense', 'Date,Description,Amount \n2026-05-01, ExpensiveExpense, -1000.00');
+            final results = await parser.parse(file.path);
             expect(results.first.isIncome, isFalse);
 
         });
