@@ -9,6 +9,7 @@ class AnomalyResult{
     final String? monthLabel;
     final double actualAmount;
     final double historicalAverage;
+    final double zScore;
     final AnomalySeverity severity;
     final String title;
     final String body;
@@ -17,7 +18,7 @@ class AnomalyResult{
         required this.categoryName,
         required this.monthLabel,
         required this.actualAmount,
-        required this.histroicalAverage,
+        required this.historicalAverage,
         required this.zScore,
         required this.severity,
         required this.title,
@@ -28,6 +29,6 @@ class AnomalyResult{
 
     @override
     String toString() =>
-        'AnomalyResult(category: $categoryName, month: $monthLabel, actual: $actualAmount, avg: $historicalAverage, z: $zScore, severity: $severity)'
+        'AnomalyResult(category: $categoryName, month: $monthLabel, actual: $actualAmount, avg: $historicalAverage, z: $zScore, severity: $severity)';
         
 }
