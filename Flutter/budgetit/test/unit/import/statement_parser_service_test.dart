@@ -365,4 +365,25 @@ void main() {
 
 
     });
+
+
+    group('parse() routing', () {
+        test('throws UnsupportedError for unsupported files', () async {
+            expect(() async => await parser.parse('/path/to/file.xlsx'), throwsA(isA<UnsupportedError>()));
+        });
+
+        test('throws unsupportedError for no file extension', () async {
+            expect(() async => await parser.parse('/path/to/file'), throwsA(isA<UnsupportedError>()));
+        });
+
+        test('routes uppercase .CSV ',() async {
+            final dir = await Directory.systemTemp.createTemp('ext_test_');
+            final file = File('${dir.path}/test.CSV');
+            await file.writeAsString('Date,Description,Amount \n2026-05-01,HERE,-100.00\n');
+            final results = await parser.parse(file.path);
+            expect(results, isNotEmpty);
+            await dir.delete(recursive: true);
+        });
+
+    });
 }
