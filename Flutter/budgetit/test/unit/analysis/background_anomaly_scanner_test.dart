@@ -15,15 +15,15 @@ void main() {
     late MockCategoryDao mockCategoryDao;
     late BackgroundAnomalyScanner scanner;
 
-    setup((){
+    setUp((){
         mockDb = MockAppDatabase();
         mockTxDao = MockTransactionDao();
         mockCategoryDao = MockCategoryDao();
 
 
         when(mockDb.transactionDao).thenReturn(mockTxDao);
-        when(mockDb.categoryDao).thenreturn(mockCategoryDao);
-        when(mockTxDao.getTransactionByDateRange(any,any),).thenAnswer((_) async => []);
+        when(mockDb.categoryDao).thenReturn(mockCategoryDao);
+        when(mockTxDao.getTransactionsByDateRange(any,any),).thenAnswer((_) async => []);
         scanner = BackgroundAnomalyScanner(mockDb);
     });
 
@@ -63,7 +63,7 @@ void main() {
             scanner.addListener(() => notifyCount++);
             final f1 = scanner.scan();
             final f2 = scanner.scan();
-            await Future.wait([f1, f1]);
+            await Future.wait([f1, f2]);
 
             expect(notifyCount, lessThanOrEqualTo(3));
         });
