@@ -328,6 +328,41 @@ void main() {
             expect(reuslts.first.isIncome, isTrue);
         });
 
+        test('negative amount single column marks as expense', () async {
+            final file = await _writeCsv('expense', 'Date,Description,Amount \n2026-05-01, ExpensiveExpense, -1000.00');
+            expect(results.first.isIncome, isFalse);
 
-    })
+        });
+
+        test('amount is always stored as abs vals', () async {
+            final file = await _writeCsv('absolute', 'Date,Description,Amount \n 2026-05-01, This, -1000.00');
+            final results = await parser.parse(file.path);
+            expect(results.first.amount, equals(Decimal.parse('1000.00')));
+            expect(results.first.amount >= Decimal.zero, isTrue);
+        });
+
+
+        test('rawData map contains all column headhers', () async {
+            final file = await _writeCsv('rawdata', 'Date,Description,Amount \n2026-05-01, tHis, -1000.00');
+            final results = await parser.parse(file.path);
+            expect(results.first.rawData.containsKey('date'), isTrue);
+            expect(results.first.rawData.containsKey('description'), isTrue);
+            expect(results.first.rawData.containsKey('amount'), isTrue);
+        });
+
+        test('handles transaction date column header variant', () async {
+            final file = await _writeCsv('txdate', 'Transaction Date, Description, Amount \n 2026-05-01, Here, -100.00');
+            final results = await parser.parse(file.path);
+            expect(results.length, equals(1));
+
+        });
+
+        test('handles narration column header variant', () async {
+            final file = await _writeCsv('narration', 'Date,Narration,Amount \n 2026-05-01, This, -100.00');
+            final results = await parser.parse(file.path);
+            expect(results.length, equals(1));
+        });
+
+
+    });
 }
