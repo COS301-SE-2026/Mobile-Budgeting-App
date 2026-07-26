@@ -49,7 +49,7 @@ class BillItem extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
             ),
 
-            child: Icon(icon, size: 30, color: colours.tertiary),
+            child: Icon(icon, size: 30, color: colours.informational),
           ),
 
           const SizedBox(width: 18),

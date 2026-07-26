@@ -81,7 +81,7 @@ class TransactionTile extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isExpense
                       ? Colors.redAccent.withValues(alpha: 0.15)
-                      : colours.tertiary.withValues(alpha: 0.15),
+                      : colours.informational.withValues(alpha: 0.15),
 
                   borderRadius: BorderRadius.circular(18),
                 ),
@@ -91,7 +91,7 @@ class TransactionTile extends StatelessWidget {
 
                   size: 28,
 
-                  color: isExpense ? Colors.redAccent : colours.tertiary,
+                  color: isExpense ? Colors.redAccent : colours.informational,
                 ),
               ),
 
@@ -141,7 +141,7 @@ class TransactionTile extends StatelessWidget {
 
                       fontWeight: FontWeight.bold,
 
-                      color: isExpense ? Colors.redAccent : colours.tertiary,
+                      color: isExpense ? Colors.redAccent : colours.informational,
                     ),
                   ),
 
@@ -155,7 +155,7 @@ class TransactionTile extends StatelessWidget {
 
                       color: isExpense
                           ? Colors.redAccent.withValues(alpha: 0.85)
-                          : colours.tertiary.withValues(alpha: 0.8),
+                          : colours.informational.withValues(alpha: 0.8),
                     ),
                   ),
                 ],

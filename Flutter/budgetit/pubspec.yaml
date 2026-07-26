@@ -104,12 +104,28 @@ flutter:
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/to/asset-from-package
 
+  fonts:
+    - family: SpaceGrotesk
+      fonts:
+        - asset: lib/utils/fonts/SpaceGrotesk-Regular.ttf
+    - family: HankenGrotesk
+      fonts:
+        - asset: lib/utils/fonts/HankenGrotesk-Regular.ttf
+    - family: JetBrainsMono
+      fonts:
+        - asset: lib/utils/fonts/JetBrainsMono-Regular.ttf
+    - family: PressStart2P
+      fonts:
+        - asset: lib/utils/fonts/PressStart2P-Regular.ttf
+
+
+
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
+  #fonts:
   #   - family: Schyler
   #     fonts:
   #       - asset: fonts/Schyler-Regular.ttf
@@ -120,6 +136,7 @@ flutter:
   #       - asset: fonts/TrajanPro.ttf
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
+
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
