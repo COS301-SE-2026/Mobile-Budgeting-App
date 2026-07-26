@@ -15,13 +15,13 @@ class PredictiveSpendingScreen extends StatefulWidget {
 
 }
 
-class _PredicitiveSpendingScreenState extends State<PredictiveSpendingScreen> {
+class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
     @override
     void initState() {
         super.initState();
         WidgetsBinding.instance.addPostFrameCallback((_) {
             final scanner = context.read<BackgroundAnomalyScanner>();
-            if (scanner.isStake()) scanner.scan();
+            if (scanner.isStale()) scanner.scan();
         });
     }
 
@@ -75,9 +75,9 @@ class _PredicitiveSpendingScreenState extends State<PredictiveSpendingScreen> {
             child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.all(20),
-                child: Coloumn(
+                child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children[
+                    children:[
                         if (scanner.lastScanned != null)
                             Padding(
                                 padding: const EdgeInsets.only(bottom: 16),
@@ -286,7 +286,7 @@ class _PredictionCard extends StatelessWidget {
                         const SizedBox(height: 8),
                         Text(
                             'Range: R${prediction!.lowerBound.toStringAsFixed(0)} '
-                            '– R${prediction!.upperBound.toStringAsFixed(0)}', //-{?}
+                            '– R${prediction!.upperBound.toStringAsFixed(0)}', 
                             style: TextStyle(
                                 fontSize: 13,
                                 color: colours.textPrimary.withValues(alpha: 0.6),
@@ -345,7 +345,7 @@ class _PredictionCard extends StatelessWidget {
 
 
 
-class _EmptyAnomlaiesCard extends StatelessWidget {
+class _EmptyAnomaliesCard extends StatelessWidget {
     final MyColours colours;
     const _EmptyAnomaliesCard({ required this.colours});
 
@@ -533,10 +533,10 @@ class _HowItWorksRow extends StatelessWidget {
                             fontSize: 12,
                             color: colours.textPrimary.withValues(alpha: 0.6),
                             height: 1.5,
-                        ).
-                    ).
-                ).
-            ].
+                        ),
+                    ),
+                ),
+            ],
         );
     }
 }
