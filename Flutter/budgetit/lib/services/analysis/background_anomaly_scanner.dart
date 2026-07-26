@@ -11,7 +11,7 @@ class BackgroundAnomalyScanner extends ChangeNotifier {
     final AppDatabase _db;
     final AnomalyDetectionService _anomalyService;
     final TransactionHistoryService _historyService;
-    final PredictiveSpendingService _predictiveService;
+    final PredictiveSpendingService _predictiveService = PredictiveSpendingService();
 
     static const int _historyMonths = 6;
     bool _scanning = false;
@@ -31,8 +31,11 @@ class BackgroundAnomalyScanner extends ChangeNotifier {
 
     BackgroundAnomalyScanner(this._db)
         : _historyService = TransactionHistoryService(_db),
-          _anomalyService = AnomalyDetectionService(),
-          _predictionService = PredictiveSpendingService();
+          _anomalyService = AnomalyDetectionService()
+          {
+
+          }
+         // _predictionService = PredictiveSpendingService();
 
     Future<void> scan() async {
         if (_scanning) return;
@@ -53,9 +56,9 @@ class BackgroundAnomalyScanner extends ChangeNotifier {
                 now.year,
                 now.month,
             );
-            final prediction = _predictionService.predictCurrentMonth(
+            final prediction = _predictiveService.predictCurrentMonth(
                 history,
-                currentMonthActual: currentMonthSummary?.totalExpenses ?? 0,
+                currentMonthActual: currentMonthSummary.totalExpenses,
                 dayOfMonth: DateTime(now.year, now.month + 1, 0).day,
             );
 
