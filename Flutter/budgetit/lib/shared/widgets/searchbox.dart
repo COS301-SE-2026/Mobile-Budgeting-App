@@ -1,3 +1,4 @@
+import 'package:budgetit/components/spending_chart.dart';
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
 
@@ -17,8 +18,10 @@ class _SearchBoxState extends State<SearchBox> {
 
   @override
   void initState() {
+
     super.initState();
-    _focusNode = FocusNode();
+    
+    _focusNode = FocusNode();   
     _focusNode.addListener(() {
       setState(() {
         _isFocused = _focusNode.hasFocus;
@@ -34,21 +37,53 @@ class _SearchBoxState extends State<SearchBox> {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return 
+    Stack(
+      children: [
+       
+
+    
+    TextField(
       focusNode: _focusNode,
       onChanged: widget.onChanged,
       decoration: InputDecoration(
+
         hintText: _isFocused ? null : widget.hintText,
+        hintStyle: MyColours().searchtext,
         prefixIcon: _isFocused
             ? null
-            : Icon(Icons.search, color: MyColours().background),
+            : Icon(Icons.search, color: MyColours().textMuted),
         filled: true,
-        fillColor: MyColours().secondary,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide.none,
-        ),
+        
+        fillColor: MyColours().searchBar,
+         border: OutlineInputBorder(
+    borderRadius: BorderRadius.zero,
+    borderSide: BorderSide(
+      color: Colors.black,
+      width: 4,
+    ),
+  ),
+  enabledBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.zero,
+    borderSide: BorderSide(
+      color: Colors.black,
+      width: 4,
+    ),
+  ),
+  focusedBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.zero,
+    borderSide: BorderSide(
+      color: Colors.black,
+      width: 4,
+    ),
+  ),
+      contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+        
       ),
+       
+    ),
+      ],
     );
+
   }
 }

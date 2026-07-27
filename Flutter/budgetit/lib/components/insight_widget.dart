@@ -131,7 +131,7 @@ class _InsightCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
 
       decoration: BoxDecoration(
-        color: colours.navBarColor,
+        color: colours.background,
 
         borderRadius: BorderRadius.circular(16),
 
@@ -226,8 +226,8 @@ class _SeverityBadge extends StatelessWidget {
     final (label, bg, fg) = switch (severity) {
       InsightSeverity.tip => (
         'Tip',
-        colours.tertiary.withValues(alpha: 0.15),
-        colours.tertiary,
+        colours.informational.withValues(alpha: 0.15),
+        colours.informational,
       ),
 
       InsightSeverity.warning => (
@@ -287,7 +287,7 @@ class _NavButton extends StatelessWidget {
         height: 28,
 
         decoration: BoxDecoration(
-          color: colours.tertiary.withValues(alpha: 0.15),
+          color: colours.informational.withValues(alpha: 0.15),
 
           borderRadius: BorderRadius.circular(8),
         ),

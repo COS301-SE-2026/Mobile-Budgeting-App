@@ -89,13 +89,13 @@ await _exportService.downloadCsvOnWeb(report);
     final colours = MyColours();
     final background = colours.background;
     final secondary = colours.secondary;
-    final tertiary = colours.tertiary;
+    final tertiary = colours.informational;
 
     return Scaffold(
       backgroundColor: background,
       appBar: AppBar(
         title: const Text('Financial Reports'),
-        backgroundColor: colours.navBarColor,
+        backgroundColor: colours.background,
         foregroundColor: colours.cardText,
         elevation: 0,
       ),
