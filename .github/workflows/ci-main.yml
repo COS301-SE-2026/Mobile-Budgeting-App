@@ -46,6 +46,7 @@ jobs:
     name: Prepare
     runs-on: self-hosted
     outputs:
+
       has_golden: ${{ steps.detect-tests.outputs.has_golden }}
       has_perf: ${{ steps.detect-tests.outputs.has_perf }}
       has_integ: ${{ steps.detect-tests.outputs.has_integ }}
@@ -323,5 +324,8 @@ jobs:
           name: budgetit-apk-main-${{ github.sha }}
           path: Flutter/budgetit/build/app/outputs/flutter-apk/app-release.apk
           retention-days: 7
+
+
+
 
 
