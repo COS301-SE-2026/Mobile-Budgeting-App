@@ -7,14 +7,10 @@ class MyBox extends StatefulWidget {
   final IconData? icon;
   final double? amount;
   final String? category;
+  final String? date;
   final List<String> categories;
-  final void Function(
-    String name,
-    double amount,
-    IconData icon,
-    String category,
-  )?
-  onEdited;
+  final bool isExpense;
+  final void Function(String name, double amount, IconData icon, String category)? onEdited;
   final void Function()? onDelete;
 
   const MyBox({
@@ -26,6 +22,8 @@ class MyBox extends StatefulWidget {
     this.categories = const [],
     this.onEdited,
     this.onDelete,
+    this.date,
+    this.isExpense = false,
   });
 
   @override
@@ -38,6 +36,8 @@ class _MyBoxState extends State<MyBox> {
   late double _amount;
   late IconData _icon;
   late String _category;
+  late String _date;
+ late bool _isExpense;
 
   @override
   void initState() {
@@ -48,6 +48,8 @@ class _MyBoxState extends State<MyBox> {
     _category =
         widget.category ??
         (widget.categories.isNotEmpty ? widget.categories.first : '');
+    _date = widget.date ?? '';
+    _isExpense = widget.isExpense;
   }
 
   void _openEditDialog() {
@@ -65,6 +67,7 @@ class _MyBoxState extends State<MyBox> {
             _amount = newAmount;
             _icon = newIcon;
             _category = newCategory;
+            _date = widget.date ?? '';
           });
           widget.onEdited?.call(newName, newAmount, newIcon, newCategory);
         },
@@ -77,20 +80,41 @@ class _MyBoxState extends State<MyBox> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: _openEditDialog,
+
       onTapDown: (_) => setState(() => _isPressed = true),
       onTapUp: (_) => setState(() => _isPressed = false),
       onTapCancel: () => setState(() => _isPressed = false),
-      child: Container(
-        height: MediaQuery.of(context).size.height * 0.07,
+      child: Stack (
+      children: [
+       
+       Container(
+        height: MediaQuery.of(context).size.height * 0.1,
         width: MediaQuery.of(context).size.width * 0.9,
+         alignment: Alignment.center,
+        decoration: BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: MyColours().background,
+          boxShadow: [BoxShadow( 
+                    offset: const Offset(6, 6),
+                    color: Colors.black,
+                  )],
+                
+              
+          
+        )
+        ),
+      Container(
+        height: MediaQuery.of(context).size.height * 0.1,
+        width: MediaQuery.of(context).size.width * 0.9,
+        
         alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.rectangle,
-          borderRadius: BorderRadius.circular(10),
           color: MyColours().primary,
+          
           border: Border.all(
-            color: MyColours().cardText.withValues(alpha: 0.3),
-            width: 1.0,
+            color: Colors.black,
+            width: 4.0,
           ),
         ),
         child: Row(
@@ -109,41 +133,32 @@ class _MyBoxState extends State<MyBox> {
                 children: [
                   Text(
                     _name,
-                    style: TextStyle(
-                      fontSize: MyColours().bodyFontSize,
-                      color: _isPressed
-                          ? MyColours().background
-                          : MyColours().cardText,
-                    ),
+                    style: MyColours().h2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   if (_category.isNotEmpty)
                     Text(
-                      _category,
-                      style: TextStyle(
-                        fontSize: MyColours().bodyFontSize * 0.85,
-                        color: _isPressed
-                            ? MyColours().background
-                            : MyColours().cardText.withValues(alpha: 0.75),
-                      ),
-                      overflow: TextOverflow.ellipsis,
+                      _category + (_date.isNotEmpty ? ' - $_date' : ''),
+                      style:  MyColours().h4,
+                      overflow: TextOverflow.visible,
                     ),
                 ],
               ),
             ),
             Text(
-              'R${_amount.toStringAsFixed(2)}',
+              _isExpense ? '- R${_amount.toStringAsFixed(2)}' : 'R${_amount.toStringAsFixed(2)}',
               style: TextStyle(
                 fontSize: MyColours().bodyFontSize,
-                color: _isPressed
-                    ? MyColours().background
-                    : MyColours().cardText,
+                color:  _isExpense? _isPressed ? MyColours().background : MyColours().error : _isPressed ? MyColours().background : MyColours().secondary,
               ),
             ),
             const SizedBox(width: 12),
           ],
         ),
-      ),
+      )
+      
+      ],
+    ),
     );
   }
 }

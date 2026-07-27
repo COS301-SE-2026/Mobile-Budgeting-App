@@ -62,7 +62,7 @@ class GoalCard extends StatelessWidget {
                 ),
               ),
 
-              Icon(Icons.flag, color: colours.tertiary),
+              Icon(Icons.flag, color: colours.informational),
             ],
           ),
 
@@ -77,7 +77,7 @@ class GoalCard extends StatelessWidget {
 
               backgroundColor: colours.secondary.withValues(alpha: 0.2),
 
-              color: colours.tertiary,
+              color: colours.informational,
             ),
           ),
 
