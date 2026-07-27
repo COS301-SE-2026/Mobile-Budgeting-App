@@ -10,7 +10,7 @@ class SpendingPrediction {
     bool get isReliable => monthsUsed >=2; //reliable if minimum 2 months history used.
 
     const SpendingPrediction({
-        require dthis.year,
+        required this.year,
         required this.month,
         required this.predictedAmount,
         required this.lowerBound,
@@ -24,7 +24,7 @@ class SpendingPrediction {
             'January', 'February', 'March', 'April', 'May', 'June',
             'July', 'August', 'September', 'October', 'November', 'December'
         ];
-        return '${months[month]} $year'; //month and year
+        return '${months[month-1]} $year'; //month and year
     }
 
     String get shortLabel {
@@ -32,10 +32,10 @@ class SpendingPrediction {
             'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
             'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
         ];
-        return months[month]; //just month
+        return months[month-1]; //just month
     }
 
-    #override
+    @override
     String toString() =>
         'SpendingPrediction($label, predicted: $predictedAmount, range: [$lowerBound, $upperBound], confidence: $confidence)';
         

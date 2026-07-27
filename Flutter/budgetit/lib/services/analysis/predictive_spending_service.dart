@@ -1,12 +1,12 @@
 import 'dart:math';
-import 'package:budgetit/models/monthly_spending_summary.dart'
-import 'package:budgetit/models/spending_prediction.dart'
+import 'package:budgetit/models/monthly_spending_summary.dart';
+import 'package:budgetit/models/spending_prediction.dart';
 
 class PredictiveSpendingService {
     static const int minMonthsRequired = 2;
 
     SpendingPrediction? predict(List<MonthlySpendingSummary> history) {
-        final nonEmpty = histroy.where((m) => m.totalExpenses > 0).toList();
+        final nonEmpty = history.where((m) => m.totalExpenses > 0).toList();
         if(nonEmpty.length < minMonthsRequired) return null;
 
         final values = nonEmpty.map((m) => m.totalExpenses).toList();
@@ -19,7 +19,7 @@ class PredictiveSpendingService {
         final residuals = List.generate(n, (i) => values[i] - (slope * 1 + intercept));
         final residualStdDev = _stdDev(residuals);
         final lowerBound = (predicted - residualStdDev).clamp(0.0, double.infinity);
-        final upperBounde = predicted + residualStdDev;
+        final upperBound = predicted + residualStdDev;
         final confidence = _confidence(n);
         final lastMonth = nonEmpty.last;
         final targetDate = DateTime(lastMonth.year, lastMonth.month+1);
@@ -27,7 +27,7 @@ class PredictiveSpendingService {
         return SpendingPrediction(
             year: targetDate.year,
             month: targetDate.month,
-            predictedMonth: predicted,
+            predictedAmount: predicted,
             lowerBound: lowerBound,
             upperBound: upperBound,
             confidence: confidence,
@@ -36,7 +36,7 @@ class PredictiveSpendingService {
     }
 
     SpendingPrediction? predictCurrentMonth( List<MonthlySpendingSummary> history, {
-        double currentMonthAcutal = 0,
+        double currentMonthActual = 0,
         int dayOfMonth = 1,
         int daysInMonth = 30,
     }) {
@@ -44,7 +44,7 @@ class PredictiveSpendingService {
         if (base == null ) return null;
 
         final progress = (dayOfMonth/daysInMonth).clamp(0.0,1.0);
-        final blended = progress > 0 ? (currentMonth/progress) *0.6 + base.predictedAmount * 0.4 : base.predictedAmount;
+        final blended = progress > 0 ? (currentMonthActual/progress) *0.6 + base.predictedAmount * 0.4 : base.predictedAmount;
 
         return SpendingPrediction (
             year: base.year,
@@ -64,7 +64,8 @@ class PredictiveSpendingService {
         final xMean = _mean(x);
         final yMean = _mean(y);
         final numerator = List.generate( x.length, (i) => (x[i] - xMean) * (y[i] - yMean)).reduce((a,b) => a+b);
-        final denominator == 0 ? 0: numerator / denominator;
+        final denominator = List.generate(x.length, (i) => pow(x[i] - xMean,2).toDouble()).reduce((a,b) => a+b);
+        return denominator == 0 ? 0: numerator / denominator;
     }
 
     double _intercept(List<double> x, List<double> y, double slope) {
