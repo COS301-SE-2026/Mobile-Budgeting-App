@@ -4291,10 +4291,7 @@ final class $$CategoriesTableReferences
   _recurringTransactionsRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.recurringTransactions,
-        aliasName: $_aliasNameGenerator(
-          db.categories.id,
-          db.recurringTransactions.categoryId,
-        ),
+        aliasName: 'categories__id__recurring_transactions__category_id',
       );
 
   $$RecurringTransactionsTableProcessedTableManager
@@ -4319,10 +4316,7 @@ final class $$CategoriesTableReferences
   _transactionCategoryMapRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.transactionCategoryMap,
-        aliasName: $_aliasNameGenerator(
-          db.categories.id,
-          db.transactionCategoryMap.categoryId,
-        ),
+        aliasName: 'categories__id__transaction_category_map__category_id',
       );
 
   $$TransactionCategoryMapTableProcessedTableManager
@@ -4343,10 +4337,7 @@ final class $$CategoriesTableReferences
   static MultiTypedResultKey<$BudgetTemplatesTable, List<BudgetTemplate>>
   _budgetTemplatesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.budgetTemplates,
-    aliasName: $_aliasNameGenerator(
-      db.categories.id,
-      db.budgetTemplates.categoryId,
-    ),
+    aliasName: 'categories__id__budget_templates__category_id',
   );
 
   $$BudgetTemplatesTableProcessedTableManager get budgetTemplatesRefs {
@@ -4885,10 +4876,8 @@ final class $$CategoryClosureTableReferences
     super.$_typedResult,
   );
 
-  static $CategoriesTable _ancestorIdTable(_$AppDatabase db) =>
-      db.categories.createAlias(
-        $_aliasNameGenerator(db.categoryClosure.ancestorId, db.categories.id),
-      );
+  static $CategoriesTable _ancestorIdTable(_$AppDatabase db) => db.categories
+      .createAlias('category_closure__ancestor_id__categories__id');
 
   $$CategoriesTableProcessedTableManager get ancestorId {
     final $_column = $_itemColumn<String>('ancestor_id')!;
@@ -4904,10 +4893,8 @@ final class $$CategoryClosureTableReferences
     );
   }
 
-  static $CategoriesTable _descendantIdTable(_$AppDatabase db) =>
-      db.categories.createAlias(
-        $_aliasNameGenerator(db.categoryClosure.descendantId, db.categories.id),
-      );
+  static $CategoriesTable _descendantIdTable(_$AppDatabase db) => db.categories
+      .createAlias('category_closure__descendant_id__categories__id');
 
   $$CategoriesTableProcessedTableManager get descendantId {
     final $_column = $_itemColumn<String>('descendant_id')!;
@@ -5291,13 +5278,8 @@ final class $$RecurringTransactionsTableReferences
     super.$_typedResult,
   );
 
-  static $CategoriesTable _categoryIdTable(_$AppDatabase db) =>
-      db.categories.createAlias(
-        $_aliasNameGenerator(
-          db.recurringTransactions.categoryId,
-          db.categories.id,
-        ),
-      );
+  static $CategoriesTable _categoryIdTable(_$AppDatabase db) => db.categories
+      .createAlias('recurring_transactions__category_id__categories__id');
 
   $$CategoriesTableProcessedTableManager? get categoryId {
     final $_column = $_itemColumn<String>('category_id');
@@ -5316,10 +5298,7 @@ final class $$RecurringTransactionsTableReferences
   static MultiTypedResultKey<$TransactionsTable, List<Transaction>>
   _transactionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.transactions,
-    aliasName: $_aliasNameGenerator(
-      db.recurringTransactions.id,
-      db.transactions.recurringId,
-    ),
+    aliasName: 'recurring_transactions__id__transactions__recurring_id',
   );
 
   $$TransactionsTableProcessedTableManager get transactionsRefs {
@@ -5901,13 +5880,9 @@ final class $$TransactionsTableReferences
     extends BaseReferences<_$AppDatabase, $TransactionsTable, Transaction> {
   $$TransactionsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $RecurringTransactionsTable _recurringIdTable(_$AppDatabase db) =>
-      db.recurringTransactions.createAlias(
-        $_aliasNameGenerator(
-          db.transactions.recurringId,
-          db.recurringTransactions.id,
-        ),
-      );
+  static $RecurringTransactionsTable _recurringIdTable(_$AppDatabase db) => db
+      .recurringTransactions
+      .createAlias('transactions__recurring_id__recurring_transactions__id');
 
   $$RecurringTransactionsTableProcessedTableManager? get recurringId {
     final $_column = $_itemColumn<String>('recurring_id');
@@ -5930,10 +5905,7 @@ final class $$TransactionsTableReferences
   _transactionCategoryMapRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.transactionCategoryMap,
-        aliasName: $_aliasNameGenerator(
-          db.transactions.id,
-          db.transactionCategoryMap.transactionId,
-        ),
+        aliasName: 'transactions__id__transaction_category_map__transaction_id',
       );
 
   $$TransactionCategoryMapTableProcessedTableManager
@@ -6476,10 +6448,7 @@ final class $$TransactionCategoryMapTableReferences
 
   static $TransactionsTable _transactionIdTable(_$AppDatabase db) =>
       db.transactions.createAlias(
-        $_aliasNameGenerator(
-          db.transactionCategoryMap.transactionId,
-          db.transactions.id,
-        ),
+        'transaction_category_map__transaction_id__transactions__id',
       );
 
   $$TransactionsTableProcessedTableManager get transactionId {
@@ -6496,13 +6465,8 @@ final class $$TransactionCategoryMapTableReferences
     );
   }
 
-  static $CategoriesTable _categoryIdTable(_$AppDatabase db) =>
-      db.categories.createAlias(
-        $_aliasNameGenerator(
-          db.transactionCategoryMap.categoryId,
-          db.categories.id,
-        ),
-      );
+  static $CategoriesTable _categoryIdTable(_$AppDatabase db) => db.categories
+      .createAlias('transaction_category_map__category_id__categories__id');
 
   $$CategoriesTableProcessedTableManager get categoryId {
     final $_column = $_itemColumn<String>('category_id')!;
@@ -6902,10 +6866,8 @@ final class $$BudgetTemplatesTableReferences
     super.$_typedResult,
   );
 
-  static $CategoriesTable _categoryIdTable(_$AppDatabase db) =>
-      db.categories.createAlias(
-        $_aliasNameGenerator(db.budgetTemplates.categoryId, db.categories.id),
-      );
+  static $CategoriesTable _categoryIdTable(_$AppDatabase db) => db.categories
+      .createAlias('budget_templates__category_id__categories__id');
 
   $$CategoriesTableProcessedTableManager get categoryId {
     final $_column = $_itemColumn<String>('category_id')!;
@@ -6924,10 +6886,7 @@ final class $$BudgetTemplatesTableReferences
   static MultiTypedResultKey<$BudgetPeriodsTable, List<BudgetPeriod>>
   _budgetPeriodsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.budgetPeriods,
-    aliasName: $_aliasNameGenerator(
-      db.budgetTemplates.id,
-      db.budgetPeriods.templateId,
-    ),
+    aliasName: 'budget_templates__id__budget_periods__template_id',
   );
 
   $$BudgetPeriodsTableProcessedTableManager get budgetPeriodsRefs {
@@ -7387,13 +7346,9 @@ final class $$BudgetPeriodsTableReferences
     super.$_typedResult,
   );
 
-  static $BudgetTemplatesTable _templateIdTable(_$AppDatabase db) =>
-      db.budgetTemplates.createAlias(
-        $_aliasNameGenerator(
-          db.budgetPeriods.templateId,
-          db.budgetTemplates.id,
-        ),
-      );
+  static $BudgetTemplatesTable _templateIdTable(_$AppDatabase db) => db
+      .budgetTemplates
+      .createAlias('budget_periods__template_id__budget_templates__id');
 
   $$BudgetTemplatesTableProcessedTableManager get templateId {
     final $_column = $_itemColumn<String>('template_id')!;
