@@ -4,9 +4,10 @@ import 'package:provider/provider.dart';
 
 import 'package:budgetit/auth/data/auth_service.dart';
 import 'package:budgetit/auth/providers/auth_provider.dart';
-import 'package:budgetit/screens/forgot_password_screen.dart';
-import 'package:budgetit/screens/login_password_screen.dart';
-import 'package:budgetit/screens/verify_email_screen.dart';
+import 'package:budgetit/shared/widgets/forgot_password_screen.dart';
+import 'package:budgetit/shared/widgets/login_password_screen.dart';
+import 'package:budgetit/shared/widgets/verify_email_screen.dart';
+import 'package:budgetit/utils/app_colour.dart';
 
 // Fake auth service — instant responses, fully configurable per test
 class _FakeAuthService implements AuthService {
@@ -58,7 +59,10 @@ AppAuthProvider _makeProvider(_FakeAuthService fake) =>
 Widget _wrap(Widget child, AppAuthProvider provider) =>
     ChangeNotifierProvider<AppAuthProvider>.value(
       value: provider,
-      child: MaterialApp(home: child),
+      child: MaterialApp(
+         theme:   ThemeData(extensions: [MyColours.lightTheme]),
+        home: child
+        ),
     );
 
 /// Lets the async constructor call (_checkCurrentSession) complete.
