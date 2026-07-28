@@ -90,7 +90,21 @@ void main() {
 
         test('anomalies list is unmodifiable', () async {
             await scanner.scan();
-            expect(() => (scanner.anomalies as List).add(null), throwsUnsupportedError);
+            expect(
+                () => scanner.anomalies.add(
+                    const AnomalyResult(
+                        categoryName: null,
+                        monthLabel: null,
+                        actualAmount: 0,
+                        historicalAverage: 0,
+                        zScore: 0,
+                        severity: AnomalySeverity.low,
+                        title: '',
+                        body: '',
+                    ),
+                ),
+                throwsUnsupportedError,
+            );
         });
 
         test('notifies listeners when scan completes', () async {
