@@ -247,6 +247,20 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
               },
             ),
             maxY: maximum <= 0 ? 100 : maximum * 1.25,
+            barTouchData: BarTouchData(
+              touchTooltipData: BarTouchTooltipData(
+                getTooltipColor: (group) => colours.primary,
+                getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                  return BarTooltipItem(
+                    _formatCurrency(rod.toY),
+                    TextStyle(
+                      color: colours.textPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                },
+              ),
+            ),
             barGroups: [
               BarChartGroupData(
                 x: 0,
@@ -328,7 +342,14 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
     if (report.categorySpending.isEmpty) {
       return _emptyChartMessage();
     }
-
+    final chartColours = [ colours.greenAccents,
+                        colours.yellow,
+                        colours.light,
+                        colours.warning,
+                        colours.textMuted,
+                        colours.informational,
+                        colours.secondary];
+    
     return _chartCard(
       child: SizedBox(
         height: 300,
