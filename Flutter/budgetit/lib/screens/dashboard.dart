@@ -10,6 +10,8 @@ import '../components/spending_chart.dart';
 import '../components/transaction_tile.dart';
 import '../database/app_database.dart';
 import '../database/schema.dart';
+import 'package:budgetit/services/analysis/background_anomaly_scanner';
+import 'package:budgetit/screens/predictive_spending_screen.dart';
 
 class Dashboard extends StatefulWidget {
   final AppDatabase? database;
@@ -503,7 +505,16 @@ class _DashboardState extends State<Dashboard> {
                   child: Stack(
                     children: [
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          final scanner = context.read<BackgroundAnomalyScanner>();
+                          if (scanner.isStale()) scanner.scan();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const PredictiveSpendingScreen(),
+                            ),
+                          );
+                        },
                         child: 
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
