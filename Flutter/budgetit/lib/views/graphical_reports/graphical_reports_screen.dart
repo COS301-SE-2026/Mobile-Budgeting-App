@@ -349,10 +349,12 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                         colours.textMuted,
                         colours.informational,
                         colours.secondary];
-    
+    final total = report.categorySpending.fold(0.0,
+          (sum, item) => sum+item.amount,)
     return _chartCard(
       child: SizedBox(
-        height: 300,
+        height: 360,
+        child: Row(children: [Expanded(flex: 5,
         child: PieChart(
           PieChartData(
             centerSpaceRadius: 55,
@@ -366,10 +368,11 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                 )
                 .toList(),
           ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  };
 
   Widget _budgetChart(GraphicalReportData report) {
     if (report.budgetComparisons.isEmpty) {
