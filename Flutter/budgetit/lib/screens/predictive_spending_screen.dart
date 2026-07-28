@@ -185,7 +185,7 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
     }
 
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class AnomalyDetectionServiceHelpers {
     static IconData iconFor(AnomalySeverity severity) {
         return switch (severity) {
@@ -223,61 +223,49 @@ class _PredictionCard extends StatelessWidget {
     Widget build(BuildContext context) {
         return Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
                 color: colours.navBarColor,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: colours.cardText.withValues(alpha: 0.15)),
-                boxShadow: [
-                    BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.15),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                    ),
-                ],
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: colours.textPrimary.withValues(alpha: 0.15)),
             ),
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                     Row(
                         children: [
-                            Container(
-                                width: 36,
-                                height: 36,
-                                decoration: BoxDecoration(
-                                    color: colours.secondary.withValues(alpha: 0.2),
-                                    borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Icon(
-                                    Icons.auto_graph_rounded,
-                                    size: 18,
-                                    color: colours.secondary,
-                                ),
+                            Icon(
+                                Icons.auto_graph_rounded,
+                                color: colours.textPrimary.withValues(alpha: 0.7),
+                                size: 18,
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: 10),
                             Text(
-                                'Spending Prediction',
+                                'SPENDING PREDICTION',
                                 style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: colours.textPrimary,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: colours.textMuted,
+                                    letterSpacing: 1.4,
+                                    fontFamily: 'JetBrainsMono',
                                 ),
                             ),
                         ],
                     ),
 
 
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
                     if (prediction == null) ...[
                         Text(
                             'Not enough data yet',
                             style: TextStyle(
-                                fontSize: 20,
+                                fontSize: 22,
                                 fontWeight: FontWeight.bold,
                                 color: colours.textPrimary,
+                                fontFamily: 'SpaceGrotesk',
                             ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 10),
                         Text(
                             'Add transactions for at least 2 months to see your '
                             'spending prediction.',
@@ -285,44 +273,51 @@ class _PredictionCard extends StatelessWidget {
                                 fontSize: 13,
                                 color: colours.textPrimary.withValues(alpha: 0.6),
                                 height: 1.5,
+                                fontFamily: 'JetBrainsMono',
                             ),
                         ),
                     ] else ...[
                         Text(
-                            prediction!.label,
+                            prediction!.label.toUpperCase(),
                             style: TextStyle(
-                                fontSize: 13,
-                                color: colours.textPrimary.withValues(alpha: 0.55),
+                                fontSize: 11,
+                                color: colours.textMuted,
+                                letterSpacing: 1.2,
+                                fontFamily: 'JetBrainsMono',
                             ),
                         ),
                         const SizedBox(height: 6),
                         Text(
                             'R${prediction!.predictedAmount.toStringAsFixed(2)}',
                             style: TextStyle(
-                                fontSize: 36,
+                                fontSize: 42,
                                 fontWeight: FontWeight.bold,
                                 color: colours.textPrimary,
                                 height: 1,
+                                fontFamily: 'SpaceGrotesk',
                             ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 10),
                         Text(
                             'Range: R${prediction!.lowerBound.toStringAsFixed(0)} '
                             '– R${prediction!.upperBound.toStringAsFixed(0)}', 
                             style: TextStyle(
                                 fontSize: 13,
                                 color: colours.textPrimary.withValues(alpha: 0.6),
+                                fontFamily: 'JetBrainsMono',
                             ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 20),
             
                         Row(
                             children: [
                                 Text(
-                                    'Confidence',
+                                    'CONFIDENCE',
                                     style: TextStyle(
-                                        fontSize: 12,
-                                        color: colours.textPrimary.withValues(alpha: 0.55),
+                                        fontSize: 10,
+                                        color: colours.textMuted,
+                                        letterSpacing: 1.2,
+                                        fontFamily: 'JetBrainsMono',
                                     ),
                                 ),
                                 const SizedBox(width: 12),
@@ -345,17 +340,19 @@ class _PredictionCard extends StatelessWidget {
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
                                         color: colours.textPrimary,
+                                        fontFamily: 'JetBrainsMono',
                                     ),
                                 ),
                             ],
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 10),
                         Text(
                             'Based on ${prediction!.monthsUsed} month'
                             '${prediction!.monthsUsed != 1 ? 's' : ''} of history',
                             style: TextStyle(
                                 fontSize: 11,
-                                color: colours.textPrimary.withValues(alpha: 0.4),
+                                color: colours.textMuted,
+                                fontFamily: 'JetBrainsMono',
                             ),
                         ),
                     ],
