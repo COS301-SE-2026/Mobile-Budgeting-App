@@ -17,7 +17,7 @@ class GraphicalReportsScreen extends StatefulWidget {
 }
 
 class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
-  final MyColours colours = MyColours();
+
 
   ReportingPeriod _selectedPeriod = ReportingPeriod.monthly;
 
@@ -48,14 +48,14 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: colours.background,
+      backgroundColor: context.colours.background,
       appBar: AppBar(
-        backgroundColor: colours.background,
-        iconTheme: IconThemeData(color: colours.textPrimary),
+        backgroundColor: context.colours.background,
+        iconTheme: IconThemeData(color: context.colours.textPrimary),
         title: Text(
           'Graphical Reports',
           style: TextStyle(
-            color: colours.textPrimary,
+            color: context.colours.textPrimary,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -66,7 +66,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(
-                child: CircularProgressIndicator(color: colours.secondary),
+                child: CircularProgressIndicator(color: context.colours.secondary),
               );
             }
 
@@ -76,7 +76,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                   padding: const EdgeInsets.all(24),
                   child: Text(
                     'Could not load graphical reports.',
-                    style: TextStyle(color: colours.textPrimary),
+                    style: TextStyle(color: context.colours.textPrimary),
                   ),
                 ),
               );
@@ -88,7 +88,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
               return Center(
                 child: Text(
                   'No financial data is available.',
-                  style: TextStyle(color: colours.textPrimary),
+                  style: TextStyle(color: context.colours.textPrimary),
                 ),
               );
             }
@@ -149,10 +149,10 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
             child: ChoiceChip(
               selected: selected,
               label: Text(period.label),
-              selectedColor: colours.secondary,
-              backgroundColor: colours.primary,
+              selectedColor: context.colours.secondary,
+              backgroundColor: context.colours.primary,
               labelStyle: TextStyle(
-                color: selected ? colours.background : colours.textPrimary,
+                color: selected ? context.colours.background : context.colours.textPrimary,
                 fontWeight: FontWeight.bold,
               ),
               onSelected: (_) {
@@ -195,20 +195,20 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colours.primary,
+        color: context.colours.primary,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colours.secondary),
+        border: Border.all(color: context.colours.secondary),
       ),
       child: Column(
         children: [
-          Icon(icon, color: colours.secondary),
+          Icon(icon, color: context.colours.secondary),
           const SizedBox(height: 8),
-          Text(title, style: TextStyle(color: colours.textPrimary)),
+          Text(title, style: TextStyle(color: context.colours.textPrimary)),
           const SizedBox(height: 6),
           Text(
             _formatCurrency(value),
             style: TextStyle(
-              color: colours.textPrimary,
+              color: context.colours.textPrimary,
               fontWeight: FontWeight.bold,
               fontSize: 18,
             ),
@@ -265,7 +265,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                   getTitlesWidget: (value, metadata) {
                     return Text(
                       value.toInt() == 0 ? 'Income' : 'Expenses',
-                      style: TextStyle(color: colours.textPrimary),
+                      style: TextStyle(color: context.colours.textPrimary),
                     );
                   },
                 ),
@@ -327,14 +327,14 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                     Text(
                       budget.categoryName,
                       style: TextStyle(
-                        color: colours.textPrimary,
+                        color: context.colours.textPrimary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
                       '${_formatCurrency(budget.spent)} / '
                       '${_formatCurrency(budget.limit)}',
-                      style: TextStyle(color: colours.textPrimary),
+                      style: TextStyle(color: context.colours.textPrimary),
                     ),
                   ],
                 ),
@@ -342,7 +342,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                 LinearProgressIndicator(
                   value: progress > 1 ? 1 : progress,
                   minHeight: 9,
-                  backgroundColor: colours.secondary,
+                  backgroundColor: context.colours.secondary,
                 ),
               ],
             ),
@@ -394,9 +394,9 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: colours.primary,
+        color: context.colours.primary,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colours.secondary),
+        border: Border.all(color: context.colours.secondary),
       ),
       child: child,
     );
@@ -406,7 +406,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
     return Text(
       title,
       style: TextStyle(
-        color: colours.textPrimary,
+        color: context.colours.textPrimary,
         fontSize: 18,
         fontWeight: FontWeight.bold,
       ),
@@ -418,7 +418,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
       child: Text(
         'No data is available for this graph.',
         textAlign: TextAlign.center,
-        style: TextStyle(color: colours.textPrimary),
+        style: TextStyle(color: context.colours.textPrimary),
       ),
     );
   }
@@ -427,13 +427,13 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
     return _chartCard(
       child: Column(
         children: [
-          Icon(Icons.insert_chart_outlined, color: colours.secondary, size: 48),
+          Icon(Icons.insert_chart_outlined, color: context.colours.secondary, size: 48),
           const SizedBox(height: 14),
           Text(
             'No financial data is available for the selected period.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: colours.textPrimary,
+              color: context.colours.textPrimary,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -441,7 +441,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
           Text(
             'Select another reporting period or add transactions.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: colours.textPrimary),
+            style: TextStyle(color: context.colours.textPrimary),
           ),
         ],
       ),

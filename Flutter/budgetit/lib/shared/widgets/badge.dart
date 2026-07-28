@@ -43,7 +43,7 @@ class _MyBadgeState extends State<MyBadge> {
             color: Colors.black,
             width: 4,
           ),
-          color: isActive ? MyColours().informational : MyColours().category,
+          color: isActive ? context.colours.informational : context.colours.category,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -52,7 +52,7 @@ class _MyBadgeState extends State<MyBadge> {
             Text(
               widget.text ?? '',
               textAlign: TextAlign.center,
-              style: MyColours().categorytext,
+              style: context.colours.categorytext,
             ),
           ],
         ),

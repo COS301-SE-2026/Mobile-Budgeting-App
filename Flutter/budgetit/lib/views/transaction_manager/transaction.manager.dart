@@ -121,7 +121,7 @@ class _TransactionManagerState extends State<TransactionManager> {
   @override
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>();
-    final colours = MyColours();
+    final colours = context.colours;
     final grouped = _groupByDate(_filtered);
 
     return Scaffold(
@@ -189,7 +189,7 @@ class _TransactionManagerState extends State<TransactionManager> {
                   children: [
                     Text(
                       'RECENT TRANSACTIONS',
-                      style: MyColours().h2,
+                      style: context.colours.h2,
                     ),
                   ],
                 ),
