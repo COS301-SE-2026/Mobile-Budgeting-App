@@ -295,6 +295,50 @@ void main() {
       expect(storedRecurring!.nextTransactionDate, equals(testTomorrow));
     });
 
+    test('keeps the category on a created transaction', () async {
+      final category = await db.categoryDao.insertCategory(
+        name: 'Food',
+        type: CategoryType.expense,
+      );
+      final recurring = await insertRecurring(
+        shortDescription: 'Lunch',
+        amount: Decimal.parse('18.50'),
+        nextTransactionDate: testToday,
+        startDate: testToday,
+        categoryId: category.id,
+      );
+
+      final result = await service.catchUpDueRecurringTransactions(
+        trigger: CatchUpTrigger.test,
+        localTodayOverride: testToday,
+      );
+
+      expect(result.status, equals(CatchUpRunStatus.completed));
+      expect(result.completedSuccessfully, isTrue);
+      expect(result.templateCount, equals(1));
+      expect(result.attemptedOccurrenceCount, equals(1));
+      expect(result.successfulOccurrenceCount, equals(1));
+      expect(result.failedOccurrenceCount, equals(0));
+
+      final templateResult = result.templates.single;
+      expect(templateResult.recurringTransactionId, equals(recurring.id));
+      expect(templateResult.shortDescription, equals('Lunch'));
+      expect(templateResult.initialNextTransactionDate, equals(testToday));
+      expect(templateResult.finalNextTransactionDate, equals(testNextMonth));
+
+      final transactions = await recurringDao.getTransactionsForRecurring(
+        recurring.id,
+      );
+      expect(transactions, hasLength(1));
+      expect(transactions.single.recurringId, equals(recurring.id));
+      expect(transactions.single.shortDescription, equals('Lunch'));
+
+      final categoryAssignment = await db.transactionDao
+          .getCategoryForTransaction(transactions.single.id);
+      expect(categoryAssignment, isNotNull);
+      expect(categoryAssignment!.categoryId, equals(category.id));
+    });
+
     test('creates one result group for each due template', () async {
       final firstRecurring = await insertRecurring(
         shortDescription: 'Rent',
