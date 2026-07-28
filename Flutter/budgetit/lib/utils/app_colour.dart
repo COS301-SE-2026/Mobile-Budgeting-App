@@ -94,7 +94,7 @@ class MyColours extends ThemeExtension<MyColours> {
     warning: const Color.fromARGB(250, 255, 180, 171),
     error: const Color.fromARGB(255, 255, 0, 0),
     textPrimary: const Color.fromARGB(250, 221, 214, 174),
-    textSecondary: const Color.fromARGB(248, 25, 70, 36), 
+    textSecondary: const Color.fromARGB(248, 25, 70, 36),
     textMuted: const Color.fromARGB(150, 194, 200, 191),
     searchBar: const Color.fromARGB(248, 47, 77, 55),
     category: const Color.fromARGB(250, 28, 28, 27),
@@ -103,7 +103,6 @@ class MyColours extends ThemeExtension<MyColours> {
     whiteAccents: const Color.fromARGB(255, 255, 255, 255),
     cardText: const Color(0xFFDDD6AE),
   );
-
 
   static final MyColours lightTheme = MyColours(
     primaryGradient: _sharedGradient,
@@ -118,7 +117,7 @@ class MyColours extends ThemeExtension<MyColours> {
     warning: const Color.fromARGB(250, 255, 180, 171),
     error: const Color.fromARGB(255, 255, 0, 0),
     textPrimary: const Color(0xFF04240C),
-    textSecondary: const Color.fromARGB(248, 25, 70, 36), 
+    textSecondary: const Color.fromARGB(248, 25, 70, 36),
     textMuted: const Color.fromARGB(150, 194, 200, 191),
     searchBar: const Color.fromARGB(248, 47, 77, 55),
     category: const Color.fromARGB(250, 28, 28, 27),
@@ -179,8 +178,11 @@ class MyColours extends ThemeExtension<MyColours> {
   MyColours lerp(ThemeExtension<MyColours>? other, double t) {
     if (other is! MyColours) return this;
     return MyColours(
-      primaryGradient:
-          LinearGradient.lerp(primaryGradient, other.primaryGradient, t)!,
+      primaryGradient: LinearGradient.lerp(
+        primaryGradient,
+        other.primaryGradient,
+        t,
+      )!,
       primary: Color.lerp(primary, other.primary, t)!,
       secondary: Color.lerp(secondary, other.secondary, t)!,
       background: Color.lerp(background, other.background, t)!,
@@ -203,145 +205,143 @@ class MyColours extends ThemeExtension<MyColours> {
     );
   }
 
-  
-
   TextStyle get title => TextStyle(
-        fontSize: headingFontSize3,
-        fontWeight: FontWeight.w700,
-        color: textPrimary,
-        height: lineheight2 / headingFontSize3,
-        letterSpacing: 0,
-        fontFamily: 'PressStart2P',
-      );
+    fontSize: headingFontSize3,
+    fontWeight: FontWeight.w700,
+    color: textPrimary,
+    height: lineheight2 / headingFontSize3,
+    letterSpacing: 0,
+    fontFamily: 'PressStart2P',
+  );
 
   TextStyle get bigDisplay => TextStyle(
-        fontSize: bdSize,
-        fontWeight: FontWeight.w700,
-        color: textPrimary,
-        height: bdHeight / bdSize,
-        letterSpacing: -1.2,
-        fontFamily: 'SpaceGrotesk',
-      );
+    fontSize: bdSize,
+    fontWeight: FontWeight.w700,
+    color: textPrimary,
+    height: bdHeight / bdSize,
+    letterSpacing: -1.2,
+    fontFamily: 'SpaceGrotesk',
+  );
 
   TextStyle get h1 => TextStyle(
-        fontSize: theadingFontSize2,
-        fontWeight: FontWeight.w700,
-        color: textPrimary,
-        height: lineheight2 / theadingFontSize2,
-        letterSpacing: 0,
-        fontFamily: 'SpaceGrotesk',
-      );
+    fontSize: theadingFontSize2,
+    fontWeight: FontWeight.w700,
+    color: textPrimary,
+    height: lineheight2 / theadingFontSize2,
+    letterSpacing: 0,
+    fontFamily: 'SpaceGrotesk',
+  );
 
   TextStyle get h2 => TextStyle(
-        fontSize: headingFontSize2,
-        fontWeight: FontWeight.w700,
-        color: textPrimary,
-        height: lineheight3 / headingFontSize2,
-        letterSpacing: 0,
-        fontFamily: 'SpaceGrotesk',
-      );
+    fontSize: headingFontSize2,
+    fontWeight: FontWeight.w700,
+    color: textPrimary,
+    height: lineheight3 / headingFontSize2,
+    letterSpacing: 0,
+    fontFamily: 'SpaceGrotesk',
+  );
 
   TextStyle get warntext => TextStyle(
-        fontSize: headingFontSize2,
-        fontWeight: FontWeight.w700,
-        color: warning,
-        height: lineheight3 / headingFontSize2,
-        letterSpacing: 0,
-        fontFamily: 'SpaceGrotesk',
-      );
+    fontSize: headingFontSize2,
+    fontWeight: FontWeight.w700,
+    color: warning,
+    height: lineheight3 / headingFontSize2,
+    letterSpacing: 0,
+    fontFamily: 'SpaceGrotesk',
+  );
 
   TextStyle get h4 => TextStyle(
-        fontSize: bodyFontSize2,
-        fontWeight: FontWeight.w700,
-        color: textMuted,
-        height: bodylineheight / bodyFontSize2,
-        letterSpacing: 1.4,
-        fontFamily: 'JetBrainsMono',
-      );
+    fontSize: bodyFontSize2,
+    fontWeight: FontWeight.w700,
+    color: textMuted,
+    height: bodylineheight / bodyFontSize2,
+    letterSpacing: 1.4,
+    fontFamily: 'JetBrainsMono',
+  );
 
   TextStyle get b1 => TextStyle(
-        fontSize: bodyFontSize2,
-        fontWeight: FontWeight.w500,
-        color: textPrimary,
-        height: bodylineheight / bodyFontSize2,
-        letterSpacing: 0,
-        fontFamily: 'JetBrainsMono',
-      );
+    fontSize: bodyFontSize2,
+    fontWeight: FontWeight.w500,
+    color: textPrimary,
+    height: bodylineheight / bodyFontSize2,
+    letterSpacing: 0,
+    fontFamily: 'JetBrainsMono',
+  );
 
   TextStyle get categorytext => TextStyle(
-        fontSize: bodyFontSize2,
-        fontWeight: FontWeight.w700,
-        color: light,
-        height: bodylineheight / bodyFontSize2,
-        letterSpacing: 0,
-        fontFamily: 'HankenGrotesk',
-      );
+    fontSize: bodyFontSize2,
+    fontWeight: FontWeight.w700,
+    color: light,
+    height: bodylineheight / bodyFontSize2,
+    letterSpacing: 0,
+    fontFamily: 'HankenGrotesk',
+  );
 
   TextStyle get budgetheader => TextStyle(
-        fontSize: bodyFontSize,
-        fontWeight: FontWeight.w500,
-        color: textPrimary,
-        height: bodylineheight / bodyFontSize,
-        letterSpacing: 0,
-        fontFamily: 'HankenGrotesk',
-      );
+    fontSize: bodyFontSize,
+    fontWeight: FontWeight.w500,
+    color: textPrimary,
+    height: bodylineheight / bodyFontSize,
+    letterSpacing: 0,
+    fontFamily: 'HankenGrotesk',
+  );
 
   TextStyle get altbodytext => TextStyle(
-        fontSize: bodyFontSize2,
-        fontWeight: FontWeight.w500,
-        color: textPrimary,
-        height: bodylineheight / bodyFontSize2,
-        letterSpacing: 0,
-        fontFamily: 'JetBrainsMono',
-      );
+    fontSize: bodyFontSize2,
+    fontWeight: FontWeight.w500,
+    color: textPrimary,
+    height: bodylineheight / bodyFontSize2,
+    letterSpacing: 0,
+    fontFamily: 'JetBrainsMono',
+  );
 
   TextStyle get searchtext => TextStyle(
-        fontSize: bodyFontSize2,
-        fontWeight: FontWeight.w500,
-        color: light,
-        height: bodylineheight2 / bodyFontSize2,
-        letterSpacing: 0,
-        fontFamily: 'JetBrainsMono',
-      );
+    fontSize: bodyFontSize2,
+    fontWeight: FontWeight.w500,
+    color: light,
+    height: bodylineheight2 / bodyFontSize2,
+    letterSpacing: 0,
+    fontFamily: 'JetBrainsMono',
+  );
 
   TextStyle get b2 => TextStyle(
-        fontSize: bodyFontSize2,
-        fontWeight: FontWeight.w500,
-        color: textMuted,
-        height: bodylineheight2 / bodyFontSize2,
-        letterSpacing: 0,
-        fontFamily: 'JetBrainsMono',
-      );
+    fontSize: bodyFontSize2,
+    fontWeight: FontWeight.w500,
+    color: textMuted,
+    height: bodylineheight2 / bodyFontSize2,
+    letterSpacing: 0,
+    fontFamily: 'JetBrainsMono',
+  );
 
   TextStyle get b3 => TextStyle(
-        fontSize: bodyFontSize2,
-        fontWeight: FontWeight.w500,
-        color: textSecondary,
-        height: bodylineheight2 / bodyFontSize2,
-        letterSpacing: 0,
-        fontFamily: 'SpaceGrotesk',
-      );
+    fontSize: bodyFontSize2,
+    fontWeight: FontWeight.w500,
+    color: textSecondary,
+    height: bodylineheight2 / bodyFontSize2,
+    letterSpacing: 0,
+    fontFamily: 'SpaceGrotesk',
+  );
 
   TextStyle get b4 => TextStyle(
-        fontSize: bodyFontSize3,
-        fontWeight: FontWeight.w500,
-        color: textMuted,
-        height: bodylineheight3 / bodyFontSize3,
-        letterSpacing: 0,
-        fontFamily: 'SpaceGrotesk',
-      );
+    fontSize: bodyFontSize3,
+    fontWeight: FontWeight.w500,
+    color: textMuted,
+    height: bodylineheight3 / bodyFontSize3,
+    letterSpacing: 0,
+    fontFamily: 'SpaceGrotesk',
+  );
 
   TextStyle get b5 => TextStyle(
-        fontSize: bodyFontSize4,
-        fontWeight: FontWeight.w500,
-        color: textMuted,
-        height: bodylineheight4 / bodyFontSize4,
-        letterSpacing: 0,
-        fontFamily: 'SpaceGrotesk',
-      );
+    fontSize: bodyFontSize4,
+    fontWeight: FontWeight.w500,
+    color: textMuted,
+    height: bodylineheight4 / bodyFontSize4,
+    letterSpacing: 0,
+    fontFamily: 'SpaceGrotesk',
+  );
 }
 
 extension MyColoursContext on BuildContext {
-  MyColours get colours => Theme.of(this).extension<MyColours>()!;
+  MyColours get colours =>
+      Theme.of(this).extension<MyColours>() ?? MyColours.lightTheme;
 } //used Deepseek to help troubleshoot problems with setting up context ONLY
-

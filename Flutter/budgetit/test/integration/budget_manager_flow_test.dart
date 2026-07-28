@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:budgetit/main.dart';
+
+import 'package:budgetit/utils/app_colour.dart';
 import 'package:budgetit/views/budget_manager/budget_manager_screen.dart';
 
 import '../support/mock_db.dart';
@@ -32,7 +33,15 @@ void main() {
     final mock = MockDb();
 
     await tester.pumpWidget(
-      wrapWithProviders(BudgetManagerScreen(database: mock.db), db: mock.db),
+      MaterialApp(
+        theme: ThemeData(
+          extensions: <ThemeExtension<dynamic>>[MyColours.lightTheme],
+        ),
+        home: wrapWithProviders(
+          BudgetManagerScreen(database: mock.db),
+          db: mock.db,
+        ),
+      ),
     );
 
     await tester.pumpAndSettle();
