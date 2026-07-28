@@ -223,5 +223,95 @@ void main() {
         expect(storedRecurring!.nextTransactionDate, equals(testNextMonth));
       },
     );
+
+    test('creates one result group for each due template', () async {
+      final firstRecurring = await insertRecurring(
+        shortDescription: 'Rent',
+        amount: Decimal.parse('500.00'),
+        nextTransactionDate: testTwoMonthsAgo,
+        startDate: testTwoMonthsAgo,
+        unit: PeriodType.monthly,
+        intervalAmount: 1,
+      );
+      final secondRecurring = await insertRecurring(
+        shortDescription: 'Gym membership',
+        amount: Decimal.parse('250.00'),
+        nextTransactionDate: testLastMonth,
+        startDate: testLastMonth,
+        unit: PeriodType.monthly,
+        intervalAmount: 1,
+      );
+
+      final result = await service.catchUpDueRecurringTransactions(
+        trigger: CatchUpTrigger.test,
+        localTodayOverride: testToday,
+      );
+
+      expect(result.status, equals(CatchUpRunStatus.completed));
+      expect(result.completedSuccessfully, isTrue);
+      expect(result.templateCount, equals(2));
+      expect(result.attemptedOccurrenceCount, equals(4));
+      expect(result.successfulOccurrenceCount, equals(4));
+      expect(result.failedOccurrenceCount, equals(0));
+
+      final firstTemplateResult = result.templates[0];
+      final secondTemplateResult = result.templates[1];
+
+      expect(
+        firstTemplateResult.recurringTransactionId,
+        equals(firstRecurring.id),
+      );
+      expect(firstTemplateResult.shortDescription, equals('Rent'));
+      expect(
+        firstTemplateResult.initialNextTransactionDate,
+        equals(testTwoMonthsAgo),
+      );
+      expect(
+        firstTemplateResult.finalNextTransactionDate,
+        equals(testNextMonth),
+      );
+      expect(firstTemplateResult.attemptedOccurrenceCount, equals(3));
+      expect(firstTemplateResult.successfulOccurrenceCount, equals(3));
+      expect(firstTemplateResult.failedOccurrenceCount, equals(0));
+
+      expect(
+        secondTemplateResult.recurringTransactionId,
+        equals(secondRecurring.id),
+      );
+      expect(secondTemplateResult.shortDescription, equals('Gym membership'));
+      expect(
+        secondTemplateResult.initialNextTransactionDate,
+        equals(testLastMonth),
+      );
+      expect(
+        secondTemplateResult.finalNextTransactionDate,
+        equals(testNextMonth),
+      );
+      expect(secondTemplateResult.attemptedOccurrenceCount, equals(2));
+      expect(secondTemplateResult.successfulOccurrenceCount, equals(2));
+      expect(secondTemplateResult.failedOccurrenceCount, equals(0));
+
+      final firstTransactions = await recurringDao.getTransactionsForRecurring(
+        firstRecurring.id,
+      );
+      final secondTransactions = await recurringDao.getTransactionsForRecurring(
+        secondRecurring.id,
+      );
+
+      expect(firstTransactions, hasLength(3));
+      expect(secondTransactions, hasLength(2));
+      expect(
+        firstTransactions.every(
+          (transaction) => transaction.recurringId == firstRecurring.id,
+        ),
+        isTrue,
+      );
+      expect(
+        secondTransactions.every(
+          (transaction) => transaction.recurringId == secondRecurring.id,
+        ),
+        isTrue,
+      );
+    });
   });
 }
