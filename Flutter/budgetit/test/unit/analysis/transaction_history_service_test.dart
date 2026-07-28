@@ -19,7 +19,7 @@ void main() {
         mockDb = MockAppDatabase();
         mockTxDao = MockTransactionDao();
         mockCategoryDao = MockCategoryDao();
-        when(mockDb.transactionDao).theReturn(mockTxDao);
+        when(mockDb.transactionDao).thenReturn(mockTxDao);
         when(mockDb.categoryDao).thenReturn(mockCategoryDao);
         service = TransactionHistoryService(mockDb);
     });
