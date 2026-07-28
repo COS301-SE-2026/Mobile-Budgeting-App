@@ -103,7 +103,7 @@ void main() {
 
         test('severity colours and icons are non-null for all severities', () {
             for (final severity in AnomalySeverity.values) {
-                expect(AnomalyDetectionService.severityColor(severity), isNotNull);
+                expect(AnomalyDetectionService.severityColour(severity), isNotNull);
                 expect(AnomalyDetectionService.severityIcon(severity), isNotNull);
                 expect(AnomalyDetectionService.severityLabel(severity), isNotEmpty);
             }
