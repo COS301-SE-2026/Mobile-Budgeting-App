@@ -29,7 +29,7 @@ void main() {
         test('getMonthlyHistory returns correct number of months', () async {
             when(mockTxDao.getTransactionsByDateRange(any,any)).thenAnswer((_) async => []);
             final result = await service.getMonthlyHistory(monthsBack: 3);
-            expect(result.length, equal(3));
+            expect(result.length, equals(3));
         });
 
         test('getMonthlyHistory months are ordered olderst to newest', () async {
