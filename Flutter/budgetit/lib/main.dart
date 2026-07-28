@@ -17,7 +17,8 @@ import 'screens/login_password_screen.dart';
 import 'utils/theme_provider.dart';
 import 'screens/landing_page.dart';
 import 'shared/widgets/main_appbar.dart';
-
+import 'package:budgetit/services/analysis/background_anomaly_scanner.dart';
+import 'package:budgetit/screens/predictive_spending_screen.dart';
 import 'package:budgetit/utils/app_colour.dart';
 import 'views/budget_manager/budget_manager_screen.dart';
 
@@ -60,6 +61,8 @@ class BudgetApp extends StatelessWidget {
           create: (_) => AppAuthProvider(authService: CognitoAuthService()),
         ),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+
+        ChangeNotifierProvider( create: (_) => BackgroundAnomalyScanner(db)),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
