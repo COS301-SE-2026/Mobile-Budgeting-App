@@ -5,6 +5,7 @@ import 'package:budgetit/database/app_database.dart';
 import 'package:budgetit/database/daos/transaction_dao.dart';
 import 'package:budgetit/database/daos/category_dao.dart';
 import 'package:budgetit/services/analysis/background_anomaly_scanner.dart';
+import 'package:budgetit/models/anomaly_result.dart';
 
 @GenerateMocks([AppDatabase, TransactionDao, CategoryDao])
 import 'background_anomaly_scanner_test.mocks.dart';
