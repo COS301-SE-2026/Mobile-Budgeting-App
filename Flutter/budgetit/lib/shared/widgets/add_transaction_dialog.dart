@@ -81,7 +81,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final colours = MyColours();
+    final colours = context.colours;
     final dateLabel = '${_date.day} ${_months[_date.month - 1]} ${_date.year}';
 
     return Dialog(
@@ -139,7 +139,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
               TextFormField(
                 controller: _descController,
                 style: TextStyle(color: colours.cardText, fontSize: 14),
-                decoration: _inputDecoration('e.g. Grocery run', colours),
+                decoration: _inputDecoration('e.g. Grocery run', context),
                 validator: (v) => (v == null || v.trim().isEmpty)
                     ? 'Description is required'
                     : null,
@@ -151,7 +151,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
               TextFormField(
                 controller: _amountController,
                 style: TextStyle(color: colours.cardText, fontSize: 14),
-                decoration: _inputDecoration('0.00', colours),
+                decoration: _inputDecoration('0.00', context),
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
@@ -300,24 +300,24 @@ Widget _fieldLabel(String text, MyColours colours) => Text(
   ),
 );
 
-InputDecoration _inputDecoration(String hint, MyColours colours) =>
+InputDecoration _inputDecoration(String hint, BuildContext context) =>
     InputDecoration(
       hintText: hint,
-      hintStyle: TextStyle(color: MyColours().cardText.withValues(alpha: 0.5)),
+      hintStyle: TextStyle(color: context.colours.blendedprimary),
       filled: true,
-      fillColor: colours.primary,
+      fillColor: context.colours.blendedprimary,
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: colours.secondary, width: 1),
+        borderSide: BorderSide(color: context.colours.secondary, width: 1),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: colours.secondary, width: 1),
+        borderSide: BorderSide(color: context.colours.secondary, width: 1),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: colours.secondary, width: 1.5),
+        borderSide: BorderSide(color: context.colours.secondary, width: 1.5),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
