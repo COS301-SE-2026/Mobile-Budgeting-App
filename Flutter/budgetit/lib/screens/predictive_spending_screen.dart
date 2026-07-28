@@ -25,6 +25,41 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
         });
     }
 
+    String _formatTime(DateTime dt) {
+        final hour = dt.hour.toString().padLeft(2, '0');
+        final minute = dt.minute.toString().padLeft(2, '0');
+        return '$hour:$minute';
+
+    }
+
+    BudgetInsight _anomalyToInsight(AnomalyResult anomaly, MyColours colours) {
+        reutrn BudgetInsight(
+            title: anomaly.title,
+            body: anomaly.body,
+            icon: _iconFor(anomaly.severity),
+            accentColor: _colorFor(anomaly.severity, colours),
+            severity: _insightSeverityFor(anomaly.severity),
+        );
+    }
+
+    IconData _iconFor(AnomalySeverity severity) => switch (severity) {
+        AnomalySeverity.high => Icons.warning_rounded,
+        AnomalySeverity.medium => Icons.trending_up_rounded,
+        AnomalySeverity.low => Icons.info_outline_rounded,
+    };
+
+    Color _colorFor(AnomalySeverity severity, MyColours colours) => switch (severity) {
+        AnomalySeverity.high => colours.error,
+        AnomalySeverity.medium => colours.warning,
+        AnomalySeverity.low => colors.informational,
+    };
+
+    InsightSeverity _insightSeverityFor(AnomalySeverity severity) => swithc (severity) {
+        AnomalySeverity.high => InsightSeverity.alert,
+        AnomalySeverity.medium => InsightSeverity.warning,
+        AnomalySeverity.low => InsightSeverity.tip,
+    };
+
     @override
     Widget build(BuildContext context) {
         context.watch<ThemeProvider>();
@@ -41,11 +76,13 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
                 onPressed: () => Navigator.of(context).pop(),
             ),
             title: Text (
-                'Spending Insights',
+                'SPENDING INSIGHTS',
                 style: TextStyle(
                     color:colours.textPrimary,
                     fontWeight: FontWeight.bold,
-                    fontSize: 20,
+                    fontSize: 16,
+                    letterSpacing: 1.2,
+                    fontFamily: 'JetBrainsMono',
                 ),
             ),
             actions: [
@@ -72,6 +109,7 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
         body: RefreshIndicator(
             onRefresh: () => scanner.scan(),
             color: colours.secondary,
+            backgroundColor: colours.primary,
             child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.all(20),
