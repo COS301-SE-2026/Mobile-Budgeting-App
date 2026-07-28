@@ -229,6 +229,18 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
         height: 260,
         child: BarChart(
           BarChartData(
+            gridData: FlGridData(
+              show: true,
+              drawVerticalLine: false,
+              horizontalInterval: maximum /6,
+              getDrawingHorizontalLine: (value){
+                return FlLine(
+                  color:  colours.textMuted,
+                  strokeWidth: 1,
+                  dashArray: [6,6],
+                );
+              },
+            ),
             maxY: maximum <= 0 ? 100 : maximum * 1.2,
             barGroups: [
               BarChartGroupData(
@@ -236,8 +248,9 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                 barRods: [
                   BarChartRodData(
                     toY: report.totalIncome,
-                    width: 35,
-                    borderRadius: BorderRadius.circular(6),
+                    width: 42,
+                    color: colours.greenAccents,
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ],
               ),
@@ -246,31 +259,28 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                 barRods: [
                   BarChartRodData(
                     toY: report.totalExpenses,
-                    width: 35,
-                    borderRadius: BorderRadius.circular(6),
+                    width: 42,
+                    color: Colors.redAccent,
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ],
               ),
             ],
             titlesData: FlTitlesData(
-              topTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              rightTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              bottomTitles: AxisTitles(
+              leftTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
-                  getTitlesWidget: (value, metadata) {
+                  reservedSize: 45,
+                  interval: maximum/6,
+                  getTitlesWidget: (value,meta){
                     return Text(
-                      value.toInt() == 0 ? 'Income' : 'Expenses',
-                      style: TextStyle(color: colours.textPrimary),
+                      "${(value/1000).toStringAsFixed(0)}K",
+                      style: colours.b5.copyWith(color: colours.textMuted),
                     );
-                  },
+                  }
+                                          )),
                 ),
-              ),
-            ),
+              
             borderData: FlBorderData(show: false),
           ),
         ),
@@ -395,7 +405,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: colours.primary,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: colours.secondary),
       ),
       child: child,
