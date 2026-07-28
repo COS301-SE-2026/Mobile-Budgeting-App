@@ -186,7 +186,7 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
 
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class AnomalyDetectionServiceHelpers {
+/*class AnomalyDetectionServiceHelpers {
     static IconData iconFor(AnomalySeverity severity) {
         return switch (severity) {
             AnomalySeverity.high => Icons.warning_rounded,
@@ -211,7 +211,7 @@ class AnomalyDetectionServiceHelpers {
         };
     }
 }
-
+*/
 
 
 class _PredictionCard extends StatelessWidget {
@@ -458,20 +458,21 @@ class _ErrorCard extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 16),
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-                color: colours.redColor.withValues(alpha: 0.1),
+                color: colours.error.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: colours.redColor.withValues(alpha: 0.3)),
+                border: Border.all(color: colours.error.withValues(alpha: 0.4)),
             ),
             child: Row(
                 children: [
-                    Icon(Icons.error_outline, color: colours.redColor, size: 18),
+                    Icon(Icons.error_outline, color: colours.error, size: 18),
                     const SizedBox(width: 10),
                     Expanded(
                         child: Text(
                             'Analysis error: $error',
                             style: TextStyle(
                                 fontSize: 12,
-                                color: colours.redColor,
+                                color: colours.error,
+                                fontFamily: 'JetBrainsMono',
                             ),
                         ),
                     ),
@@ -490,37 +491,38 @@ class _HowItWorksCard extends StatelessWidget {
     Widget build(BuildContext context){
         return Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-                color: colours.navBarColor,
+                color: colours.primary,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colours.cardText.withValues(alpha: 0.1)),
+                border: Border.all(color: colours.textPrimary.withValues(alpha: 0.1)),
             ),
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                     Text(
-                        'How this works',
+                        'HOW THIS WORKS',
                         style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: colours.textPrimary,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: colours.textMuted,
+                            fontFamily: 'JetBrainsMono',
                         ),
                     ),
-                    const SizedBox(height: 10),
-                    _HowItWorksRow(
+                    const SizedBox(height: 14),
+                    _InfoRow(
                         icon: Icons.storage_rounded,
                         text: 'All analysis runs on your device — no data leaves your phone.',
                         colours: colours,
                     ),
-                    const SizedBox(height: 8),
-                    _HowItWorksRow(
+                    const SizedBox(height: 10),
+                    _InfoRow(
                         icon: Icons.query_stats_rounded,
                         text: 'Anomalies are detected using z-score statistical analysis on your monthly spending history.',
                         colours: colours,
                     ),
-                    const SizedBox(height: 8),
-                    _HowItWorksRow(
+                    const SizedBox(height: 10),
+                    _InfoRow(
                         icon: Icons.trending_up_rounded,
                         text: 'Predictions use linear regression on your last 6 months of data.',
                         colours: colours,
@@ -531,11 +533,11 @@ class _HowItWorksCard extends StatelessWidget {
     }
 }
 
-class _HowItWorksRow extends StatelessWidget {
+class _InfoRow extends StatelessWidget {
     final IconData icon;
     final String text;
     final MyColours colours;
-    const _HowItWorksRow({
+    const _InfoRow({
         required this.icon,
         required this.text,
         required this.colours,
@@ -546,7 +548,7 @@ class _HowItWorksRow extends StatelessWidget {
         return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-                Icon(icon, size: 16, color: colours.textPrimary.withValues(alpha: 0.5)),
+                Icon(icon, size: 15, color: colours.textMuted),
                 const SizedBox(width: 10),
                 Expanded(
                     child: Text(
@@ -555,6 +557,7 @@ class _HowItWorksRow extends StatelessWidget {
                             fontSize: 12,
                             color: colours.textPrimary.withValues(alpha: 0.6),
                             height: 1.5,
+                            fontFamily: 'JetBrainsMono',
                         ),
                     ),
                 ),
