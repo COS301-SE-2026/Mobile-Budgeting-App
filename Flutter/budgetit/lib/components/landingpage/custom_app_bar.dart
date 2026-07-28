@@ -80,7 +80,6 @@ class _NavLink extends StatefulWidget {
 class _NavLinkState extends State<_NavLink> {
   bool _isPressed = false;
   bool _isHovered = false;
-// i used AI to help me with the hovering state below 
   @override
   Widget build(BuildContext context) {
     return MouseRegion(

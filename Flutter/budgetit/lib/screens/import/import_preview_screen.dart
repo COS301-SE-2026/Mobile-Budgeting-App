@@ -211,7 +211,7 @@ class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             leading: CircleAvatar(
             backgroundColor: (isIncome ? Colors.green : colors.errorContainer)
-                .withOpacity(0.15),
+                .withValues(alpha: 0.15),
             child: Icon(
                 isIncome ? Icons.arrow_downward : Icons.arrow_upward,
                 color: isIncome ? Colors.green.shade700 : colors.error,
@@ -240,7 +240,7 @@ class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
                         labelPadding: const EdgeInsets.symmetric(horizontal: 6),
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         side: BorderSide(color: colors.outlineVariant),
-                        backgroundColor: tx.categoryName != null ? colors.primaryContainer.withOpacity(0.4)
+                        backgroundColor: tx.categoryName != null ? colors.primaryContainer.withValues(alpha: 0.4)
                         : colors.surfaceContainerHighest,
                 ),
               ),
@@ -281,7 +281,7 @@ class _SummaryPill extends StatelessWidget {
     Widget build(BuildContext context) => Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-                color: color.withOpacity(0.12),
+                color: color.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(20),
             ),
             child: Text(label,

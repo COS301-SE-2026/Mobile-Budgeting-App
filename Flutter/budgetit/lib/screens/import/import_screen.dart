@@ -44,7 +44,7 @@ class _ImportScreenState extends State<ImportScreen> {
             }
 
 
-            if (result == null || result.files.single.path == null) {
+            if (result.files.single.path == null) {
                 setState(() => _loading = false);
                 return;
             }

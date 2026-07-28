@@ -3,8 +3,6 @@ import 'package:budgetit/utils/app_colour.dart';
 import 'package:provider/provider.dart';
 import 'package:budgetit/utils/theme_provider.dart';
 // import '../components/balance_card.dart';
-import '../components/bill_item.dart';
-import '../components/insight_widget.dart';
 import '../components/monthly_trend_widget.dart';
 import '../components/spending_chart.dart';
 import '../components/transaction_tile.dart';
