@@ -14,7 +14,7 @@ class _MainScaffoldState extends State<MainScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: MyColours().background,
+      backgroundColor: context.colours.background,
       body: Center(child: Text('Home Page')),
     );
   }

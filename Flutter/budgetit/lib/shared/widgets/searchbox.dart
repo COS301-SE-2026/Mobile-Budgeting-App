@@ -1,4 +1,3 @@
-import 'package:budgetit/components/spending_chart.dart';
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
 
@@ -49,13 +48,13 @@ class _SearchBoxState extends State<SearchBox> {
       decoration: InputDecoration(
 
         hintText: _isFocused ? null : widget.hintText,
-        hintStyle: MyColours().searchtext,
+        hintStyle: context.colours.searchtext,
         prefixIcon: _isFocused
             ? null
-            : Icon(Icons.search, color: MyColours().textMuted),
+            : Icon(Icons.search, color: context.colours.textMuted),
         filled: true,
         
-        fillColor: MyColours().searchBar,
+        fillColor: context.colours.searchBar,
          border: OutlineInputBorder(
     borderRadius: BorderRadius.zero,
     borderSide: BorderSide(
