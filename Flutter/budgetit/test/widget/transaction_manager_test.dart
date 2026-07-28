@@ -131,7 +131,7 @@ void main() {
       _usePhoneSize(tester);
       await tester.pumpWidget(_screen(const TransactionManager()));
       await tester.pump();
-      expect(find.text('Recent Transactions'), findsOneWidget);
+      expect(find.text('RECENT TRANSACTIONS'), findsOneWidget);
     });
 
     testWidgets('shows date header with day and date', (tester) async {
