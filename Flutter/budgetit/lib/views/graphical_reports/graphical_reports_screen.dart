@@ -223,7 +223,10 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
       report.totalIncome,
       report.totalExpenses,
     ].reduce((first, second) => first > second ? first : second);
-
+    double interval = 5000;
+    if (maximum>50000){
+      interval= 10000;
+    }
     return _chartCard(
       child: SizedBox(
         height: 260,
@@ -234,7 +237,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
             gridData: FlGridData(
               show: true,
               drawVerticalLine: false,
-              horizontalInterval: maximum /6,
+              horizontalInterval: interval,
               getDrawingHorizontalLine: (value){
                 return FlLine(
                   color:  colours.textMuted,
@@ -243,7 +246,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                 );
               },
             ),
-            maxY: maximum <= 0 ? 100 : maximum * 1.2,
+            maxY: maximum <= 0 ? 100 : maximum * 1.25,
             barGroups: [
               BarChartGroupData(
                 x: 0,
@@ -273,7 +276,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                 sideTitles: SideTitles(
                   showTitles: true,
                   reservedSize: 45,
-                  interval: maximum/6,
+                  interval: interval,
                   getTitlesWidget: (value,meta){
                     return Text(
                       value == 0 ? "0" : "R${(value/1000).toStringAsFixed(0)}k",
@@ -297,6 +300,13 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                   },
                 ),
               ),
+              topTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+
+              rightTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ), 
             ),
             borderData: FlBorderData(
                 border: Border(
