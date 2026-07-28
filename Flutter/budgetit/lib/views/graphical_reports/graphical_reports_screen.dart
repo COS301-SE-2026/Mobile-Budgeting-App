@@ -229,6 +229,8 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
         height: 260,
         child: BarChart(
           BarChartData(
+            alignment: BarChartAlignment.spaceAround,
+            groupsSpace: 80,
             gridData: FlGridData(
               show: true,
               drawVerticalLine: false,
@@ -248,7 +250,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                 barRods: [
                   BarChartRodData(
                     toY: report.totalIncome,
-                    width: 42,
+                    width: 55,
                     color: colours.greenAccents,
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -259,7 +261,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                 barRods: [
                   BarChartRodData(
                     toY: report.totalExpenses,
-                    width: 42,
+                    width: 55,
                     color: Colors.redAccent,
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -274,7 +276,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                   interval: maximum/6,
                   getTitlesWidget: (value,meta){
                     return Text(
-                      "${(value/1000).toStringAsFixed(0)}K",
+                      value == 0 ? "0" : "R${(value/1000).toStringAsFixed(0)}k",
                       style: colours.b5.copyWith(color: colours.textMuted,),
                     );
                   },
@@ -296,10 +298,19 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                 ),
               ),
             ),
-            borderData: FlBorderData(show: false),
-          ),
+            borderData: FlBorderData(
+                border: Border(
+                  left: BorderSide(
+                    color: colours.secondary,),
+                    bottom: BorderSide(
+                      color: colours.secondary,
+                    ),
+                ),
+              ),
+            )
+         ),
         ),
-      ),
+
     );
   }
 
@@ -407,7 +418,16 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                 sideTitles: SideTitles(showTitles: false),
               ),
             ),
-            borderData: FlBorderData(show: false),
+            borderData: FlBorderData(
+            border: Border(
+              left: BorderSide(
+                color: colours.secondary,
+              ),
+              bottom: BorderSide(
+                color: colours.secondary,
+              ),
+             ),
+            ),
           ),
         ),
       ),
@@ -419,7 +439,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: colours.primary,
+        color: colours.bg2,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: colours.secondary),
       ),
