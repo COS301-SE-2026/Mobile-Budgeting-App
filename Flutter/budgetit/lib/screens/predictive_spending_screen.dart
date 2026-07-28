@@ -112,18 +112,19 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
             backgroundColor: colours.primary,
             child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.symetric(horizontal: 20, vertical: 16),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children:[
                         if (scanner.lastScanned != null)
                             Padding(
-                                padding: const EdgeInsets.only(bottom: 16),
+                                padding: const EdgeInsets.only(bottom: 12),
                                 child: Text (
                                     'Last updated: ${_formatTime(scanner.lastScanned!)}',
                                     style: TextStyle(
-                                        fontSize: 12,
-                                        color: colours.textPrimary.withValues(alpha: 0.5),
+                                        fontSize: 11,
+                                        color: colours.textMuted,
+                                        fontFamily: 'JetBrainsMono',
                                     ),
                                 ),
                             ),
@@ -135,13 +136,15 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
                                 colours: colours,
                             ),
 
-                            const SizedBox(height: 24),
+                            const SizedBox(height: 28),
                             Text(
-                                'Anomaly Detection',
+                                'ANOMALY DETECTION',
                                 style: TextStyle(
-                                fontSize: 18,
+                                fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: colours.textPrimary,
+                                color: colours.textMuted,
+                                letterSpacing: 1.4,
+                                fontFamily: 'JetBrainsMono',
                                 ),
                             ),
 
@@ -150,7 +153,8 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
                                 'Unusual spending patterns detected from your history.',
                                 style: TextStyle(
                                     fontSize:13,
-                                    color: colours.textPrimary.withValues(alpha: 0.55),
+                                    color: colours.textPrimary.withValues(alpha: 0.7),
+                                    fontFamily: 'JetBrainsMono',
                                 ),
                             ),
 
@@ -166,9 +170,11 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
                                     .map((a) => _anomalyToInsight(a))
                                     .toList(),
                               ),
-                              const SizedBox(height: 32),
+                              const SizedBox(height: 28),
 
                               _HowItWorksCard(colours: colours),
+
+                              const SizedBox(height: 20),
                             
 
                         ],
@@ -176,28 +182,6 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
                 ),
             ),
         );
-    }
-
-    BudgetInsight _anomalyToInsight(AnomalyResult anomaly) {
-        final colours = MyColours();
-        return BudgetInsight(
-            title: anomaly.title,
-            body: anomaly.body,
-            icon: AnomalyDetectionServiceHelpers.iconFor(anomaly.severity),
-            accentColor: AnomalyDetectionServiceHelpers.colorFor(
-                anomaly.severity,
-                colours,
-            ),
-            severity: AnomalyDetectionServiceHelpers.insightSeverityFor(
-                anomaly.severity,
-            ),
-        );
-    }
-
-    String _formatTime(DateTime dt) {
-        final hour = dt.hour.toString().padLeft(2, '0');
-        final minute = dt.minute.toString().padLeft(2, '0');
-        return '$hour: $minute';
     }
 
 }
