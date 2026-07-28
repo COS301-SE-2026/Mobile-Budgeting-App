@@ -67,7 +67,7 @@ class _BudgetCategoryOption {
 }
 
 class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
-  final MyColours colours = MyColours();
+
   String _formatCurrency(double amount) {
     return 'R${amount.toStringAsFixed(2)}';
   }
@@ -245,7 +245,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
 
   Color _colorFromHex(String? hexColor) {
     if (hexColor == null || hexColor.isEmpty) {
-      return colours.secondary;
+      return context.colours.secondary;
     }
 
     final cleaned = hexColor.replaceFirst('#', '');
@@ -259,10 +259,10 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
         return Color(int.parse(cleaned, radix: 16));
       }
     } catch (_) {
-      return colours.secondary;
+      return context.colours.secondary;
     }
 
-    return colours.secondary;
+    return context.colours.secondary;
   }
 
   void _refreshBudgets() {
@@ -288,7 +288,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     backgroundColor: colours.background,
+     backgroundColor: context.colours.background,
      
 
       // body: SafeArea(
@@ -310,7 +310,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
             tooltip: 'Export financial report',
             icon: Icon(
               Icons.file_download_outlined,
-              color: colours.textPrimary,
+              color: context.colours.textPrimary,
             ),
             onPressed: () {
               Navigator.of(context).push(
@@ -329,14 +329,14 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     
                     Text(
                       "BUDGET CATEGORIES",
-                      style: colours.h2,
+                      style: context.colours.h2,
                     ),
 
                     
                     Text(
                       _currentMonthYearLabel(),
                       style: TextStyle(
-                        color: colours.textPrimary,
+                        color: context.colours.textPrimary,
                         fontSize: 9,
                         letterSpacing: 1,
                       ),
@@ -352,7 +352,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Center(
                         child: LinearProgressIndicator(
-                          color: colours.secondary,
+                          color: context.colours.secondary,
                           borderRadius: BorderRadius.zero,
                         ),
                       );
@@ -362,7 +362,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                       return Text(
                         'Could not load budgets.',
                         style: TextStyle(
-                          color: colours.textPrimary,
+                          color: context.colours.textPrimary,
                           fontSize: 13,
                         ),
                       );
@@ -375,10 +375,10 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(18),
                         decoration: BoxDecoration(
-                          color: colours.primary,
+                          color: context.colours.primary,
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                            color: colours.secondary,
+                            color: context.colours.secondary,
                             width: 1,
                           ),
                         ),
@@ -386,7 +386,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                           'No budgets created yet. Tap the button below to create one.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: colours.textPrimary,
+                            color: context.colours.textPrimary,
                             fontSize: 13,
                           ),
                         ),
@@ -458,8 +458,8 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                       ),
                     ),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: colours.textPrimary,
-                      side: BorderSide(color: colours.secondary, width: 1.5),
+                      foregroundColor: context.colours.textPrimary,
+                      side: BorderSide(color: context.colours.secondary, width: 1.5),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -477,12 +477,12 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                    
                     label: Text(
                       "CREATE NEW BUDGET",
-                      style: MyColours().b3,
+                      style: context.colours.b3,
                     ),
 
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: colours.secondary,
-                      foregroundColor: colours.background,
+                      backgroundColor: context.colours.secondary,
+                      foregroundColor: context.colours.background,
                       shape: RoundedRectangleBorder(
                        // borderRadius: BorderRadius.circular(10),
                        side: BorderSide(color: Colors.black, width: 4),
@@ -500,7 +500,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                   child: Text(
                     "Plan your financial future with precision. All data is stored locally for your privacy.",
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: colours.textPrimary, fontSize: 11),
+                    style: TextStyle(color: context.colours.textPrimary, fontSize: 11),
                   ),
                 ),
               ],
@@ -524,7 +524,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
           width: double.infinity,
           padding: const EdgeInsets.all(22),
           decoration: BoxDecoration(
-            color: colours.blendedprimary,
+            color: context.colours.blendedprimary,
             border: Border.all(color: Colors.black, width: 4),
             boxShadow: [
               BoxShadow(
@@ -539,17 +539,17 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
             children: [
               Text(
                 "MONTHLY BUDGET OVERVIEW",
-                style: colours.b1,
+                style: context.colours.b1,
               ),
               const SizedBox(height: 18),
               Text(
                 _formatCurrency(totalSpent),
-                style: colours.bigDisplay,
+                style: context.colours.bigDisplay,
               ),
               const SizedBox(height: 18),
               Text(
                 "Budget target: ${_formatCurrency(totalTarget)}",
-                style: colours.b1,
+                style: context.colours.b1,
               ),
             ],
           ),
@@ -588,7 +588,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
         padding: const EdgeInsets.all(14),
 
         decoration: BoxDecoration(
-          color: colours.blendedprimary,
+          color: context.colours.blendedprimary,
           
           border: Border.all(color: Colors.black, width: 4),
         ),
@@ -603,13 +603,13 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: colours.error,
+                    color: context.colours.error,
                     borderRadius: BorderRadius.circular(2),
                   ),
                   child: Text(
                     "OVER LIMIT",
                     style: TextStyle(
-                      color: colours.whiteAccents,
+                      color: context.colours.whiteAccents,
                       fontSize: 8,
                       fontWeight: FontWeight.bold,
                     ),
@@ -623,7 +623,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                   width: 34,
                   height: 34,
                   decoration: BoxDecoration(
-                    color: colours.secondary,
+                    color: context.colours.secondary,
                     border: Border.all(color: Colors.black, width: 2),
                   ),
                   child: Icon(icon, color: Colors.black, size: 20),
@@ -637,11 +637,11 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     children: [
                       Text(
                         title,
-                        style: colours.budgetheader,
+                        style: context.colours.budgetheader,
                       ),
                       Text(
                         subtitle,
-                        style: colours.b5,
+                        style: context.colours.b5,
                       ),
                     ],
                   ),
@@ -652,7 +652,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                   children: [
                     Text(
                       "R${spent.toInt()} / R${limit.toInt()}",
-                      style: colours.b4,
+                      style: context.colours.b4,
                     ),
                     const SizedBox(width: 10),
                     InkWell(
@@ -664,7 +664,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                         padding: const EdgeInsets.all(4),
                         child: Icon(
                           Icons.delete_outline,
-                          color: colours.error,
+                          color: context.colours.error,
                           size: 20,
                         ),
                       ),
@@ -681,7 +681,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
               child: LinearProgressIndicator(
                 value: progress > 1 ? 1 : progress,
                 minHeight: 6,
-                backgroundColor: colours.secondary,
+                backgroundColor: context.colours.secondary,
                 valueColor: AlwaysStoppedAnimation<Color>(progressColor),
               ),
             ),
@@ -697,21 +697,21 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor: colours.background,
+          backgroundColor: context.colours.background,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: colours.secondary, width: 1.5),
+            side: BorderSide(color: context.colours.secondary, width: 1.5),
           ),
           title: Text(
             'Delete Budget',
             style: TextStyle(
-              color: colours.textPrimary,
+              color: context.colours.textPrimary,
               fontWeight: FontWeight.bold,
             ),
           ),
           content: Text(
             'Are you sure you want to delete the ${budget.title} budget?',
-            style: TextStyle(color: colours.textPrimary),
+            style: TextStyle(color: context.colours.textPrimary),
           ),
           actions: [
             TextButton(
@@ -720,7 +720,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
               },
               child: Text(
                 'Cancel',
-                style: TextStyle(color: colours.textPrimary),
+                style: TextStyle(color: context.colours.textPrimary),
               ),
             ),
             ElevatedButton(
@@ -728,8 +728,8 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                 Navigator.of(dialogContext).pop(true);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: colours.error,
-                foregroundColor: colours.whiteAccents,
+                backgroundColor: context.colours.error,
+                foregroundColor: context.colours.whiteAccents,
               ),
               child: const Text('Delete'),
             ),
@@ -751,20 +751,20 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
       ..showSnackBar(
         SnackBar(
           behavior: SnackBarBehavior.floating,
-          backgroundColor: colours.error,
+          backgroundColor: context.colours.error,
           margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
           content: Row(
             children: [
-              Icon(Icons.delete_outline, color: colours.whiteAccents),
+              Icon(Icons.delete_outline, color: context.colours.whiteAccents),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   '${budget.title} budget deleted',
                   style: TextStyle(
-                    color: colours.whiteAccents,
+                    color: context.colours.whiteAccents,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -786,10 +786,10 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return AlertDialog(
-                backgroundColor: colours.background,
+                backgroundColor: context.colours.background,
                 content: Center(
                   heightFactor: 2,
-                  child: CircularProgressIndicator(color: colours.secondary),
+                  child: CircularProgressIndicator(color: context.colours.secondary),
                 ),
               );
             }
@@ -798,17 +798,17 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
 
             if (categoryOptions.isEmpty) {
               return AlertDialog(
-                backgroundColor: colours.background,
+                backgroundColor: context.colours.background,
                 title: Text(
                   'Create New Budget',
                   style: TextStyle(
-                    color: colours.textPrimary,
+                    color: context.colours.textPrimary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 content: Text(
                   'No expense categories found. Please seed or create categories first.',
-                  style: TextStyle(color: colours.textPrimary),
+                  style: TextStyle(color: context.colours.textPrimary),
                 ),
                 actions: [
                   TextButton(
@@ -817,7 +817,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     },
                     child: Text(
                       'Close',
-                      style: TextStyle(color: colours.textPrimary),
+                      style: TextStyle(color: context.colours.textPrimary),
                     ),
                   ),
                 ],
@@ -829,7 +829,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
             return StatefulBuilder(
               builder: (context, setDialogState) {
                 return AlertDialog(
-                  backgroundColor: colours.background,
+                  backgroundColor: context.colours.background,
                   shape: RoundedRectangleBorder(
               
                     side: BorderSide(color: Colors.black, width: 4),
@@ -837,7 +837,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                   title: Text(
                     'Create New Budget',
                     style: TextStyle(
-                      color: colours.textPrimary,
+                      color: context.colours.textPrimary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -846,17 +846,17 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     children: [
                       DropdownButtonFormField<_BudgetCategoryOption>(
                         initialValue: selectedCategory,
-                        dropdownColor: colours.background,
-                        style: TextStyle(color: colours.textPrimary),
+                        dropdownColor: context.colours.background,
+                        style: TextStyle(color: context.colours.textPrimary),
                         decoration: InputDecoration(
                           labelText: 'Budget category',
-                          labelStyle: TextStyle(color: colours.textPrimary),
+                          labelStyle: TextStyle(color: context.colours.textPrimary),
                           enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: colours.secondary),
+                            borderSide: BorderSide(color: context.colours.secondary),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: colours.secondary,
+                              color: context.colours.secondary,
                               width: 2,
                             ),
                           ),
@@ -868,7 +868,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                               children: [
                                 Icon(
                                   category.icon,
-                                  color: colours.textPrimary,
+                                  color: context.colours.textPrimary,
                                   size: 20,
                                 ),
                                 const SizedBox(width: 10),
@@ -891,22 +891,22 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                       TextField(
                         controller: limitController,
                         keyboardType: TextInputType.number,
-                        style: TextStyle(color: colours.textPrimary),
+                        style: TextStyle(color: context.colours.textPrimary),
                         decoration: InputDecoration(
                           labelText: 'Budget limit',
-                          labelStyle: TextStyle(color: colours.textPrimary),
+                          labelStyle: TextStyle(color: context.colours.textPrimary),
                           hintText: 'e.g. 500',
                           hintStyle: TextStyle(
-                            color: colours.textPrimary.withValues(alpha: 0.6),
+                            color: context.colours.textPrimary.withValues(alpha: 0.6),
                           ),
                           prefixText: 'R ',
-                          prefixStyle: TextStyle(color: colours.textPrimary),
+                          prefixStyle: TextStyle(color: context.colours.textPrimary),
                           enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: colours.secondary),
+                            borderSide: BorderSide(color: context.colours.secondary),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: colours.secondary,
+                              color: context.colours.secondary,
                               width: 2,
                             ),
                           ),
@@ -921,7 +921,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                       },
                       child: Text(
                         'Cancel',
-                        style: TextStyle(color: colours.textPrimary),
+                        style: TextStyle(color: context.colours.textPrimary),
                       ),
                     ),
                     ElevatedButton(
@@ -936,7 +936,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                             ..showSnackBar(
                               SnackBar(
                                 behavior: SnackBarBehavior.floating,
-                                backgroundColor: colours.error,
+                                backgroundColor: context.colours.error,
                                 margin: const EdgeInsets.symmetric(
                                   horizontal: 18,
                                   vertical: 16,
@@ -948,14 +948,14 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                                   children: [
                                     Icon(
                                       Icons.error_outline,
-                                      color: colours.whiteAccents,
+                                      color: context.colours.whiteAccents,
                                     ),
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: Text(
                                         'Please enter a valid budget limit.',
                                         style: TextStyle(
-                                          color: colours.whiteAccents,
+                                          color: context.colours.whiteAccents,
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
@@ -987,7 +987,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                           ..showSnackBar(
                             SnackBar(
                               behavior: SnackBarBehavior.floating,
-                              backgroundColor: colours.secondary,
+                              backgroundColor: context.colours.secondary,
                               elevation: 8,
                               margin: const EdgeInsets.symmetric(
                                 horizontal: 18,
@@ -1003,12 +1003,12 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                                     width: 34,
                                     height: 34,
                                     decoration: BoxDecoration(
-                                      color: colours.background,
+                                      color: context.colours.background,
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: Icon(
                                       selectedCategory.icon,
-                                      color: colours.secondary,
+                                      color: context.colours.secondary,
                                       size: 20,
                                     ),
                                   ),
@@ -1017,7 +1017,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                                     child: Text(
                                       '${selectedCategory.label} budget created successfully',
                                       style: TextStyle(
-                                        color: colours.background,
+                                        color: context.colours.background,
                                         fontWeight: FontWeight.w700,
                                         fontSize: 13,
                                       ),
@@ -1029,8 +1029,8 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                           );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: colours.secondary,
-                        foregroundColor: colours.background,
+                        backgroundColor: context.colours.secondary,
+                        foregroundColor: context.colours.background,
                       ),
                       child: const Text('Create'),
                     ),
