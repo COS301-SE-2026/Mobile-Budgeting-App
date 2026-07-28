@@ -372,18 +372,18 @@ class _EmptyAnomaliesCard extends StatelessWidget {
     Widget build(BuildContext context) {
         return Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-                color: colours.navBarColor,
+                color: colours.primary,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colours.cardText.withValues(alpha: 0.15)),
+                border: Border.all(color: colours.textPrimary.withValues(alpha: 0.15)),
             ),
             child: Column(
                 children: [
                     Icon(
                         Icons.check_circle_outline_rounded,
-                        size: 40,
-                        color: colours.tertiary,
+                        size: 36,
+                        color: colours.greenAccents,
                     ),
                     const SizedBox(height: 12),
                     Text(
@@ -392,6 +392,7 @@ class _EmptyAnomaliesCard extends StatelessWidget {
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: colours.textPrimary,
+                            fontFamily: 'SpaceGrotesk',
                         ),
                     ),
                     const SizedBox(height: 6),
@@ -399,9 +400,10 @@ class _EmptyAnomaliesCard extends StatelessWidget {
                         'Your spending looks consistent with your historical patterns.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 12,
                             color: colours.textPrimary.withValues(alpha: 0.6),
                             height: 1.5,
+                            fontFamily: 'JetBrainsMono',
                         ),
                     ),
                 ],
@@ -418,20 +420,21 @@ class _LoadingCard extends StatelessWidget {
     Widget build(BuildContext context) {
         return Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(28),
             decoration: BoxDecoration(
-                color: colours.navBarColor,
+                color: colours.primary,
                 borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
                 children: [
                     CircularProgressIndicator(color: colours.secondary, strokeWidth: 2),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 14),
                     Text(
-                        'Analysing your spending...',
+                        'Analysing your spending',
                         style: TextStyle(
-                            fontSize: 13,
-                            color: colours.textPrimary.withValues(alpha: 0.6),
+                            fontSize: 12,
+                            color: colours.textMuted,
+                            fontFamily: 'JetBrainsMono',
                         ),
                     ),
                 ],
