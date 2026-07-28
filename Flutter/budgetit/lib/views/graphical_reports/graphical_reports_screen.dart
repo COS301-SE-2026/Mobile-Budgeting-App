@@ -51,11 +51,11 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
       backgroundColor: colours.background,
       appBar: AppBar(
         backgroundColor: colours.background,
-        iconTheme: IconThemeData(color: colours.textPrimary),
+        iconTheme: IconThemeData(color: colours.secondary),
         title: Text(
           'Graphical Reports',
           style: TextStyle(
-            color: colours.textPrimary,
+            color: colours.secondary,
             fontWeight: FontWeight.bold,
           ),
         ),
