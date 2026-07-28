@@ -28,7 +28,7 @@ String currentMonthYearLabel() {
 }
 
 void main() {
-  testWidgets('Budget manager screen loads', (WidgetTester tester) async {
+  testWidgets('Budget Manager full flow works', (WidgetTester tester) async {
     final mock = MockDb();
 
     await tester.pumpWidget(
@@ -37,32 +37,23 @@ void main() {
 
     await tester.pumpAndSettle();
 
+    // 1. Screen loads.
     expect(find.text('MONTHLY BUDGET OVERVIEW'), findsOneWidget);
     expect(find.text('CREATE NEW BUDGET'), findsOneWidget);
-  });
 
-  testWidgets('Budget manager shows current month and year', (
-    WidgetTester tester,
-  ) async {
-    final mock = MockDb();
-
-    await tester.pumpWidget(
-      wrapWithProviders(BudgetManagerScreen(database: mock.db), db: mock.db),
-    );
-
-    await tester.pumpAndSettle();
-
+    // 2. Dynamic month/year appears.
     expect(find.text(currentMonthYearLabel()), findsOneWidget);
     expect(find.text('JUNE 2024'), findsNothing);
-  });
 
-  testWidgets('app shows the bottom navigation shell', (tester) async {
-    final mock = MockDb();
+    // 3. Create Budget button exists.
+    expect(find.text('CREATE NEW BUDGET'), findsOneWidget);
 
-    await tester.pumpWidget(BudgetApp(db: mock.db));
+    // 4. Open Create Budget dialog.
+    await tester.tap(find.text('CREATE NEW BUDGET'));
     await tester.pumpAndSettle();
 
-    expect(find.byType(NavigationBar), findsOneWidget);
-    expect(find.byType(NavigationDestination), findsNWidgets(3));
-  }, skip: true); // Skip for now, needs mock auth integration.
+    // 5. Confirm dialog opened.
+    expect(find.textContaining('Create'), findsWidgets);
+    expect(find.byType(AlertDialog), findsOneWidget);
+  });
 }
