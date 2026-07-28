@@ -139,6 +139,7 @@ void main() {
       await tester.pumpWidget(wrapWithProviders(const TransactionManager(), db: _mock.db));
       await tester.pump();
       await tester.pump();
+      expect(find.textContaining('Monday'), findsWidgets);
     });
 
     testWidgets('shows Water, Electricity, and Groceries transactions', (
