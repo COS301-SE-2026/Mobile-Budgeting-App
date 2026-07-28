@@ -86,17 +86,17 @@ await _exportService.downloadCsvOnWeb(report);
 
   @override
   Widget build(BuildContext context) {
-    final colours = MyColours();
-    final background = colours.background;
-    final secondary = colours.secondary;
-    final tertiary = colours.informational;
+    
+    final background = context.colours.background;
+    final secondary = context.colours.secondary;
+    final tertiary = context.colours.informational;
 
     return Scaffold(
       backgroundColor: background,
       appBar: AppBar(
         title: const Text('Financial Reports'),
-        backgroundColor: colours.background,
-        foregroundColor: colours.cardText,
+        backgroundColor: context.colours.background,
+        foregroundColor: context.colours.cardText,
         elevation: 0,
       ),
       body: Padding(
@@ -110,14 +110,14 @@ await _exportService.downloadCsvOnWeb(report);
                 color: tertiary.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(
-                  color: colours.cardText.withValues(alpha: 0.4),
+                  color: context.colours.cardText.withValues(alpha: 0.4),
                 ),
               ),
               child: Text(
                 'Export this month’s financial report using your saved transactions.',
                 style: TextStyle(
-                  color: colours.cardText,
-                  fontSize: colours.bodyFontSize,
+                  color: context.colours.cardText,
+                  fontSize: 16,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -129,7 +129,7 @@ await _exportService.downloadCsvOnWeb(report);
               label: const Text('Export as PDF'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: tertiary,
-                foregroundColor: colours.whiteAccents,
+                foregroundColor: context.colours.whiteAccents,
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
             ),
