@@ -351,29 +351,67 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
       colours.informational,
       colours.secondary];
     final total = report.categorySpending.fold(0.0,
-          (sum, item) => sum+item.amount,)
+          (sum, item) => sum+item.amount,);
+
     return _chartCard(
       child: SizedBox(
         height: 360,
-        child: Row(children: [Expanded(flex: 5,
-        child: PieChart(
-          PieChartData(
-            centerSpaceRadius: 55,
-            sections: report.categorySpending
-                .map(
-                  (category) => PieChartSectionData(
-                    value: category.amount,
-                    title: category.categoryName,
-                    radius: 90,
+        child: Row(
+          children: [
+            Expanded(
+              flex: 5,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  PieChart(
+                  PieChartData(
+                    centerSpaceRadius: 55,
+                    sectionsSpace: 3,
+                    sections: report.categorySpending
+                        .asMap()
+                        .entries
+                        .map((entry){
+                          final index =entry.key;
+                          final category = entry.value;
+                          
+                          return PieChartSectionData(
+                            value: category.amount,
+                            title: "",
+                            radius: 90,
+                            color: chartColours[index%chartColours.length], // dividing the colours among categories
+                          );
+                        }).toList(),
+                      ), 
+                    ),
+            Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Total Spent",
+                        style: colours.b3.copyWith(
+                          color: colours.textMuted,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        _formatCurrency(total),
+                        style: colours.h2,
+                      ),
+                    ],
                   ),
-                )
-                .toList(),
-          ),
-          ],)
+                ],
+              ),
+            ),
+
+            Expanded(
+              flex: 4,
+              child: Container(),
+            ),
+          ],
         ),
       ),
-    ),
-  };
+    );
+  }
 
   Widget _budgetChart(GraphicalReportData report) {
     if (report.budgetComparisons.isEmpty) {
