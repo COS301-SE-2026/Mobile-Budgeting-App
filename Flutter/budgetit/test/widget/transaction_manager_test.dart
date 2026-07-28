@@ -235,7 +235,7 @@ void main() {
             .first,
       );
       final bg = (container.decoration as BoxDecoration).color;
-      expect(bg, MyColours().background);
+      expect(bg, MyColours().category);
     });
 
     testWidgets('selected state uses secondary fill', (tester) async {
@@ -253,7 +253,7 @@ void main() {
             .first,
       );
       final bg = (container.decoration as BoxDecoration).color;
-      expect(bg, MyColours().secondary);
+      expect(bg, MyColours().informational);
     });
 
     testWidgets('unselected badge uses background fill', (tester) async {
@@ -269,7 +269,7 @@ void main() {
             .first,
       );
       final bg = (container.decoration as BoxDecoration).color;
-      expect(bg, MyColours().background);
+      expect(bg, MyColours().category);
     });
   });
 
