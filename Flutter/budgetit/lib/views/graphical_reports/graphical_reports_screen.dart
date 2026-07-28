@@ -275,12 +275,27 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                   getTitlesWidget: (value,meta){
                     return Text(
                       "${(value/1000).toStringAsFixed(0)}K",
-                      style: colours.b5.copyWith(color: colours.textMuted),
+                      style: colours.b5.copyWith(color: colours.textMuted,),
                     );
-                  }
-                                          )),
+                  },
                 ),
-              
+              ),
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 35,
+                  getTitlesWidget: (value,meta) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top:10),
+                      child: Text(
+                        value.toInt() == 0 ? "Income" : "Expenses",
+                        style: colours.budgetheader,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
             borderData: FlBorderData(show: false),
           ),
         ),
