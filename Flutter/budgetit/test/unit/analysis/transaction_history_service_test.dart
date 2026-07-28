@@ -35,7 +35,7 @@ void main() {
         test('getMonthlyHistory months are ordered olderst to newest', () async {
             when(mockTxDao.getTransactionsByDateRange(any,any)).thenAnswer((_) async => []);
             final result = await service.getMonthlyHistory(monthsBack: 3);
-            for (var i=0;1<result.length-1;i++){
+            for (var i=0;i<result.length-1;i++){
                 final current = DateTime(result[i].year, result[i].month);
                 final next = DateTime(result[i+1].year, result[i+1].month);
                 expect(current.isBefore(next), isTrue);
