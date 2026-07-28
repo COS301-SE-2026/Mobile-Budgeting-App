@@ -33,7 +33,7 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
     }
 
     BudgetInsight _anomalyToInsight(AnomalyResult anomaly, MyColours colours) {
-        reutrn BudgetInsight(
+        return BudgetInsight(
             title: anomaly.title,
             body: anomaly.body,
             icon: _iconFor(anomaly.severity),
@@ -51,10 +51,10 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
     Color _colorFor(AnomalySeverity severity, MyColours colours) => switch (severity) {
         AnomalySeverity.high => colours.error,
         AnomalySeverity.medium => colours.warning,
-        AnomalySeverity.low => colors.informational,
+        AnomalySeverity.low => colours.informational,
     };
 
-    InsightSeverity _insightSeverityFor(AnomalySeverity severity) => swithc (severity) {
+    InsightSeverity _insightSeverityFor(AnomalySeverity severity) => switch (severity) {
         AnomalySeverity.high => InsightSeverity.alert,
         AnomalySeverity.medium => InsightSeverity.warning,
         AnomalySeverity.low => InsightSeverity.tip,
@@ -112,7 +112,7 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
             backgroundColor: colours.primary,
             child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.symetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children:[
@@ -167,7 +167,7 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
                             else
                               InsightWidget(
                                 insights: scanner.anomalies
-                                    .map((a) => _anomalyToInsight(a))
+                                    .map((a) => _anomalyToInsight(a, colours))
                                     .toList(),
                               ),
                               const SizedBox(height: 28),
@@ -225,7 +225,7 @@ class _PredictionCard extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-                color: colours.navBarColor,
+                color: colours.textMuted,
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(color: colours.textPrimary.withValues(alpha: 0.15)),
             ),

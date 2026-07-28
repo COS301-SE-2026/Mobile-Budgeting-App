@@ -10,7 +10,7 @@ import '../components/spending_chart.dart';
 import '../components/transaction_tile.dart';
 import '../database/app_database.dart';
 import '../database/schema.dart';
-import 'package:budgetit/services/analysis/background_anomaly_scanner';
+import 'package:budgetit/services/analysis/background_anomaly_scanner.dart';
 import 'package:budgetit/screens/predictive_spending_screen.dart';
 
 class Dashboard extends StatefulWidget {
