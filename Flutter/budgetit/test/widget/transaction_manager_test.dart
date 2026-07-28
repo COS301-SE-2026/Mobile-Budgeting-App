@@ -136,7 +136,7 @@ void main() {
 
     testWidgets('shows date header with day and date', (tester) async {
       _usePhoneSize(tester);
-      await tester.pumpWidget(_screen(const TransactionManager()));
+      await tester.pumpWidget(wrapWithProviders(const TransactionManager(), db: _mock.db));
       await tester.pump();
       expect(find.text('Monday'), findsOneWidget);
       expect(find.text('18 May 2026'), findsOneWidget);
@@ -146,7 +146,7 @@ void main() {
       tester,
     ) async {
       _usePhoneSize(tester);
-      await tester.pumpWidget(_screen(const TransactionManager()));
+      await tester.pumpWidget(wrapWithProviders(const TransactionManager(), db: _mock.db));
       await tester.pump();
       expect(find.text('Water'), findsOneWidget);
       expect(find.text('Electricity'), findsOneWidget);
