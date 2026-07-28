@@ -342,13 +342,14 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
     if (report.categorySpending.isEmpty) {
       return _emptyChartMessage();
     }
-    final chartColours = [ colours.greenAccents,
-                        colours.yellow,
-                        colours.light,
-                        colours.warning,
-                        colours.textMuted,
-                        colours.informational,
-                        colours.secondary];
+    final chartColours = [ 
+      colours.greenAccents,
+      colours.yellow,
+      colours.light,
+      colours.warning,
+      colours.textMuted,
+      colours.informational,
+      colours.secondary];
     final total = report.categorySpending.fold(0.0,
           (sum, item) => sum+item.amount,)
     return _chartCard(
@@ -368,7 +369,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                 )
                 .toList(),
           ),
-          ],
+          ],)
         ),
       ),
     ),
