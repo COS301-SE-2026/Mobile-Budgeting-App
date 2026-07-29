@@ -3,10 +3,10 @@ FROM ${PYTHON_IMAGE}
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir uv==0.5.11
+RUN pip install --only-binary :all: --no-cache-dir uv==0.5.11
 
 COPY backend/pyproject.toml backend/uv.lock ./
-RUN uv sync --frozen --no-dev
+RUN uv sync  --frozen --no-dev  
 
 COPY backend/src ./src
 
