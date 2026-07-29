@@ -16,13 +16,13 @@ class MyBox extends StatefulWidget {
   const MyBox({
     super.key,
     this.text = '',
-    this.icon,
-    this.amount,
-    this.category,
+    this.icon = null,
+    this.amount = 0,
+    this.category = 'nothing',
     this.categories = const [],
     this.onEdited,
     this.onDelete,
-    this.date,
+    this.date = '',
     this.isExpense = false,
   });
 

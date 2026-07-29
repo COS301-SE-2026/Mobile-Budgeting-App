@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:budgetit/shared/widgets/fab.dart';
+import 'package:budgetit/shared/widgets/action_button.dart';
 import 'package:budgetit/utils/app_colour.dart';
+import 'package:widgetbook/widgetbook.dart';
 import 'package:widgetbook_annotation/widgetbook_annotation.dart' as widgetbook;
 
-@widgetbook.UseCase(name: 'FAB', type: FAB, path: '[Widgets]' )
+@widgetbook.UseCase(name: 'Action Button', type: ActionButton, path: '[Widgets]' )
 Widget addButton(BuildContext context) {
   return Scaffold(
     backgroundColor: context.colours.background, 
@@ -12,14 +13,10 @@ Widget addButton(BuildContext context) {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            "This is a FAB",
+            "Lights, Cameras, Action!",
             style: context.colours.h2,
           ),
-          const SizedBox(height: 28),
-          Text(
-            "AKA a FLoating Action Button ",
-            style: context.colours.h4,
-          ),
+          
            const SizedBox(height: 28),
            
           Text(
@@ -28,7 +25,7 @@ Widget addButton(BuildContext context) {
             textAlign: TextAlign.center,
           ),
            const SizedBox(height: 40),
-          FAB(),
+          ActionButton(label: "Example",icon: Icons.abc),
         ],
       ),
     ),
