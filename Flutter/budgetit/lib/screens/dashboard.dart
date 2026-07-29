@@ -502,7 +502,8 @@ class _DashboardState extends State<Dashboard> {
 
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Stack(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       TextButton(
                         onPressed: () {
@@ -515,10 +516,11 @@ class _DashboardState extends State<Dashboard> {
                             ),
                           );
                         },
+                        style: TextButton.styleFrom(padding: EdgeInsets.zero),
                         child: 
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
+                       // Row(
+                         // crossAxisAlignment: CrossAxisAlignment.center,
+                          //children: [
                         Container(
                           height: MediaQuery.heightOf(context) * 0.08,
                           width: MediaQuery.widthOf(context) * 0.35,
@@ -541,9 +543,14 @@ class _DashboardState extends State<Dashboard> {
                           ),
                           ),
                         ),
+                      ),
 
                         SizedBox(width:  MediaQuery.widthOf(context) * 0.10,),
-                         Container(
+
+                        TextButton(
+                          onPressed: () {},   //jessica need to addd reports here
+                          style: TextButton.styleFrom( padding: EdgeInsets.zero ),
+                         child: Container(
                           height: MediaQuery.heightOf(context) * 0.08,
                           width: MediaQuery.widthOf(context) * 0.35,
                           decoration: BoxDecoration(
@@ -566,15 +573,15 @@ class _DashboardState extends State<Dashboard> {
                           ),
                         ),
                           
-                          ],
+                         // ],
                           
-                          ),
+                         // ),
                       
                       ),
                   
                   
-                    ]
-                  )
+                    ],
+                  ),
                 ),
             
                 
