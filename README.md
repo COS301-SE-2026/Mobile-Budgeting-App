@@ -1,5 +1,21 @@
+##  Team
 
----
+<p align="center">
+  <img src="docs/GroupMembers.jpeg" alt="Dev OOPs Team" width="700"/>
+</p>
+
+<div align="center">
+
+| Member | Role | Responsibilities |
+| :--- | :--- | :--- |
+| **Kiolin Gounden** | AI & Analytics Lead | On-device AI, categorisation, anomaly detection |
+| **Lufuno Mphagi** | Backend & Data Lead | SQLite, transaction logic, data layer |
+| **Pavan Naidoo** | Scrum Master & Full-Stack Lead | Sprint planning, architecture, system integration |
+| **Jessica Marodi** | Frontend Lead & UI/UX | Mobile UI, user experience, reusable components |
+| **Donovan Nelson** | DevOps & Infrastructure | CI/CD, deployment, build automation |
+
+
+</div>
 
 ## Tech Stack
 
