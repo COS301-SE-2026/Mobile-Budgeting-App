@@ -14,6 +14,14 @@ flutter-get:
 flutter-run:
 	cd $(FLUTTER_DIR) && fvm flutter run
 
+
+
+
+
+
+flutter-bsg:
+	cd $(FLUTTER_DIR) && dart run build_runner build -d && fvm flutter run -t lib/bsg/main.dart
+
 flutter-run-android:
 	cd $(FLUTTER_DIR) && fvm flutter run -d android
 
