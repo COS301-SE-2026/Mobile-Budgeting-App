@@ -72,10 +72,9 @@ class TransactionHistoryService {
                 final categoryName = mapping == null ? 'Uncategorised' : await _resolveCategoryName(mapping.categoryId);
                 expensesByCategory[categoryName] = (expensesByCategory[categoryName] ?? 0) + amount;
 
-                if(amount > largestExpense) {
+                if(categoryName == 'Uncategorised' && amount > (largestExpense ?? 0)) {
                     largestExpense = amount;
                     largestDescription = tx.shortDescription;
-                    largestCategory = categoryName;
                     largestDate = tx.transactionDate; 
                 }
             } else {

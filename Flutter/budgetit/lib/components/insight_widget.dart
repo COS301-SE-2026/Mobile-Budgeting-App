@@ -205,6 +205,78 @@ class _InsightCard extends StatelessWidget {
                     height: 1.5,
                   ),
                 ),
+
+                if(insight.transactionDescription != null) ...[
+                  const SizedBox(height: 16),
+                  Divider( color: insight.accentColor.withValues(alpha: 0.4)),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Anomolous Transaction',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                      color: colours.textMuted,
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: insight.accentColor.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: insight.accentColor.withValues(alpha: 0.25)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children:[
+                        Text(
+                          insight.transactionDescription!,
+                          style: TextStyle(
+                            color: colours.textPrimary,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                            
+                          ),
+                        ),
+
+                        const SizedBox(height: 2),
+
+                        Text(
+                          insight.transactionCategory ?? '',
+                          style: TextStyle(
+                            color: colours.textMuted,
+                            fontSize: 11,
+                          ),
+                        ),
+
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'R${insight.transactionAmount!.toStringAsFixed(2)}',
+                              style: TextStyle(
+                                color: insight.accentColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                            Text(
+                              '${insight.transactionDate!.day}/${insight.transactionDate!.month}/${insight.transactionDate!.year}',
+                              style: TextStyle(
+                                color: colours.textMuted,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
