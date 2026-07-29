@@ -1,3 +1,7 @@
+![Header](https://capsule-render.vercel.app/api?type=waving&color=0:04240C,50:04240C,100:04240C&height=130&section=header&text=Welcome%20to%20Budget%20It!%20by%20Dev%20OOP's%20&fontSize=30&fontColor=ffffff&animation=fadeIn&fontAlignY=40&desc=Offline%20Mobile%20budgeting%20app&descAlignY=60&descSize=13&descColor=04240C)
+
+![Typing](https://readme-typing-svg.demolab.com?font=Fira+Code&pause=1000&color=DDD6AE&width=500&center=true&lines=designed+to+help+users+track+income+expenses+managebudget;Nerf+your+expenses)
+
 # Team Name 
 **DEV OOPs**  
 # Project Name
