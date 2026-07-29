@@ -6,45 +6,70 @@
   This document presents the software architecture of Budget IT, describing the key architectural decisions, patterns, and structures that enable this offline-first behavior. It outlines the system's major components, how they interact, and the rationale behind the chosen architectural style. The goal of this specification is to provide a clear technical reference for the development team, ensuring a shared understanding of the system's structure as implementation and testing proceed.
 
 - # Architectural Requirements
+   ### Implemented Architectural Style
+   The current system follows a layered client-side architecture:
+
+   - Presentation Layer: Flutter screens, views, and reusable UI components.
+   - State Management Layer: Provider-based application state, especially authentication and theme state.
+   - Service Layer: Import, reporting, anomaly detection, prediction, classification, and export services.
+   - Data Access Layer: Drift DAOs for database operations.
+   - Data Layer: Local SQLite database.
+   - External Cloud Service: AWS Cognito for authentication.
+
+   flowchart TB
+      UI["Flutter Screens and Components"]
+      Provider["Provider State Management"]
+      Services["Application Services"]
+      DAOs["Drift DAO Layer"]
+      SQLite["Local SQLite Database"]
+      Cognito["AWS Cognito"]
+
+      UI --> Provider
+      UI --> Services
+      UI --> DAOs
+      Services --> DAOs
+      DAOs --> SQLite
+      Provider --> Cognito
     ## Architectural Patterns
        The system employs a three-tier architecture with microservices within the logic layer. This approach provides a clear separation of concerns, enabling robust parallel development. The use of microservices increases reliability through decentralised control and independent deployment, allowing core features to operate regardless of external or online dependencies.
 
-       Alongside the API Gateway used for microservices, an Auth service (AWS Cognito) provides secure authentication — a feature paramount in a security-first application. DAOs offer a flexible and efficient interface with the local SQLite database, integrating cleanly with the Flutter GUI.
+       Alongside the API Gateway used for microservices, an Auth service (AWS Cognito) provides secure authentication,a feature paramount in a security-first application. DAOs offer a flexible and efficient interface with the local SQLite database, integrating cleanly with the Flutter GUI.
 
        Within the data layer, a deployed PostgreSQL database provides reliable and powerful storage backed by AWS hosting, while the local SQLite database delivers efficient on-device storage suited to mid-range devices without impacting performance. An S3 Bucket Store supports the Sync service by storing dumps of the local database, avoiding the need to sync the full database on every sync operation and thereby preventing redundancy and performance degradation.
+
     ## Design Patterns
-    ### Singleton
-           The **Singleton** pattern will be used for shared system resources such as the local database connection, authentication manager, and sync manager. This ensures that only one instance controls important resources during app execution.
+      ### Singleton
+            The **Singleton** pattern will be used for shared system resources such as the local database connection, authentication manager, and sync manager. This ensures that only one instance controls important resources during app execution.
 
-       ---
+         ---
 
-    ### Factory Method
-           The **Factory Method** pattern will be used when creating different types of transactions, such as income transactions, expense transactions, recurring transactions, or imported bank statement transactions. This improves flexibility when adding new transaction types later.
+      ### Factory Method
+            The **Factory Method** pattern will be used when creating different types of transactions, such as income transactions, expense transactions, recurring transactions, or imported bank statement transactions. This improves flexibility when adding new transaction types later.
 
-       ---
+         ---
 
-    ### Adapter
-           The **Adapter** pattern will be used to connect the mobile app to external libraries or services, such as SQLite encryption, TensorFlow Lite/ONNX Runtime, biometric authentication, and cloud backup services. This prevents the app from depending directly on specific third-party implementations.
+      ### Adapter
+            The **Adapter** pattern will be used to connect the mobile app to external libraries or services, such as SQLite encryption, TensorFlow Lite/ONNX Runtime, biometric authentication, and cloud backup services. This prevents the app from depending directly on specific third-party implementations.
 
-       ---
+         ---
 
-    ### Facade
-           The **Facade** pattern will be used to provide a simple interface for complex subsystems such as statement importing, AI analysis, and synchronisation. For example, the app can call `importStatement()` without needing to know all the internal parsing, categorisation, and saving steps.
+      ### Facade
+            The **Facade** pattern will be used to provide a simple interface for complex subsystems such as statement importing, AI analysis, and synchronisation. For example, the app can call `importStatement()` without needing to know all the internal parsing, categorisation, and saving steps.
 
-       ---
+         ---
 
-    ### Observer
-           The **Observer** pattern will be used to automatically update parts of the system when data changes. For example, when a transaction is added, edited, or deleted, the dashboard, budget alerts, and charts can update immediately.
+      ### Observer
+            The **Observer** pattern will be used to automatically update parts of the system when data changes. For example, when a transaction is added, edited, or deleted, the dashboard, budget alerts, and charts can update immediately.
 
-       ---
+         ---
 
-    ### Strategy
-           The **Strategy** pattern will be used for bank statement parsing and transaction categorisation. Different banks may have different CSV or PDF formats, so each format can use its own parsing strategy without changing the rest of the system.
+      ### Strategy
+            The **Strategy** pattern will be used for bank statement parsing and transaction categorisation. Different banks may have different CSV or PDF formats, so each format can use its own parsing strategy without changing the rest of the system.
 
-       ---
+         ---
 
-    ### State
-          The **State** pattern will be used to manage connectivity and sync states, such as **Offline**, **Online**, **Syncing**, **Synced**, and **Sync Failed**. This helps the app behave correctly when the network connection changes.
+      ### State
+            The **State** pattern will be used to manage connectivity and sync states, such as **Offline**, **Online**, **Syncing**, **Synced**, and **Sync Failed**. This helps the app behave correctly when the network connection changes.
 
     - ## Constraints
 
@@ -86,8 +111,20 @@
        - ## Mapping Quality Requirements to Architectural Decisions
 
 - # Technology Requirements
-       ### Frontend
-
+       ### Pubspec main technologies
+         Flutter: frontend framework
+         Dart: programming language
+         Drift: local ORM/database access layer
+         SQLite: local database engine
+         AWS Amplify: cloud service integration
+         Amazon Cognito: authentication provider
+         Provider: state management
+         fl_chart: charting/visual reports
+         flutter_secure_storage: secure token/storage support
+         file_picker: importing files/statements
+         path_provider/path: local filesystem/database path support
+      
+      ### Frontend
        Technology : Flutter
        Purpose : It enables efficient cross-platform mobile development while maintaining near-native performance.
 
@@ -162,7 +199,16 @@
        );
       Future<AppAuthUser?> getCurrentUser();
       }
-      ## DAO contracts
+      ### Implemented Cognito operations:
+         Sign up: Amplify.Auth.signUp
+         Confirm sign up: Amplify.Auth.confirmSignUp
+         Resend verification code: Amplify.Auth.resendSignUpCode
+         Sign in: Amplify.Auth.signIn
+         Sign out: Amplify.Auth.signOut
+         Reset password: Amplify.Auth.resetPassword
+         Confirm reset password: Amplify.Auth.confirmResetPassword
+         Get current user: Amplify.Auth.getCurrentUser
+      ## DAO contracts local operations
          ### Transactions
          Insert transaction
          Get transaction by ID
@@ -173,11 +219,32 @@
          Restore transaction
          ### Category
          Assign category to transaction
+         Insert category
+         Get category by ID
+         Get all categories
+         Get categories by type
+         Update category
+         Soft delete category
+         Hard delete category
+         Restore category
          ### Budget
          Insert budget template
-         Generate budget period
+         Get budget template by ID
+         Get budget template by category
+         Update budget template
+         Soft delete budget template
+         Hard delete budget template
+         Restore budget template
+         Insert budget period
+         Get budget period by ID
+         Generate next budget period
+         Update budget period
+         Hard delete budget period
          ### Settings
-         Read/update app settings
+         Upsert setting
+         Get setting
+         Delete setting
+         Get all settings
       ## Session Logout
          Logout is done through the Profile page button, then through the app’s auth provider, then Cognito.
          final auth = context.read<AppAuthProvider>();
