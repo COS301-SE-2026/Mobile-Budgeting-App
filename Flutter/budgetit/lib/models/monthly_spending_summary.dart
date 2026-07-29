@@ -5,6 +5,10 @@ class MonthlySpendingSummary {
     final double totalIncome;
     final Map<String, double> expensesByCategory;
     final int transactionCount;
+    final String? largestTransactionDescription;
+    final String? largestTransactionCategory;
+    final String? largestTransactionAmount;
+    final DateTime? largestTransactionDate;
 
     const MonthlySpendingSummary({
         required this.year,
@@ -13,6 +17,10 @@ class MonthlySpendingSummary {
         required this.totalIncome,
         required this.expensesByCategory,
         required this.transactionCount,
+        required this.largestTransactionDescription,
+        required this.largestTransactionCategory,
+        required this.largestTransactionAmount,
+        required this.largestTransactionDate,
     });
 
     double get netAmount => totalIncome - totalExpenses;
