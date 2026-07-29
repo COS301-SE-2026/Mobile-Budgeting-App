@@ -8,6 +8,7 @@ import '../../shared/widgets/spending_chart.dart';
 import '../../shared/widgets/transaction_tile.dart';
 import '../../database/app_database.dart';
 import '../../database/schema.dart';
+import 'package:budgetit/shared/widgets/predictive_spending_screen.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -354,13 +355,22 @@ class _DashboardState extends State<Dashboard> {
                   ),
                 ),
               _buildDailySpendingCard(colours),
-              const SizedBox(height: 10),
+              const SizedBox(height: 10),//here
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Container(
+                    GestureDetector(
+                      onTap: (){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const PredictiveSpendingScreen(),
+                          ),
+                        );
+                      },
+                      child: Container(
                       height: MediaQuery.sizeOf(context).height * 0.08,
                       width: MediaQuery.sizeOf(context).width * 0.35,
                       decoration: BoxDecoration(
@@ -369,7 +379,11 @@ class _DashboardState extends State<Dashboard> {
                       ),
                       child: Center(child: Text("INSIGHTS", style: colours.b3)),
                     ),
-                    Container(
+                    ),
+        
+                    GestureDetector(
+                      onTap: () {},
+                      child: Container(
                       height: MediaQuery.sizeOf(context).height * 0.08,
                       width: MediaQuery.sizeOf(context).width * 0.35,
                       decoration: BoxDecoration(
@@ -378,9 +392,10 @@ class _DashboardState extends State<Dashboard> {
                       ),
                       child: Center(child: Text("REPORTS", style: colours.b3)),
                     ),
+                    ),
                   ],
                 ),
-              ),
+              ),//here
               const SizedBox(height: 25),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
