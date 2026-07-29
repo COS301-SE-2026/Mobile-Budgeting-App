@@ -1,7 +1,7 @@
 # Software Architecture Specification by DEV OOPS
 
 - # Introduction
-  Budget IT is an offline-first mobile budgeting application designed to help users track expenses, manage budgets, and visualize spending trends without dependence on constant internet connectivity. Unlike many competing budgeting apps, which assume near-continuous connectivity and degrade or become unusable without it, Budget IT is built from the ground up to function reliably offline, syncing data seamlessly once a connection becomes available.
+  Budget IT is an offline-first mobile budgeting application designed to help users track expenses, manage budgets, and visualize spending trends without dependence on constant internet connectivity. Unlike many competing budgeting apps, which assume near-continuous connectivity and degrade or become unusable without it, Budget IT is built from the ground up to function reliably offline, syncing data seamlessly once a connection becomes available. It is mainly a client-side mobile/web app with local data persistence and AWS Cognito authentication.
 
   This document presents the software architecture of Budget IT, describing the key architectural decisions, patterns, and structures that enable this offline-first behavior. It outlines the system's major components, how they interact, and the rationale behind the chosen architectural style. The goal of this specification is to provide a clear technical reference for the development team, ensuring a shared understanding of the system's structure as implementation and testing proceed.
 
@@ -142,57 +142,50 @@
 
        Docker provides consistent backend development and deployment environments.
     - # API Contracts
-       The Mobile Budgeting App exposes RESTful APIs for optional online services including authentication, synchronisation, friend management, and shared savings goals. Core budgeting functionality does not depend on these APIs and remains fully operational offline.
+       The Mobile Budgeting App uses internal Dart contracts through services and DAOs. Core budgeting functionality does not depend on these APIs and remains fully operational offline.
        ## Authentication API
-       POST /auth/login
-
-       Authenticates a registered user using AWS Cognito credentials.
-
-       Request
-
-       {
-       "email": "user@example.com",
-       "password": "**\*\*\*\***"
-       }
-
-       Response
-
-       {
-       "accessToken": "jwt-token",
-       "refreshToken": "refresh-token",
-       "userId": "12345"
-       }
-       POST /auth/logout
-
-       Invalidates the current session.
-
-       Response
-
-       {
-       "success": true
-       }
+       Amplify.Auth.signIn(
+         username: email,
+         password: password,
+         );
+       abstract class AuthService {
+            Future<AppAuthResult> signUp(String email, String password);
+            Future<AppAuthResult> confirmSignUp(String email, String code);
+            Future<AppAuthResult> resendSignUpCode(String email);
+            Future<AppAuthResult> signIn(String email, String password);
+            Future<AppAuthResult> signOut();
+            Future<AppAuthResult> resetPassword(String email);
+            Future<AppAuthResult> confirmResetPassword(
+               String email,
+               String newPassword,
+               String code,
+       );
+      Future<AppAuthUser?> getCurrentUser();
+      }
+      ## DAO contracts
+         ### Transactions
+         Insert transaction
+         Get transaction by ID
+         Get transactions by type
+         Get transactions by date range
+         Update transaction
+         Soft delete transaction
+         Restore transaction
+         ### Category
+         Assign category to transaction
+         ### Budget
+         Insert budget template
+         Generate budget period
+         ### Settings
+         Read/update app settings
+      ## Session Logout
+         Logout is done through the Profile page button, then through the app’s auth provider, then Cognito.
+         final auth = context.read<AppAuthProvider>();
+            await auth.signOut();
+            Navigator.of(context).popUntil((route) => route.isFirst);
 
        ## Synchronisation API
 
-       
-       ## Friends API
-
-       Provides endpoints for managing friends and collaborative financial goals.
-
-       Examples include:
-
-       POST /friends/request
-       GET /friends
-       DELETE /friends/{id}
-
-       ## Goals API
-
-       Provides endpoints for creating and managing shared savings goals.
-
-       - POST /goals
-       - GET /goals
-       - PUT /goals/{id}
-       - DELETE /goals/{id}
 
 
 - # Deployment
