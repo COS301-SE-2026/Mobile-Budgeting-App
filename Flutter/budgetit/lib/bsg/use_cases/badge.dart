@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:budgetit/shared/widgets/fab.dart';
+import 'package:budgetit/shared/widgets/badge.dart';
 import 'package:budgetit/utils/app_colour.dart';
+import 'package:widgetbook/widgetbook.dart';
 import 'package:widgetbook_annotation/widgetbook_annotation.dart' as widgetbook;
 
-@widgetbook.UseCase(name: 'FAB', type: FAB, path: '[Widgets]' )
+@widgetbook.UseCase(name: 'Badge', type:MyBadge, path: '[Widgets]'  )
 Widget addButton(BuildContext context) {
   return Scaffold(
     backgroundColor: context.colours.background, 
@@ -12,23 +13,18 @@ Widget addButton(BuildContext context) {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            "This is a FAB",
+            "Small Badge - Huge Power",
             style: context.colours.h2,
           ),
-          const SizedBox(height: 28),
-          Text(
-            "AKA a FLoating Action Button ",
-            style: context.colours.h4,
-          ),
+          
            const SizedBox(height: 28),
-           
           Text(
-            "It hovers over our Transaction Manager Page, providing a way to add transactions that pops out at you (literally!) ",
+            "This small badge acts as a filter allowing us to sort throuh large amounts of data with one click! ",
             style: context.colours.b1,
             textAlign: TextAlign.center,
           ),
            const SizedBox(height: 40),
-          FAB(),
+          MyBadge(text: context.knobs.string(label: 'badge', initialValue: 'Hi!'),),
         ],
       ),
     ),
