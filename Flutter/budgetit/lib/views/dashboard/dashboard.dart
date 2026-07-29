@@ -46,8 +46,19 @@ class _DashboardState extends State<Dashboard> {
 
   String _monthName(int month) {
     const months = [
-      '', 'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      '',
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     return months[month];
   }
@@ -57,7 +68,10 @@ class _DashboardState extends State<Dashboard> {
   double _amountAsDouble(Transaction transaction) =>
       double.parse(transaction.amount.toString());
 
-  double _sumTransactions(List<Transaction> transactions, TransactionType type) {
+  double _sumTransactions(
+    List<Transaction> transactions,
+    TransactionType type,
+  ) {
     return transactions
         .where((t) => t.type == type)
         .fold<double>(0, (sum, t) => sum + _amountAsDouble(t));
@@ -75,17 +89,6 @@ class _DashboardState extends State<Dashboard> {
       if (remaining > 1 && remaining % 3 == 1) buffer.write(',');
     }
     return 'R${buffer.toString()}.$cents';
-  }
-
-  String _formatCompactCurrency(double amount) {
-    if (amount >= 1000) {
-      final thousands = amount / 1000;
-      final text = thousands == thousands.roundToDouble()
-          ? thousands.toStringAsFixed(0)
-          : thousands.toStringAsFixed(1);
-      return 'R${text}K';
-    }
-    return 'R${amount.toStringAsFixed(0)}';
   }
 
   String _transactionSubtitle(Transaction transaction) {
@@ -150,9 +153,12 @@ class _DashboardState extends State<Dashboard> {
       colours.primary,
       Colors.redAccent,
     ];
-    final entries = totals.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+    final entries = totals.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
     final visible = entries.take(3).toList();
-    final otherTotal = entries.skip(3).fold<double>(0, (sum, e) => sum + e.value);
+    final otherTotal = entries
+        .skip(3)
+        .fold<double>(0, (sum, e) => sum + e.value);
     if (otherTotal > 0) visible.add(MapEntry('Others', otherTotal));
 
     return visible.asMap().entries.map((e) {
@@ -231,12 +237,7 @@ class _DashboardState extends State<Dashboard> {
       decoration: BoxDecoration(
         color: colours.secondary,
         border: Border.all(color: Colors.black, width: 4),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black,
-            offset: const Offset(6, 6),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black, offset: const Offset(6, 6))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -308,14 +309,21 @@ class _DashboardState extends State<Dashboard> {
                         }
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
                         decoration: BoxDecoration(
                           color: colours.bg2,
                           border: Border.all(color: Colors.black, width: 4),
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.calendar_month, color: colours.textPrimary, size: 18),
+                            Icon(
+                              Icons.calendar_month,
+                              color: colours.textPrimary,
+                              size: 18,
+                            ),
                             const SizedBox(width: 8),
                             Text(
                               "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
@@ -339,7 +347,10 @@ class _DashboardState extends State<Dashboard> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Text(
                     'Could not load dashboard data.',
-                    style: TextStyle(color: colours.error, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      color: colours.error,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               _buildDailySpendingCard(colours),
@@ -356,9 +367,7 @@ class _DashboardState extends State<Dashboard> {
                         border: Border.all(color: Colors.black, width: 4),
                         color: colours.secondary,
                       ),
-                      child: Center(
-                        child: Text("INSIGHTS", style: colours.b3),
-                      ),
+                      child: Center(child: Text("INSIGHTS", style: colours.b3)),
                     ),
                     Container(
                       height: MediaQuery.sizeOf(context).height * 0.08,
@@ -367,9 +376,7 @@ class _DashboardState extends State<Dashboard> {
                         border: Border.all(color: Colors.black, width: 4),
                         color: colours.secondary,
                       ),
-                      child: Center(
-                        child: Text("REPORTS", style: colours.b3),
-                      ),
+                      child: Center(child: Text("REPORTS", style: colours.b3)),
                     ),
                   ],
                 ),
@@ -382,7 +389,10 @@ class _DashboardState extends State<Dashboard> {
               const SizedBox(height: 10),
               if (recentTransactions.isEmpty)
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
                   child: Text(
                     'No recent transactions yet.',
                     style: TextStyle(color: colours.textPrimary),
