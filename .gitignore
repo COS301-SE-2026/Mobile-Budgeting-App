@@ -15,4 +15,5 @@ Flutter/budgetit/ios/
 Flutter/budgetit/linux/
 artifacts/
 backend/.env
-
+docker/flutter/.env
+Flutter\budgetit\lib\bsg\main.directories.g.dart
