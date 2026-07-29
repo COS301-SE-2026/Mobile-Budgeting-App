@@ -16,6 +16,107 @@ class RecurringTransactionCatchUpService {
     return DateTime(date.year, date.month, date.day, 23, 59, 59, 999, 999);
   }
 
+  Future<TemplateCatchUpResult> _catchUpRecurringTransaction(
+    RecurringTransaction recurringTransaction,
+    DateTime localTodayEndOfDay,
+  ) async {
+    final initialNextTransactionDate = recurringTransaction.nextTransactionDate;
+    final occurrences = <OccurrenceCatchUpResult>[];
+    var current = recurringTransaction;
+
+    while (!current.nextTransactionDate.isAfter(localTodayEndOfDay)) {
+      final dueDate = current.nextTransactionDate;
+      CatchUpFailure? occurrenceFailure;
+      late final Transaction insertedTransaction;
+      late final RecurringTransaction advancedRecurringTransaction;
+
+      try {
+        await _database.transaction(() async {
+          try {
+            insertedTransaction = await _database.transactionDao
+                .insertTransaction(
+                  amount: current.amount,
+                  type: current.type,
+                  shortDescription: current.shortDescription,
+                  longDescription: current.longDescription,
+                  transactionDate: dueDate,
+                  source: TransactionSource.recurring,
+                  currency: current.currency,
+                  recurringId: current.id,
+                );
+          } catch (error, stackTrace) {
+            occurrenceFailure = CatchUpFailure(
+              type: CatchUpFailureType.transactionInsertFailed,
+              error: error,
+              stackTrace: stackTrace,
+            );
+            rethrow;
+          }
+
+          if (current.categoryId != null) {
+            try {
+              await _database.transactionDao.assignCategory(
+                transactionId: insertedTransaction.id,
+                categoryId: current.categoryId!,
+                assignmentSource: AssignmentSource.manual,
+              );
+            } catch (error, stackTrace) {
+              occurrenceFailure = CatchUpFailure(
+                type: CatchUpFailureType.categoryAssignmentFailed,
+                error: error,
+                stackTrace: stackTrace,
+              );
+              rethrow;
+            }
+          }
+
+          try {
+            advancedRecurringTransaction = await _database
+                .recurringTransactionDao
+                .advanceNextDate(current.id);
+          } catch (error, stackTrace) {
+            occurrenceFailure = CatchUpFailure(
+              type: CatchUpFailureType.advanceNextDateFailed,
+              error: error,
+              stackTrace: stackTrace,
+            );
+            rethrow;
+          }
+        });
+
+        occurrences.add(
+          OccurrenceCatchUpResult.created(
+            dueDate: dueDate,
+            transactionId: insertedTransaction.id,
+          ),
+        );
+        current = advancedRecurringTransaction;
+      } catch (error, stackTrace) {
+        occurrences.add(
+          OccurrenceCatchUpResult.failed(
+            dueDate: dueDate,
+            failure:
+                occurrenceFailure ??
+                CatchUpFailure(
+                  type: CatchUpFailureType.unknown,
+                  error: error,
+                  stackTrace: stackTrace,
+                ),
+          ),
+        );
+        break;
+      }
+    }
+
+    return TemplateCatchUpResult(
+      recurringTransactionId: recurringTransaction.id,
+      shortDescription: recurringTransaction.shortDescription,
+      initialNextTransactionDate: initialNextTransactionDate,
+      finalNextTransactionDate: current.nextTransactionDate,
+      occurrences: occurrences,
+    );
+  }
+
   /// Generates all due recurring transactions up to the user's
   /// local calendar day.
   ///
@@ -47,107 +148,10 @@ class RecurringTransactionCatchUpService {
       final templates = <TemplateCatchUpResult>[];
 
       for (final recurringTransaction in dueRecurringTransactions) {
-        final initialNextTransactionDate =
-            recurringTransaction.nextTransactionDate;
-        final occurrences = <OccurrenceCatchUpResult>[];
-        var currentRecurringTransaction = recurringTransaction;
-
-        while (!currentRecurringTransaction.nextTransactionDate.isAfter(
-          localTodayEndOfDay,
-        )) {
-          final dueDate = currentRecurringTransaction.nextTransactionDate;
-          CatchUpFailure? occurrenceFailure;
-          late final Transaction insertedTransaction;
-          late final RecurringTransaction advancedRecurringTransaction;
-
-          try {
-            await _database.transaction(() async {
-              try {
-                insertedTransaction = await _database.transactionDao
-                    .insertTransaction(
-                      amount: currentRecurringTransaction.amount,
-                      type: currentRecurringTransaction.type,
-                      shortDescription:
-                          currentRecurringTransaction.shortDescription,
-                      longDescription:
-                          currentRecurringTransaction.longDescription,
-                      transactionDate: dueDate,
-                      source: TransactionSource.recurring,
-                      currency: currentRecurringTransaction.currency,
-                      recurringId: currentRecurringTransaction.id,
-                    );
-              } catch (error, stackTrace) {
-                occurrenceFailure = CatchUpFailure(
-                  type: CatchUpFailureType.transactionInsertFailed,
-                  error: error,
-                  stackTrace: stackTrace,
-                );
-                rethrow;
-              }
-
-              if (currentRecurringTransaction.categoryId != null) {
-                try {
-                  await _database.transactionDao.assignCategory(
-                    transactionId: insertedTransaction.id,
-                    categoryId: currentRecurringTransaction.categoryId!,
-                    assignmentSource: AssignmentSource.manual,
-                  );
-                } catch (error, stackTrace) {
-                  occurrenceFailure = CatchUpFailure(
-                    type: CatchUpFailureType.categoryAssignmentFailed,
-                    error: error,
-                    stackTrace: stackTrace,
-                  );
-                  rethrow;
-                }
-              }
-
-              try {
-                advancedRecurringTransaction = await _database
-                    .recurringTransactionDao
-                    .advanceNextDate(currentRecurringTransaction.id);
-              } catch (error, stackTrace) {
-                occurrenceFailure = CatchUpFailure(
-                  type: CatchUpFailureType.advanceNextDateFailed,
-                  error: error,
-                  stackTrace: stackTrace,
-                );
-                rethrow;
-              }
-            });
-
-            occurrences.add(
-              OccurrenceCatchUpResult.created(
-                dueDate: dueDate,
-                transactionId: insertedTransaction.id,
-              ),
-            );
-            currentRecurringTransaction = advancedRecurringTransaction;
-          } catch (error, stackTrace) {
-            occurrences.add(
-              OccurrenceCatchUpResult.failed(
-                dueDate: dueDate,
-                failure:
-                    occurrenceFailure ??
-                    CatchUpFailure(
-                      type: CatchUpFailureType.unknown,
-                      error: error,
-                      stackTrace: stackTrace,
-                    ),
-              ),
-            );
-            break;
-          }
-        }
-
         templates.add(
-          TemplateCatchUpResult(
-            recurringTransactionId: recurringTransaction.id,
-            shortDescription: recurringTransaction.shortDescription,
-            initialNextTransactionDate: initialNextTransactionDate,
-            finalNextTransactionDate:
-                currentRecurringTransaction.nextTransactionDate,
-            occurrences: occurrences,
+          await _catchUpRecurringTransaction(
+            recurringTransaction,
+            localTodayEndOfDay,
           ),
         );
       }
