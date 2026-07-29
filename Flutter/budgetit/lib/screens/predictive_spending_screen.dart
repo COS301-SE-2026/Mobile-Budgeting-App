@@ -104,16 +104,21 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
         context.watch<ThemeProvider>();
         final colours = MyColours();
         final scanner = context.watch<BackgroundAnomalyScanner>();
-        
+        final isDark = MyColours.isDark;
+        final cardColour = isDark ? colours.primary: colours.background;
+        final cardBordercolor = Colors.black;
+        const cardBorderWidth = 3.0;
+        const cardShadow = [BoxShadow(color: Colors.balck, offset: Offset(4,4))];
 
         return Scaffold(
             backgroundColor: colours.background,
             appBar: AppBar(
                 backgroundColor: colours.background,
                 elevation: 0,
-            leading: IconButton(
-                icon: Icon(Icons.arrow_back_ios_rounded, color: colours.textPrimary),
-                onPressed: () => Navigator.of(context).pop(),
+            leading: GestureDetector(
+                //icon: Icon(Icons.arrow_back_ios_rounded, color: colours.textPrimary),
+                onTap: () => Navigator.of(context).pop(),
+                child: Icon(Icons.arrow_back_ios_rounded, color: colours.textPrimary),
             ),
             title: Text (
                 'SPENDING INSIGHTS',
@@ -139,9 +144,12 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
                     ),
                 )
                 else
-                    IconButton(
-                        icon: Icon(Icons.refresh_rounded, color: colours.textPrimary),
-                        onPressed: () => scanner.scan(),
+                    Gesturedetector(
+                        onTap: () => scanner.scan(),
+                        child: Padding(
+                            padding: const EdgeInsets.only(right: 16),
+                            child: Icon(Icons.refresh_rounded, color: colours.textPrimary),
+                    ),
                         tooltip: 'Refresh Analysis',
                     ),
             ],
@@ -152,7 +160,7 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
             backgroundColor: colours.primary,
             child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children:[
@@ -170,17 +178,44 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
                             ),
 
                         if(scanner.lastError != null)    
-                            _ErrorCard(error: scanner.lastError!, colours: colours),
+                            _NeoCard(
+                                color: colours.error.withValues(alpha: 0.15),
+                                borderColor: colours.error,
+                                shadow: false,
+                                child: Row(
+                                    children: [
+                                        Icon(Icons.error_outline, color: colours.error, size: 18),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                            child: Text(
+                                                'Analysis Error: ${scanner.lastError}',
+                                                style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: colours.error,
+                                                    fontFamily: 'JetBrainsMono',
+                                                ),
+                                            ),
+                                        ),
+                                    ],
+                                ),
+                                ),
+
+                                if(scanner.lastError != null) const SizedBox(height: 12),
+
                             _PredictionCard(
                                 prediction: scanner.prediction,
                                 colours: colours,
+                                cardColor: cardColor,
+                                borderColor: cardBorderColor,
+                                borderWidth: cardBorderWidth,
+                                shadow: cardShadow,
                             ),
 
-                            const SizedBox(height: 28),
+                            const SizedBox(height: 24),
                             Text(
                                 'ANOMALY DETECTION',
                                 style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 11,
                                 fontWeight: FontWeight.bold,
                                 color: colours.textMuted,
                                 letterSpacing: 1.4,
@@ -192,29 +227,58 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
                             Text(
                                 'Unusual spending patterns detected from your history.',
                                 style: TextStyle(
-                                    fontSize:13,
+                                    fontSize:12,
                                     color: colours.textPrimary.withValues(alpha: 0.7),
                                     fontFamily: 'JetBrainsMono',
                                 ),
                             ),
 
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 14),
 
                             if (scanner.isScanning && scanner.anomalies.isEmpty)
-                              _LoadingCard(colours: colours)
-                            else if(scanner.anomalies.isEmpty)
-                              _EmptyAnomaliesCard(colours: colours)
-                            else
-                              InsightWidget(
-                                insights: scanner.anomalies
-                                    .map((a) => _anomalyToInsight(a, colours))
-                                    .toList(),
-                              ),
-                              const SizedBox(height: 28),
+                              _NeoCard(
+                                colours: colours,
+                                borderColor: cardBorderColor,
+                                shadow: true,
+                                child: Column(
+                                    children: [
+                                        CircularProgressIndicator(
+                                            color: colours.secondary,
+                                            strokeWidth: 2,
+                                        ),
+                                        const SizedBox(height: 12),
+                                        Text(
+                                            'Analysing your spending',
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: colours.textMuted,
+                                                fontFamily: 'JetBrainsMono',
+                                            ),
+                                        ),
+                                    ],
+                                ),
+                                )
+                            else if(scanner.anomalies.isNotEmpty)
+                             // _EmptyAnomaliesCard(colours: colours)
+                            //else
+                                InsightWidget(
+                                    insights: scanner.anomalies
+                                        .map((a) => _anomalyToInsight(a, colours))
+                                        .toList(),
+                                ),
+                                else
+                                    InsightWidget(
+                                        insight: _fallbackInsights(scanner, colours),
+                                    ),
+                                const SizedBox(height: 24),
 
-                              _HowItWorksCard(colours: colours),
+                                _HowItWorksCard(
+                                    colours: colours,
+                                    cardColor: cardColor,
+                                    borderColor: cardBorderColor,
+                                ),
 
-                              const SizedBox(height: 20),
+                                const SizedBox(height: 20),
                             
 
                         ],
@@ -253,11 +317,43 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
 }
 */
 
+class _NeoCard extends StatelessWidget{
+    final Widget child;
+    final Color color;
+    final Color borderColor;
+    final bool shadow;
+
+    const _NeoCard({
+        required this.child,
+        required this.color,
+        required this.borderColor,
+        required this.shadow,
+    });
+
+    @override
+    Widget build(BuildContext context) {
+        return Container(
+            width: double.infinity,
+            padding: const EdgeInsetsa.all(20),
+            decoration: BoxDecoration(
+                color: color,
+                border: Border.all(color: borderColor, width: 3),
+                boxShadow: shadow ? const [BoxShadow(color: Colors.black, offset.Offset(4,4))] : null,
+            ),
+            child: child,
+        );
+    }
+}
+
 
 class _PredictionCard extends StatelessWidget {
     final SpendingPrediction? prediction;
     final MyColours colours;
-    const _PredictionCard({required this.prediction, required this.colours});
+    final Color cardColor;
+    final Color borderColor;
+    final double borderWidth;
+    final List<BoxShadow> shadow;
+    const _PredictionCard({required this.prediction, required this.colours, required this.cardColor, required this.borderColor, required this.borderWidth, required this.shadow});
 
     @override
     Widget build(BuildContext context) {
@@ -265,9 +361,9 @@ class _PredictionCard extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-                color: colours.textMuted,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: colours.textPrimary.withValues(alpha: 0.15)),
+                color: cardColor,
+                border: Border.all(color: borderColor, width: borderWidth),
+                boxShadow: shadow,
             ),
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -277,9 +373,9 @@ class _PredictionCard extends StatelessWidget {
                             Icon(
                                 Icons.auto_graph_rounded,
                                 color: colours.textPrimary.withValues(alpha: 0.7),
-                                size: 18,
+                                size: 16,
                             ),
-                            const SizedBox(width: 10),
+                            const SizedBox(width: 8),
                             Text(
                                 'SPENDING PREDICTION',
                                 style: TextStyle(
@@ -299,7 +395,7 @@ class _PredictionCard extends StatelessWidget {
                         Text(
                             'Not enough data yet',
                             style: TextStyle(
-                                fontSize: 22,
+                                fontSize: 24,
                                 fontWeight: FontWeight.bold,
                                 color: colours.textPrimary,
                                 fontFamily: 'SpaceGrotesk',
@@ -310,7 +406,7 @@ class _PredictionCard extends StatelessWidget {
                             'Add transactions for at least 2 months to see your '
                             'spending prediction.',
                             style: TextStyle(
-                                fontSize: 13,
+                                fontSize: 12,
                                 color: colours.textPrimary.withValues(alpha: 0.6),
                                 height: 1.5,
                                 fontFamily: 'JetBrainsMono',
@@ -330,7 +426,7 @@ class _PredictionCard extends StatelessWidget {
                         Text(
                             'R${prediction!.predictedAmount.toStringAsFixed(2)}',
                             style: TextStyle(
-                                fontSize: 42,
+                                fontSize: 44,
                                 fontWeight: FontWeight.bold,
                                 color: colours.textPrimary,
                                 height: 1,
@@ -342,7 +438,7 @@ class _PredictionCard extends StatelessWidget {
                             'Range: R${prediction!.lowerBound.toStringAsFixed(0)} '
                             '– R${prediction!.upperBound.toStringAsFixed(0)}', 
                             style: TextStyle(
-                                fontSize: 13,
+                                fontSize: 12,
                                 color: colours.textPrimary.withValues(alpha: 0.6),
                                 fontFamily: 'JetBrainsMono',
                             ),
