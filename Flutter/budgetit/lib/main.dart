@@ -17,6 +17,7 @@ import 'utils/theme_provider.dart';
 import 'shared/widgets/main_appbar.dart';
 import 'utils/app_colour.dart';
 import 'views/budget_manager/budget_manager_screen.dart';
+import 'package:budgetit/services/analysis/background_anomaly_scanner.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,10 +35,13 @@ void main() async {
     MultiProvider(
       providers: [
         Provider<AppDatabase>(create: (_) => db, dispose: (_, db) => db.close()),
-        ChangeNotifierProvider( //USED DEEPSEEK TO FIX CONTEXT ERRORS
+        ChangeNotifierProvider( //USED DEEPSEEK TO FIX CONTEXT ERRORS 
           create: (_) => AppAuthProvider(authService: CognitoAuthService()),
         ),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(
+          create: (context) => BackgroundAnomalyScanner(context.read<AppDatabase>()),
+        ),
       ],
       child: const BudgetApp(),
     ),

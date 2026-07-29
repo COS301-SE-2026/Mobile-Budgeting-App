@@ -5,7 +5,7 @@ import 'package:budgetit/utils/theme_provider.dart';
 import 'package:budgetit/services/analysis/background_anomaly_scanner.dart';
 import 'package:budgetit/models/anomaly_result.dart';
 import 'package:budgetit/models/spending_prediction.dart';
-import 'package:budgetit/components/insight_widget.dart';
+import 'package:budgetit/shared/widgets/insight_widget.dart';
 
 class PredictiveSpendingScreen extends StatefulWidget {
     const PredictiveSpendingScreen({super.key});
@@ -32,12 +32,13 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
 
     }
 
-    BudgetInsight _anomalyToInsight(AnomalyResult anomaly, dynamic context) {
+    BudgetInsight _anomalyToInsight(AnomalyResult anomaly, BuildContext context) {
+    
         return BudgetInsight(
             title: anomaly.title,
             body: anomaly.body,
             icon: _iconFor(anomaly.severity),
-            accentColor: _colorFor(anomaly.severity, context.colours),
+            accentColor: _colorFor(anomaly.severity, context),
             severity: _insightSeverityFor(anomaly.severity),
             transactionDescription: anomaly.transactionDescription,
             transactionCategory: anomaly.transactionCategory,
@@ -53,7 +54,7 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
         AnomalySeverity.low => Icons.info_outline_rounded,
     };
 
-    Color _colorFor(AnomalySeverity severity, dynamic context) => switch (severity) {
+    Color _colorFor(AnomalySeverity severity, BuildContext context) => switch (severity) {
         AnomalySeverity.high => context.colours.error,
         AnomalySeverity.medium => context.colours.warning,
         AnomalySeverity.low => context.colours.informational,
@@ -266,7 +267,7 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
                             else if(scanner.anomalies.isNotEmpty)
                                 InsightWidget(
                                     insights: scanner.anomalies
-                                        .map((a) => _anomalyToInsight(a, context.colours))
+                                        .map((a) => _anomalyToInsight(a, context))
                                         .toList(),
                                 )
                                 else
