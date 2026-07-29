@@ -371,8 +371,8 @@ void main() {
       expect(result.status, equals(CatchUpRunStatus.completed));
       expect(result.completedSuccessfully, isTrue);
       expect(result.templateCount, equals(2));
-      expect(result.attemptedOccurrenceCount, equals(4));
-      expect(result.successfulOccurrenceCount, equals(4));
+      expect(result.attemptedOccurrenceCount, equals(5));
+      expect(result.successfulOccurrenceCount, equals(5));
       expect(result.failedOccurrenceCount, equals(0));
 
       final firstTemplateResult = result.templates[0];
