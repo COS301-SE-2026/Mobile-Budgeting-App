@@ -257,20 +257,35 @@
 
 - # Deployment
   ## Deployment Requirements
-  
+   - The Flutter application must be deployable as an Android application.
+   - Core budgeting features must work without internet access.
+   - The local SQLite database must be created and accessed on the user’s device.
+   - Authentication must be handled through AWS Cognito using AWS Amplify.
+   - The app must support both guest/local usage and authenticated usage.
+   - Financial data must remain available locally even when cloud services are unavailable.
+   - Cloud sync must be optional and must not block local app functionality.
+   - Future synchronisation must prevent duplicate transactions and unsafe overwrites.
+   - CI/CD must run formatting checks, static analysis, automated tests, code generation, and build verification.
+   - Cloud services should be serverless or managed where possible to reduce operational complexity.
+
   ## Deployment Architecture
-     The Mobile Budgeting App follows a hybrid deployment model consisting of an Android client application with optional cloud-based backend services.
+     The Mobile Budgeting App follows a hybrid offline-first deployment model. The main application runs on the user’s device, while cloud services are used only for authentication and optional future synchronisation.
 
     #### Client Device
-       The following components are deployed on the user's mobile device:
-       - Flutter application
-       - SQLite database
-       - SQLCipher encryption
-       - TensorFlow Lite model
-       - Local file storage
-       - DAO layer
+      The following components are deployed on the user's mobile device:
+      - Flutter application
+      - Drift ORM
+      - Local SQLite database
+      - DAO layer
+      - Import services
+      - Reporting services
+      - Analysis services
+      - Local file storage
+      - Seed JSON assets
 
-       These components allow all core budgeting functionality to operate without internet connectivity.
+      These components allow all core budgeting functionality to operate without internet connectivity.
+      These components also allow the application to perform core budgeting operations locally, including creating transactions, managing categories, managing budgets, importing statements, viewing reports, and using the dashboard.
+      Current code uses SQLite through Drift. SQLCipher is not currently implemented in the codebase, but it may be added later if encrypted local database storage is required.
 
     #### Cloud Infrastructure
 
