@@ -7,11 +7,10 @@ class RecurringTransactionCatchUpService {
   // ignore: unused_field
   final AppDatabase _database;
 
-  /// True when a recurring transaction catch-up run is already running.
+  bool _isRunning = false;
 
-  bool get isRunning {
-    throw UnimplementedError();
-  }
+  /// True when a recurring transaction catch-up run is already running.
+  bool get isRunning => _isRunning;
 
   /// Generates all due recurring transactions up to the user's
   /// local calendar day.
@@ -23,7 +22,22 @@ class RecurringTransactionCatchUpService {
   Future<CatchUpResult> catchUpDueRecurringTransactions({
     CatchUpTrigger trigger = CatchUpTrigger.manual,
     DateTime? localTodayOverride,
-  }) {
-    throw UnimplementedError();
+  }) async {
+    final localToday = localTodayOverride ?? DateTime.now();
+
+    if (_isRunning) {
+      return CatchUpResult.skippedAlreadyRunning(
+        trigger: trigger,
+        localToday: localToday,
+        skippedAt: DateTime.now(),
+      );
+    }
+
+    _isRunning = true;
+    try {
+      throw UnimplementedError();
+    } finally {
+      _isRunning = false;
+    }
   }
 }
