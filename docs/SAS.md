@@ -296,14 +296,14 @@
        - AWS Cognito for user authentication
        - PostgreSQL for synchronised user data
        - Amazon S3 for synchronisation storage
-       - REST API backend for communication between the mobile application and cloud services
+       - FastAPI backend for communication between the mobile application and cloud services
 
     ### Deployment Flow
 
        The user interacts with the Flutter application.
 
        - Financial data is stored locally in SQLite.
-       - When online features are enabled, the Sync Service communicates with the backend REST API.
+       - When online features are enabled, the Sync Service communicates with the backend FastAPI.
        - The backend authenticates requests using AWS Cognito.
        - Synchronised data is stored in PostgreSQL, while synchronisation artifacts are managed through Amazon S3.
 
@@ -314,10 +314,15 @@
        The CI/CD pipeline performs:
 
        - Dependency installation
-       - Static code analysis
-       - Unit testing
-       - Builds verification
-       - Automated deployment of backend services
+      - Drift/build runner code generation
+        - Dart formatting checks
+        - Flutter static analysis
+        - Unit tests
+        - Widget tests
+        - Coverage reporting
+        - SonarCloud analysis
+        - Dependency security audit
+        - APK build verification
 
        This pipeline ensures that only validated code is merged into the main branch, improving software quality and reducing deployment risks
 
