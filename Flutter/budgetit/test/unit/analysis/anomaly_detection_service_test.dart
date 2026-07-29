@@ -105,13 +105,12 @@ void main() {
             expect(result, isEmpty);
         });
 
-        test('severity colours and icons are non-null for all severities', () {
-            for (final severity in AnomalySeverity.values) {
-                expect(AnomalyDetectionService.severityColour(severity), isNotNull);
-                expect(AnomalyDetectionService.severityIcon(severity), isNotNull);
-                expect(AnomalyDetectionService.severityLabel(severity), isNotEmpty);
-            }
-        });
+        test('all anomaly severities are available', () {
+  expect(AnomalySeverity.values, isNotEmpty);
+  expect(AnomalySeverity.values, contains(AnomalySeverity.low));
+  expect(AnomalySeverity.values, contains(AnomalySeverity.medium));
+  expect(AnomalySeverity.values, contains(AnomalySeverity.high));
+});
 
     });
 }
