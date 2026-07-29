@@ -1,4 +1,7 @@
+import 'package:drift/drift.dart';
+
 import '../../database/app_database.dart';
+import '../../database/schema.dart';
 import '../../models/recurring/recurring_transaction_catch_up_result.dart';
 
 class RecurringTransactionCatchUpService {
@@ -49,9 +52,53 @@ class RecurringTransactionCatchUpService {
     try {
       final dueRecurringTransactions = await _database.recurringTransactionDao
           .getDueRecurringTransactions(localTodayEndOfDay);
+      final templates = <TemplateCatchUpResult>[];
 
-      if (dueRecurringTransactions.isNotEmpty) {
-        throw UnimplementedError();
+      for (final recurringTransaction in dueRecurringTransactions) {
+        final dueDate = recurringTransaction.nextTransactionDate;
+        final transaction = await _database.transactionDao.insertTransaction(
+          amount: recurringTransaction.amount,
+          type: recurringTransaction.type,
+          shortDescription: recurringTransaction.shortDescription,
+          longDescription: recurringTransaction.longDescription,
+          transactionDate: dueDate,
+          source: TransactionSource.recurring,
+          currency: recurringTransaction.currency,
+        );
+
+        await (_database.update(
+          _database.transactions,
+        )..where((t) => t.id.equals(transaction.id))).write(
+          TransactionsCompanion(recurringId: Value(recurringTransaction.id)),
+        );
+
+        if (recurringTransaction.categoryId != null) {
+          await _database.transactionDao.assignCategory(
+            transactionId: transaction.id,
+            categoryId: recurringTransaction.categoryId!,
+            assignmentSource: AssignmentSource.manual,
+          );
+        }
+
+        final advancedRecurringTransaction = await _database
+            .recurringTransactionDao
+            .advanceNextDate(recurringTransaction.id);
+
+        templates.add(
+          TemplateCatchUpResult(
+            recurringTransactionId: recurringTransaction.id,
+            shortDescription: recurringTransaction.shortDescription,
+            initialNextTransactionDate: dueDate,
+            finalNextTransactionDate:
+                advancedRecurringTransaction.nextTransactionDate,
+            occurrences: [
+              OccurrenceCatchUpResult.created(
+                dueDate: dueDate,
+                transactionId: transaction.id,
+              ),
+            ],
+          ),
+        );
       }
 
       return CatchUpResult.completed(
@@ -59,7 +106,7 @@ class RecurringTransactionCatchUpService {
         localToday: localToday,
         startedAt: startedAt,
         finishedAt: DateTime.now(),
-        templates: const [],
+        templates: templates,
       );
     } on Object catch (error, stackTrace) {
       return CatchUpResult.completed(
