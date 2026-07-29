@@ -5,7 +5,6 @@ import '../../models/recurring/recurring_transaction_catch_up_result.dart';
 class RecurringTransactionCatchUpService {
   RecurringTransactionCatchUpService(this._database);
 
-  // ignore: unused_field
   final AppDatabase _database;
 
   bool _isRunning = false;
@@ -13,13 +12,17 @@ class RecurringTransactionCatchUpService {
   /// True when a recurring transaction catch-up run is already running.
   bool get isRunning => _isRunning;
 
+  DateTime _endOfLocalDay(DateTime date) {
+    return DateTime(date.year, date.month, date.day, 23, 59, 59, 999, 999);
+  }
+
   /// Generates all due recurring transactions up to the user's
   /// local calendar day.
   ///
   /// If another run is already running, this returns a skipped result
   /// instead of throwing.
   ///
-  /// Partial failures are  reported in the returned [CatchUpResult].
+  /// Partial failures are reported in the returned [CatchUpResult].
   Future<CatchUpResult> catchUpDueRecurringTransactions({
     CatchUpTrigger trigger = CatchUpTrigger.manual,
     DateTime? localTodayOverride,
@@ -36,16 +39,7 @@ class RecurringTransactionCatchUpService {
 
     _isRunning = true;
     final startedAt = DateTime.now();
-    final localTodayEndOfDay = DateTime(
-      localToday.year,
-      localToday.month,
-      localToday.day,
-      23,
-      59,
-      59,
-      999,
-      999,
-    );
+    final localTodayEndOfDay = _endOfLocalDay(localToday);
 
     try {
       final dueRecurringTransactions = await _database.recurringTransactionDao
