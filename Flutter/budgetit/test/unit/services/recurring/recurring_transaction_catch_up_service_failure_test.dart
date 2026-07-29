@@ -319,6 +319,98 @@ void main() {
       verify(recurringTransactionDao.advanceNextDate(recurring.id)).called(1);
     });
 
+    test(
+      'continues with later templates after an earlier template fails',
+      () async {
+        final failedRecurring = recurringTransactionFixture(
+          id: 'rec-failed-first',
+          shortDescription: 'Failed first template',
+          nextTransactionDate: testToday,
+          startDate: testToday,
+        );
+        final successfulRecurring = recurringTransactionFixture(
+          id: 'rec-successful-second',
+          shortDescription: 'Successful second template',
+          nextTransactionDate: testToday,
+          startDate: testToday,
+        );
+        final successfulTransaction = transactionFixture(
+          id: 'txn-successful-second',
+          amount: successfulRecurring.amount,
+          type: successfulRecurring.type,
+          shortDescription: successfulRecurring.shortDescription,
+          transactionDate: testToday,
+          source: TransactionSource.recurring,
+        );
+        final advancedSuccessfulRecurring = successfulRecurring.copyWith(
+          nextTransactionDate: DateTime(2030, 8, 28),
+        );
+
+        final database = MockCatchUpDatabase();
+        final transactionDao = MockTransactionDao();
+        final recurringTransactionDao = MockRecurringTransactionDao();
+        final service = RecurringTransactionCatchUpService(database);
+
+        when(database.transactionDao).thenReturn(transactionDao);
+        when(
+          database.recurringTransactionDao,
+        ).thenReturn(recurringTransactionDao);
+        when(
+          recurringTransactionDao.getDueRecurringTransactions(
+            testTodayEndOfDay,
+          ),
+        ).thenAnswer((_) async => [failedRecurring, successfulRecurring]);
+        when(
+          transactionDao.insertTransaction(
+            amount: failedRecurring.amount,
+            type: failedRecurring.type,
+            shortDescription: failedRecurring.shortDescription,
+            longDescription: failedRecurring.longDescription,
+            transactionDate: testToday,
+            source: TransactionSource.recurring,
+            currency: failedRecurring.currency,
+            recurringId: failedRecurring.id,
+          ),
+        ).thenThrow(Exception('first template failed'));
+        when(
+          transactionDao.insertTransaction(
+            amount: successfulRecurring.amount,
+            type: successfulRecurring.type,
+            shortDescription: successfulRecurring.shortDescription,
+            longDescription: successfulRecurring.longDescription,
+            transactionDate: testToday,
+            source: TransactionSource.recurring,
+            currency: successfulRecurring.currency,
+            recurringId: successfulRecurring.id,
+          ),
+        ).thenAnswer((_) async => successfulTransaction);
+        when(
+          recurringTransactionDao.advanceNextDate(successfulRecurring.id),
+        ).thenAnswer((_) async => advancedSuccessfulRecurring);
+
+        final result = await service.catchUpDueRecurringTransactions(
+          trigger: CatchUpTrigger.test,
+          localTodayOverride: testToday,
+        );
+
+        expect(result.status, equals(CatchUpRunStatus.completed));
+        expect(result.completedWithFailures, isTrue);
+        expect(result.templates, hasLength(2));
+        expect(result.templates[0].recurringTransactionId, failedRecurring.id);
+        expect(result.templates[0].failedOccurrenceCount, equals(1));
+        expect(
+          result.templates[1].recurringTransactionId,
+          successfulRecurring.id,
+        );
+        expect(result.templates[1].successfulOccurrenceCount, equals(1));
+        expect(result.failedOccurrenceCount, equals(1));
+        expect(result.successfulOccurrenceCount, equals(1));
+        verify(
+          recurringTransactionDao.advanceNextDate(successfulRecurring.id),
+        ).called(1);
+      },
+    );
+
     test('marks an unexpected error as unknown', () async {
       final database = MockCatchUpDatabase();
       final transactionDao = MockTransactionDao();
