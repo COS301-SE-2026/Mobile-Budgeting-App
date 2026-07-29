@@ -1,12 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotation.dart';
-import 'package:mockito/mokito.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:budgetit/database/app_database.dart';
 import 'package:budgetit/database/daos/transaction_dao.dart';
 import 'package:budgetit/database/daos/category_dao.dart';
-import 'package:budgetit/service/analysis/transaction_history_service.dart';
+import 'package:budgetit/services/analysis/transaction_history_service.dart';
 
-@GenerateMocks([AppDatabase, TransactionDao,CategoryDao])
+@GenerateMocks([AppDatabase, TransactionDao,CategoryDao]) //ignore errors once built the mocks will be generated and tests willl run TRUST
 import 'transaction_history_service_test.mocks.dart';
 
 void main() {
@@ -19,7 +19,7 @@ void main() {
         mockDb = MockAppDatabase();
         mockTxDao = MockTransactionDao();
         mockCategoryDao = MockCategoryDao();
-        when(mockDb.transactionDao).theReturn(mockTxDao);
+        when(mockDb.transactionDao).thenReturn(mockTxDao);
         when(mockDb.categoryDao).thenReturn(mockCategoryDao);
         service = TransactionHistoryService(mockDb);
     });
@@ -29,7 +29,7 @@ void main() {
         test('getMonthlyHistory returns correct number of months', () async {
             when(mockTxDao.getTransactionsByDateRange(any,any)).thenAnswer((_) async => []);
             final result = await service.getMonthlyHistory(monthsBack: 3);
-            expect(result.length, equal(3));
+            expect(result.length, equals(3));
         });
 
         test('getMonthlyHistory months are ordered olderst to newest', () async {

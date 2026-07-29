@@ -32,12 +32,12 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
 
     }
 
-    BudgetInsight _anomalyToInsight(AnomalyResult anomaly, MyColours colours) {
+    BudgetInsight _anomalyToInsight(AnomalyResult anomaly, dynamic context) {
         return BudgetInsight(
             title: anomaly.title,
             body: anomaly.body,
             icon: _iconFor(anomaly.severity),
-            accentColor: _colorFor(anomaly.severity, colours),
+            accentColor: _colorFor(anomaly.severity, context.colours),
             severity: _insightSeverityFor(anomaly.severity),
             transactionDescription: anomaly.transactionDescription,
             transactionCategory: anomaly.transactionCategory,
@@ -53,10 +53,10 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
         AnomalySeverity.low => Icons.info_outline_rounded,
     };
 
-    Color _colorFor(AnomalySeverity severity, MyColours colours) => switch (severity) {
-        AnomalySeverity.high => colours.error,
-        AnomalySeverity.medium => colours.warning,
-        AnomalySeverity.low => colours.informational,
+    Color _colorFor(AnomalySeverity severity, dynamic context) => switch (severity) {
+        AnomalySeverity.high => context.colours.error,
+        AnomalySeverity.medium => context.colours.warning,
+        AnomalySeverity.low => context.colours.informational,
     };
 
     InsightSeverity _insightSeverityFor(AnomalySeverity severity) => switch (severity) {
@@ -67,7 +67,7 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
 
     List<BudgetInsight> _fallbackInsights( //fallback if months <2 , 
         BackgroundAnomalyScanner scanner,
-        MyColours colours,
+
     ){
         final insights = <BudgetInsight>[];
 
@@ -75,7 +75,7 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
             title: 'Building your financial picture',
             body: 'Add transaction across 2+ months and we\'ll start detecting unusual spending patterns automatically. ' ,
             icon: Icons.bar_chart_rounded,
-            accentColor: colours.informational,
+            accentColor: context.colours.informational,
             severity: InsightSeverity.tip,
         ));
 
@@ -86,7 +86,7 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
                 body: 'Based on your spending thus far, you are on track to spend around '
                        ' R${prediction.predictedAmount.toStringAsFixed(2)} this month.',
                 icon: Icons.trending_up_rounded,
-                accentColor: colours.warning,
+                accentColor: context.colours.warning,
                 severity: InsightSeverity.tip,
             ));
         }
@@ -95,40 +95,39 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
             title: 'Your data stays on your device',
             body: 'All analysis runs locally [no spending data ever leaves your phone]',
             icon: Icons.lock_outline_rounded,
-            accentColor: colours.greenAccents,
+            accentColor: context.colours.greenAccents,
             severity: InsightSeverity.tip,
         ));
 
         return insights;
 
-
+//context.context.colours
     }
 
     @override
     Widget build(BuildContext context) {
-        context.watch<ThemeProvider>();
-        final colours = MyColours();
+        final themeProvider = context.watch<ThemeProvider>();
         final scanner = context.watch<BackgroundAnomalyScanner>();
-        final isDark = MyColours.isDark;
-        final cardColor = isDark ? colours.primary: colours.background;
+        final isDark = themeProvider.isDark;
+        final cardColor = isDark ? context.colours.primary: context.colours.background;
         final cardBorderColor = Colors.black;
         const cardBorderWidth = 3.0;
         const cardShadow = [BoxShadow(color: Colors.black, offset: Offset(4,4))];
 
         return Scaffold(
-            backgroundColor: colours.background,
+            backgroundColor: context.colours.background,
             appBar: AppBar(
-                backgroundColor: colours.background,
+                backgroundColor: context.colours.background,
                 elevation: 0,
             leading: GestureDetector(
-                //icon: Icon(Icons.arrow_back_ios_rounded, color: colours.textPrimary),
+                //icon: Icon(Icons.arrow_back_ios_rounded, color: context.colours.textPrimary),
                 onTap: () => Navigator.of(context).pop(),
-                child: Icon(Icons.arrow_back_ios_rounded, color: colours.textPrimary),
+                child: Icon(Icons.arrow_back_ios_rounded, color: context.colours.textPrimary),
             ),
             title: Text (
                 'SPENDING INSIGHTS',
                 style: TextStyle(
-                    color:colours.textPrimary,
+                    color:context.colours.textPrimary,
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                     letterSpacing: 1.2,
@@ -144,7 +143,7 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
                         height: 18,
                         child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: colours.secondary,
+                            color: context.colours.secondary,
                         ),
                     ),
                 )
@@ -153,7 +152,7 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
                         onTap: () => scanner.scan(),
                         child: Padding(
                             padding: const EdgeInsets.only(right: 16),
-                            child: Icon(Icons.refresh_rounded, color: colours.textPrimary),
+                            child: Icon(Icons.refresh_rounded, color: context.colours.textPrimary),
                     ),
                       //  tooltip: 'Refresh Analysis',
                     ),
@@ -161,8 +160,8 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
         ),
         body: RefreshIndicator(
             onRefresh: () => scanner.scan(),
-            color: colours.secondary,
-            backgroundColor: colours.primary,
+            color: context.colours.secondary,
+            backgroundColor: context.colours.primary,
             child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -176,7 +175,7 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
                                     'Last updated: ${_formatTime(scanner.lastScanned!)}',
                                     style: TextStyle(
                                         fontSize: 11,
-                                        color: colours.textMuted,
+                                        color: context.colours.textMuted,
                                         fontFamily: 'JetBrainsMono',
                                     ),
                                 ),
@@ -184,19 +183,19 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
 
                         if(scanner.lastError != null)    
                             _NeoCard(
-                                color: colours.error.withValues(alpha: 0.15),
-                                borderColor: colours.error,
+                                color: context.colours.error.withValues(alpha: 0.15),
+                                borderColor: context.colours.error,
                                 shadow: false,
                                 child: Row(
                                     children: [
-                                        Icon(Icons.error_outline, color: colours.error, size: 18),
+                                        Icon(Icons.error_outline, color: context.colours.error, size: 18),
                                         const SizedBox(width: 10),
                                         Expanded(
                                             child: Text(
                                                 'Analysis Error: ${scanner.lastError}',
                                                 style: TextStyle(
                                                     fontSize: 12,
-                                                    color: colours.error,
+                                                    color: context.colours.error,
                                                     fontFamily: 'JetBrainsMono',
                                                 ),
                                             ),
@@ -208,8 +207,9 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
                                 if(scanner.lastError != null) const SizedBox(height: 12),
 
                             _PredictionCard(
+                                context: context,
                                 prediction: scanner.prediction,
-                                colours: colours,
+                                //context : context.colours,
                                 cardColor: cardColor,
                                 borderColor: cardBorderColor,
                                 borderWidth: cardBorderWidth,
@@ -222,7 +222,7 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
                                 style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
-                                color: colours.textMuted,
+                                color: context.colours.textMuted,
                                 letterSpacing: 1.4,
                                 fontFamily: 'JetBrainsMono',
                                 ),
@@ -233,7 +233,7 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
                                 'Unusual spending patterns detected from your history.',
                                 style: TextStyle(
                                     fontSize:12,
-                                    color: colours.textPrimary.withValues(alpha: 0.7),
+                                    color: context.colours.textPrimary.withValues(alpha: 0.7),
                                     fontFamily: 'JetBrainsMono',
                                 ),
                             ),
@@ -248,7 +248,7 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
                                 child: Column(
                                     children: [
                                         CircularProgressIndicator(
-                                            color: colours.secondary,
+                                            color: context.colours.secondary,
                                             strokeWidth: 2,
                                         ),
                                         const SizedBox(height: 12),
@@ -256,7 +256,7 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
                                             'Analysing your spending',
                                             style: TextStyle(
                                                 fontSize: 12,
-                                                color: colours.textMuted,
+                                                color: context.colours.textMuted,
                                                 fontFamily: 'JetBrainsMono',
                                             ),
                                         ),
@@ -266,17 +266,17 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
                             else if(scanner.anomalies.isNotEmpty)
                                 InsightWidget(
                                     insights: scanner.anomalies
-                                        .map((a) => _anomalyToInsight(a, colours))
+                                        .map((a) => _anomalyToInsight(a, context.colours))
                                         .toList(),
                                 )
                                 else
                                     InsightWidget(
-                                        insights: _fallbackInsights(scanner, colours),
+                                        insights: _fallbackInsights(scanner),
                                     ),
                                 const SizedBox(height: 24),
 
                                 _HowItWorksCard(
-                                    colours: colours,
+                                    context: context.colours,
                                     cardColor: cardColor,
                                     borderColor: cardBorderColor,
                                 ),
@@ -302,11 +302,11 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
         };
     }
 
-    static Color colorFor(AnomalySeverity severity, MyColours colours) {
+    static Color colorFor(AnomalySeverity severity, dynamic context.colours) {
         return switch (severity) {
-            AnomalySeverity.high => colours.redColor,
+            AnomalySeverity.high => context.colours.redColor,
             AnomalySeverity.medium => Colors.orangeAccent,
-            AnomalySeverity.low => colours.tertiary,
+            AnomalySeverity.low => context.colours.tertiary,
         };
     }
 
@@ -351,12 +351,12 @@ class _NeoCard extends StatelessWidget{
 
 class _PredictionCard extends StatelessWidget {
     final SpendingPrediction? prediction;
-    final MyColours colours;
+    final dynamic context;
     final Color cardColor;
     final Color borderColor;
     final double borderWidth;
     final List<BoxShadow> shadow;
-    const _PredictionCard({required this.prediction, required this.colours, required this.cardColor, required this.borderColor, required this.borderWidth, required this.shadow});
+    const _PredictionCard({required this.prediction, required this.context, required this.cardColor, required this.borderColor, required this.borderWidth, required this.shadow});
 
     @override
     Widget build(BuildContext context) {
@@ -375,7 +375,7 @@ class _PredictionCard extends StatelessWidget {
                         children: [
                             Icon(
                                 Icons.auto_graph_rounded,
-                                color: colours.textPrimary.withValues(alpha: 0.7),
+                                color: context.colours.textPrimary.withValues(alpha: 0.7),
                                 size: 16,
                             ),
                             const SizedBox(width: 8),
@@ -384,7 +384,7 @@ class _PredictionCard extends StatelessWidget {
                                 style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.bold,
-                                    color: colours.textMuted,
+                                    color: context.colours.textMuted,
                                     letterSpacing: 1.4,
                                     fontFamily: 'JetBrainsMono',
                                 ),
@@ -400,7 +400,7 @@ class _PredictionCard extends StatelessWidget {
                             style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
-                                color: colours.textPrimary,
+                                color: context.colours.textPrimary,
                                 fontFamily: 'SpaceGrotesk',
                             ),
                         ),
@@ -410,7 +410,7 @@ class _PredictionCard extends StatelessWidget {
                             'spending prediction.',
                             style: TextStyle(
                                 fontSize: 12,
-                                color: colours.textPrimary.withValues(alpha: 0.6),
+                                color: context.colours.textPrimary.withValues(alpha: 0.6),
                                 height: 1.5,
                                 fontFamily: 'JetBrainsMono',
                             ),
@@ -420,7 +420,7 @@ class _PredictionCard extends StatelessWidget {
                             prediction!.label.toUpperCase(),
                             style: TextStyle(
                                 fontSize: 11,
-                                color: colours.textMuted,
+                                color: context.colours.textMuted,
                                 letterSpacing: 1.2,
                                 fontFamily: 'JetBrainsMono',
                             ),
@@ -431,7 +431,7 @@ class _PredictionCard extends StatelessWidget {
                             style: TextStyle(
                                 fontSize: 44,
                                 fontWeight: FontWeight.bold,
-                                color: colours.textPrimary,
+                                color: context.colours.textPrimary,
                                 height: 1,
                                 fontFamily: 'SpaceGrotesk',
                             ),
@@ -442,7 +442,7 @@ class _PredictionCard extends StatelessWidget {
                             '– R${prediction!.upperBound.toStringAsFixed(0)}', 
                             style: TextStyle(
                                 fontSize: 12,
-                                color: colours.textPrimary.withValues(alpha: 0.6),
+                                color: context.colours.textPrimary.withValues(alpha: 0.6),
                                 fontFamily: 'JetBrainsMono',
                             ),
                         ),
@@ -454,7 +454,7 @@ class _PredictionCard extends StatelessWidget {
                                     'CONFIDENCE',
                                     style: TextStyle(
                                         fontSize: 10,
-                                        color: colours.textMuted,
+                                        color: context.colours.textMuted,
                                         letterSpacing: 1.2,
                                         fontFamily: 'JetBrainsMono',
                                     ),
@@ -468,7 +468,7 @@ class _PredictionCard extends StatelessWidget {
                                         child: FractionallySizedBox(
                                             alignment: Alignment.centerLeft,
                                             widthFactor: prediction!.confidence,
-                                            child: Container(color: colours.secondary),
+                                            child: Container(color: context.colours.secondary),
                                         ),
                                     ),
                                 ),
@@ -478,7 +478,7 @@ class _PredictionCard extends StatelessWidget {
                                     style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w700,
-                                        color: colours.textPrimary,
+                                        color: context.colours.textPrimary,
                                         fontFamily: 'JetBrainsMono',
                                     ),
                                 ),
@@ -490,7 +490,7 @@ class _PredictionCard extends StatelessWidget {
                             '${prediction!.monthsUsed != 1 ? 's' : ''} of history',
                             style: TextStyle(
                                 fontSize: 11,
-                                color: colours.textMuted,
+                                color: context.colours.textMuted,
                                 fontFamily: 'JetBrainsMono',
                             ),
                         ),
@@ -504,8 +504,8 @@ class _PredictionCard extends StatelessWidget {
 
 
 class _EmptyAnomaliesCard extends StatelessWidget {
-    final MyColours colours;
-    const _EmptyAnomaliesCard({ required this.colours});
+    final dynamic context;
+    const _EmptyAnomaliesCard({ required this.context});
 
     @override
     Widget build(BuildContext context) {
@@ -513,16 +513,16 @@ class _EmptyAnomaliesCard extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-                color: colours.primary,
+                color: context.colours.primary,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colours.textPrimary.withValues(alpha: 0.15)),
+                border: Border.all(color: context.colours.textPrimary.withValues(alpha: 0.15)),
             ),
             child: Column(
                 children: [
                     Icon(
                         Icons.check_circle_outline_rounded,
                         size: 36,
-                        color: colours.greenAccents,
+                        color: context.colours.greenAccents,
                     ),
                     const SizedBox(height: 12),
                     Text(
@@ -530,7 +530,7 @@ class _EmptyAnomaliesCard extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: colours.textPrimary,
+                            color: context.colours.textPrimary,
                             fontFamily: 'SpaceGrotesk',
                         ),
                     ),
@@ -540,7 +540,7 @@ class _EmptyAnomaliesCard extends StatelessWidget {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 12,
-                            color: colours.textPrimary.withValues(alpha: 0.6),
+                            color: context.colours.textPrimary.withValues(alpha: 0.6),
                             height: 1.5,
                             fontFamily: 'JetBrainsMono',
                         ),
@@ -552,8 +552,8 @@ class _EmptyAnomaliesCard extends StatelessWidget {
 }
 
 class _LoadingCard extends StatelessWidget {
-    final MyColours colours;
-    const _LoadingCard({required this.colours});
+    final dynamic context;
+    const _LoadingCard({required this.context});
 
     @override
     Widget build(BuildContext context) {
@@ -561,18 +561,18 @@ class _LoadingCard extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(28),
             decoration: BoxDecoration(
-                color: colours.primary,
+                color: context.colours.primary,
                 borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
                 children: [
-                    CircularProgressIndicator(color: colours.secondary, strokeWidth: 2),
+                    CircularProgressIndicator(color: context.colours.secondary, strokeWidth: 2),
                     const SizedBox(height: 14),
                     Text(
                         'Analysing your spending',
                         style: TextStyle(
                             fontSize: 12,
-                            color: colours.textMuted,
+                            color: context.colours.textMuted,
                             fontFamily: 'JetBrainsMono',
                         ),
                     ),
@@ -584,10 +584,10 @@ class _LoadingCard extends StatelessWidget {
 
 class _ErrorCard extends StatelessWidget {
     final String error;
-    final MyColours colours;
+    final dynamic context;
     const _ErrorCard({ 
         required this.error, 
-        required this.colours
+        required this.context
     });
 
     @override
@@ -597,20 +597,20 @@ class _ErrorCard extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 16),
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-                color: colours.error.withValues(alpha: 0.1),
+                color: context.colours.error.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: colours.error.withValues(alpha: 0.4)),
+                border: Border.all(color: context.colours.error.withValues(alpha: 0.4)),
             ),
             child: Row(
                 children: [
-                    Icon(Icons.error_outline, color: colours.error, size: 18),
+                    Icon(Icons.error_outline, color: context.colours.error, size: 18),
                     const SizedBox(width: 10),
                     Expanded(
                         child: Text(
                             'Analysis error: $error',
                             style: TextStyle(
                                 fontSize: 12,
-                                color: colours.error,
+                                color: context.colours.error,
                                 fontFamily: 'JetBrainsMono',
                             ),
                         ),
@@ -623,10 +623,10 @@ class _ErrorCard extends StatelessWidget {
 
 
 class _HowItWorksCard extends StatelessWidget {
-    final MyColours colours;
+    final dynamic context;
     final Color cardColor;
     final Color borderColor;
-    const _HowItWorksCard({required this.colours, required this.cardColor, required this.borderColor});
+    const _HowItWorksCard({required this.context, required this.cardColor, required this.borderColor});
 
     @override
     Widget build(BuildContext context){
@@ -647,7 +647,7 @@ class _HowItWorksCard extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: colours.textMuted,
+                            color: context.colours.textMuted,
                             letterSpacing: 1.4,
                             fontFamily: 'JetBrainsMono',
                         ),
@@ -656,19 +656,19 @@ class _HowItWorksCard extends StatelessWidget {
                     _InfoRow(
                         icon: Icons.storage_rounded,
                         text: 'All analysis runs on your device — no data leaves your phone.',
-                        colours: colours,
+                        context: context.colours,
                     ),
                     const SizedBox(height: 10),
                     _InfoRow(
                         icon: Icons.query_stats_rounded,
                         text: 'Anomalies are detected using z-score statistical analysis on your monthly spending history.',
-                        colours: colours,
+                        context: context.colours,
                     ),
                     const SizedBox(height: 10),
                     _InfoRow(
                         icon: Icons.trending_up_rounded,
                         text: 'Predictions use linear regression on your last 6 months of data.',
-                        colours: colours,
+                        context: context.colours,
                     ),
                 ],
             ),
@@ -679,11 +679,11 @@ class _HowItWorksCard extends StatelessWidget {
 class _InfoRow extends StatelessWidget {
     final IconData icon;
     final String text;
-    final MyColours colours;
+    final dynamic context;
     const _InfoRow({
         required this.icon,
         required this.text,
-        required this.colours,
+        required this.context,
     });
 
     @override
@@ -691,14 +691,14 @@ class _InfoRow extends StatelessWidget {
         return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-                Icon(icon, size: 15, color: colours.textMuted),
+                Icon(icon, size: 15, color: context.colours.textMuted),
                 const SizedBox(width: 10),
                 Expanded(
                     child: Text(
                         text,
                         style: TextStyle(
                             fontSize: 12,
-                            color: colours.textPrimary.withValues(alpha: 0.65),
+                            color: context.colours.textPrimary.withValues(alpha: 0.65),
                             height: 1.5,
                             fontFamily: 'JetBrainsMono',
                         ),
