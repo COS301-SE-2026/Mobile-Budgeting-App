@@ -39,6 +39,11 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
             icon: _iconFor(anomaly.severity),
             accentColor: _colorFor(anomaly.severity, colours),
             severity: _insightSeverityFor(anomaly.severity),
+            transactionDescription: anomaly.transactionDescription,
+            transactionCategory: anomaly.transactionCategory,
+            transactionAmount: anomaly.transactionAmount,
+            transactionDate: anomaly.transactionDate,
+
         );
     }
 

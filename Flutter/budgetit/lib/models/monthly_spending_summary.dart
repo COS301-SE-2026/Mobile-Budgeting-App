@@ -7,7 +7,7 @@ class MonthlySpendingSummary {
     final int transactionCount;
     final String? largestTransactionDescription;
     final String? largestTransactionCategory;
-    final String? largestTransactionAmount;
+    final double? largestTransactionAmount;
     final DateTime? largestTransactionDate;
 
     const MonthlySpendingSummary({

@@ -306,6 +306,10 @@ class BudgetInsight {
   final IconData icon;
   final Color accentColor;
   final InsightSeverity severity;
+  final String? transactionDescription;
+  final String? transactionCategory;
+  final double? transactionAmount;
+  final DateTime? transactionDate;
 
   const BudgetInsight({
     required this.title,
@@ -313,5 +317,9 @@ class BudgetInsight {
     required this.icon,
     required this.accentColor,
     this.severity = InsightSeverity.tip,
+    this.transactionDescription,
+    this.transactionCategory,
+    this.transactionAmount,
+    this.transactionDate,
   });
 }
