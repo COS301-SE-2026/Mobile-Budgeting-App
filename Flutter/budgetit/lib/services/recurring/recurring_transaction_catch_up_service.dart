@@ -76,7 +76,7 @@ class RecurringTransactionCatchUpService {
         }
       });
     } catch (error, stackTrace) {
-      throw _OccurrenceCreationFailure(
+      throw _OccurrenceCreationException(
         occurrenceFailure ??
             CatchUpFailure(
               type: CatchUpFailureType.unknown,
@@ -113,7 +113,7 @@ class RecurringTransactionCatchUpService {
           ),
         );
         current = result.advancedRecurringTransaction;
-      } on _OccurrenceCreationFailure catch (error) {
+      } on _OccurrenceCreationException catch (error) {
         occurrences.add(
           OccurrenceCatchUpResult.failed(
             dueDate: dueDate,
@@ -208,8 +208,8 @@ class _OccurrenceCreationResult {
   final RecurringTransaction advancedRecurringTransaction;
 }
 
-class _OccurrenceCreationFailure implements Exception {
-  const _OccurrenceCreationFailure(this.failure);
+class _OccurrenceCreationException implements Exception {
+  const _OccurrenceCreationException(this.failure);
 
   final CatchUpFailure failure;
 }
