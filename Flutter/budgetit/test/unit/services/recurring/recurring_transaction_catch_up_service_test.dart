@@ -6,6 +6,7 @@ import 'package:budgetit/services/recurring/recurring_transaction_catch_up_servi
 import 'package:decimal/decimal.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../support/fixtures.dart';
 import '../../database/helpers.dart';
 
 void main() {
@@ -29,29 +30,20 @@ void main() {
 
   tearDown(() => db.close());
 
-  Future<RecurringTransaction> insertRecurring({
-    String shortDescription = 'Test recurring',
-    Decimal? amount,
-    TransactionType type = TransactionType.expense,
-    DateTime? nextTransactionDate,
-    PeriodType unit = PeriodType.monthly,
-    int intervalAmount = 1,
-    DateTime? startDate,
-    String? categoryId,
-    String? longDescription,
-    String currency = 'ZAR',
+  Future<RecurringTransaction> insertRecurringFixture({
+    required RecurringTransaction fixture,
   }) {
     return recurringDao.insertRecurringTransaction(
-      amount: amount ?? Decimal.parse('100.00'),
-      type: type,
-      shortDescription: shortDescription,
-      longDescription: longDescription,
-      nextTransactionDate: nextTransactionDate ?? testToday,
-      unit: unit,
-      intervalAmount: intervalAmount,
-      startDate: startDate ?? testToday,
-      categoryId: categoryId,
-      currency: currency,
+      amount: fixture.amount,
+      type: fixture.type,
+      shortDescription: fixture.shortDescription,
+      longDescription: fixture.longDescription,
+      nextTransactionDate: fixture.nextTransactionDate,
+      unit: fixture.unit,
+      intervalAmount: fixture.intervalAmount,
+      startDate: fixture.startDate,
+      categoryId: fixture.categoryId,
+      currency: fixture.currency,
     );
   }
 
@@ -59,10 +51,13 @@ void main() {
     test(
       'returns a completed result with no work done when no transactions were due',
       () async {
-        final recurring = await insertRecurring(
-          shortDescription: 'Future rent',
-          nextTransactionDate: testTomorrow,
-          startDate: testTomorrow,
+        final recurring = await insertRecurringFixture(
+          fixture: recurringTransactionFixture(
+            id: 'rec-future-rent',
+            shortDescription: 'Future rent',
+            nextTransactionDate: testTomorrow,
+            startDate: testTomorrow,
+          ),
         );
 
         final result = await service.catchUpDueRecurringTransactions(
@@ -86,13 +81,14 @@ void main() {
     );
 
     test('treats a past date as due', () async {
-      final recurring = await insertRecurring(
-        shortDescription: 'Old rent',
-        amount: Decimal.parse('500.00'),
-        nextTransactionDate: testLastMonth,
-        startDate: testLastMonth,
-        unit: PeriodType.monthly,
-        intervalAmount: 1,
+      final recurring = await insertRecurringFixture(
+        fixture: recurringTransactionFixture(
+          id: 'rec-old-rent',
+          shortDescription: 'Old rent',
+          amount: Decimal.parse('500.00'),
+          nextTransactionDate: testLastMonth,
+          startDate: testLastMonth,
+        ),
       );
 
       final result = await service.catchUpDueRecurringTransactions(
@@ -134,13 +130,14 @@ void main() {
     test(
       'creates one occurrence and increments nextTransactionDate on the template',
       () async {
-        final recurring = await insertRecurring(
-          shortDescription: 'Rent',
-          amount: Decimal.parse('500.00'),
-          nextTransactionDate: testToday,
-          startDate: testToday,
-          unit: PeriodType.monthly,
-          intervalAmount: 1,
+        final recurring = await insertRecurringFixture(
+          fixture: recurringTransactionFixture(
+            id: 'rec-rent',
+            shortDescription: 'Rent',
+            amount: Decimal.parse('500.00'),
+            nextTransactionDate: testToday,
+            startDate: testToday,
+          ),
         );
 
         final result = await service.catchUpDueRecurringTransactions(
@@ -194,13 +191,14 @@ void main() {
     test(
       'creates all missed transactions when a template is overdue by many cycles',
       () async {
-        final recurring = await insertRecurring(
-          shortDescription: 'Gym membership',
-          amount: Decimal.parse('250.00'),
-          nextTransactionDate: testTwoMonthsAgo,
-          startDate: testTwoMonthsAgo,
-          unit: PeriodType.monthly,
-          intervalAmount: 1,
+        final recurring = await insertRecurringFixture(
+          fixture: recurringTransactionFixture(
+            id: 'rec-gym-history',
+            shortDescription: 'Gym membership',
+            amount: Decimal.parse('250.00'),
+            nextTransactionDate: testTwoMonthsAgo,
+            startDate: testTwoMonthsAgo,
+          ),
         );
 
         final result = await service.catchUpDueRecurringTransactions(
@@ -271,10 +269,13 @@ void main() {
     );
 
     test('does not catch up a future date', () async {
-      final recurring = await insertRecurring(
-        shortDescription: 'Future rent',
-        nextTransactionDate: testTomorrow,
-        startDate: testTomorrow,
+      final recurring = await insertRecurringFixture(
+        fixture: recurringTransactionFixture(
+          id: 'rec-future-rent',
+          shortDescription: 'Future rent',
+          nextTransactionDate: testTomorrow,
+          startDate: testTomorrow,
+        ),
       );
 
       final result = await service.catchUpDueRecurringTransactions(
@@ -300,12 +301,15 @@ void main() {
         name: 'Food',
         type: CategoryType.expense,
       );
-      final recurring = await insertRecurring(
-        shortDescription: 'Lunch',
-        amount: Decimal.parse('18.50'),
-        nextTransactionDate: testToday,
-        startDate: testToday,
-        categoryId: category.id,
+      final recurring = await insertRecurringFixture(
+        fixture: recurringTransactionFixture(
+          id: 'rec-lunch',
+          shortDescription: 'Lunch',
+          amount: Decimal.parse('18.50'),
+          nextTransactionDate: testToday,
+          startDate: testToday,
+          categoryId: category.id,
+        ),
       );
 
       final result = await service.catchUpDueRecurringTransactions(
@@ -340,21 +344,23 @@ void main() {
     });
 
     test('creates one result group for each due template', () async {
-      final firstRecurring = await insertRecurring(
-        shortDescription: 'Rent',
-        amount: Decimal.parse('500.00'),
-        nextTransactionDate: testTwoMonthsAgo,
-        startDate: testTwoMonthsAgo,
-        unit: PeriodType.monthly,
-        intervalAmount: 1,
+      final firstRecurring = await insertRecurringFixture(
+        fixture: recurringTransactionFixture(
+          id: 'rec-rent-history',
+          shortDescription: 'Rent',
+          amount: Decimal.parse('500.00'),
+          nextTransactionDate: testTwoMonthsAgo,
+          startDate: testTwoMonthsAgo,
+        ),
       );
-      final secondRecurring = await insertRecurring(
-        shortDescription: 'Gym membership',
-        amount: Decimal.parse('250.00'),
-        nextTransactionDate: testLastMonth,
-        startDate: testLastMonth,
-        unit: PeriodType.monthly,
-        intervalAmount: 1,
+      final secondRecurring = await insertRecurringFixture(
+        fixture: recurringTransactionFixture(
+          id: 'rec-gym-history',
+          shortDescription: 'Gym membership',
+          amount: Decimal.parse('250.00'),
+          nextTransactionDate: testLastMonth,
+          startDate: testLastMonth,
+        ),
       );
 
       final result = await service.catchUpDueRecurringTransactions(
