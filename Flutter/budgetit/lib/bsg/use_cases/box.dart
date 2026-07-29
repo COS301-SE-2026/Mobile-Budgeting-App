@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:budgetit/shared/widgets/fab.dart';
+import 'package:budgetit/shared/widgets/box.dart';
 import 'package:budgetit/utils/app_colour.dart';
+import 'package:widgetbook/widgetbook.dart';
 import 'package:widgetbook_annotation/widgetbook_annotation.dart' as widgetbook;
 
-@widgetbook.UseCase(name: 'FAB', type: FAB, path: '[Widgets]' )
+@widgetbook.UseCase(name: 'Box', type:MyBox, path: '[Widgets]'  )
 Widget addButton(BuildContext context) {
   return Scaffold(
     backgroundColor: context.colours.background, 
@@ -12,23 +13,18 @@ Widget addButton(BuildContext context) {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            "This is a FAB",
+            "One box and a ton of info",
             style: context.colours.h2,
           ),
-          const SizedBox(height: 28),
-          Text(
-            "AKA a FLoating Action Button ",
-            style: context.colours.h4,
-          ),
+          
            const SizedBox(height: 28),
-           
           Text(
-            "It hovers over our Transaction Manager Page, providing a way to add transactions that pops out at you (literally!) ",
+            "This box is the cornerstone of the transaction manager page. It not only shows information but it also allows for editing! ",
             style: context.colours.b1,
             textAlign: TextAlign.center,
           ),
            const SizedBox(height: 40),
-          FAB(),
+           MyBox(text: context.knobs.string(label: 'Box', initialValue: 'Hi'), amount: context.knobs.double.input(label: 'Amount', initialValue: 0 ), categories: [], isExpense: context.knobs.boolean(label: "Expense", initialValue: true), icon: Icons.arrow_circle_down_rounded)
         ],
       ),
     ),
