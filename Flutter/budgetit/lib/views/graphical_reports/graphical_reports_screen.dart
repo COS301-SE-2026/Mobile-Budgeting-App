@@ -323,18 +323,17 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
               ), 
             ),
             borderData: FlBorderData(
-                border: Border(
-                  left: BorderSide(
-                    color: colours.secondary,),
-                    bottom: BorderSide(
-                      color: colours.secondary,
-                    ),
-                ),
+              border: Border(
+                left: BorderSide(
+                  color: colours.secondary,),
+                  bottom: BorderSide(
+                    color: colours.secondary,
+                  ),
               ),
-            )
-         ),
+            ),
+          )
         ),
-
+      ),
     );
   }
 
@@ -405,7 +404,50 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
 
             Expanded(
               flex: 4,
-              child: Container(),
+              child: ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: report.categorySpending.length,
+                itemBuilder: (context, index) {
+                  final category = report.categorySpending[index];
+                  final colour = chartColours[index % chartColours.length];
+                  final percentage = (category.amount / total) * 100;
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 14,
+                          height: 14,
+                          decoration: BoxDecoration(
+                            color: colour,
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+
+                        Expanded(
+                          child: Text(
+                            category.categoryName,
+                            style: colours.b4.copyWith(
+                              color: colours.textPrimary,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+
+                        Text(
+                          "${percentage.toStringAsFixed(1)}%",
+                          style: colours.b4.copyWith(
+                            color: colours.textMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+             ),
             ),
           ],
         ),
