@@ -1186,6 +1186,7 @@ class MockTransactionDao extends _i1.Mock implements _i4.TransactionDao {
     required DateTime? transactionDate,
     required _i13.TransactionSource? source,
     String? currency = 'ZAR',
+    String? recurringId,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#insertTransaction, [], {
@@ -1196,6 +1197,7 @@ class MockTransactionDao extends _i1.Mock implements _i4.TransactionDao {
               #transactionDate: transactionDate,
               #source: source,
               #currency: currency,
+              #recurringId: recurringId,
             }),
             returnValue: _i10.Future<_i8.Transaction>.value(
               _FakeTransaction_34(
@@ -1208,6 +1210,7 @@ class MockTransactionDao extends _i1.Mock implements _i4.TransactionDao {
                   #transactionDate: transactionDate,
                   #source: source,
                   #currency: currency,
+                  #recurringId: recurringId,
                 }),
               ),
             ),
