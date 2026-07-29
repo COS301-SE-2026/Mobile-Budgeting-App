@@ -11,7 +11,7 @@ A mobile budgeting app designed to help users track income and expenses, manage 
 | Document | Description |
 |---|---|
 | [Software Requirements Specification (SRS)](docs/SRS.md) | Defines the system requirements, user stories, use cases, and functional scope of the application. |
-| [Software Architecture Specification (SAS)](docs/SAS.pdf) | Describes the system architecture, design decisions, components, and technical structure. |
+| [Software Architecture Specification (SAS)](docs/SAS.md) | Describes the system architecture, design decisions, components, and technical structure. |
 | [Coding Standards](docs/CodingStandards.md) | Outlines the coding conventions, formatting rules, naming guidelines, and development practices followed by the team. |
 | [Testing Policy](docs/TestingPolicy.md) | Explains the testing approach, required test types, coverage expectations, and quality assurance process. |
 | [User Manual](docs/UserManual.md) | Provides instructions for installing, navigating, and using the application. |
