@@ -64,9 +64,9 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
         BackgroundAnomalyScanner scanner,
         MyColours colours,
     ){
-        final insights = <BudgetInsights>[];
+        final insights = <BudgetInsight>[];
 
-        insights.add(BudgetInsights(
+        insights.add(BudgetInsight(
             title: 'Building your financial picture',
             body: 'Add transaction across 2+ months and we\'ll start detecting unusual spending patterns automatically. ' ,
             icon: Icons.bar_chart_rounded,
@@ -105,10 +105,10 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
         final colours = MyColours();
         final scanner = context.watch<BackgroundAnomalyScanner>();
         final isDark = MyColours.isDark;
-        final cardColour = isDark ? colours.primary: colours.background;
-        final cardBordercolor = Colors.black;
+        final cardColor = isDark ? colours.primary: colours.background;
+        final cardBorderColor = Colors.black;
         const cardBorderWidth = 3.0;
-        const cardShadow = [BoxShadow(color: Colors.balck, offset: Offset(4,4))];
+        const cardShadow = [BoxShadow(color: Colors.black, offset: Offset(4,4))];
 
         return Scaffold(
             backgroundColor: colours.background,
@@ -144,13 +144,13 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
                     ),
                 )
                 else
-                    Gesturedetector(
+                    GestureDetector(
                         onTap: () => scanner.scan(),
                         child: Padding(
                             padding: const EdgeInsets.only(right: 16),
                             child: Icon(Icons.refresh_rounded, color: colours.textPrimary),
                     ),
-                        tooltip: 'Refresh Analysis',
+                      //  tooltip: 'Refresh Analysis',
                     ),
             ],
         ),
@@ -237,7 +237,7 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
 
                             if (scanner.isScanning && scanner.anomalies.isEmpty)
                               _NeoCard(
-                                colours: colours,
+                                color: cardColor,
                                 borderColor: cardBorderColor,
                                 shadow: true,
                                 child: Column(
@@ -257,18 +257,16 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
                                         ),
                                     ],
                                 ),
-                                )
+                            )
                             else if(scanner.anomalies.isNotEmpty)
-                             // _EmptyAnomaliesCard(colours: colours)
-                            //else
                                 InsightWidget(
                                     insights: scanner.anomalies
                                         .map((a) => _anomalyToInsight(a, colours))
                                         .toList(),
-                                ),
+                                )
                                 else
                                     InsightWidget(
-                                        insight: _fallbackInsights(scanner, colours),
+                                        insights: _fallbackInsights(scanner, colours),
                                     ),
                                 const SizedBox(height: 24),
 
@@ -334,11 +332,11 @@ class _NeoCard extends StatelessWidget{
     Widget build(BuildContext context) {
         return Container(
             width: double.infinity,
-            padding: const EdgeInsetsa.all(20),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
                 color: color,
                 border: Border.all(color: borderColor, width: 3),
-                boxShadow: shadow ? const [BoxShadow(color: Colors.black, offset.Offset(4,4))] : null,
+                boxShadow: shadow ? const [BoxShadow(color: Colors.black, offset: Offset(4,4))] : null,
             ),
             child: child,
         );
@@ -458,14 +456,14 @@ class _PredictionCard extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(
-                                    child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(4),
-                                        child: LinearProgressIndicator(
-                                            value: prediction!.confidence,
-                                            backgroundColor:
-                                            colours.textPrimary.withValues(alpha: 0.1),
-                                            color: colours.secondary,
-                                            minHeight: 6,
+                                    child: Container(
+                                        height: 8,
+                                        decoration: BoxDecoration( border: Border.all(color: Colors.black, width: 2)),
+                                    
+                                        child: FractionallySizedBox(
+                                            alignment: Alignment.centerLeft,
+                                            widthFactor: prediction!.confidence,
+                                            child: Container(color: colours.secondary),
                                         ),
                                     ),
                                 ),
@@ -474,7 +472,7 @@ class _PredictionCard extends StatelessWidget {
                                     '${(prediction!.confidence * 100).toStringAsFixed(0)}%',
                                     style: TextStyle(
                                         fontSize: 12,
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.w700,
                                         color: colours.textPrimary,
                                         fontFamily: 'JetBrainsMono',
                                     ),
@@ -621,7 +619,9 @@ class _ErrorCard extends StatelessWidget {
 
 class _HowItWorksCard extends StatelessWidget {
     final MyColours colours;
-    const _HowItWorksCard({required this.colours});
+    final Color cardColor;
+    final Color borderColor;
+    const _HowItWorksCard({required this.colours, required this.cardColor, required this.borderColor});
 
     @override
     Widget build(BuildContext context){
@@ -629,9 +629,10 @@ class _HowItWorksCard extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-                color: colours.primary,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colours.textPrimary.withValues(alpha: 0.1)),
+                color: cardColor,
+                
+                border: Border.all(color: borderColor, width: 3),
+                boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(4,4))],
             ),
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -642,6 +643,7 @@ class _HowItWorksCard extends StatelessWidget {
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
                             color: colours.textMuted,
+                            letterSpacing: 1.4,
                             fontFamily: 'JetBrainsMono',
                         ),
                     ),
@@ -691,7 +693,7 @@ class _InfoRow extends StatelessWidget {
                         text,
                         style: TextStyle(
                             fontSize: 12,
-                            color: colours.textPrimary.withValues(alpha: 0.6),
+                            color: colours.textPrimary.withValues(alpha: 0.65),
                             height: 1.5,
                             fontFamily: 'JetBrainsMono',
                         ),
