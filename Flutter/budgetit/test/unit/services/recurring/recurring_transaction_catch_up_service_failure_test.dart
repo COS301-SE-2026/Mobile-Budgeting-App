@@ -1,6 +1,3 @@
-import 'package:budgetit/database/app_database.dart';
-import 'package:budgetit/database/daos/recurring_transaction_dao.dart';
-import 'package:budgetit/database/daos/transaction_dao.dart';
 import 'package:budgetit/database/schema.dart';
 import 'package:budgetit/models/recurring/recurring_transaction_catch_up_result.dart';
 import 'package:budgetit/services/recurring/recurring_transaction_catch_up_service.dart';
@@ -10,13 +7,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 
 import '../../database/helpers.dart';
+import '../../database/mock_daos.mocks.dart';
 
-class MockCatchUpDatabase extends Mock implements AppDatabase {}
-
-class MockCatchUpTransactionDao extends Mock implements TransactionDao {}
-
-class MockCatchUpRecurringTransactionDao extends Mock
-    implements RecurringTransactionDao {}
+class MockCatchUpDatabase extends MockAppDatabase {
+  @override
+  Future<T> transaction<T>(
+    Future<T> Function()? action, {
+    bool? requireNew = false,
+  }) => action!();
+}
 
 void main() {
   setUpAll(configureSqliteForTests);
@@ -34,8 +33,8 @@ void main() {
       );
 
       final database = MockCatchUpDatabase();
-      final transactionDao = MockCatchUpTransactionDao();
-      final recurringTransactionDao = MockCatchUpRecurringTransactionDao();
+      final transactionDao = MockTransactionDao();
+      final recurringTransactionDao = MockRecurringTransactionDao();
       final service = RecurringTransactionCatchUpService(database);
 
       when(database.transactionDao).thenReturn(transactionDao);
@@ -54,6 +53,7 @@ void main() {
           transactionDate: testToday,
           source: TransactionSource.recurring,
           currency: 'ZAR',
+          recurringId: recurring.id,
         ),
       ).thenThrow(Exception('insert failed'));
 
@@ -98,6 +98,7 @@ void main() {
           transactionDate: testToday,
           source: TransactionSource.recurring,
           currency: 'ZAR',
+          recurringId: recurring.id,
         ),
       ).called(1);
       verifyNever(
@@ -134,8 +135,8 @@ void main() {
       );
 
       final database = MockCatchUpDatabase();
-      final transactionDao = MockCatchUpTransactionDao();
-      final recurringTransactionDao = MockCatchUpRecurringTransactionDao();
+      final transactionDao = MockTransactionDao();
+      final recurringTransactionDao = MockRecurringTransactionDao();
       final service = RecurringTransactionCatchUpService(database);
 
       when(database.transactionDao).thenReturn(transactionDao);
@@ -154,6 +155,7 @@ void main() {
           transactionDate: testToday,
           source: TransactionSource.recurring,
           currency: 'ZAR',
+          recurringId: recurring.id,
         ),
       ).thenAnswer((_) async => transactionFixtureValue);
       when(
@@ -205,6 +207,7 @@ void main() {
           transactionDate: testToday,
           source: TransactionSource.recurring,
           currency: 'ZAR',
+          recurringId: recurring.id,
         ),
       ).called(1);
       verify(
@@ -235,8 +238,8 @@ void main() {
       );
 
       final database = MockCatchUpDatabase();
-      final transactionDao = MockCatchUpTransactionDao();
-      final recurringTransactionDao = MockCatchUpRecurringTransactionDao();
+      final transactionDao = MockTransactionDao();
+      final recurringTransactionDao = MockRecurringTransactionDao();
       final service = RecurringTransactionCatchUpService(database);
 
       when(database.transactionDao).thenReturn(transactionDao);
@@ -255,6 +258,7 @@ void main() {
           transactionDate: testToday,
           source: TransactionSource.recurring,
           currency: 'ZAR',
+          recurringId: recurring.id,
         ),
       ).thenAnswer((_) async => transactionFixtureValue);
       when(
@@ -302,6 +306,7 @@ void main() {
           transactionDate: testToday,
           source: TransactionSource.recurring,
           currency: 'ZAR',
+          recurringId: recurring.id,
         ),
       ).called(1);
       verifyNever(
@@ -316,8 +321,8 @@ void main() {
 
     test('marks an unexpected error as unknown', () async {
       final database = MockCatchUpDatabase();
-      final transactionDao = MockCatchUpTransactionDao();
-      final recurringTransactionDao = MockCatchUpRecurringTransactionDao();
+      final transactionDao = MockTransactionDao();
+      final recurringTransactionDao = MockRecurringTransactionDao();
       final service = RecurringTransactionCatchUpService(database);
 
       when(database.transactionDao).thenReturn(transactionDao);
