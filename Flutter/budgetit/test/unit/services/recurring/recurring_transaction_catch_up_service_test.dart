@@ -343,6 +343,35 @@ void main() {
       expect(categoryAssignment!.categoryId, equals(category.id));
     });
 
+    test('preserves DAO ordering for due templates', () async {
+      final laterRecurring = await insertRecurringFixture(
+        fixture: recurringTransactionFixture(
+          id: 'rec-later',
+          shortDescription: 'Later due template',
+          nextTransactionDate: testToday,
+          startDate: testToday,
+        ),
+      );
+      final earlierRecurring = await insertRecurringFixture(
+        fixture: recurringTransactionFixture(
+          id: 'rec-earlier',
+          shortDescription: 'Earlier due template',
+          nextTransactionDate: testLastMonth,
+          startDate: testLastMonth,
+        ),
+      );
+
+      final result = await service.catchUpDueRecurringTransactions(
+        trigger: CatchUpTrigger.test,
+        localTodayOverride: testToday,
+      );
+
+      expect(
+        result.templates.map((template) => template.recurringTransactionId),
+        equals(<String>[earlierRecurring.id, laterRecurring.id]),
+      );
+    });
+
     test('creates one result group for each due template', () async {
       final firstRecurring = await insertRecurringFixture(
         fixture: recurringTransactionFixture(
