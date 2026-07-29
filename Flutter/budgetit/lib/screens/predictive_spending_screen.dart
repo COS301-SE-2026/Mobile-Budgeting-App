@@ -60,11 +60,51 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
         AnomalySeverity.low => InsightSeverity.tip,
     };
 
+    List<BudgetInsight> _fallbackInsights( //fallback if months <2 , 
+        BackgroundAnomalyScanner scanner,
+        MyColours colours,
+    ){
+        final insights = <BudgetInsights>[];
+
+        insights.add(BudgetInsights(
+            title: 'Building your financial picture',
+            body: 'Add transaction across 2+ months and we\'ll start detecting unusual spending patterns automatically. ' ,
+            icon: Icons.bar_chart_rounded,
+            accentColor: colours.informational,
+            severity: InsightSeverity.tip,
+        ));
+
+        final prediction = scanner.prediction;
+        if(prediction != null){
+            insights.add(BudgetInsight(
+                title: 'Projected Spend for ${prediction.shortLabel}',
+                body: 'Based on your spending thus far, you are on track to spend around '
+                       ' R${prediction.predictedAmount.toStringAsFixed(2)} this month.',
+                icon: Icons.trending_up_rounded,
+                accentColor: colours.warning,
+                severity: InsightSeverity.tip,
+            ));
+        }
+
+        insights.add(BudgetInsight(
+            title: 'Your data stays on your device',
+            body: 'All analysis runs locally [no spending data ever leaves your phone]',
+            icon: Icons.lock_outline_rounded,
+            accentColor: colours.greenAccents,
+            severity: InsightSeverity.tip,
+        ));
+
+        return insights;
+
+
+    }
+
     @override
     Widget build(BuildContext context) {
         context.watch<ThemeProvider>();
         final colours = MyColours();
         final scanner = context.watch<BackgroundAnomalyScanner>();
+        
 
         return Scaffold(
             backgroundColor: colours.background,
