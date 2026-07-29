@@ -55,48 +55,60 @@ class RecurringTransactionCatchUpService {
       final templates = <TemplateCatchUpResult>[];
 
       for (final recurringTransaction in dueRecurringTransactions) {
-        final dueDate = recurringTransaction.nextTransactionDate;
-        final transaction = await _database.transactionDao.insertTransaction(
-          amount: recurringTransaction.amount,
-          type: recurringTransaction.type,
-          shortDescription: recurringTransaction.shortDescription,
-          longDescription: recurringTransaction.longDescription,
-          transactionDate: dueDate,
-          source: TransactionSource.recurring,
-          currency: recurringTransaction.currency,
-        );
+        final initialNextTransactionDate =
+            recurringTransaction.nextTransactionDate;
+        final occurrences = <OccurrenceCatchUpResult>[];
+        var currentRecurringTransaction = recurringTransaction;
 
-        await (_database.update(
-          _database.transactions,
-        )..where((t) => t.id.equals(transaction.id))).write(
-          TransactionsCompanion(recurringId: Value(recurringTransaction.id)),
-        );
+        while (!currentRecurringTransaction.nextTransactionDate.isAfter(
+          localTodayEndOfDay,
+        )) {
+          final dueDate = currentRecurringTransaction.nextTransactionDate;
+          final transaction = await _database.transactionDao.insertTransaction(
+            amount: currentRecurringTransaction.amount,
+            type: currentRecurringTransaction.type,
+            shortDescription: currentRecurringTransaction.shortDescription,
+            longDescription: currentRecurringTransaction.longDescription,
+            transactionDate: dueDate,
+            source: TransactionSource.recurring,
+            currency: currentRecurringTransaction.currency,
+          );
 
-        if (recurringTransaction.categoryId != null) {
-          await _database.transactionDao.assignCategory(
-            transactionId: transaction.id,
-            categoryId: recurringTransaction.categoryId!,
-            assignmentSource: AssignmentSource.manual,
+          await (_database.update(
+            _database.transactions,
+          )..where((t) => t.id.equals(transaction.id))).write(
+            TransactionsCompanion(
+              recurringId: Value(currentRecurringTransaction.id),
+            ),
+          );
+
+          if (currentRecurringTransaction.categoryId != null) {
+            await _database.transactionDao.assignCategory(
+              transactionId: transaction.id,
+              categoryId: currentRecurringTransaction.categoryId!,
+              assignmentSource: AssignmentSource.manual,
+            );
+          }
+
+          currentRecurringTransaction = await _database.recurringTransactionDao
+              .advanceNextDate(currentRecurringTransaction.id);
+
+          occurrences.add(
+            OccurrenceCatchUpResult.created(
+              dueDate: dueDate,
+              transactionId: transaction.id,
+            ),
           );
         }
-
-        final advancedRecurringTransaction = await _database
-            .recurringTransactionDao
-            .advanceNextDate(recurringTransaction.id);
 
         templates.add(
           TemplateCatchUpResult(
             recurringTransactionId: recurringTransaction.id,
             shortDescription: recurringTransaction.shortDescription,
-            initialNextTransactionDate: dueDate,
+            initialNextTransactionDate: initialNextTransactionDate,
             finalNextTransactionDate:
-                advancedRecurringTransaction.nextTransactionDate,
-            occurrences: [
-              OccurrenceCatchUpResult.created(
-                dueDate: dueDate,
-                transactionId: transaction.id,
-              ),
-            ],
+                currentRecurringTransaction.nextTransactionDate,
+            occurrences: occurrences,
           ),
         );
       }
