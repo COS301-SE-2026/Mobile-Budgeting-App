@@ -34,8 +34,46 @@ class RecurringTransactionCatchUpService {
     }
 
     _isRunning = true;
+    final startedAt = DateTime.now();
+    final localTodayEndOfDay = DateTime(
+      localToday.year,
+      localToday.month,
+      localToday.day,
+      23,
+      59,
+      59,
+      999,
+      999,
+    );
+
     try {
-      throw UnimplementedError();
+      final dueRecurringTransactions = await _database.recurringTransactionDao
+          .getDueRecurringTransactions(localTodayEndOfDay);
+
+      if (dueRecurringTransactions.isNotEmpty) {
+        throw UnimplementedError();
+      }
+
+      return CatchUpResult.completed(
+        trigger: trigger,
+        localToday: localToday,
+        startedAt: startedAt,
+        finishedAt: DateTime.now(),
+        templates: const [],
+      );
+    } on Object catch (error, stackTrace) {
+      return CatchUpResult.completed(
+        trigger: trigger,
+        localToday: localToday,
+        startedAt: startedAt,
+        finishedAt: DateTime.now(),
+        templates: const [],
+        runFailure: CatchUpFailure(
+          type: CatchUpFailureType.unknown,
+          error: error,
+          stackTrace: stackTrace,
+        ),
+      );
     } finally {
       _isRunning = false;
     }
