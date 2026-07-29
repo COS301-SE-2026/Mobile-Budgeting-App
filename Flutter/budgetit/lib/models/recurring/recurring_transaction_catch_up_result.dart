@@ -19,6 +19,7 @@ class CatchUpResult {
 
   final DateTime startedAt;
   final DateTime finishedAt;
+  final CatchUpFailure? runFailure;
 
   final List<TemplateCatchUpResult> _templates;
 
@@ -30,6 +31,7 @@ class CatchUpResult {
     required this.startedAt,
     required this.finishedAt,
     required List<TemplateCatchUpResult> templates,
+    this.runFailure,
   }) : status = CatchUpRunStatus.completed,
        _templates = List.unmodifiable(templates);
 
@@ -40,6 +42,7 @@ class CatchUpResult {
   }) : status = CatchUpRunStatus.skipped,
        startedAt = skippedAt,
        finishedAt = skippedAt,
+       runFailure = null,
        _templates = const [];
 
   bool get wasSkipped => status == CatchUpRunStatus.skipped;
@@ -48,9 +51,10 @@ class CatchUpResult {
 
   bool get hadWork => templates.isNotEmpty;
 
-  bool get hasFailures => templates.any((template) => template.hasFailures);
+  bool get hasFailures =>
+      runFailure != null || templates.any((template) => template.hasFailures);
 
-  bool get completedWithNoWork => completed && !hadWork;
+  bool get completedWithNoWork => completed && !hadWork && !hasFailures;
 
   bool get completedSuccessfully => completed && hadWork && !hasFailures;
 
