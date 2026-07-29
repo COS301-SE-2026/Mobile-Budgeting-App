@@ -1,3 +1,20 @@
+# Team Name 
+**DEV OOPs**  
+# Project Name
+**Budget It**
+# Project Description
+A mobile budgeting app designed to help users track income and expenses, manage budgets, import bank statements, and understand their spending through reports and insights.
+## Project Documents
+
+
+| Document | Description |
+|---|---|
+| [Software Requirements Specification (SRS)](docs/SRS.md) | Defines the system requirements, user stories, use cases, and functional scope of the application. |
+| [Software Architecture Specification (SAS)](docs/SAS.pdf) | Describes the system architecture, design decisions, components, and technical structure. |
+| [Coding Standards](docs/CodingStandards.md) | Outlines the coding conventions, formatting rules, naming guidelines, and development practices followed by the team. |
+| [Testing Policy](docs/TestingPolicy.md) | Explains the testing approach, required test types, coverage expectations, and quality assurance process. |
+| [User Manual](docs/UserManual.md) | Provides instructions for installing, navigating, and using the application. |
+| [Brand Style Guide](docs/brandstyle.md) | Documents the project’s visual identity, typography, colours, and branding guidelines. |
 ##  Team
 
 <p align="center">
@@ -6,14 +23,14 @@
 
 <div align="center">
 
-| Member | Role | Responsibilities |
-| :--- | :--- | :--- |
-| **Kiolin Gounden** | AI & Analytics Lead | On-device AI, categorisation, anomaly detection |
-| **Lufuno Mphagi** | Backend & Data Lead | SQLite, transaction logic, data layer |
-| **Pavan Naidoo** | Scrum Master & Full-Stack Lead | Sprint planning, architecture, system integration |
-| **Jessica Marodi** | Frontend Lead & UI/UX | Mobile UI, user experience, reusable components |
-| **Donovan Nelson** | DevOps & Infrastructure | CI/CD, deployment, build automation |
 
+| Member | Role | LinkedIn |
+| :--- | :--- | :---: |
+| **Pavan Naidoo** | Scrum Master & Full-Stack Lead | [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/pavan-naidoo-5333613b5/) |
+| **Lufuno Mphagi** | Backend & Data Lead | [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/lufuno-mphagi/) |
+| **Kiolin Gounden** | AI & Analytics Lead | [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/kiolin-gounden-10577924b/) |
+| **Jessica Marodi** | Frontend Lead & UI/UX | [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/jessica-m-9722a3380/) |
+| **Donovan Nelson** | DevOps & Infrastructure | [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/donovan-nelson/) |
 
 </div>
 
