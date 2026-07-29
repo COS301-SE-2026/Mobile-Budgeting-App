@@ -121,7 +121,7 @@ class _TransactionManagerState extends State<TransactionManager> {
   @override
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>();
-    final colours = MyColours();
+    final colours = context.colours;
     final grouped = _groupByDate(_filtered);
 
     return Scaffold(
@@ -188,12 +188,8 @@ class _TransactionManagerState extends State<TransactionManager> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
-                      'Recent Transactions',
-                      style: TextStyle(
-                        fontSize: colours.headingFontSize2,
-                        color: colours.textPrimary,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      'RECENT TRANSACTIONS',
+                      style: context.colours.h2,
                     ),
                   ],
                 ),
@@ -220,31 +216,17 @@ class _TransactionManagerState extends State<TransactionManager> {
                   final date = entry.key;
                   final txns = entry.value;
                   return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16.0,
-                          vertical: 20,
+                          vertical: 10,
+                          
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              _dayNames[date.weekday - 1],
-                              style: TextStyle(
-                                fontSize: colours.headingFontSize3,
-                                color: colours.textPrimary,
-                              ),
-                            ),
-                            Text(
-                              '${date.day} ${_monthNames[date.month - 1]} ${date.year}',
-                              style: TextStyle(
-                                fontSize: colours.bodyFontSize,
-                                color: colours.textPrimary,
-                              ),
-                            ),
-                          ],
+                          
                         ),
                       ),
                       ...txns.map(
@@ -261,6 +243,9 @@ class _TransactionManagerState extends State<TransactionManager> {
                                 ? 'Income'
                                 : 'Expense',
                             categories: const [],
+                            date:
+                                '${_dayNames[date.weekday - 1]}, ${_monthNames[date.month - 1]} ${date.day}, ${date.year}',
+                            isExpense: t.type == TransactionType.expense,
                             onEdited: (name, amount, icon, category) =>
                                 _handleEdit(t.id, name, amount),
                             onDelete: () => _handleDelete(t.id),

@@ -1,7 +1,7 @@
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
-import 'package:budgetit/screens/coming_soon_page.dart';
-import 'package:budgetit/screens/profile_page.dart';
+import 'package:budgetit/shared/widgets/coming_soon_page.dart';
+import 'package:budgetit/shared/widgets/profile_page.dart';
 import 'package:provider/provider.dart';
 import 'package:budgetit/utils/theme_provider.dart';
 
@@ -30,11 +30,24 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>();
     return AppBar(
-      backgroundColor: MyColours().navBarColor,
+      backgroundColor: context.colours.background,
       elevation: 0,
 
       leading: IconButton(
-        icon: Icon(Icons.menu, color: MyColours().cardText),
+        icon: 
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: context.colours.blue,
+              border: Border.all(color: Colors.black, width: 4),
+            ),
+          child: Icon(
+            Icons.menu,
+            color: Colors.black,
+            
+          ),
+          ),
         onPressed: () {
           _openComingSoonPage(
             context,
@@ -47,27 +60,46 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
       ),
 
       title: Text(
-        "Budget IT",
-        style: TextStyle(
-          color: MyColours().cardText,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1,
-        ),
+        "BudgetIT",
+        style: context.colours.title,
       ),
-
       actions: [
         IconButton(
           tooltip: theme.isDark ? 'Light mode' : 'Dark mode',
-          icon: Icon(
+          alignment: Alignment(0, 0),
+          
+          icon: 
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: context.colours.yellow,
+              border: Border.all(color: Colors.black, width: 4),
+            ),
+          child: Icon(
             theme.isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
-            color: MyColours().cardText,
+            color: Colors.black,
+            
           ),
+        ),
           onPressed: () => context.read<ThemeProvider>().toggle(),
         ),
         IconButton(
-          icon: Icon(
-            Icons.account_circle_outlined,
-            color: MyColours().cardText,
+         alignment: Alignment(0, 0),
+          
+          icon: 
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: context.colours.greenAccents,
+              border: Border.all(color: Colors.black, width: 4),
+            ),
+          child: Icon(
+            Icons.person_outline,
+            color: Colors.black,
+            
+          ),
           ),
           onPressed: () {
             Navigator.push(
@@ -78,7 +110,20 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
         ),
 
         IconButton(
-          icon: Icon(Icons.settings_outlined, color: MyColours().cardText),
+          icon: 
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: context.colours.error,
+              border: Border.all(color: Colors.black, width: 4),
+            ),
+          child: Icon(
+            Icons.settings_outlined,
+            color: Colors.black,
+            
+          ),
+          ),
           onPressed: () {
             _openComingSoonPage(
               context,
