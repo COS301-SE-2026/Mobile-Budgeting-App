@@ -45,6 +45,16 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
     return 'R${amount.toStringAsFixed(2)}';
   }
 
+  Color _reportCardColor(BuildContext context) {
+    return context.colours.primary;
+  }
+
+  Color _reportCardTextColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.light
+        ? context.colours.background
+        : context.colours.textPrimary;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -142,6 +152,8 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
     return Row(
       children: ReportingPeriod.values.map((period) {
         final selected = period == _selectedPeriod;
+        final cardColor = _reportCardColor(context);
+        final textColor = _reportCardTextColor(context);
 
         return Expanded(
           child: Padding(
@@ -150,9 +162,9 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
               selected: selected,
               label: Text(period.label),
               selectedColor: context.colours.secondary,
-              backgroundColor: context.colours.primary,
+              backgroundColor: cardColor,
               labelStyle: TextStyle(
-                color: selected ? context.colours.background : context.colours.textPrimary,
+                color: selected ? context.colours.background : textColor,
                 fontWeight: FontWeight.bold,
               ),
               onSelected: (_) {
@@ -192,23 +204,31 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
     required double value,
     required IconData icon,
   }) {
+    final cardColor = _reportCardColor(context);
+    final textColor = _reportCardTextColor(context);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: context.colours.primary,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: context.colours.secondary),
+        color: cardColor,
+        border: Border.all(color: context.colours.category, width: 4),
+        boxShadow: [
+          BoxShadow(
+            color: context.colours.category,
+            offset: const Offset(6, 6),
+          ),
+        ],
       ),
       child: Column(
         children: [
-          Icon(icon, color: context.colours.secondary),
+          Icon(icon, color: textColor),
           const SizedBox(height: 8),
-          Text(title, style: TextStyle(color: context.colours.textPrimary)),
+          Text(title, style: TextStyle(color: textColor)),
           const SizedBox(height: 6),
           Text(
             _formatCurrency(value),
             style: TextStyle(
-              color: context.colours.textPrimary,
+              color: textColor,
               fontWeight: FontWeight.bold,
               fontSize: 18,
             ),
@@ -219,10 +239,12 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
   }
 //this widget i used ai to help me
   Widget _incomeExpenseChart(GraphicalReportData report) {
+    final cardTextColor = _reportCardTextColor(context);
     final maximum = [
       report.totalIncome,
       report.totalExpenses,
     ].reduce((first, second) => first > second ? first : second);
+    final yInterval = maximum <= 0 ? 20.0 : maximum / 4;
 
     return _chartCard(
       child: SizedBox(
@@ -259,13 +281,29 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
               rightTitles: const AxisTitles(
                 sideTitles: SideTitles(showTitles: false),
               ),
+              leftTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 46,
+                  interval: yInterval,
+                  getTitlesWidget: (value, metadata) {
+                    return Text(
+                      'R${value.toInt()}',
+                      style: TextStyle(
+                        color: cardTextColor,
+                        fontSize: 10,
+                      ),
+                    );
+                  },
+                ),
+              ),
               bottomTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
                   getTitlesWidget: (value, metadata) {
                     return Text(
                       value.toInt() == 0 ? 'Income' : 'Expenses',
-                      style: TextStyle(color: context.colours.textPrimary),
+                      style: TextStyle(color: cardTextColor),
                     );
                   },
                 ),
@@ -282,6 +320,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
     if (report.categorySpending.isEmpty) {
       return _emptyChartMessage();
     }
+    final cardTextColor = _reportCardTextColor(context);
 
     final chartColours = [
       context.colours.greenAccents,
@@ -365,7 +404,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                             category.categoryName,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color: context.colours.textPrimary,
+                              color: cardTextColor,
                               fontSize: 12,
                             ),
                           ),
@@ -374,7 +413,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                         Text(
                           '${percentage.toStringAsFixed(1)}%',
                           style: TextStyle(
-                            color: context.colours.textPrimary,
+                            color: cardTextColor,
                             fontSize: 12,
                           ),
                         ),
@@ -394,6 +433,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
     if (report.budgetComparisons.isEmpty) {
       return _emptyChartMessage();
     }
+    final cardTextColor = _reportCardTextColor(context);
 
     return _chartCard(
       child: Column(
@@ -413,14 +453,14 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                     Text(
                       budget.categoryName,
                       style: TextStyle(
-                        color: context.colours.textPrimary,
+                        color: cardTextColor,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
                       '${_formatCurrency(budget.spent)} / '
                       '${_formatCurrency(budget.limit)}',
-                      style: TextStyle(color: context.colours.textPrimary),
+                      style: TextStyle(color: cardTextColor),
                     ),
                   ],
                 ),
@@ -442,6 +482,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
     if (report.spendingTrend.isEmpty) {
       return _emptyChartMessage();
     }
+    final cardTextColor = _reportCardTextColor(context);
 
     final spots = report.spendingTrend
         .asMap()
@@ -462,10 +503,41 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                 dotData: const FlDotData(show: true),
               ),
             ],
-            titlesData: const FlTitlesData(
-              topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              rightTitles: AxisTitles(
+            titlesData: FlTitlesData(
+              topTitles: const AxisTitles(
                 sideTitles: SideTitles(showTitles: false),
+              ),
+              rightTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              leftTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 42,
+                  getTitlesWidget: (value, metadata) {
+                    return Text(
+                      value.toInt().toString(),
+                      style: TextStyle(
+                        color: cardTextColor,
+                        fontSize: 10,
+                      ),
+                    );
+                  },
+                ),
+              ),
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  getTitlesWidget: (value, metadata) {
+                    return Text(
+                      value.toInt().toString(),
+                      style: TextStyle(
+                        color: cardTextColor,
+                        fontSize: 10,
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
             borderData: FlBorderData(show: false),
@@ -480,9 +552,14 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: context.colours.primary,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: context.colours.secondary),
+        color: _reportCardColor(context),
+        border: Border.all(color: context.colours.category, width: 4),
+        boxShadow: [
+          BoxShadow(
+            color: context.colours.category,
+            offset: const Offset(6, 6),
+          ),
+        ],
       ),
       child: child,
     );
@@ -500,26 +577,30 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
   }
 
   Widget _emptyChartMessage() {
+    final cardTextColor = _reportCardTextColor(context);
+
     return _chartCard(
       child: Text(
         'No data is available for this graph.',
         textAlign: TextAlign.center,
-        style: TextStyle(color: context.colours.textPrimary),
+        style: TextStyle(color: cardTextColor),
       ),
     );
   }
 
   Widget _noDataCard() {
+    final cardTextColor = _reportCardTextColor(context);
+
     return _chartCard(
       child: Column(
         children: [
-          Icon(Icons.insert_chart_outlined, color: context.colours.secondary, size: 48),
+          Icon(Icons.insert_chart_outlined, color: cardTextColor, size: 48),
           const SizedBox(height: 14),
           Text(
             'No financial data is available for the selected period.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: context.colours.textPrimary,
+              color: cardTextColor,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -527,7 +608,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
           Text(
             'Select another reporting period or add transactions.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: context.colours.textPrimary),
+            style: TextStyle(color: cardTextColor),
           ),
         ],
       ),
