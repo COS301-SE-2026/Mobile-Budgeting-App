@@ -60,6 +60,7 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
     required DateTime transactionDate,
     required TransactionSource source,
     String currency = 'ZAR',
+    String? recurringId,
   }) async {
     if (shortDescription.length > 100) {
       throw ArgumentError('shortDescription must be 100 characters or fewer');
@@ -81,7 +82,7 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
         updatedAt: now,
         source: source,
         currency: Value(currency),
-      ),
+      ).copyWith(recurringId: Value(recurringId)),
     );
     return (select(transactions)..where((t) => t.id.equals(id))).getSingle();
   }

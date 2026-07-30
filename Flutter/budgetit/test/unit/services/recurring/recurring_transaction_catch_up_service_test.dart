@@ -1,0 +1,467 @@
+import 'package:budgetit/database/app_database.dart';
+import 'package:budgetit/database/daos/recurring_transaction_dao.dart';
+import 'package:budgetit/database/schema.dart';
+import 'package:budgetit/models/recurring/recurring_transaction_catch_up_result.dart';
+import 'package:budgetit/services/recurring/recurring_transaction_catch_up_service.dart';
+import 'package:decimal/decimal.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import '../../../support/fixtures.dart';
+import '../../database/helpers.dart';
+
+void main() {
+  setUpAll(configureSqliteForTests);
+
+  late AppDatabase db;
+  late RecurringTransactionDao recurringDao;
+  late RecurringTransactionCatchUpService service;
+
+  final testToday = DateTime(2030, 7, 28);
+  final testTomorrow = DateTime(2030, 7, 29);
+  final testLastMonth = DateTime(2030, 6, 28);
+  final testTwoMonthsAgo = DateTime(2030, 5, 28);
+  final testNextMonth = DateTime(2030, 8, 28);
+
+  setUp(() {
+    db = openTestDatabase();
+    recurringDao = db.recurringTransactionDao;
+    service = RecurringTransactionCatchUpService(db);
+  });
+
+  tearDown(() => db.close());
+
+  Future<RecurringTransaction> insertRecurringFixture({
+    required RecurringTransaction fixture,
+  }) {
+    return recurringDao.insertRecurringTransaction(
+      amount: fixture.amount,
+      type: fixture.type,
+      shortDescription: fixture.shortDescription,
+      longDescription: fixture.longDescription,
+      nextTransactionDate: fixture.nextTransactionDate,
+      unit: fixture.unit,
+      intervalAmount: fixture.intervalAmount,
+      startDate: fixture.startDate,
+      categoryId: fixture.categoryId,
+      currency: fixture.currency,
+    );
+  }
+
+  group('RecurringTransactionCatchUpService.catchUpDueRecurringTransactions', () {
+    test(
+      'returns a completed result with no work done when no transactions were due',
+      () async {
+        final recurring = await insertRecurringFixture(
+          fixture: recurringTransactionFixture(
+            id: 'rec-future-rent',
+            shortDescription: 'Future rent',
+            nextTransactionDate: testTomorrow,
+            startDate: testTomorrow,
+          ),
+        );
+
+        final result = await service.catchUpDueRecurringTransactions(
+          trigger: CatchUpTrigger.test,
+          localTodayOverride: testToday,
+        );
+
+        expect(result.status, equals(CatchUpRunStatus.completed));
+        expect(result.completedWithNoWork, isTrue);
+        expect(result.completedSuccessfully, isFalse);
+        expect(result.completedWithFailures, isFalse);
+        expect(result.templates, isEmpty);
+        expect(await db.transactionDao.getAllTransactions(), isEmpty);
+
+        final storedRecurring = await recurringDao.getRecurringTransactionById(
+          recurring.id,
+        );
+        expect(storedRecurring, isNotNull);
+        expect(storedRecurring!.nextTransactionDate, equals(testTomorrow));
+      },
+    );
+
+    test('treats a past date as due', () async {
+      final recurring = await insertRecurringFixture(
+        fixture: recurringTransactionFixture(
+          id: 'rec-old-rent',
+          shortDescription: 'Old rent',
+          amount: Decimal.parse('500.00'),
+          nextTransactionDate: testLastMonth,
+          startDate: testLastMonth,
+        ),
+      );
+
+      final result = await service.catchUpDueRecurringTransactions(
+        trigger: CatchUpTrigger.test,
+        localTodayOverride: testToday,
+      );
+
+      expect(result.status, equals(CatchUpRunStatus.completed));
+      expect(result.completedSuccessfully, isTrue);
+      expect(result.templateCount, equals(1));
+      expect(result.attemptedOccurrenceCount, equals(2));
+      expect(result.successfulOccurrenceCount, equals(2));
+      expect(result.failedOccurrenceCount, equals(0));
+
+      final templateResult = result.templates.single;
+      expect(templateResult.recurringTransactionId, equals(recurring.id));
+      expect(templateResult.shortDescription, equals('Old rent'));
+      expect(templateResult.initialNextTransactionDate, equals(testLastMonth));
+      expect(templateResult.finalNextTransactionDate, equals(testNextMonth));
+      expect(templateResult.attemptedOccurrenceCount, equals(2));
+      expect(templateResult.successfulOccurrenceCount, equals(2));
+      expect(templateResult.failedOccurrenceCount, equals(0));
+      expect(templateResult.occurrences, hasLength(2));
+      expect(
+        templateResult.occurrences.map((occurrence) => occurrence.dueDate),
+        equals(<DateTime>[testLastMonth, testToday]),
+      );
+
+      final transactions = await recurringDao.getTransactionsForRecurring(
+        recurring.id,
+      );
+      expect(transactions, hasLength(2));
+      expect(
+        transactions.map((transaction) => transaction.transactionDate),
+        equals(<DateTime>[testLastMonth, testToday]),
+      );
+    });
+
+    test(
+      'creates one occurrence and increments nextTransactionDate on the template',
+      () async {
+        final recurring = await insertRecurringFixture(
+          fixture: recurringTransactionFixture(
+            id: 'rec-rent',
+            shortDescription: 'Rent',
+            amount: Decimal.parse('500.00'),
+            nextTransactionDate: testToday,
+            startDate: testToday,
+          ),
+        );
+
+        final result = await service.catchUpDueRecurringTransactions(
+          trigger: CatchUpTrigger.test,
+          localTodayOverride: testToday,
+        );
+
+        expect(result.status, equals(CatchUpRunStatus.completed));
+        expect(result.completedSuccessfully, isTrue);
+        expect(result.completedWithNoWork, isFalse);
+        expect(result.completedWithFailures, isFalse);
+        expect(result.templateCount, equals(1));
+        expect(result.attemptedOccurrenceCount, equals(1));
+        expect(result.successfulOccurrenceCount, equals(1));
+        expect(result.failedOccurrenceCount, equals(0));
+
+        final templateResult = result.templates.single;
+        expect(templateResult.recurringTransactionId, equals(recurring.id));
+        expect(templateResult.shortDescription, equals('Rent'));
+        expect(templateResult.initialNextTransactionDate, equals(testToday));
+        expect(templateResult.finalNextTransactionDate, equals(testNextMonth));
+        expect(templateResult.attemptedOccurrenceCount, equals(1));
+        expect(templateResult.successfulOccurrenceCount, equals(1));
+        expect(templateResult.failedOccurrenceCount, equals(0));
+
+        final occurrence = templateResult.occurrences.single;
+        expect(occurrence.status, equals(OccurrenceStatus.created));
+        expect(occurrence.dueDate, equals(testToday));
+        expect(occurrence.transactionId, isNotNull);
+        expect(occurrence.failure, isNull);
+
+        final transactions = await recurringDao.getTransactionsForRecurring(
+          recurring.id,
+        );
+        expect(transactions, hasLength(1));
+        expect(transactions.single.amount, equals(Decimal.parse('500.00')));
+        expect(transactions.single.type, equals(TransactionType.expense));
+        expect(transactions.single.shortDescription, equals('Rent'));
+        expect(transactions.single.transactionDate, equals(testToday));
+        expect(transactions.single.source, equals(TransactionSource.recurring));
+        expect(transactions.single.recurringId, equals(recurring.id));
+
+        final storedRecurring = await recurringDao.getRecurringTransactionById(
+          recurring.id,
+        );
+        expect(storedRecurring, isNotNull);
+        expect(storedRecurring!.nextTransactionDate, equals(testNextMonth));
+      },
+    );
+
+    test(
+      'creates all missed transactions when a template is overdue by many cycles',
+      () async {
+        final recurring = await insertRecurringFixture(
+          fixture: recurringTransactionFixture(
+            id: 'rec-gym-history',
+            shortDescription: 'Gym membership',
+            amount: Decimal.parse('250.00'),
+            nextTransactionDate: testTwoMonthsAgo,
+            startDate: testTwoMonthsAgo,
+          ),
+        );
+
+        final result = await service.catchUpDueRecurringTransactions(
+          trigger: CatchUpTrigger.test,
+          localTodayOverride: testToday,
+        );
+
+        expect(result.status, equals(CatchUpRunStatus.completed));
+        expect(result.completedSuccessfully, isTrue);
+        expect(result.completedWithNoWork, isFalse);
+        expect(result.completedWithFailures, isFalse);
+        expect(result.templateCount, equals(1));
+        expect(result.attemptedOccurrenceCount, equals(3));
+        expect(result.successfulOccurrenceCount, equals(3));
+        expect(result.failedOccurrenceCount, equals(0));
+
+        final templateResult = result.templates.single;
+        expect(templateResult.recurringTransactionId, equals(recurring.id));
+        expect(templateResult.shortDescription, equals('Gym membership'));
+        expect(
+          templateResult.initialNextTransactionDate,
+          equals(testTwoMonthsAgo),
+        );
+        expect(templateResult.finalNextTransactionDate, equals(testNextMonth));
+        expect(templateResult.attemptedOccurrenceCount, equals(3));
+        expect(templateResult.successfulOccurrenceCount, equals(3));
+        expect(templateResult.failedOccurrenceCount, equals(0));
+        expect(templateResult.occurrences, hasLength(3));
+
+        expect(
+          templateResult.occurrences.map((occurrence) => occurrence.dueDate),
+          equals(<DateTime>[testTwoMonthsAgo, testLastMonth, testToday]),
+        );
+        expect(
+          templateResult.occurrences.every(
+            (occurrence) => occurrence.status == OccurrenceStatus.created,
+          ),
+          isTrue,
+        );
+
+        final transactions = await recurringDao.getTransactionsForRecurring(
+          recurring.id,
+        );
+        expect(transactions, hasLength(3));
+        expect(
+          transactions.map((transaction) => transaction.transactionDate),
+          equals(<DateTime>[testTwoMonthsAgo, testLastMonth, testToday]),
+        );
+        expect(
+          transactions.every(
+            (transaction) => transaction.source == TransactionSource.recurring,
+          ),
+          isTrue,
+        );
+        expect(
+          transactions.every(
+            (transaction) => transaction.recurringId == recurring.id,
+          ),
+          isTrue,
+        );
+
+        final storedRecurring = await recurringDao.getRecurringTransactionById(
+          recurring.id,
+        );
+        expect(storedRecurring, isNotNull);
+        expect(storedRecurring!.nextTransactionDate, equals(testNextMonth));
+      },
+    );
+
+    test('does not catch up a future date', () async {
+      final recurring = await insertRecurringFixture(
+        fixture: recurringTransactionFixture(
+          id: 'rec-future-rent',
+          shortDescription: 'Future rent',
+          nextTransactionDate: testTomorrow,
+          startDate: testTomorrow,
+        ),
+      );
+
+      final result = await service.catchUpDueRecurringTransactions(
+        trigger: CatchUpTrigger.test,
+        localTodayOverride: testToday,
+      );
+
+      expect(result.status, equals(CatchUpRunStatus.completed));
+      expect(result.completedWithNoWork, isTrue);
+      expect(result.templateCount, equals(0));
+      expect(result.templates, isEmpty);
+      expect(await db.transactionDao.getAllTransactions(), isEmpty);
+
+      final storedRecurring = await recurringDao.getRecurringTransactionById(
+        recurring.id,
+      );
+      expect(storedRecurring, isNotNull);
+      expect(storedRecurring!.nextTransactionDate, equals(testTomorrow));
+    });
+
+    test('keeps the category on a created transaction', () async {
+      final category = await db.categoryDao.insertCategory(
+        name: 'Food',
+        type: CategoryType.expense,
+      );
+      final recurring = await insertRecurringFixture(
+        fixture: recurringTransactionFixture(
+          id: 'rec-lunch',
+          shortDescription: 'Lunch',
+          amount: Decimal.parse('18.50'),
+          nextTransactionDate: testToday,
+          startDate: testToday,
+          categoryId: category.id,
+        ),
+      );
+
+      final result = await service.catchUpDueRecurringTransactions(
+        trigger: CatchUpTrigger.test,
+        localTodayOverride: testToday,
+      );
+
+      expect(result.status, equals(CatchUpRunStatus.completed));
+      expect(result.completedSuccessfully, isTrue);
+      expect(result.templateCount, equals(1));
+      expect(result.attemptedOccurrenceCount, equals(1));
+      expect(result.successfulOccurrenceCount, equals(1));
+      expect(result.failedOccurrenceCount, equals(0));
+
+      final templateResult = result.templates.single;
+      expect(templateResult.recurringTransactionId, equals(recurring.id));
+      expect(templateResult.shortDescription, equals('Lunch'));
+      expect(templateResult.initialNextTransactionDate, equals(testToday));
+      expect(templateResult.finalNextTransactionDate, equals(testNextMonth));
+
+      final transactions = await recurringDao.getTransactionsForRecurring(
+        recurring.id,
+      );
+      expect(transactions, hasLength(1));
+      expect(transactions.single.recurringId, equals(recurring.id));
+      expect(transactions.single.shortDescription, equals('Lunch'));
+
+      final categoryAssignment = await db.transactionDao
+          .getCategoryForTransaction(transactions.single.id);
+      expect(categoryAssignment, isNotNull);
+      expect(categoryAssignment!.categoryId, equals(category.id));
+    });
+
+    test('preserves DAO ordering for due templates', () async {
+      final laterRecurring = await insertRecurringFixture(
+        fixture: recurringTransactionFixture(
+          id: 'rec-later',
+          shortDescription: 'Later due template',
+          nextTransactionDate: testToday,
+          startDate: testToday,
+        ),
+      );
+      final earlierRecurring = await insertRecurringFixture(
+        fixture: recurringTransactionFixture(
+          id: 'rec-earlier',
+          shortDescription: 'Earlier due template',
+          nextTransactionDate: testLastMonth,
+          startDate: testLastMonth,
+        ),
+      );
+
+      final result = await service.catchUpDueRecurringTransactions(
+        trigger: CatchUpTrigger.test,
+        localTodayOverride: testToday,
+      );
+
+      expect(
+        result.templates.map((template) => template.recurringTransactionId),
+        equals(<String>[earlierRecurring.id, laterRecurring.id]),
+      );
+    });
+
+    test('creates one result group for each due template', () async {
+      final firstRecurring = await insertRecurringFixture(
+        fixture: recurringTransactionFixture(
+          id: 'rec-rent-history',
+          shortDescription: 'Rent',
+          amount: Decimal.parse('500.00'),
+          nextTransactionDate: testTwoMonthsAgo,
+          startDate: testTwoMonthsAgo,
+        ),
+      );
+      final secondRecurring = await insertRecurringFixture(
+        fixture: recurringTransactionFixture(
+          id: 'rec-gym-history',
+          shortDescription: 'Gym membership',
+          amount: Decimal.parse('250.00'),
+          nextTransactionDate: testLastMonth,
+          startDate: testLastMonth,
+        ),
+      );
+
+      final result = await service.catchUpDueRecurringTransactions(
+        trigger: CatchUpTrigger.test,
+        localTodayOverride: testToday,
+      );
+
+      expect(result.status, equals(CatchUpRunStatus.completed));
+      expect(result.completedSuccessfully, isTrue);
+      expect(result.templateCount, equals(2));
+      expect(result.attemptedOccurrenceCount, equals(5));
+      expect(result.successfulOccurrenceCount, equals(5));
+      expect(result.failedOccurrenceCount, equals(0));
+
+      final firstTemplateResult = result.templates[0];
+      final secondTemplateResult = result.templates[1];
+
+      expect(
+        firstTemplateResult.recurringTransactionId,
+        equals(firstRecurring.id),
+      );
+      expect(firstTemplateResult.shortDescription, equals('Rent'));
+      expect(
+        firstTemplateResult.initialNextTransactionDate,
+        equals(testTwoMonthsAgo),
+      );
+      expect(
+        firstTemplateResult.finalNextTransactionDate,
+        equals(testNextMonth),
+      );
+      expect(firstTemplateResult.attemptedOccurrenceCount, equals(3));
+      expect(firstTemplateResult.successfulOccurrenceCount, equals(3));
+      expect(firstTemplateResult.failedOccurrenceCount, equals(0));
+
+      expect(
+        secondTemplateResult.recurringTransactionId,
+        equals(secondRecurring.id),
+      );
+      expect(secondTemplateResult.shortDescription, equals('Gym membership'));
+      expect(
+        secondTemplateResult.initialNextTransactionDate,
+        equals(testLastMonth),
+      );
+      expect(
+        secondTemplateResult.finalNextTransactionDate,
+        equals(testNextMonth),
+      );
+      expect(secondTemplateResult.attemptedOccurrenceCount, equals(2));
+      expect(secondTemplateResult.successfulOccurrenceCount, equals(2));
+      expect(secondTemplateResult.failedOccurrenceCount, equals(0));
+
+      final firstTransactions = await recurringDao.getTransactionsForRecurring(
+        firstRecurring.id,
+      );
+      final secondTransactions = await recurringDao.getTransactionsForRecurring(
+        secondRecurring.id,
+      );
+
+      expect(firstTransactions, hasLength(3));
+      expect(secondTransactions, hasLength(2));
+      expect(
+        firstTransactions.every(
+          (transaction) => transaction.recurringId == firstRecurring.id,
+        ),
+        isTrue,
+      );
+      expect(
+        secondTransactions.every(
+          (transaction) => transaction.recurringId == secondRecurring.id,
+        ),
+        isTrue,
+      );
+    });
+  });
+}

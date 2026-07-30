@@ -127,9 +127,9 @@ class StatementParserService {
             //print ('PDF LINE: $line');
         }
         //final datePattern = RegExp(r'(\d{4}[\/\-]\d{2}[\/\-]\d{2}|\d{1,2}[\/\-]\d{2}[\/\-]\d{2})',
-        final datePattern = RegExp(r'(\d{4}[\/\-]\d{2}[\/\-]\d{2}|\d{1,2}[\/\-]\d{2}[\/\-]\d{2,4}|\d{2}[\/\-]\d{2})',
+        final datePattern = RegExp(r'(\d{4}[\/\-]\d{2}[\/\-]\d{2}|\d{1,2}[\/\-]\d{2}[\/\-]\d{2,4}|\d{2}[\/\-]\d{2}|\d{1,2}\s+[A-Za-z]{3}(?:\s+\d{4})?)',
         );
-        final amountPattern = RegExp(r'\$?([\-]?\d{1,3}(?:,\d{3})*(?:\.\d{2}))');
+        final amountPattern = RegExp(r'\$?([\-]?\d{1,3}(?:,\d{3})*(?:\.\d{2}))\s*(Cr|Dr)?', caseSensitive: false);
 
         final skipKeywords = ['total','balance','account #','transaction', 'description','summary','page number','statement date', 'beginning balance', 'ending balance',];
 
@@ -152,18 +152,24 @@ class StatementParserService {
             final dateMatch = datePattern.firstMatch(trimmed);
             final amountMatch = amountPattern.firstMatch(trimmed);
             if(dateMatch==null||amountMatch==null) {
+              final isLikelyHeaderFragment = !trimmed.contains(' ') && trimmed.length < 15 && !trimmed.contains(RegExp(r'\d'));
+              if(!isLikelyHeaderFragment){
                 pendingLines.add(trimmed);
                 if(pendingLines.length>3){
                     pendingLines.removeAt(0);
                 }
+              }
                 continue;
             }
 
             try{
                 final date= parseDate(dateMatch.group(0)!);
-                final rawAmount = amountMatch.group(0)!.replaceAll(RegExp(r'[\s,]'),'');
+                final rawAmount = amountMatch.group(1)!.replaceAll(RegExp(r'[\s,]'),'');
                 final amount = parseAmount(rawAmount).abs();
-                final isIncome = !rawAmount.startsWith('-');
+
+                final crDrSuffix = amountMatch.group(2)?.toUpperCase();
+
+                final isIncome = crDrSuffix == 'CR';
                 final beforeDate = trimmed.substring(0,dateMatch.start).trim();
                 final afterDate = trimmed.substring(dateMatch.end).trim();
                 final amountStr = amountMatch.group(0)!;
@@ -179,10 +185,12 @@ class StatementParserService {
                 if(description.isNotEmpty) description,
                ];
 
-               final finalDescription = descriptionParts.join(' ').trim();
+               final joinedDescription = descriptionParts.join(' ').replaceAll(RegExp(r'\s+'), ' ').trim();
+
+               final finalDescription = joinedDescription.isEmpty ? 'Uncategorised transaction' : joinedDescription;
                pendingLines.clear();
 
-                if(finalDescription.isEmpty || amount == Decimal.zero){
+                if(amount == Decimal.zero){
                     continue;
                 }
                 results.add(ParsedTransaction(
@@ -197,6 +205,10 @@ class StatementParserService {
                 pendingLines.clear();
                 continue;
             }
+        }
+        print('DEBUG: parsePdfLines returning ${results.length} transactions');
+        for (final r in results) {
+          print('DEBUG: ${r.date} | ${r.isIncome ? "IN" : "OUT"} | ${r.amount} | ${r.description}');
         }
 
         return results;
@@ -213,9 +225,31 @@ class StatementParserService {
         return -1;
     }
 
+    static const Map<String, int> _monthAbbreviations = {
+      'jan': 1, 'feb': 2, 'mar': 3, 'apr': 4, 'may': 5, 'jun': 6,
+      'jul': 7, 'aug': 8, 'sep': 9, 'oct': 10, 'nov': 11, 'dec': 12,
+    };
+
     @visibleForTesting
     DateTime parseDate(String raw) {
         final cleaned = raw.trim();
+
+        final dayMonthYear = RegExp(r'^(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})$'); //ai used for regexps (all of them)
+        final matchDMY = dayMonthYear.firstMatch(cleaned);
+        if(matchDMY != null){
+          final month = _monthAbbreviations[matchDMY.group(2)!.toLowerCase()];
+          if(month != null){
+            return DateTime(int.parse(matchDMY.group(3)!), month, int.parse(matchDMY.group(1)!));
+          }
+        }
+        final dayMonth = RegExp(r'^(\d{1,2})\s+([A-Za-z]{3})$');
+        final matchDM = dayMonth.firstMatch(cleaned);
+        if(matchDM != null){
+          final month = _monthAbbreviations[matchDM.group(2)!.toLowerCase()];
+          if(month != null) {
+            return DateTime(DateTime.now().year, month, int.parse(matchDM.group(1)!));
+          }
+        }
 
         final formats = [
                   RegExp(r'^(\d{4})-(\d{2})-(\d{2})$'),   // yyyy-mm-dd
