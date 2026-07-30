@@ -641,9 +641,23 @@ class _DashboardState extends State<Dashboard> {
                                   backgroundColor: colours.background,
                                   headerBackgroundColor: colours.secondary,
                                   headerForegroundColor: colours.background,
-                                  dayForegroundColor: WidgetStateProperty.all(
-                                    colours.textPrimary,
-                                  ),
+                                  // i did use AI, 
+                                  dayBackgroundColor:
+                                      WidgetStateProperty.resolveWith((states) {
+                                    if (states.contains(WidgetState.selected)) {
+                                      return colours.secondary;
+                                    }
+                                    return colours.background.withValues(alpha: 0);
+                                  }),
+                                  dayForegroundColor:
+                                      WidgetStateProperty.resolveWith((states) {
+                                    if (states.contains(WidgetState.selected)) {
+                                      return colours.background;
+                                    }
+                                    return colours.textPrimary;
+                                  }),
+
+                                  ///i used ai to fix this part
                                   todayForegroundColor: WidgetStateProperty.all(
                                     colours.secondary,
                                   ),
@@ -678,13 +692,15 @@ class _DashboardState extends State<Dashboard> {
                           children: [
                             Icon(
                               Icons.calendar_month,
-                              color: colours.background,
+                              color: colours.cardText,
                               size: 18,
                             ),
                             const SizedBox(width: 8),
                             Text(
                               "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
-                              style: colours.b1.copyWith(color: colours.background),
+                              style: colours.b1.copyWith(
+                                color: colours.cardText,
+                              ),
                             ),
                           ],
                         ),
