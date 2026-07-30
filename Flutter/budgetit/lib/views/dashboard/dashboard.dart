@@ -9,6 +9,7 @@ import '../../shared/widgets/transaction_tile.dart';
 import '../../database/app_database.dart';
 import '../../database/schema.dart';
 import 'package:budgetit/shared/widgets/predictive_spending_screen.dart';
+import '../graphical_reports/graphical_reports_screen.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -382,7 +383,14 @@ class _DashboardState extends State<Dashboard> {
                     ),
         
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => GraphicalReportsScreen(database: db),
+                          ),
+                        );
+                      },
                       child: Container(
                       height: MediaQuery.sizeOf(context).height * 0.08,
                       width: MediaQuery.sizeOf(context).width * 0.35,
