@@ -55,3 +55,38 @@ Category categoryFixture({
     deletedAt: deletedAt,
   );
 }
+
+RecurringTransaction recurringTransactionFixture({
+  String id = 'rec-1',
+  Decimal? amount,
+  TransactionType type = TransactionType.expense,
+  String shortDescription = 'Test recurring',
+  String? longDescription,
+  DateTime? nextTransactionDate,
+  PeriodType unit = PeriodType.monthly,
+  int intervalAmount = 1,
+  DateTime? startDate,
+  String? categoryId,
+  DateTime? createdAt,
+  DateTime? updatedAt,
+  DateTime? deletedAt,
+  String currency = 'ZAR',
+}) {
+  final date = nextTransactionDate ?? DateTime(2030, 7, 28);
+  return RecurringTransaction(
+    id: id,
+    amount: amount ?? Decimal.parse('10.00'),
+    type: type,
+    shortDescription: shortDescription,
+    longDescription: longDescription,
+    nextTransactionDate: date,
+    createdAt: createdAt ?? date,
+    updatedAt: updatedAt ?? date,
+    deletedAt: deletedAt,
+    currency: currency,
+    unit: unit,
+    intervalAmount: intervalAmount,
+    startDate: startDate ?? date,
+    categoryId: categoryId,
+  );
+}

@@ -32,6 +32,7 @@ part 'category_dao.g.dart';
     TransactionCategoryMap,
     BudgetTemplates,
     BudgetPeriods,
+    RecurringTransactions,
   ],
 )
 class CategoryDao extends DatabaseAccessor<AppDatabase>
@@ -184,11 +185,28 @@ class CategoryDao extends DatabaseAccessor<AppDatabase>
   /// The category is not actually removed from the database. It will be
   /// excluded from query results unless [getCategoryById] or
   /// [getAllCategories] are called with [includeDeleted] = `true`.
+  ///
+  /// Also cascades: clears the reference on any
+  /// [TransactionCategoryMap] entries and [RecurringTransactions] entries
+  /// that reference the deleted category.
   Future<void> softDeleteCategory(String id) async {
     final now = _now();
-    await (update(categories)..where((t) => t.id.equals(id))).write(
-      CategoriesCompanion(deletedAt: Value(now), updatedAt: Value(now)),
-    );
+    await db.transaction(() async {
+      await (update(categories)..where((t) => t.id.equals(id))).write(
+        CategoriesCompanion(deletedAt: Value(now), updatedAt: Value(now)),
+      );
+      await (delete(
+        transactionCategoryMap,
+      )..where((t) => t.categoryId.equals(id))).go();
+      await (update(
+        recurringTransactions,
+      )..where((t) => t.categoryId.equals(id))).write(
+        RecurringTransactionsCompanion(
+          categoryId: const Value(null),
+          updatedAt: Value(now),
+        ),
+      );
+    });
   }
 
   /// Hard-deletes a category and all dependent data.

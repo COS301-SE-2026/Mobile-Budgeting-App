@@ -9,6 +9,7 @@ import 'schema.dart';
 import 'daos/category_dao.dart';
 import 'daos/transaction_dao.dart';
 import 'daos/budget_dao.dart';
+import 'daos/recurring_transaction_dao.dart';
 import 'daos/settings_dao.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
@@ -19,6 +20,7 @@ part 'app_database.g.dart';
     Categories,
     CategoryClosure,
     Transactions,
+    RecurringTransactions,
     TransactionCategoryMap,
     BudgetTemplates,
     BudgetPeriods,
@@ -54,10 +56,10 @@ class AppDatabase extends _$AppDatabase {
 
   /// The current schema version of the database.
   ///
-  /// Currently set to 1. Increment this and add migration steps in [migration]
-  /// when the schema changes.
+  /// Increment this and add migration steps in [migration] when the schema
+  /// changes. Currently at 2 after adding RecurringTransactions.
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   /// Migration strategy for the database.
   ///
@@ -103,6 +105,10 @@ class AppDatabase extends _$AppDatabase {
 
   /// Accessor for budget template and period operations.
   late final BudgetDao budgetDao = BudgetDao(this);
+
+  /// Accessor for recurring transaction operations.
+  late final RecurringTransactionDao recurringTransactionDao =
+      RecurringTransactionDao(this);
 
   /// Accessor for application settings.
   late final SettingsDao settingsDao = SettingsDao(this);
