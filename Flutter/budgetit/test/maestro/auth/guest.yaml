@@ -1,0 +1,13 @@
+appId: com.example.budgetit
+name: Continue as Guest
+tags:
+  - auth
+  - guest
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Continue as Guest"
+- tapOn: "Continue as Guest"
+- extendedWaitUntil:
+    visible: "DASHBOARD"
+    timeout: 10000
