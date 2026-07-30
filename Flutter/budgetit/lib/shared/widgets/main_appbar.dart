@@ -55,9 +55,15 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
         },
       ),
 
-      title: Text(
-        "BudgetIT",
-        style: context.colours.title,
+      title: FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.centerLeft,
+        child: Text(
+          "Budget IT",
+          softWrap: false,
+          overflow: TextOverflow.visible,
+          style: context.colours.title.copyWith(fontSize: 14),
+        ),
       ),
       actions: [
         IconButton(
