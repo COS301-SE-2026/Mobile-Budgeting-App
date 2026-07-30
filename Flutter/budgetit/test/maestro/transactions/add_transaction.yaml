@@ -4,6 +4,14 @@ tags:
   - transactions
 ---
 # Expects the app to already be on the dashboard.
+
+- copyTextFrom:
+    text: "R[0-9,.]+"
+    index: 0
+- evalScript: '${output.initialDaily = parseFloat(maestro.copiedText.replace("R", "").replaceAll(",", ""))}'
+- copyTextFrom:
+    text: "Monthly total: R[0-9,.]+"
+- evalScript: '${output.initialMonthly = parseFloat(maestro.copiedText.replace("Monthly total: R", "").replaceAll(",", ""))}'
 - tapOn: "Tab 2 of 3"
 
 - tapOn:
@@ -49,3 +57,17 @@ tags:
     visible: "Manual expense.*"
     timeout: 5000
 - assertVisible: "Manual expense.*"
+
+- tapOn: "Tab 1 of 3"
+- extendedWaitUntil:
+    visible: "R[0-9,.]+"
+    timeout: 5000
+- copyTextFrom:
+    text: "R[0-9,.]+"
+    index: 0
+- evalScript: '${output.finalDaily = parseFloat(maestro.copiedText.replace("R", "").replaceAll(",", ""))}'
+- copyTextFrom:
+    text: "Monthly total: R[0-9,.]+"
+- evalScript: '${output.finalMonthly = parseFloat(maestro.copiedText.replace("Monthly total: R", "").replaceAll(",", ""))}'
+- assertTrue: ${Math.abs(output.finalDaily - output.initialDaily - 123.45) < 0.01}
+- assertTrue: ${output.finalMonthly > output.initialMonthly}
