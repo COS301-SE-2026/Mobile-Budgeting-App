@@ -2,6 +2,7 @@ import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
 import 'package:budgetit/shared/widgets/coming_soon_page.dart';
 import 'package:budgetit/shared/widgets/profile_page.dart';
+import 'package:budgetit/shared/widgets/help_menu_page.dart';
 import 'package:provider/provider.dart';
 import 'package:budgetit/utils/theme_provider.dart';
 
