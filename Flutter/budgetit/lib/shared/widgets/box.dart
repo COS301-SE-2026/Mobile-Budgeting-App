@@ -122,7 +122,11 @@ class _MyBoxState extends State<MyBox> {
             const SizedBox(width: 12),
             Icon(
               _icon,
-              color: _isPressed ? context.colours.background : context.colours.cardText,
+              color: _isPressed
+                  ? context.colours.background
+                  : _isExpense
+                  ? context.colours.error
+                  : context.colours.greenAccents,
               size: MediaQuery.of(context).size.width * 0.04,
             ),
             const SizedBox(width: 6),
@@ -133,13 +137,15 @@ class _MyBoxState extends State<MyBox> {
                 children: [
                   Text(
                     _name,
-                    style: context.colours.h2,
+                    style: context.colours.budgetheader.copyWith(
+                      color: context.colours.cardText,
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                   if (_category.isNotEmpty)
                     Text(
                       _category + (_date.isNotEmpty ? ' - $_date' : ''),
-                      style: context.colours.h4.copyWith(
+                      style: context.colours.b5.copyWith(
                         color: context.colours.cardText,
                       ),
                       overflow: TextOverflow.visible,
@@ -149,9 +155,14 @@ class _MyBoxState extends State<MyBox> {
             ),
             Text(
               _isExpense ? '- R${_amount.toStringAsFixed(2)}' : 'R${_amount.toStringAsFixed(2)}',
-              style: TextStyle(
-                fontSize: 16,
-                color:  _isExpense? _isPressed ? context.colours.background : context.colours.error : _isPressed ? context.colours.background : context.colours.secondary,
+              style: context.colours.b4.copyWith(
+                color: _isExpense
+                    ? _isPressed
+                          ? context.colours.background
+                          : context.colours.error
+                    : _isPressed
+                    ? context.colours.background
+                    : context.colours.greenAccents,
               ),
             ),
             const SizedBox(width: 12),
