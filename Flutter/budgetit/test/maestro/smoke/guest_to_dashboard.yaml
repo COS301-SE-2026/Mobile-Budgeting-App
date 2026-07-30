@@ -1,0 +1,9 @@
+appId: com.example.budgetit
+name: Guest to Dashboard
+tags:
+  - smoke
+  - auth
+---
+- runFlow:
+    file: "../auth/guest.yaml"
+- assertVisible: "DASHBOARD"

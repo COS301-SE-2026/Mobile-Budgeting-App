@@ -1,0 +1,10 @@
+appId: com.example.budgetit
+name: Authenticated User to Dashboard
+tags:
+  - smoke
+  - auth
+  - authenticated
+---
+- runFlow:
+    file: "../auth/login.yaml"
+- assertVisible: "DASHBOARD"
