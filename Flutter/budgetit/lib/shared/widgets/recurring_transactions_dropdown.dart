@@ -122,5 +122,90 @@ class _RecurringTransactionsDropdown extends State<RecurringTransactionsDropdown
     );
   }
 
+  Widget _buildBody(MyColours colours) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Column(children: [
+        GestureDetector(
+          onTap: _openAddDialog,
+          child: Stack(
+            children: [
+              Container(
+                height: 48,
+                width: MediaQuery.of(context).size.width * 0.9,
+                decoration: BoxDecoration(
+                  shape: BoxShape.rectangle,
+                  color: colours.background,
+                  boxShadow: [
+                    BoxShadow(
+                      offset: const Offset(5,5),
+                      color: Color.black,
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                height: 48,
+                width: MediaQuery.of(context).size.width * 0.9,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  shape: BoxShape.rectangle,
+                  color: colours.secondary,
+                  border: Border.all(color: Colors.black, width: 4.0),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.add, color: colours.background),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Add Recurring Transaction',
+                      style: TextStyle(
+                        color: colours.background,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+        ),
+        const SizedBox(height: 12),
+        if(_isLoading)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: CircularProgressIndicator(color: colours.secondary),
+
+          )
+          else if(_recurringTransactions.isEmpty)
+            Padding(padding: const EdgeInsets.symmetric(vertical: 16) ,
+            child: Text(
+              'No recurring transaction yet. \n Add one to automate your budget',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: colours.textPrimary.withValues(alpha: 0.6),
+              ),
+            ),)
+            else
+              ..._recurringTransactions.map(
+                (rt) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: RecurringTransactionCard(
+                    key: ValueKey(rt.id),
+                    recurringTransaction: rt,
+                    onTap: () => _openEditDialog(rt),
+                  ),
+
+                ),
+              ),
+              const SizedBox(height: 4),
+
+      ],),
+    );
+  }
+
 
 }
