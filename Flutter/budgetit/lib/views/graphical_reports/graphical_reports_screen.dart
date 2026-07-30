@@ -217,7 +217,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
       ),
     );
   }
-
+//this widget i used ai to help me
   Widget _incomeExpenseChart(GraphicalReportData report) {
     final maximum = [
       report.totalIncome,
