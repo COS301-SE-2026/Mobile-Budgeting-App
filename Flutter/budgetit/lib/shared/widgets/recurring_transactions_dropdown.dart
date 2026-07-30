@@ -139,7 +139,7 @@ class _RecurringTransactionsDropdown extends State<RecurringTransactionsDropdown
                   boxShadow: [
                     BoxShadow(
                       offset: const Offset(5,5),
-                      color: Color.black,
+                      color: Colors.black,
                     ),
                   ],
                 ),
