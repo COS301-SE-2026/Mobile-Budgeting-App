@@ -32,8 +32,8 @@ class HelpMenuPage extends StatelessWidget {
                 title: 'HOW TO ADD NEW TRANSACTION',
                 steps: const [
                   _HelpStep(
-                    icon: Icons.receipt_long_rounded,
-                    text: 'Go to the Transaction Manager page using the receipt icon in the bottom navigation.',
+                    icon: Icons.attach_money,
+                    text: 'Go to the Transaction Manager page using the money icon in the bottom navigation.',
                   ),
                   _HelpStep(
                     icon: Icons.add,
@@ -51,24 +51,24 @@ class HelpMenuPage extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               _HelpDropDown(
-                icon: Icons.category_outlined,
-                title: 'HOW TO ADD NEW CATEGORY',
+                icon: Icons.add_circle_outline,
+                title: 'HOW TO ADD TRANSACTION TO A BUDGET',
                 steps: const [
                   _HelpStep(
-                    icon: Icons.account_balance_wallet_outlined,
-                    text: 'Go to the Budget Manager page using the budgets icon in the bottom navigation.',
-                  ),
-                  _HelpStep(
-                    icon: Icons.add,
-                    text: 'Tap Create New Budget.',
-                  ),
-                  _HelpStep(
-                    icon: Icons.arrow_drop_down_circle_outlined,
-                    text: 'Open the Budget category dropdown to find the available categories.',
+                    icon: Icons.pie_chart_outline,
+                    text: 'Go to the Budget Manager page using the pie chart icon in the bottom navigation.',
                   ),
                   _HelpStep(
                     icon: Icons.category_outlined,
-                    text: 'Select the category you want to use, then enter the budget limit and period.',
+                    text: 'Tap the budget category you want to add spending to.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.add,
+                    text: 'Under Quick Actions, tap Add Transaction.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.check_circle_outline,
+                    text: 'Enter the transaction details and save it to update that budget.',
                   ),
                 ],
               ),
@@ -78,8 +78,8 @@ class HelpMenuPage extends StatelessWidget {
                 title: 'HOW TO VIEW GRAPHICAL REPORTS',
                 steps: const [
                   _HelpStep(
-                    icon: Icons.account_balance_wallet_outlined,
-                    text: 'Go to the Budget Manager page using the budgets icon in the bottom navigation.',
+                    icon: Icons.pie_chart_outline,
+                    text: 'Go to the Budget Manager page using the pie chart icon in the bottom navigation.',
                   ),
                   _HelpStep(
                     icon: Icons.bar_chart_outlined,
@@ -112,3 +112,46 @@ class HelpMenuPage extends StatelessWidget {
       ),
     );
   }
+
+
+class _HelpStepRow extends StatelessWidget {
+  const _HelpStepRow({required this.step});
+
+  final _HelpStep step;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            step.icon,
+            size: 18,
+            color: context.colours.cardText,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              step.text,
+              style: context.colours.b2.copyWith(
+                color: context.colours.cardText,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HelpStep {
+  const _HelpStep({
+    required this.icon,
+    required this.text,
+  });
+
+  final IconData icon;
+  final String text;
+}
