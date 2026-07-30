@@ -47,6 +47,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colours = context.colours;
     return Scaffold(
       backgroundColor: context.colours.background,
       appBar: AppBar(
@@ -219,6 +220,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
   }
 
   Widget _incomeExpenseChart(GraphicalReportData report) {
+    final colours = context.colours;
     final maximum = [
       report.totalIncome,
       report.totalExpenses,
@@ -338,6 +340,8 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
   }
 
   Widget _categoryChart(GraphicalReportData report) {
+    final colours = context.colours;
+
     if (report.categorySpending.isEmpty) {
       return _emptyChartMessage();
     }
@@ -504,6 +508,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
   }
 
   Widget _trendChart(GraphicalReportData report) {
+    final colours = context.colours;
     if (report.spendingTrend.isEmpty) {
       return _emptyChartMessage();
     }
@@ -550,6 +555,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
   }
 
   Widget _chartCard({required Widget child}) {
+    final colours = context.colours;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
