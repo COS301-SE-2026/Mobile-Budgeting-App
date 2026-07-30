@@ -283,23 +283,109 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
       return _emptyChartMessage();
     }
 
+    final chartColours = [
+      context.colours.greenAccents,
+      context.colours.yellow,
+      context.colours.light,
+      context.colours.warning,
+      context.colours.textMuted,
+      context.colours.informational,
+      context.colours.secondary,
+    ];
+
+    final total = report.categorySpending.fold<double>(
+      0,
+      (sum, category) => sum + category.amount,
+    );
+// i used ai to help me with thos chartCard, it didnt resize accordingly when the screens changed to phone size
     return _chartCard(
-      child: SizedBox(
-        height: 300,
-        child: PieChart(
-          PieChartData(
-            centerSpaceRadius: 55,
-            sections: report.categorySpending
-                .map(
-                  (category) => PieChartSectionData(
-                    value: category.amount,
-                    title: category.categoryName,
-                    radius: 90,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final chartSize = constraints.maxWidth < 180
+              ? constraints.maxWidth
+              : constraints.maxWidth.clamp(180.0, 260.0).toDouble();
+          final sectionRadius = chartSize * 0.28;
+          final centerRadius = chartSize * 0.17;
+
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: chartSize,
+                height: chartSize,
+                child: PieChart(
+                  PieChartData(
+                    centerSpaceRadius: centerRadius,
+                    sectionsSpace: 3,
+                    sections: report.categorySpending
+                        .asMap()
+                        .entries
+                        .map(
+                          (entry) => PieChartSectionData(
+                            value: entry.value.amount,
+                            title: '',
+                            radius: sectionRadius,
+                            color: chartColours[
+                                entry.key % chartColours.length],
+                          ),
+                        )
+                        .toList(),
                   ),
-                )
-                .toList(),
-          ),
-        ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 12,
+                runSpacing: 10,
+                children: report.categorySpending.asMap().entries.map((entry) {
+                  final category = entry.value;
+                  final percentage = total == 0
+                      ? 0
+                      : (category.amount / total) * 100;
+                  final colour = chartColours[entry.key % chartColours.length];
+
+                  return SizedBox(
+                    width: constraints.maxWidth < 360
+                        ? constraints.maxWidth
+                        : (constraints.maxWidth - 12) / 2,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 12,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            color: colour,
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            category.categoryName,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: context.colours.textPrimary,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          '${percentage.toStringAsFixed(1)}%',
+                          style: TextStyle(
+                            color: context.colours.textPrimary,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
