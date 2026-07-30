@@ -598,6 +598,38 @@ class _DashboardState extends State<Dashboard> {
                           initialDate: selectedDate,
                           firstDate: DateTime(2024),
                           lastDate: DateTime(2035),
+                          //used ai to help me with changing this color during light mode but its not working even after
+                          builder: (context, child) {
+                            return Theme(
+                              data: Theme.of(context).copyWith(
+                                colorScheme: ColorScheme.light(
+                                  primary: colours.secondary,
+                                  onPrimary: colours.background,
+                                  surface: colours.background,
+                                  onSurface: colours.textPrimary,
+                                ),
+                                datePickerTheme: DatePickerThemeData(
+                                  backgroundColor: colours.background,
+                                  headerBackgroundColor: colours.secondary,
+                                  headerForegroundColor: colours.background,
+                                  dayForegroundColor: WidgetStateProperty.all(
+                                    colours.textPrimary,
+                                  ),
+                                  todayForegroundColor: WidgetStateProperty.all(
+                                    colours.secondary,
+                                  ),
+                                  todayBorder: BorderSide(
+                                    color: colours.secondary,
+                                    width: 2,
+                                  ),
+                                  yearForegroundColor: WidgetStateProperty.all(
+                                    colours.textPrimary,
+                                  ),
+                                ),
+                              ),
+                              child: child!,
+                            );
+                          },
                         );
                         if (picked != null) {
                           setState(() => selectedDate = picked);
@@ -617,13 +649,13 @@ class _DashboardState extends State<Dashboard> {
                           children: [
                             Icon(
                               Icons.calendar_month,
-                              color: colours.textPrimary,
+                              color: colours.background,
                               size: 18,
                             ),
                             const SizedBox(width: 8),
                             Text(
                               "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
-                              style: colours.b1,
+                              style: colours.b1.copyWith(color: colours.background),
                             ),
                           ],
                         ),
@@ -673,7 +705,12 @@ class _DashboardState extends State<Dashboard> {
                           color: colours.secondary,
                         ),
                         child: Center(
-                          child: Text("INSIGHTS", style: colours.b3),
+                          child: Text(
+                            "INSIGHTS",
+                            style: colours.b3.copyWith(
+                              color: colours.background,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -695,7 +732,12 @@ class _DashboardState extends State<Dashboard> {
                           color: colours.secondary,
                         ),
                         child: Center(
-                          child: Text("REPORTS", style: colours.b3),
+                          child: Text(
+                            "REPORTS",
+                            style: colours.b3.copyWith(
+                              color: colours.background,
+                            ),
+                          ),
                         ),
                       ),
                     ),
