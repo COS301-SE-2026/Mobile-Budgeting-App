@@ -15,4 +15,5 @@ Flutter/budgetit/ios/
 Flutter/budgetit/linux/
 artifacts/
 backend/.env
+Flutter/budgetit/test/maestro/**/.env
 
