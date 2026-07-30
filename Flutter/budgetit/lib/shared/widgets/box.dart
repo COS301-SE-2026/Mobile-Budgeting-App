@@ -16,13 +16,13 @@ class MyBox extends StatefulWidget {
   const MyBox({
     super.key,
     this.text = '',
-    this.icon,
-    this.amount,
-    this.category,
+    this.icon = null,
+    this.amount = 0,
+    this.category = 'nothing',
     this.categories = const [],
     this.onEdited,
     this.onDelete,
-    this.date,
+    this.date = '',
     this.isExpense = false,
   });
 
@@ -93,7 +93,7 @@ class _MyBoxState extends State<MyBox> {
          alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.rectangle,
-          color: MyColours().background,
+          color: context.colours.background,
           boxShadow: [BoxShadow( 
                     offset: const Offset(6, 6),
                     color: Colors.black,
@@ -110,7 +110,7 @@ class _MyBoxState extends State<MyBox> {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.rectangle,
-          color: MyColours().primary,
+          color: context.colours.primary,
           
           border: Border.all(
             color: Colors.black,
@@ -122,7 +122,7 @@ class _MyBoxState extends State<MyBox> {
             const SizedBox(width: 12),
             Icon(
               _icon,
-              color: _isPressed ? MyColours().background : MyColours().cardText,
+              color: _isPressed ? context.colours.background : context.colours.cardText,
               size: MediaQuery.of(context).size.width * 0.04,
             ),
             const SizedBox(width: 6),
@@ -133,13 +133,13 @@ class _MyBoxState extends State<MyBox> {
                 children: [
                   Text(
                     _name,
-                    style: MyColours().h2,
+                    style: context.colours.h2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   if (_category.isNotEmpty)
                     Text(
                       _category + (_date.isNotEmpty ? ' - $_date' : ''),
-                      style:  MyColours().h4,
+                      style:  context.colours.h4,
                       overflow: TextOverflow.visible,
                     ),
                 ],
@@ -148,8 +148,8 @@ class _MyBoxState extends State<MyBox> {
             Text(
               _isExpense ? '- R${_amount.toStringAsFixed(2)}' : 'R${_amount.toStringAsFixed(2)}',
               style: TextStyle(
-                fontSize: MyColours().bodyFontSize,
-                color:  _isExpense? _isPressed ? MyColours().background : MyColours().error : _isPressed ? MyColours().background : MyColours().secondary,
+                fontSize: 16,
+                color:  _isExpense? _isPressed ? context.colours.background : context.colours.error : _isPressed ? context.colours.background : context.colours.secondary,
               ),
             ),
             const SizedBox(width: 12),

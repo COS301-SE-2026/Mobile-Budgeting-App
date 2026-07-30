@@ -1,8 +1,7 @@
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
-import 'package:budgetit/screens/coming_soon_page.dart';
-import 'package:budgetit/screens/profile_page.dart';
-import 'package:pdf/widgets.dart' as pw;
+import 'package:budgetit/shared/widgets/coming_soon_page.dart';
+import 'package:budgetit/shared/widgets/profile_page.dart';
 import 'package:provider/provider.dart';
 import 'package:budgetit/utils/theme_provider.dart';
 
@@ -31,7 +30,7 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>();
     return AppBar(
-      backgroundColor: MyColours().background,
+      backgroundColor: context.colours.background,
       elevation: 0,
 
       leading: IconButton(
@@ -40,7 +39,7 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: MyColours().blue,
+              color: context.colours.blue,
               border: Border.all(color: Colors.black, width: 4),
             ),
           child: Icon(
@@ -62,7 +61,7 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
 
       title: Text(
         "BudgetIT",
-        style: MyColours().title,
+        style: context.colours.title,
       ),
       actions: [
         IconButton(
@@ -74,7 +73,7 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: MyColours().yellow,
+              color: context.colours.yellow,
               border: Border.all(color: Colors.black, width: 4),
             ),
           child: Icon(
@@ -93,7 +92,7 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: MyColours().greenAccents,
+              color: context.colours.greenAccents,
               border: Border.all(color: Colors.black, width: 4),
             ),
           child: Icon(
@@ -116,7 +115,7 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: MyColours().error,
+              color: context.colours.error,
               border: Border.all(color: Colors.black, width: 4),
             ),
           child: Icon(
