@@ -1,0 +1,18 @@
+appId: com.example.budgetit
+name: Online login fails with incorrect credentials
+tags:
+  - auth
+  - negative
+---
+- launchApp:
+    clearState: true
+- assertVisible: "wealth@budgetit.com"
+- assertVisible: "••••••••"
+- tapOn: "wealth@budgetit.com"
+- inputText: "${MAESTRO_LOGIN_EMAIL}"
+- tapOn: "••••••••"
+- inputText: "wrong-password-123"
+- pressKey: BACK
+- tapOn: "Login →"
+- assertVisible: "Incorrect password."
+- assertNotVisible: "DASHBOARD"
