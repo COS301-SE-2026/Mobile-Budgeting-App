@@ -1,0 +1,11 @@
+appId: com.example.budgetit
+name: Guest Adds Manual Expense Transaction
+tags:
+  - transactions
+  - guest
+  - negative
+---
+- runFlow:
+    file: "../auth/guest.yaml"
+- runFlow:
+    file: "add_transaction.yaml"

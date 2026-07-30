@@ -1,0 +1,11 @@
+appId: com.example.budgetit
+name: Authenticated User Adds Manual Expense Transaction
+tags:
+  - transactions
+  - authenticated
+  - smoke
+---
+- runFlow:
+    file: "../auth/login.yaml"
+- runFlow:
+    file: "add_transaction.yaml"

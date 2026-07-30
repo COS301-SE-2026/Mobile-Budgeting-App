@@ -1,0 +1,22 @@
+appId: com.example.budgetit
+name: Add Manual Expense Transaction
+tags:
+  - transactions
+---
+# Expects the app to already be on the dashboard.
+- tapOn: "Tab 2 of 3"
+- tapOn:
+    point: 956,2000
+- tapOn: "Add Transaction"
+- assertVisible: "Add Transaction"
+- tapOn: "Expense"
+- tapOn: "e.g. Grocery run"
+- inputText: "Manual expense"
+- tapOn: "0.00"
+- inputText: "123.45"
+- hideKeyboard
+- tapOn: "Add"
+- extendedWaitUntil:
+    visible: "Manual expense.*"
+    timeout: 5000
+- assertVisible: "Manual expense.*"
