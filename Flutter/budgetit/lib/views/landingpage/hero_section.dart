@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../utils/app_colour.dart';
 
 class HeroSection extends StatefulWidget {
-  final VoidCallback? onGetStarted; //used chatgpt for voidcallback
+  final VoidCallback? onGetStarted; 
 
   const HeroSection({super.key, this.onGetStarted});
 
@@ -11,7 +11,6 @@ class HeroSection extends StatefulWidget {
 }
   class _HeroSectionState extends State<HeroSection> {
   
-//i used chatgpt to help me with the container  for the box and decorative circles
     @override
     Widget build(BuildContext context) {
     return Container(
