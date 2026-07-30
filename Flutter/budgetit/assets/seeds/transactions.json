@@ -64,19 +64,173 @@
     "category_name": "Utilities"
   },
   {
-    "amount": "560.00",
-    "type": "expense",
-    "short_description": "Cinema and popcorn",
-    "transaction_date": "2026-05-17T20:00:00.000Z",
-    "currency": "ZAR",
-    "category_name": "Entertainment"
-  },
-  {
     "amount": "934.99",
     "type": "expense",
     "short_description": "Grocery run",
     "transaction_date": "2026-05-19T10:15:00.000Z",
     "currency": "ZAR",
     "category_name": "Groceries"
+  },
+
+  {
+    "amount": "25000.00",
+    "type": "income",
+    "short_description": "June salary",
+    "transaction_date": "2026-06-01T08:00:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Salary"
+  },
+  {
+    "amount": "8000.00",
+    "type": "expense",
+    "short_description": "June rent",
+    "transaction_date": "2026-06-01T09:00:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Rent"
+  },
+  {
+    "amount": "1198.00",
+    "type": "expense",
+    "short_description": "Weekly grocery run",
+    "transaction_date": "2026-06-03T11:00:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Groceries"
+  },
+  {
+    "amount": "650.00",
+    "type": "expense",
+    "short_description": "Monthly transport card top-up",
+    "transaction_date": "2026-06-05T07:45:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Transport"
+  },
+  {
+    "amount": "3500.00",
+    "type": "income",
+    "short_description": "Freelance project payment",
+    "transaction_date": "2026-06-10T10:00:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Freelance"
+  },
+  {
+    "amount": "199.00",
+    "type": "expense",
+    "short_description": "Netflix + Spotify",
+    "transaction_date": "2026-06-12T00:00:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Subscriptions"
+  },
+  {
+    "amount": "861.00",
+    "type": "expense",
+    "short_description": "Electricity bill",
+    "transaction_date": "2026-06-15T08:00:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Utilities"
+  },
+  {
+    "amount": "945.50",
+    "type": "expense",
+    "short_description": "Grocery run",
+    "transaction_date": "2026-06-18T10:20:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Groceries"
+  },
+  {
+    "amount": "420.00",
+    "type": "expense",
+    "short_description": "Coffee and lunch",
+    "transaction_date": "2026-06-22T13:15:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Dining Out"
+  },
+  {
+    "amount": "285.00",
+    "type": "expense",
+    "short_description": "Movie tickets",
+    "transaction_date": "2026-06-27T19:00:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Entertainment"
+  },
+
+  {
+    "amount": "25000.00",
+    "type": "income",
+    "short_description": "July salary",
+    "transaction_date": "2026-07-01T08:00:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Salary"
+  },
+  {
+    "amount": "8000.00",
+    "type": "expense",
+    "short_description": "July rent",
+    "transaction_date": "2026-07-01T09:00:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Rent"
+  },
+  {
+    "amount": "1235.00",
+    "type": "expense",
+    "short_description": "Weekly grocery run",
+    "transaction_date": "2026-07-03T11:10:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Groceries"
+  },
+  {
+    "amount": "650.00",
+    "type": "expense",
+    "short_description": "Monthly transport card top-up",
+    "transaction_date": "2026-07-05T07:45:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Transport"
+  },
+  {
+    "amount": "3500.00",
+    "type": "income",
+    "short_description": "Freelance project payment",
+    "transaction_date": "2026-07-10T10:00:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Freelance"
+  },
+  {
+    "amount": "199.00",
+    "type": "expense",
+    "short_description": "Netflix + Spotify",
+    "transaction_date": "2026-07-12T00:00:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Subscriptions"
+  },
+  {
+    "amount": "878.00",
+    "type": "expense",
+    "short_description": "Electricity bill",
+    "transaction_date": "2026-07-15T08:00:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Utilities"
+  },
+  {
+    "amount": "956.25",
+    "type": "expense",
+    "short_description": "Grocery run",
+    "transaction_date": "2026-07-20T10:10:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Groceries"
+  },
+  {
+    "amount": "12000.00",
+    "type": "income",
+    "short_description": "Sports betting payout",
+    "transaction_date": "2026-07-26T18:45:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Other Income"
+  },
+  {
+    "amount": "11000.00",
+    "type": "expense",
+    "short_description": "New laptop purchase",
+    "transaction_date": "2026-07-24T14:30:00.000Z",
+    "currency": "ZAR",
+    "category_name": "Shopping"
   }
 ]

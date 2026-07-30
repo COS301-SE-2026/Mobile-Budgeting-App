@@ -3,11 +3,14 @@ import 'package:budgetit/utils/app_colour.dart';
 import 'package:provider/provider.dart';
 import 'package:budgetit/utils/theme_provider.dart';
 // import '../components/balance_card.dart';
+import '../../models/financial_health_score.dart';
+import '../../services/financial_health_score_service.dart';
 import '../../shared/widgets/monthly_trend_widget.dart';
 import '../../shared/widgets/spending_chart.dart';
 import '../../shared/widgets/transaction_tile.dart';
 import '../../database/app_database.dart';
 import '../../database/schema.dart';
+import 'package:budgetit/shared/widgets/predictive_spending_screen.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -21,6 +24,7 @@ class _DashboardState extends State<Dashboard> {
   bool isLoading = true;
   String? loadError;
   double dailySpending = 0;
+  FinancialHealthScore? financialHealthScore;
   double monthlySpending = 0;
   List<MonthData> dashboardMonths = [];
   List<SpendingCategory> spendingCategories = [];
@@ -34,6 +38,101 @@ class _DashboardState extends State<Dashboard> {
     dashboardMonths = _emptyMonthlyTrends();
     spendingCategories = [];
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadDashboardData());
+  }
+
+  void _showFinancialHealthDialog(
+    FinancialHealthScore health,
+    MyColours colours,
+  ) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: colours.secondary,
+          title: Text(
+            'Financial Health Analysis',
+            style: TextStyle(
+              color: colours.background,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _analysisRow(colours, 'Score', health.scoreLabel),
+                _analysisRow(colours, 'Status', health.status),
+                _analysisRow(colours, 'Risk Level', health.riskLevel),
+                _analysisRow(
+                  colours,
+                  'Income',
+                  _formatCurrency(health.totalIncome),
+                ),
+                _analysisRow(
+                  colours,
+                  'Expenses',
+                  _formatCurrency(health.totalExpenses),
+                ),
+                _analysisRow(
+                  colours,
+                  'Net Balance',
+                  _formatCurrency(health.netBalance),
+                ),
+                _analysisRow(colours, 'Cash Flow', health.netBalanceLabel),
+                _analysisRow(colours, 'Savings Rate', health.savingsRateLabel),
+                _analysisRow(
+                  colours,
+                  'Budget Usage',
+                  health.budgetUsageRateLabel,
+                ),
+                const SizedBox(height: 18),
+                _analysisTitle(colours, 'Score Breakdown'),
+                _analysisRow(
+                  colours,
+                  'Income Score',
+                  '${health.incomeScore} / 25',
+                ),
+                _analysisRow(
+                  colours,
+                  'Savings Score',
+                  '${health.savingsScore} / 25',
+                ),
+                _analysisRow(
+                  colours,
+                  'Budget Score',
+                  '${health.budgetScore} / 25',
+                ),
+                _analysisRow(
+                  colours,
+                  'Cash Flow Score',
+                  '${health.cashFlowScore} / 25',
+                ),
+                const SizedBox(height: 18),
+                _analysisTitle(colours, 'Insights'),
+                ...health.insights.map((text) => _bulletText(colours, text)),
+                const SizedBox(height: 18),
+                _analysisTitle(colours, 'Recommendations'),
+                ...health.recommendations.map(
+                  (text) => _bulletText(colours, text),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(
+                'CLOSE',
+                style: TextStyle(
+                  color: colours.background,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   DateTime _startOfDay(DateTime date) =>
@@ -210,6 +309,9 @@ class _DashboardState extends State<Dashboard> {
       final allTxns = await db.transactionDao.getAllTransactions();
       final categories = await _loadSpendingCategories(monthTxns, colours);
       final trends = await _loadMonthlyTrends();
+      final healthScore = await FinancialHealthScoreService(
+        db,
+      ).calculateMonthlyScore();
 
       if (!mounted) return;
       setState(() {
@@ -218,6 +320,7 @@ class _DashboardState extends State<Dashboard> {
         spendingCategories = categories;
         dashboardMonths = trends;
         recentTransactions = allTxns.take(3).toList();
+        financialHealthScore = healthScore;
         isLoading = false;
       });
     } catch (e) {
@@ -227,6 +330,197 @@ class _DashboardState extends State<Dashboard> {
         isLoading = false;
       });
     }
+  }
+
+  Widget _analysisRow(MyColours colours, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: colours.background.withValues(alpha: 0.75),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                color: colours.background,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _analysisTitle(MyColours colours, String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text(
+        title.toUpperCase(),
+        style: TextStyle(
+          color: colours.background,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1,
+        ),
+      ),
+    );
+  }
+
+  Widget _bulletText(MyColours colours, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Text(
+        '• $text',
+        style: TextStyle(
+          color: colours.background.withValues(alpha: 0.85),
+          fontSize: 13,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFinancialHealthSummary(MyColours colours) {
+    final health = financialHealthScore;
+
+    if (health == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 22),
+        Divider(
+          color: colours.background.withValues(alpha: 0.35),
+          thickness: 1.5,
+        ),
+        const SizedBox(height: 14),
+        Text(
+          'FINANCIAL HEALTH',
+          style: TextStyle(
+            color: colours.background,
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              health.scoreLabel,
+              style: TextStyle(
+                color: colours.background,
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                height: 1,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: colours.background,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                health.status.toUpperCase(),
+                style: TextStyle(
+                  color: colours.secondary,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          health.summary,
+          style: TextStyle(
+            color: colours.background.withValues(alpha: 0.8),
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 14),
+        Row(
+          children: [
+            Expanded(child: _healthMetric(colours, 'Risk', health.riskLevel)),
+            Expanded(
+              child: _healthMetric(colours, 'Savings', health.savingsRateLabel),
+            ),
+            Expanded(
+              child: _healthMetric(
+                colours,
+                'Budget Used',
+                health.budgetUsageRateLabel,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        TextButton.icon(
+          onPressed: () => _showFinancialHealthDialog(health, colours),
+          icon: Icon(
+            Icons.insights_outlined,
+            color: colours.background,
+            size: 18,
+          ),
+          label: Text(
+            'VIEW HEALTH ANALYSIS',
+            style: TextStyle(
+              color: colours.background,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.8,
+            ),
+          ),
+          style: TextButton.styleFrom(
+            padding: EdgeInsets.zero,
+            alignment: Alignment.centerLeft,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _healthMetric(MyColours colours, String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label.toUpperCase(),
+          style: TextStyle(
+            color: colours.background.withValues(alpha: 0.65),
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            color: colours.background,
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildDailySpendingCard(MyColours colours) {
@@ -270,6 +564,7 @@ class _DashboardState extends State<Dashboard> {
               fontWeight: FontWeight.w400,
             ),
           ),
+          _buildFinancialHealthSummary(colours),
         ],
       ),
     );
@@ -354,33 +649,51 @@ class _DashboardState extends State<Dashboard> {
                   ),
                 ),
               _buildDailySpendingCard(colours),
-              const SizedBox(height: 10),
+              const SizedBox(height: 10), //here
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Container(
-                      height: MediaQuery.sizeOf(context).height * 0.08,
-                      width: MediaQuery.sizeOf(context).width * 0.35,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.black, width: 4),
-                        color: colours.secondary,
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const PredictiveSpendingScreen(),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        height: MediaQuery.sizeOf(context).height * 0.08,
+                        width: MediaQuery.sizeOf(context).width * 0.35,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black, width: 4),
+                          color: colours.secondary,
+                        ),
+                        child: Center(
+                          child: Text("INSIGHTS", style: colours.b3),
+                        ),
                       ),
-                      child: Center(child: Text("INSIGHTS", style: colours.b3)),
                     ),
-                    Container(
-                      height: MediaQuery.sizeOf(context).height * 0.08,
-                      width: MediaQuery.sizeOf(context).width * 0.35,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.black, width: 4),
-                        color: colours.secondary,
+
+                    GestureDetector(
+                      onTap: () {},
+                      child: Container(
+                        height: MediaQuery.sizeOf(context).height * 0.08,
+                        width: MediaQuery.sizeOf(context).width * 0.35,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black, width: 4),
+                          color: colours.secondary,
+                        ),
+                        child: Center(
+                          child: Text("REPORTS", style: colours.b3),
+                        ),
                       ),
-                      child: Center(child: Text("REPORTS", style: colours.b3)),
                     ),
                   ],
                 ),
-              ),
+              ), //here
               const SizedBox(height: 25),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
