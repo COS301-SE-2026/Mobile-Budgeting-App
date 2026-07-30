@@ -342,9 +342,10 @@ class _DashboardState extends State<Dashboard> {
           Expanded(
             child: Text(
               label,
-              style: TextStyle(
+              style: colours.h2.copyWith(
                 color: colours.background.withValues(alpha: 0.75),
                 fontWeight: FontWeight.bold,
+                fontSize: 14,
               ),
             ),
           ),
@@ -353,9 +354,10 @@ class _DashboardState extends State<Dashboard> {
             child: Text(
               value,
               textAlign: TextAlign.right,
-              style: TextStyle(
+              style: colours.h2.copyWith(
                 color: colours.background,
                 fontWeight: FontWeight.bold,
+                fontSize: 14,
               ),
             ),
           ),
@@ -369,9 +371,10 @@ class _DashboardState extends State<Dashboard> {
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         title.toUpperCase(),
-        style: TextStyle(
+        style: colours.h2.copyWith(
           color: colours.background,
           fontWeight: FontWeight.bold,
+          fontSize: 14,
           letterSpacing: 1,
         ),
       ),
@@ -383,9 +386,10 @@ class _DashboardState extends State<Dashboard> {
       padding: const EdgeInsets.only(bottom: 6),
       child: Text(
         '• $text',
-        style: TextStyle(
+        style: colours.h2.copyWith(
           color: colours.background.withValues(alpha: 0.85),
           fontSize: 13,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );
@@ -393,6 +397,12 @@ class _DashboardState extends State<Dashboard> {
 
   Widget _buildFinancialHealthSummary(MyColours colours) {
     final health = financialHealthScore;
+    final cardColor = Theme.of(context).brightness == Brightness.dark
+        ? colours.blendedprimary
+        : colours.secondary;
+    final cardTextColor = Theme.of(context).brightness == Brightness.dark
+        ? colours.secondary
+        : colours.background;
 
     if (health == null) {
       return const SizedBox.shrink();
@@ -403,14 +413,14 @@ class _DashboardState extends State<Dashboard> {
       children: [
         const SizedBox(height: 22),
         Divider(
-          color: colours.background.withValues(alpha: 0.35),
+          color: cardTextColor.withValues(alpha: 0.35),
           thickness: 1.5,
         ),
         const SizedBox(height: 14),
         Text(
           'FINANCIAL HEALTH',
-          style: TextStyle(
-            color: colours.background,
+          style: colours.h2.copyWith(
+            color: cardTextColor,
             fontSize: 15,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.2,
@@ -422,8 +432,8 @@ class _DashboardState extends State<Dashboard> {
           children: [
             Text(
               health.scoreLabel,
-              style: TextStyle(
-                color: colours.background,
+              style: colours.h2.copyWith(
+                color: cardTextColor,
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
                 height: 1,
@@ -433,13 +443,13 @@ class _DashboardState extends State<Dashboard> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: colours.background,
+                color: cardTextColor,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
                 health.status.toUpperCase(),
-                style: TextStyle(
-                  color: colours.secondary,
+                style: colours.h2.copyWith(
+                  color: cardColor,
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1,
@@ -451,8 +461,8 @@ class _DashboardState extends State<Dashboard> {
         const SizedBox(height: 8),
         Text(
           health.summary,
-          style: TextStyle(
-            color: colours.background.withValues(alpha: 0.8),
+          style: colours.h2.copyWith(
+            color: cardTextColor.withValues(alpha: 0.8),
             fontSize: 13,
             fontWeight: FontWeight.w500,
           ),
@@ -478,13 +488,14 @@ class _DashboardState extends State<Dashboard> {
           onPressed: () => _showFinancialHealthDialog(health, colours),
           icon: Icon(
             Icons.insights_outlined,
-            color: colours.background,
+            color: cardTextColor,
             size: 18,
           ),
           label: Text(
             'VIEW HEALTH ANALYSIS',
-            style: TextStyle(
-              color: colours.background,
+            style: colours.h2.copyWith(
+              color: cardTextColor,
+              fontSize: 13,
               fontWeight: FontWeight.bold,
               letterSpacing: 0.8,
             ),
@@ -499,13 +510,17 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget _healthMetric(MyColours colours, String label, String value) {
+    final cardTextColor = Theme.of(context).brightness == Brightness.dark
+        ? colours.secondary
+        : colours.background;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label.toUpperCase(),
-          style: TextStyle(
-            color: colours.background.withValues(alpha: 0.65),
+          style: colours.h2.copyWith(
+            color: cardTextColor.withValues(alpha: 0.65),
             fontSize: 10,
             fontWeight: FontWeight.bold,
             letterSpacing: 1,
@@ -514,8 +529,8 @@ class _DashboardState extends State<Dashboard> {
         const SizedBox(height: 4),
         Text(
           value,
-          style: TextStyle(
-            color: colours.background,
+          style: colours.h2.copyWith(
+            color: cardTextColor,
             fontSize: 13,
             fontWeight: FontWeight.bold,
           ),
@@ -525,12 +540,19 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget _buildDailySpendingCard(MyColours colours) {
+    final cardColor = Theme.of(context).brightness == Brightness.dark
+        ? colours.blendedprimary
+        : colours.secondary;
+    final cardTextColor = Theme.of(context).brightness == Brightness.dark
+        ? colours.secondary
+        : colours.background;
+
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        color: colours.secondary,
+        color: cardColor,
         border: Border.all(color: Colors.black, width: 4),
         boxShadow: [BoxShadow(color: Colors.black, offset: const Offset(6, 6))],
       ),
@@ -539,8 +561,8 @@ class _DashboardState extends State<Dashboard> {
         children: [
           Text(
             "DAILY SPENDING FOR ${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
-            style: TextStyle(
-              color: colours.background,
+            style: colours.h2.copyWith(
+              color: cardTextColor,
               fontSize: 16,
               fontWeight: FontWeight.w400,
               letterSpacing: 1.2,
@@ -549,8 +571,8 @@ class _DashboardState extends State<Dashboard> {
           const SizedBox(height: 20),
           Text(
             _formatCurrency(dailySpending),
-            style: TextStyle(
-              color: colours.background,
+            style: colours.h2.copyWith(
+              color: cardTextColor,
               fontSize: 52,
               fontWeight: FontWeight.bold,
               height: 1,
@@ -559,8 +581,8 @@ class _DashboardState extends State<Dashboard> {
           const SizedBox(height: 25),
           Text(
             "Monthly total: ${_formatCurrency(monthlySpending)}",
-            style: TextStyle(
-              color: colours.background.withValues(alpha: 0.8),
+            style: colours.h2.copyWith(
+              color: cardTextColor.withValues(alpha: 0.8),
               fontSize: 20,
               fontWeight: FontWeight.w400,
             ),
@@ -575,6 +597,13 @@ class _DashboardState extends State<Dashboard> {
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>();
     final colours = context.colours;
+    final dashboardCardColor = Theme.of(context).brightness == Brightness.dark
+        ? colours.blendedprimary
+        : colours.secondary;
+    final dashboardCardTextColor =
+        Theme.of(context).brightness == Brightness.dark
+        ? colours.secondary
+        : colours.background;
 
     return Scaffold(
       backgroundColor: colours.background,
@@ -702,13 +731,14 @@ class _DashboardState extends State<Dashboard> {
                         width: MediaQuery.sizeOf(context).width * 0.35,
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.black, width: 4),
-                          color: colours.secondary,
+                          color: dashboardCardColor,
                         ),
                         child: Center(
                           child: Text(
                             "INSIGHTS",
-                            style: colours.b3.copyWith(
-                              color: colours.background,
+                            style: colours.h2.copyWith(
+                              color: dashboardCardTextColor,
+                              fontSize: 15,
                             ),
                           ),
                         ),
@@ -729,13 +759,14 @@ class _DashboardState extends State<Dashboard> {
                         width: MediaQuery.sizeOf(context).width * 0.35,
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.black, width: 4),
-                          color: colours.secondary,
+                          color: dashboardCardColor,
                         ),
                         child: Center(
                           child: Text(
                             "REPORTS",
-                            style: colours.b3.copyWith(
-                              color: colours.background,
+                            style: colours.h2.copyWith(
+                              color: dashboardCardTextColor,
+                              fontSize: 15,
                             ),
                           ),
                         ),
