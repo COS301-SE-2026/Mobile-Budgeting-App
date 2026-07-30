@@ -18,6 +18,10 @@ void main() {
             totalIncome: 0,
             expensesByCategory: {},
             transactionCount: expenses > 0 ? 1 : 0,
+            largestTransactionDescription: null,
+            largestTransactionCategory: null,
+            largestTransactionAmount: null,
+            largestTransactionDate: null,
         );
     }
 

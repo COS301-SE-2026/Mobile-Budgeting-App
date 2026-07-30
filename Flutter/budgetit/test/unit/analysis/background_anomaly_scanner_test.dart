@@ -6,8 +6,7 @@ import 'package:budgetit/database/daos/transaction_dao.dart';
 import 'package:budgetit/database/daos/category_dao.dart';
 import 'package:budgetit/services/analysis/background_anomaly_scanner.dart';
 
-
-@GenerateMocks([AppDatabase, TransactionDao, CategoryDao])
+@GenerateMocks([AppDatabase, TransactionDao, CategoryDao]) //ignore errors once built the mocks will be generated and tests willl run TRUST
 import 'background_anomaly_scanner_test.mocks.dart';
 
 void main() {
