@@ -78,13 +78,13 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final colours = MyColours();
+   
 
     return Dialog(
-      backgroundColor: colours.background,
+      backgroundColor: context.colours.background,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: colours.secondary, width: 1.5),
+        side: BorderSide(color: context.colours.secondary, width: 1.5),
       ),
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -96,7 +96,7 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
             children: [
               Row(
                 children: [
-                  Icon(widget.icon, color: colours.secondary, size: 18),
+                  Icon(widget.icon, color: context.colours.secondary, size: 18),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -104,7 +104,7 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: colours.textPrimary,
+                        color: context.colours.textPrimary,
                       ),
                     ),
                   ),
@@ -124,28 +124,28 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
               ),
               const SizedBox(height: 12),
               Divider(
-                color: colours.secondary.withValues(alpha: 0.35),
+                color: context.colours.secondary.withValues(alpha: 0.35),
                 height: 1,
               ),
               const SizedBox(height: 16),
 
-              _fieldLabel('Transaction Name', colours),
+              _fieldLabel('Transaction Name', context),
               const SizedBox(height: 6),
               TextFormField(
                 controller: _nameController,
-                style: TextStyle(color: colours.cardText, fontSize: 14),
-                decoration: _inputDecoration('e.g. Grocery run', colours),
+                style: TextStyle(color: context.colours.cardText, fontSize: 14),
+                decoration: _inputDecoration('e.g. Grocery run', context),
                 validator: (v) =>
                     (v == null || v.trim().isEmpty) ? 'Name is required' : null,
               ),
               const SizedBox(height: 16),
 
-              _fieldLabel('Amount (R)', colours),
+              _fieldLabel('Amount (R)', context),
               const SizedBox(height: 6),
               TextFormField(
                 controller: _amountController,
-                style: TextStyle(color: colours.cardText, fontSize: 14),
-                decoration: _inputDecoration('0.00', colours),
+                style: TextStyle(color: context.colours.cardText, fontSize: 14),
+                decoration: _inputDecoration('0.00', context),
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
@@ -161,24 +161,24 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
               const SizedBox(height: 16),
 
               if (widget.categories.isNotEmpty) ...[
-                _fieldLabel('Category', colours),
+                _fieldLabel('Category', context),
                 const SizedBox(height: 6),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
-                    color: colours.primary,
+                    color: context.colours.primary,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: colours.secondary, width: 1),
+                    border: Border.all(color: context.colours.secondary, width: 1),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: _selectedCategory,
                       isExpanded: true,
-                      dropdownColor: colours.background,
-                      style: TextStyle(color: colours.cardText, fontSize: 14),
+                      dropdownColor: context.colours.background,
+                      style: TextStyle(color: context.colours.cardText, fontSize: 14),
                       icon: Icon(
                         Icons.keyboard_arrow_down,
-                        color: colours.cardText,
+                        color: context.colours.cardText,
                       ),
                       items: widget.categories
                           .map(
@@ -204,15 +204,15 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
                     onPressed: () => Navigator.of(context).pop(),
                     child: Text(
                       'Cancel',
-                      style: TextStyle(color: colours.secondary),
+                      style: TextStyle(color: context.colours.secondary),
                     ),
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton(
                     onPressed: _save,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: colours.secondary,
-                      foregroundColor: colours.background,
+                      backgroundColor: context.colours.secondary,
+                      foregroundColor: context.colours.background,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -236,33 +236,33 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
   }
 }
 
-Widget _fieldLabel(String text, MyColours colours) => Text(
+Widget _fieldLabel(String text, BuildContext context) => Text(
   text,
   style: TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.w500,
-    color: colours.secondary,
+    color: context.colours.secondary,
   ),
 );
 
-InputDecoration _inputDecoration(String hint, MyColours colours) =>
+InputDecoration _inputDecoration(String hint, BuildContext context) =>
     InputDecoration(
       hintText: hint,
-      hintStyle: TextStyle(color: MyColours().cardText.withValues(alpha: 0.5)),
+      hintStyle: TextStyle(color: context.colours.cardText.withValues(alpha: 0.5)),
       filled: true,
-      fillColor: colours.primary,
+      fillColor: context.colours.primary,
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: colours.secondary, width: 1),
+        borderSide: BorderSide(color: context.colours.secondary, width: 1),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: colours.secondary, width: 1),
+        borderSide: BorderSide(color: context.colours.secondary, width: 1),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: colours.secondary, width: 1.5),
+        borderSide: BorderSide(color: context.colours.secondary, width: 1.5),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),

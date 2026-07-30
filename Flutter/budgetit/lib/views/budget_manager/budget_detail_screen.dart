@@ -36,7 +36,7 @@ class BudgetDetailScreen extends StatefulWidget {
 }
 
 class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
-  final MyColours colours = MyColours();
+  
 
   late double _spent;
   late double _limit;
@@ -162,15 +162,15 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
     final bool closeToLimit = progress >= 0.8 && !_isOverLimit;
 
     return Scaffold(
-      backgroundColor: colours.background,
+      backgroundColor: context.colours.background,
       appBar: AppBar(
-        backgroundColor: colours.background,
+        backgroundColor: context.colours.background,
         elevation: 0,
-        iconTheme: IconThemeData(color: colours.textPrimary),
+        iconTheme: IconThemeData(color: context.colours.textPrimary),
         title: Text(
           widget.title,
           style: TextStyle(
-            color: colours.textPrimary,
+            color: context.colours.textPrimary,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -178,7 +178,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
           IconButton(
             tooltip: 'Edit budget',
             onPressed: _showEditBudgetDialog,
-            icon: Icon(Icons.edit_outlined, color: colours.textPrimary),
+            icon: Icon(Icons.edit_outlined, color: context.colours.textPrimary),
           ),
         ],
       ),
@@ -209,10 +209,10 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: colours.primary,
+        color: context.colours.primary,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: _isOverLimit ? colours.error : colours.secondary,
+          color: _isOverLimit ? context.colours.error : context.colours.secondary,
           width: 1.2,
         ),
       ),
@@ -225,10 +225,10 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: colours.secondary,
+                  color: context.colours.secondary,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(widget.icon, color: colours.background, size: 26),
+                child: Icon(widget.icon, color: context.colours.background, size: 26),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -238,7 +238,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                     Text(
                       widget.title,
                       style: TextStyle(
-                        color: colours.textPrimary,
+                        color: context.colours.textPrimary,
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                       ),
@@ -246,7 +246,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                     Text(
                       widget.subtitle,
                       style: TextStyle(
-                        color: colours.textPrimary,
+                        color: context.colours.textPrimary,
                         fontSize: 12,
                       ),
                     ),
@@ -260,13 +260,13 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: colours.error,
+                    color: context.colours.error,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
                     'OVER',
                     style: TextStyle(
-                      color: colours.whiteAccents,
+                      color: context.colours.whiteAccents,
                       fontSize: 9,
                       fontWeight: FontWeight.bold,
                     ),
@@ -278,7 +278,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
           Text(
             'SPENT',
             style: TextStyle(
-              color: colours.textPrimary,
+              color: context.colours.textPrimary,
               fontSize: 10,
               letterSpacing: 1,
             ),
@@ -287,7 +287,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
           Text(
             _formatCurrency(_spent),
             style: TextStyle(
-              color: colours.textPrimary,
+              color: context.colours.textPrimary,
               fontSize: 34,
               fontWeight: FontWeight.bold,
             ),
@@ -295,7 +295,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
           const SizedBox(height: 6),
           Text(
             'Budget limit: ${_formatCurrency(_limit)}',
-            style: TextStyle(color: colours.textPrimary, fontSize: 13),
+            style: TextStyle(color: context.colours.textPrimary, fontSize: 13),
           ),
           const SizedBox(height: 18),
           ClipRRect(
@@ -303,9 +303,9 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
             child: LinearProgressIndicator(
               value: progress > 1 ? 1 : progress,
               minHeight: 8,
-              backgroundColor: colours.secondary,
+              backgroundColor: context.colours.secondary,
               valueColor: AlwaysStoppedAnimation<Color>(
-                _isOverLimit ? colours.error : widget.progressColor,
+                _isOverLimit ? context.colours.error : widget.progressColor,
               ),
             ),
           ),
@@ -315,7 +315,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                 ? 'You are ${_formatCurrency(remaining.abs())} over this budget.'
                 : 'You still have ${_formatCurrency(remaining)} remaining.',
             style: TextStyle(
-              color: _isOverLimit ? colours.error : colours.textPrimary,
+              color: _isOverLimit ? context.colours.error : context.colours.textPrimary,
               fontSize: 13,
               fontWeight: _isOverLimit ? FontWeight.bold : FontWeight.normal,
             ),
@@ -332,11 +332,11 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
 
     if (_isOverLimit) {
       statusIcon = Icons.warning_amber_outlined;
-      statusColor = colours.error;
+      statusColor = context.colours.error;
       message = 'You have exceeded this budget. Review your recent spending.';
     } else if (closeToLimit) {
       statusIcon = Icons.info_outline;
-      statusColor = colours.warning;
+      statusColor = context.colours.warning;
       message = 'You are close to your limit. Spend carefully.';
     }
 
@@ -348,7 +348,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
           Expanded(
             child: Text(
               message,
-              style: TextStyle(color: colours.textPrimary, fontSize: 13),
+              style: TextStyle(color: context.colours.textPrimary, fontSize: 13),
             ),
           ),
         ],
@@ -414,12 +414,12 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
             _sectionTitle('Recent Transactions'),
             const SizedBox(height: 12),
             if (snapshot.connectionState == ConnectionState.waiting)
-              Center(child: CircularProgressIndicator(color: colours.secondary))
+              Center(child: CircularProgressIndicator(color: context.colours.secondary))
             else if (transactions.isEmpty)
               _borderCard(
                 child: Text(
                   'No recent transactions for this budget yet.',
-                  style: TextStyle(color: colours.textPrimary, fontSize: 13),
+                  style: TextStyle(color: context.colours.textPrimary, fontSize: 13),
                 ),
               )
             else
@@ -428,15 +428,15 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                   margin: const EdgeInsets.only(bottom: 10),
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: colours.primary,
+                    color: context.colours.primary,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: colours.secondary),
+                    border: Border.all(color: context.colours.secondary),
                   ),
                   child: Row(
                     children: [
                       Icon(
                         Icons.receipt_long_outlined,
-                        color: colours.textPrimary,
+                        color: context.colours.textPrimary,
                         size: 20,
                       ),
                       const SizedBox(width: 12),
@@ -447,7 +447,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                             Text(
                               transaction.shortDescription,
                               style: TextStyle(
-                                color: colours.textPrimary,
+                                color: context.colours.textPrimary,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13,
                               ),
@@ -455,7 +455,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                             Text(
                               _formatDate(transaction.transactionDate),
                               style: TextStyle(
-                                color: colours.textPrimary,
+                                color: context.colours.textPrimary,
                                 fontSize: 11,
                               ),
                             ),
@@ -465,7 +465,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                       Text(
                         _formatCurrency(transaction.amount.toDouble()),
                         style: TextStyle(
-                          color: colours.secondary,
+                          color: context.colours.secondary,
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
                         ),
@@ -496,13 +496,13 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.lightbulb_outline, color: colours.secondary),
+          Icon(Icons.lightbulb_outline, color: context.colours.secondary),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               tip,
               style: TextStyle(
-                color: colours.textPrimary,
+                color: context.colours.textPrimary,
                 fontSize: 13,
                 height: 1.4,
               ),
@@ -524,20 +524,20 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         decoration: BoxDecoration(
-          color: colours.secondary,
+          color: context.colours.secondary,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: colours.background, size: 18),
+            Icon(icon, color: context.colours.background, size: 18),
             const SizedBox(width: 8),
             Flexible(
               child: Text(
                 label,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: colours.background,
+                  color: context.colours.background,
                   fontWeight: FontWeight.bold,
                   fontSize: 12,
                 ),
@@ -554,9 +554,9 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colours.primary,
+        color: context.colours.primary,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: colours.secondary),
+        border: Border.all(color: context.colours.secondary),
       ),
       child: child,
     );
@@ -566,7 +566,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
     return Text(
       title,
       style: TextStyle(
-        color: colours.textPrimary,
+        color: context.colours.textPrimary,
         fontSize: 16,
         fontWeight: FontWeight.bold,
       ),
@@ -585,29 +585,29 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor: colours.background,
+          backgroundColor: context.colours.background,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: colours.secondary, width: 1.5),
+            side: BorderSide(color: context.colours.secondary, width: 1.5),
           ),
           title: Text(
             'Spending Insights',
             style: TextStyle(
-              color: colours.textPrimary,
+              color: context.colours.textPrimary,
               fontWeight: FontWeight.bold,
             ),
           ),
           content: Text(
             'You have used ${usedPercentage.toStringAsFixed(1)}% of your ${widget.title} budget.\n\n'
             '${_isOverLimit ? 'You are over budget by ${_formatCurrency(remaining.abs())}.' : 'You still have ${_formatCurrency(remaining)} remaining.'}',
-            style: TextStyle(color: colours.textPrimary),
+            style: TextStyle(color: context.colours.textPrimary),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
               child: Text(
                 'Close',
-                style: TextStyle(color: colours.textPrimary),
+                style: TextStyle(color: context.colours.textPrimary),
               ),
             ),
           ],
@@ -625,32 +625,32 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor: colours.background,
+          backgroundColor: context.colours.background,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: colours.secondary, width: 1.5),
+            side: BorderSide(color: context.colours.secondary, width: 1.5),
           ),
           title: Text(
             'Edit Budget',
             style: TextStyle(
-              color: colours.textPrimary,
+              color: context.colours.textPrimary,
               fontWeight: FontWeight.bold,
             ),
           ),
           content: TextField(
             controller: limitController,
             keyboardType: TextInputType.number,
-            style: TextStyle(color: colours.textPrimary),
+            style: TextStyle(color: context.colours.textPrimary),
             decoration: InputDecoration(
               labelText: 'Budget limit',
-              labelStyle: TextStyle(color: colours.textPrimary),
+              labelStyle: TextStyle(color: context.colours.textPrimary),
               prefixText: 'R ',
-              prefixStyle: TextStyle(color: colours.textPrimary),
+              prefixStyle: TextStyle(color: context.colours.textPrimary),
               enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: colours.secondary),
+                borderSide: BorderSide(color: context.colours.secondary),
               ),
               focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: colours.secondary, width: 2),
+                borderSide: BorderSide(color: context.colours.secondary, width: 2),
               ),
             ),
           ),
@@ -662,7 +662,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
               },
               child: Text(
                 'Cancel',
-                style: TextStyle(color: colours.textPrimary),
+                style: TextStyle(color: context.colours.textPrimary),
               ),
             ),
             ElevatedButton(
@@ -693,8 +693,8 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                 _showSnackBar(message: 'Budget updated successfully.');
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: colours.secondary,
-                foregroundColor: colours.background,
+                backgroundColor: context.colours.secondary,
+                foregroundColor: context.colours.background,
               ),
               child: const Text('Save'),
             ),
@@ -712,15 +712,15 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor: colours.background,
+          backgroundColor: context.colours.background,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: colours.secondary, width: 1.5),
+            side: BorderSide(color: context.colours.secondary, width: 1.5),
           ),
           title: Text(
             'Add Transaction',
             style: TextStyle(
-              color: colours.textPrimary,
+              color: context.colours.textPrimary,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -729,15 +729,15 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
             children: [
               TextField(
                 controller: descriptionController,
-                style: TextStyle(color: colours.textPrimary),
+                style: TextStyle(color: context.colours.textPrimary),
                 decoration: InputDecoration(
                   labelText: 'Description',
-                  labelStyle: TextStyle(color: colours.textPrimary),
+                  labelStyle: TextStyle(color: context.colours.textPrimary),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: colours.secondary),
+                    borderSide: BorderSide(color: context.colours.secondary),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: colours.secondary, width: 2),
+                    borderSide: BorderSide(color: context.colours.secondary, width: 2),
                   ),
                 ),
               ),
@@ -745,17 +745,17 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
               TextField(
                 controller: amountController,
                 keyboardType: TextInputType.number,
-                style: TextStyle(color: colours.textPrimary),
+                style: TextStyle(color: context.colours.textPrimary),
                 decoration: InputDecoration(
                   labelText: 'Amount',
-                  labelStyle: TextStyle(color: colours.textPrimary),
+                  labelStyle: TextStyle(color: context.colours.textPrimary),
                   prefixText: 'R ',
-                  prefixStyle: TextStyle(color: colours.textPrimary),
+                  prefixStyle: TextStyle(color: context.colours.textPrimary),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: colours.secondary),
+                    borderSide: BorderSide(color: context.colours.secondary),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: colours.secondary, width: 2),
+                    borderSide: BorderSide(color: context.colours.secondary, width: 2),
                   ),
                 ),
               ),
@@ -770,7 +770,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
               },
               child: Text(
                 'Cancel',
-                style: TextStyle(color: colours.textPrimary),
+                style: TextStyle(color: context.colours.textPrimary),
               ),
             ),
             ElevatedButton(
@@ -821,8 +821,8 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                 _showSnackBar(message: 'Transaction added successfully.');
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: colours.secondary,
-                foregroundColor: colours.background,
+                backgroundColor: context.colours.secondary,
+                foregroundColor: context.colours.background,
               ),
               child: const Text('Add'),
             ),
@@ -838,11 +838,11 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
       ..showSnackBar(
         SnackBar(
           behavior: SnackBarBehavior.floating,
-          backgroundColor: isError ? colours.error : colours.secondary,
+          backgroundColor: isError ? context.colours.error : context.colours.secondary,
           content: Text(
             message,
             style: TextStyle(
-              color: isError ? colours.whiteAccents : colours.background,
+              color: isError ? context.colours.whiteAccents : context.colours.background,
               fontWeight: FontWeight.w600,
             ),
           ),

@@ -13,6 +13,10 @@ class AnomalyResult{
     final AnomalySeverity severity;
     final String title;
     final String body;
+    final String? transactionDescription;
+    final String? transactionCategory;
+    final double? transactionAmount;
+    final DateTime? transactionDate;
 
     const AnomalyResult({
         required this.categoryName,
@@ -23,6 +27,10 @@ class AnomalyResult{
         required this.severity,
         required this.title,
         required this.body,
+        this.transactionDescription,
+        this.transactionCategory,
+        this.transactionAmount,
+        this.transactionDate,
     });
 
     bool get isTotalSpendingAnomaly => categoryName == null;

@@ -41,7 +41,7 @@ class AnomalyDetectionService {
         final z=(current.totalExpenses-mean)/stdDev;
         if(z>=_lowThreshold){
             final severity=_severityFromZ(z);
-            results.add(AnomalyResult(categoryName:null,monthLabel:current.label,actualAmount:current.totalExpenses,historicalAverage:mean,zScore:z,severity:severity,title: _totalSpendingTitle(severity,current.totalExpenses,mean),body:_totalSpendingBody(current,mean,z)));
+            results.add(AnomalyResult(categoryName:null,monthLabel:current.label,actualAmount:current.totalExpenses,historicalAverage:mean,zScore:z,severity:severity,title: _totalSpendingTitle(severity,current.totalExpenses,mean),body:_totalSpendingBody(current,mean,z), transactionDescription: current.largestTransactionDescription, transactionCategory: current.largestTransactionCategory, transactionAmount: current.largestTransactionAmount, transactionDate: current.largestTransactionDate));
         }
         return results;
     }
@@ -78,6 +78,10 @@ class AnomalyDetectionService {
                     severity: severity,
                     title: _categoryTitle(severity, category),
                     body: _categoryBody(category, currentAmount, mean, current.label),
+                    transactionDescription: current.largestTransactionDescription,
+                    transactionCategory: current.largestTransactionCategory,
+                    transactionAmount: current.largestTransactionAmount,
+                    transactionDate: current.largestTransactionDate,
                 ));
             }
         }
