@@ -90,6 +90,12 @@ await _exportService.downloadCsvOnWeb(report);
     final background = context.colours.background;
     final secondary = context.colours.secondary;
     final tertiary = context.colours.informational;
+    final cardColor = Theme.of(context).brightness == Brightness.dark
+        ? context.colours.blendedprimary
+        : context.colours.secondary;
+    final cardTextColor = Theme.of(context).brightness == Brightness.dark
+        ? context.colours.secondary
+        : context.colours.background;
 
     return Scaffold(
       backgroundColor: background,
@@ -107,16 +113,19 @@ await _exportService.downloadCsvOnWeb(report);
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: tertiary.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(
-                  color: context.colours.cardText.withValues(alpha: 0.4),
-                ),
+                color: cardColor,
+                border: Border.all(color: Colors.black, width: 4),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black,
+                    offset: const Offset(6, 6),
+                  ),
+                ],
               ),
               child: Text(
                 'Export this month’s financial report using your saved transactions.',
                 style: TextStyle(
-                  color: context.colours.cardText,
+                  color: cardTextColor,
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                 ),
