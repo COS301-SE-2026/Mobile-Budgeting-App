@@ -113,6 +113,97 @@ class HelpMenuPage extends StatelessWidget {
     );
   }
 
+  Widget _introCard(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        color: context.colours.blendedprimary,
+        border: Border.all(color: Colors.black, width: 4),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black,
+            offset: Offset(6, 6),
+            blurRadius: 0,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'HELP MENU',
+            style: context.colours.b1.copyWith(color: context.colours.cardText),
+          ),
+          const SizedBox(height: 18),
+          Text(
+            'Need a hand?',
+            style: context.colours.h2.copyWith(color: context.colours.cardText),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Open a dropdown below to see where to find each feature and which icon to look for.',
+            style: context.colours.b1.copyWith(color: context.colours.cardText),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _sectionTitle(BuildContext context, String title) {
+    return Text(title, style: context.colours.h2);
+  }
+}
+
+class _HelpDropDown extends StatelessWidget {
+  const _HelpDropDown({
+    required this.icon,
+    required this.title,
+    required this.steps,
+  });
+
+  final IconData icon;
+  final String title;
+  final List<_HelpStep> steps;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: context.colours.primary,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: context.colours.secondary,
+          width: 1,
+        ),
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          dividerColor: Colors.transparent,
+          splashColor: context.colours.cardText.withValues(alpha: 0.12),
+          highlightColor: context.colours.cardText.withValues(alpha: 0.08),
+        ),
+        child: ExpansionTile(
+          iconColor: context.colours.cardText,
+          collapsedIconColor: context.colours.cardText,
+          tilePadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+          childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+          leading: Icon(
+            icon,
+            color: context.colours.cardText,
+          ),
+          title: Text(
+            title,
+            style: context.colours.b1.copyWith(color: context.colours.cardText),
+          ),
+          children: [
+            for (final step in steps) _HelpStepRow(step: step),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class _HelpStepRow extends StatelessWidget {
   const _HelpStepRow({required this.step});
