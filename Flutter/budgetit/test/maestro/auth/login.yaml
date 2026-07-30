@@ -1,0 +1,20 @@
+appId: com.example.budgetit
+name: Online Login to Dashboard
+tags:
+  - auth
+  - smoke
+---
+- launchApp:
+    clearState: true
+- assertVisible: "wealth@budgetit.com"
+- assertVisible: "••••••••"
+- tapOn: "wealth@budgetit.com"
+- inputText: "${MAESTRO_LOGIN_EMAIL}"
+- tapOn: "••••••••"
+- inputText: "${MAESTRO_LOGIN_PASSWORD}"
+- pressKey: BACK
+- tapOn: "Login →"
+- extendedWaitUntil:
+    visible: "DASHBOARD"
+    timeout: 15000
+- assertVisible: "DASHBOARD"
