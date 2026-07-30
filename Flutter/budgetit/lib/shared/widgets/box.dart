@@ -139,7 +139,9 @@ class _MyBoxState extends State<MyBox> {
                   if (_category.isNotEmpty)
                     Text(
                       _category + (_date.isNotEmpty ? ' - $_date' : ''),
-                      style:  context.colours.h4,
+                      style: context.colours.h4.copyWith(
+                        color: context.colours.cardText,
+                      ),
                       overflow: TextOverflow.visible,
                     ),
                 ],
