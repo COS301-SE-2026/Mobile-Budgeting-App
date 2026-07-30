@@ -4,6 +4,7 @@ import '../../auth/providers/auth_provider.dart';
 import 'verify_email_screen.dart';
 import 'forgot_password_screen.dart';
 import 'coming_soon_page.dart';
+import 'help_menu_page.dart';
 
 class LoginRegisterScreen extends StatefulWidget {
   const LoginRegisterScreen({super.key});
@@ -80,16 +81,12 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
-            icon: const Icon(Icons.menu, color: Colors.white),
+            tooltip: 'Help menu',
+            icon: const Icon(Icons.help_outline, color: Colors.white),
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => const ComingSoonPage(
-                  title: 'Menu Coming Soon',
-                  message:
-                      'The main menu is still being prepared. More navigation options will be added here soon.',
-                  icon: Icons.menu,
-                ),
+                builder: (_) => const HelpMenuPage(),
               ),
             ),
           ),
