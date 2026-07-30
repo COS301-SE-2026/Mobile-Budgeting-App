@@ -170,12 +170,15 @@ class _HelpDropDown extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: context.colours.primary,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: context.colours.secondary,
-          width: 1,
-        ),
+        color: context.colours.blendedprimary,
+        border: Border.all(color: Colors.black, width: 4),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black,
+            offset: Offset(6, 6),
+            blurRadius: 0,
+          ),
+        ],
       ),
       child: Theme(
         data: Theme.of(context).copyWith(
