@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - feature/docker
     paths-ignore:
       - "**.md"
       - "docs/**"
@@ -12,6 +13,7 @@ on:
   pull_request:
     branches:
       - main
+      - feature/docker
     paths-ignore:
       - "**.md"
       - "docs/**"
@@ -262,8 +264,9 @@ jobs:
 
   apk-build:
     name: Build APK
-    runs-on: ubuntu-lates
-    needs: unit-tests
+    runs-on: self-hosted
+    env:
+      ANDROID_NDK_VERSION : 27.0.11902837
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
@@ -316,15 +319,16 @@ jobs:
           name: budgetit-release-${{ github.ref_name }}
           path: Flutter/budgetit/build/app/outputs/flutter-apk/app-release.apk
           retention-days: 90
-          steps:
-            - name: Upload APK to S3
-              env:
-                AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-                AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-                AWS_DEFAULT_REGION: eu-north-1
-              run: |
-                aws s3 cp Flutter/budgetit/build/app/outputs/flutter-apk/app-release.apk \
-                  s3://budgetit-apk-releases/apk-releases/latest.apk
+
+      - name: Upload APK to S3
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: eu-north-1
+        run: |
+          aws s3 cp Flutter/budgetit/build/app/outputs/flutter-apk/app-release.apk \
+          s3://budgetit-apk-releases/apk-releases/latest.apk
 
 
       - name: Upload APK artifact (main branch pushes)
@@ -335,16 +339,11 @@ jobs:
           path: Flutter/budgetit/build/app/outputs/flutter-apk/app-release.apk
           retention-days: 7
 
-
- 
- 
-  
   pages:
     name: Build static files
     runs-on: ubuntu-lates
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
-
       - uses: ./.github/actions/flutter-setup
 
       - name: Build landing page for web
@@ -361,7 +360,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-lates
+    runs-on: self-hosted
     needs: build
     permissions:
       pages: write
@@ -369,9 +368,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4     
-
-
-
-
-
+        uses: actions/deploy-pages@v4

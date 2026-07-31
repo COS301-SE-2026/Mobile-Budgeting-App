@@ -48,10 +48,8 @@ jobs:
     name: Prepare
     runs-on: self-hosted
     outputs:
-
       has_integration_tests: ${{ steps.detect-tests.outputs.has_integration_tests }}
       has_sonar: ${{ steps.check-sonar.outputs.has_sonar }}
-
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
