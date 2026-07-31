@@ -46,8 +46,9 @@ jobs:
 
   prepare:
     name: Prepare
-    runs-on: ubuntu-latest
+    runs-on: self-hosted 
     outputs:
+
       has_golden: ${{ steps.detect-tests.outputs.has_golden }}
       has_perf: ${{ steps.detect-tests.outputs.has_perf }}
       has_integ: ${{ steps.detect-tests.outputs.has_integ }}
@@ -95,7 +96,7 @@ jobs:
   dart-format:
     name: Dart Format
     needs: prepare
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
@@ -119,7 +120,7 @@ jobs:
   flutter-analyze:
     name: Flutter Analyze
     needs: prepare
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
@@ -149,7 +150,7 @@ jobs:
   unit-tests:
     name: Unit Tests
     needs: prepare
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
@@ -190,7 +191,7 @@ jobs:
 
   sonarcloud:
     name: SonarCloud Analysis
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [prepare, unit-tests]
     if: needs.prepare.outputs.has_sonar == 'true'
     env:
@@ -227,7 +228,7 @@ jobs:
 
   golden-tests:
     name: Golden Tests
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: prepare
     if: needs.prepare.outputs.has_golden == 'true'
     steps:
@@ -239,7 +240,7 @@ jobs:
 
   perf-benchmarks:
     name: Performance Benchmarks
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: prepare
     if: needs.prepare.outputs.has_perf == 'true'
     steps:
@@ -251,7 +252,7 @@ jobs:
 
   integration-tests:
     name: Integration Tests
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: prepare
     if: needs.prepare.outputs.has_integ == 'true'
     steps:
@@ -263,37 +264,32 @@ jobs:
 
   apk-build:
     name: Build APK
-    runs-on: self-hosted
-    env:
-      ANDROID_NDK_VERSION: 27.0.11902837
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
-      - uses: ./.github/actions/flutter-setup
+      - name: Set up Java
+        uses: actions/setup-java@ad2b38190b15e4d6bdf0c97fb4fca8412226d287
         with:
-          needs-java: "true"
+          distribution: temurin
+          java-version: 17
 
-      - name: Check Gradle cache on disk
-        id: gradle-disk
-        shell: bash
-        run: |
-          if [ -d "$HOME/.gradle/caches" ] && [ "$(ls -A "$HOME/.gradle/caches" 2>/dev/null)" ]; then
-            echo "on_disk=true" >> "${GITHUB_OUTPUT}"
-          else
-            echo "on_disk=false" >> "${GITHUB_OUTPUT}"
-          fi
-
-      - name: Restore Gradle cache
-        if: steps.gradle-disk.outputs.on_disk != 'true'
-        id: gradle-cache
-        uses: actions/cache/restore@2c8a9bd7457de244a408f35966fab2fb45fda9c8
+      - name: Set up Flutter
+        uses: flutter-actions/setup-flutter@v4
         with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            gradle-${{ runner.os }}-
+          channel: stable
+          version: 3.41.9
+          cache: true
+          cache-sdk: true
+
+      - name: Install Flutter dependencies
+        working-directory: Flutter/budgetit
+        run: flutter pub get --enforce-lockfile
+
+      - name: Set up Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-overwrite-existing: true
 
       - name: Accept Android License
         run: yes | flutter doctor --android-licenses || true
@@ -301,15 +297,6 @@ jobs:
       - name: Build release APK
         working-directory: Flutter/budgetit
         run: flutter build apk --release --no-tree-shake-icons
-
-      - name: Save Gradle cache
-        if: steps.gradle-disk.outputs.on_disk != 'true' && steps.gradle-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@2c8a9bd7457de244a408f35966fab2fb45fda9c8
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
 
       - name: Upload APK artifact (release tags)
         if: startsWith(github.ref, 'refs/tags/v')
@@ -327,7 +314,8 @@ jobs:
           AWS_DEFAULT_REGION: eu-north-1
         run: |
           aws s3 cp Flutter/budgetit/build/app/outputs/flutter-apk/app-release.apk \
-            s3://budgetit-apk-releases/apk-releases/latest.apk
+          s3://budgetit-apk-releases/apk-releases/latest.apk
+
 
       - name: Upload APK artifact (main branch pushes)
         if: github.ref == 'refs/heads/main' && github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/')
@@ -339,7 +327,7 @@ jobs:
 
   pages:
     name: Build static files
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
       - uses: ./.github/actions/flutter-setup
