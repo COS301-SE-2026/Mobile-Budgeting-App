@@ -1,0 +1,31 @@
+appId: com.example.budgetit
+name: Search and Filter Manual Transactions
+tags:
+  - transactions
+---
+- runFlow:
+    file: "add_transaction.yaml"
+
+- tapOn: "Tab 2 of 3"
+- assertVisible: "TRANSACTION MANAGER"
+- tapOn: "Search for Transaction"
+- inputText: "Manual"
+- extendedWaitUntil:
+    visible: "Manual income.*"
+    timeout: 5000
+- assertVisible: "Manual income.*"
+- assertVisible: "Manual expense.*"
+
+- tapOn: "Income"
+- extendedWaitUntil:
+    visible: "Manual income.*"
+    timeout: 5000
+- assertVisible: "Manual income.*"
+- assertNotVisible: "Manual expense.*"
+
+- tapOn: "Expenses"
+- extendedWaitUntil:
+    visible: "Manual expense.*"
+    timeout: 5000
+- assertVisible: "Manual expense.*"
+- assertNotVisible: "Manual income.*"

@@ -1,0 +1,10 @@
+appId: com.example.budgetit
+name: Authenticated User Searches and Filters Transactions
+tags:
+  - transactions
+  - authenticated
+---
+- runFlow:
+    file: "../auth/login.yaml"
+- runFlow:
+    file: "search_transactions.yaml"

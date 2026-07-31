@@ -1,0 +1,10 @@
+appId: com.example.budgetit
+name: Guest Searches and Filters Transactions
+tags:
+  - transactions
+  - guest
+---
+- runFlow:
+    file: "../auth/guest.yaml"
+- runFlow:
+    file: "search_transactions.yaml"
