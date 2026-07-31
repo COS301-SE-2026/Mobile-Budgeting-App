@@ -11,3 +11,32 @@ tags:
     timeout: 5000
 - assertVisible: "Help Menu"
 - assertVisible: "HELP MENU"
+
+- scrollUntilVisible:
+    element: "HOW TO ADD NEW TRANSACTION.*"
+    direction: DOWN
+    timeout: 5000
+- assertVisible: "HOW TO ADD NEW TRANSACTION.*"
+- tapOn: "HOW TO ADD NEW TRANSACTION.*"
+- assertVisible: "Go to the Transaction Manager page.*"
+- assertVisible: "Tap Add to save the transaction.*"
+
+- scrollUntilVisible:
+    element: "HOW TO ADD TRANSACTION TO A BUDGET.*"
+    direction: DOWN
+    timeout: 5000
+- tapOn: "HOW TO ADD TRANSACTION TO A BUDGET.*"
+- assertVisible: "Go to the Budget Manager page.*"
+- assertVisible: "Under Quick Actions, tap Add Transaction.*"
+
+- scrollUntilVisible:
+    element: "HOW TO VIEW GRAPHICAL REPORTS.*"
+    direction: DOWN
+    timeout: 5000
+- tapOn: "HOW TO VIEW GRAPHICAL REPORTS.*"
+- scrollUntilVisible:
+    element: "Tap View Graphical Reports.*"
+    direction: DOWN
+    timeout: 5000
+- assertVisible: "Tap View Graphical Reports.*"
+- assertVisible: "Use the Weekly, Monthly or Yearly chips.*"
