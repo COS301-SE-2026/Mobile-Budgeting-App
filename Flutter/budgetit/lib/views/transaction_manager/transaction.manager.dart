@@ -23,6 +23,7 @@ class _TransactionManagerState extends State<TransactionManager> {
   String _searchQuery = '';
   _TransactionFilter _filter = _TransactionFilter.all;
   List<Transaction> _transactions = [];
+  Map<String, String> _transactionCategoryNames = {};
   bool _isLoading = true;
 
   static const _monthNames = [
@@ -56,7 +57,8 @@ class _TransactionManagerState extends State<TransactionManager> {
   }
 
   Future<void> _loadTransactions() async {
-    final dao = context.read<AppDatabase>().transactionDao;
+    final db = context.read<AppDatabase>();
+    final dao = db.transactionDao;
     final List<Transaction> txns;
     switch (_filter) {
       case _TransactionFilter.income:
@@ -66,9 +68,25 @@ class _TransactionManagerState extends State<TransactionManager> {
       case _TransactionFilter.all:
         txns = await dao.getAllTransactions();
     }
+
+    final categoryNames = <String, String>{};
+    await Future.wait(
+      txns.map((transaction) async {
+        final mapping = await dao.getCategoryForTransaction(transaction.id);
+        if (mapping == null) return;
+        final category = await db.categoryDao.getCategoryById(
+          mapping.categoryId,
+        );
+        if (category != null) {
+          categoryNames[transaction.id] = category.name;
+        }
+      }),
+    );
+
     if (!mounted) return;
     setState(() {
       _transactions = txns;
+      _transactionCategoryNames = categoryNames;
       _isLoading = false;
     });
   }
@@ -140,10 +158,7 @@ class _TransactionManagerState extends State<TransactionManager> {
                 ),
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: Text(
-                    'TRANSACTION MANAGER',
-                    style: context.colours.h2,
-                  ),
+                  child: Text('TRANSACTION MANAGER', style: context.colours.h2),
                 ),
               ),
               Padding(
@@ -200,10 +215,7 @@ class _TransactionManagerState extends State<TransactionManager> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text(
-                      'RECENT TRANSACTIONS',
-                      style: context.colours.h2,
-                    ),
+                    Text('RECENT TRANSACTIONS', style: context.colours.h2),
                   ],
                 ),
               ),
@@ -225,7 +237,7 @@ class _TransactionManagerState extends State<TransactionManager> {
                   ),
                 )
               else
-                ...grouped.entries.map((entry) {
+               + ...grouped.entries.map((entry) {
                   final date = entry.key;
                   final txns = entry.value;
                   return Column(
@@ -235,11 +247,9 @@ class _TransactionManagerState extends State<TransactionManager> {
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16.0,
                           vertical: 10,
-                          
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          
                         ),
                       ),
                       ...txns.map(
@@ -247,15 +257,18 @@ class _TransactionManagerState extends State<TransactionManager> {
                           padding: const EdgeInsets.only(bottom: 8),
                           child: MyBox(
                             key: ValueKey(t.id),
+                            transactionId: t.id,
                             text: t.shortDescription,
                             amount: t.amount.toDouble(),
                             icon: t.type == TransactionType.income
                                 ? Icons.arrow_circle_up_outlined
                                 : Icons.arrow_circle_down_outlined,
-                            category: t.type == TransactionType.income
-                                ? 'Income'
-                                : 'Expense',
+                            category:
+                                _transactionCategoryNames[t.id] ??
+                                (t.type == TransactionType.income ? 'Income'
+                                    : 'Expense'),
                             categories: const [],
+                            transactionType: t.type,
                             date:
                                 '${_dayNames[date.weekday - 1]}, ${_monthNames[date.month - 1]} ${date.day}, ${date.year}',
                             isExpense: t.type == TransactionType.expense,
