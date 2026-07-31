@@ -71,3 +71,14 @@ tags:
 - evalScript: '${output.finalMonthly = parseFloat(maestro.copiedText.replace("Monthly total: R", "").replaceAll(",", ""))}'
 - assertTrue: ${Math.abs(output.finalDaily - output.initialDaily - 123.45) < 0.01}
 - assertTrue: ${output.finalMonthly > output.initialMonthly}
+
+- scrollUntilVisible:
+    element: "RECENT TRANSACTIONS"
+    direction: DOWN
+    timeout: 5000
+- scrollUntilVisible:
+    element: "Manual income.*"
+    direction: DOWN
+    timeout: 5000
+- assertVisible: "Manual income.*"
+- assertVisible: "Manual expense.*"
