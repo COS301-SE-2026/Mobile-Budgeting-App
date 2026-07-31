@@ -12,6 +12,30 @@ tags:
 - copyTextFrom:
     text: "Monthly total: R[0-9,.]+"
 - evalScript: '${output.initialMonthly = parseFloat(maestro.copiedText.replace("Monthly total: R", "").replaceAll(",", ""))}'
+
+- tapOn: "VIEW HEALTH ANALYSIS"
+- assertVisible: "Financial Health Analysis"
+- copyTextFrom:
+    text: "R[0-9,.]+"
+    rightOf:
+      text: "Income"
+- evalScript: '${output.initialIncome = parseFloat(maestro.copiedText.replace("R", "").replaceAll(",", ""))}'
+- copyTextFrom:
+    text: "R[0-9,.]+"
+    rightOf:
+      text: "Expenses"
+- evalScript: '${output.initialExpenses = parseFloat(maestro.copiedText.replace("R", "").replaceAll(",", ""))}'
+- copyTextFrom:
+    text: "R[0-9,.]+"
+    rightOf:
+      text: "Net Balance"
+- evalScript: '${output.initialNetBalance = parseFloat(maestro.copiedText.replace("R", "").replaceAll(",", ""))}'
+- copyTextFrom:
+    text: "[0-9,.]+%"
+    rightOf:
+      text: "Budget Usage"
+- evalScript: '${output.initialBudgetUsage = parseFloat(maestro.copiedText.replace("%", "").replaceAll(",", ""))}'
+- tapOn: "CLOSE"
 - tapOn: "Tab 2 of 3"
 
 - tapOn:
@@ -71,6 +95,38 @@ tags:
 - evalScript: '${output.finalMonthly = parseFloat(maestro.copiedText.replace("Monthly total: R", "").replaceAll(",", ""))}'
 - assertTrue: ${Math.abs(output.finalDaily - output.initialDaily - 123.45) < 0.01}
 - assertTrue: ${output.finalMonthly > output.initialMonthly}
+
+- scrollUntilVisible:
+    element: "VIEW HEALTH ANALYSIS"
+    direction: UP
+    timeout: 5000
+- tapOn: "VIEW HEALTH ANALYSIS"
+- assertVisible: "Financial Health Analysis"
+- copyTextFrom:
+    text: "R[0-9,.]+"
+    rightOf:
+      text: "Income"
+- evalScript: '${output.finalIncome = parseFloat(maestro.copiedText.replace("R", "").replaceAll(",", ""))}'
+- copyTextFrom:
+    text: "R[0-9,.]+"
+    rightOf:
+      text: "Expenses"
+- evalScript: '${output.finalExpenses = parseFloat(maestro.copiedText.replace("R", "").replaceAll(",", ""))}'
+- copyTextFrom:
+    text: "R[0-9,.]+"
+    rightOf:
+      text: "Net Balance"
+- evalScript: '${output.finalNetBalance = parseFloat(maestro.copiedText.replace("R", "").replaceAll(",", ""))}'
+- copyTextFrom:
+    text: "[0-9,.]+%"
+    rightOf:
+      text: "Budget Usage"
+- evalScript: '${output.finalBudgetUsage = parseFloat(maestro.copiedText.replace("%", "").replaceAll(",", ""))}'
+- assertTrue: ${output.finalIncome > output.initialIncome}
+- assertTrue: ${output.finalExpenses > output.initialExpenses}
+- assertTrue: ${output.finalNetBalance > output.initialNetBalance}
+- assertTrue: ${output.finalBudgetUsage > output.initialBudgetUsage}
+- tapOn: "CLOSE"
 
 - scrollUntilVisible:
     element: "RECENT TRANSACTIONS"
