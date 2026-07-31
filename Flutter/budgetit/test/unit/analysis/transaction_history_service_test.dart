@@ -7,7 +7,6 @@ import 'package:budgetit/database/daos/category_dao.dart';
 import 'package:budgetit/database/daos/transaction_dao.dart';
 import 'package:budgetit/services/analysis/transaction_history_service.dart';
 
-
 import 'transaction_history_service_test.mocks.dart';
 
 @GenerateMocks([AppDatabase, TransactionDao, CategoryDao])
