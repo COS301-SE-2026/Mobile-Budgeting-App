@@ -57,7 +57,7 @@
        - The system must follow a **modular structure** so that different components can be tested, maintained, and improved independently.
 
        ## Architectural Diagram
-       ![Architectural Diagram](assets/diagrams/Architecture/Architecural%20Diagram.png)
+       ![Architectural Diagram](assets/diagrams/Architecture/SAS.drawio.png.png)
        - ## Mapping Quality Requirements to Architectural Decisions
 
 - # Technology Requirements

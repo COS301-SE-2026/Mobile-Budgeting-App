@@ -356,10 +356,11 @@ The user defines a shared goal with a name, target amount, and optional end date
 
 ### Use Case Diagrams
 
-![Alt text]()
+![Alt text](assets/diagrams/UC1.drawio.png)
+![Alt text](assets/diagrams/UC2.drawio.png)
+![Alt text](assets/diagrams/UC3.drawio.png)
 
-![Alt text]()
-![Alt text]()
+
 
 ## 5 Functional Requirements
 
@@ -515,4 +516,4 @@ Within the data layer, a deployed PostgreSQL database provides reliable and powe
 
 > **Note:** This architecture is a preliminary design and is subject to change in accordance with our agile philosophy.
 
-![Architecture Diagram](assets/diagrams/Architecture/architecture_diagram_1.drawio_1.png)
+
