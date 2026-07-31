@@ -1,44 +1,27 @@
+import 'package:budgetit/database/schema.dart';
+import 'package:budgetit/main.dart';
+import 'package:budgetit/shared/widgets/balance_card.dart';
+import 'package:budgetit/utils/app_colour.dart';
+import 'package:budgetit/views/dashboard/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:budgetit/shared/widgets/balance_card.dart';
-import 'package:budgetit/shared/widgets/bill_item.dart';
-import 'package:budgetit/shared/widgets/insight_widget.dart';
-import 'package:budgetit/shared/widgets/monthly_trend_widget.dart';
-import 'package:budgetit/shared/widgets/quick_stats_widgets.dart';
-import 'package:budgetit/shared/widgets/transaction_tile.dart';
-import 'package:budgetit/views/dashboard/dashboard.dart';
-
-import 'package:budgetit/utils/theme_provider.dart';
-import 'package:provider/provider.dart';
-import 'package:budgetit/database/app_database.dart';
-import 'package:drift/native.dart';
-
-import 'package:budgetit/database/schema.dart';
 import 'package:mockito/mockito.dart';
 
 import '../support/fixtures.dart';
 import '../support/mock_db.dart';
-import 'package:budgetit/utils/app_colour.dart';
 
-Widget _wrap(Widget child) {
-  return MultiProvider(
-    providers: [
-      ChangeNotifierProvider(create: (_) => ThemeProvider()),
-      Provider<AppDatabase>.value(
-        value: AppDatabase.forTesting(NativeDatabase.memory()),
-      ),
-    ],
-    child: MaterialApp(
-      theme:   ThemeData(extensions: [MyColours.lightTheme]),
-      home: Scaffold(body: child)
-      ),
+late MockDb _dashMock;
+
+Widget _wrapWithMockDb(Widget child) {
+  return MaterialApp(
+    theme: ThemeData(
+      extensions: <ThemeExtension<dynamic>>[MyColours.lightTheme],
+    ),
+    home: wrapWithProviders(Scaffold(body: child), db: _dashMock.db),
   );
 }
 
-late MockDb _dashMock;
 void main() {
-  // Dashboard — integration-level: full screen renders correctly
-
   group('Dashboard', () {
     setUp(() {
       _dashMock = MockDb();
@@ -53,6 +36,7 @@ void main() {
           ),
         ],
       );
+
       when(
         _dashMock.transactionDao.getTransactionsByDateRange(any, any),
       ).thenAnswer(
@@ -61,76 +45,86 @@ void main() {
     });
 
     testWidgets('renders without error', (tester) async {
-      await tester.pumpWidget(_wrap(Dashboard()));
+      await tester.pumpWidget(_wrapWithMockDb(const Dashboard()));
       await tester.pumpAndSettle();
+
       expect(find.byType(Dashboard), findsOneWidget);
     });
 
-    testWidgets(
-      'shows Recent Transactions section headings',
-      (tester) async {
-        await tester.pumpWidget(_wrap(Dashboard()));
-        await tester.pumpAndSettle();
-      
-        expect(find.text('RECENT TRANSACTIONS'), findsOneWidget);
-      },
-    );
+    testWidgets('shows dashboard headings', (tester) async {
+      await tester.pumpWidget(_wrapWithMockDb(const Dashboard()));
+      await tester.pumpAndSettle();
 
-   
-
+      expect(find.text('DASHBOARD'), findsOneWidget);
+      expect(find.text('RECENT TRANSACTIONS'), findsOneWidget);
+    });
 
     testWidgets('shows Groceries and Salary transaction tiles', (tester) async {
-      await tester.pumpWidget(_wrap(Dashboard()));
+      await tester.pumpWidget(_wrapWithMockDb(const Dashboard()));
       await tester.pumpAndSettle();
+
       expect(find.text('Groceries'), findsOneWidget);
       expect(find.text('Salary'), findsOneWidget);
     });
 
-    testWidgets('body is scrollable', (tester) async {
-      await tester.pumpWidget(_wrap(Dashboard()));
+    testWidgets('financial health analysis dialog opens and closes', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_wrapWithMockDb(const Dashboard()));
       await tester.pumpAndSettle();
+
+      expect(find.text('FINANCIAL HEALTH'), findsOneWidget);
+      expect(find.text('VIEW HEALTH ANALYSIS'), findsOneWidget);
+
+      await tester.tap(find.text('VIEW HEALTH ANALYSIS'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.text('Financial Health Analysis'), findsOneWidget);
+
+      await tester.tap(find.text('CLOSE'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AlertDialog), findsNothing);
+    });
+
+    testWidgets('body is scrollable', (tester) async {
+      await tester.pumpWidget(_wrapWithMockDb(const Dashboard()));
+      await tester.pumpAndSettle();
+
       await tester.drag(
         find.byType(SingleChildScrollView),
         const Offset(0, -400),
       );
       await tester.pumpAndSettle();
-      // No layout exception = scrolling works
+
+      expect(find.byType(Dashboard), findsOneWidget);
     });
   });
 
-  // BalanceCard
-
   group('BalanceCard', () {
-    testWidgets('shows monthly spending header text', (tester) async {
+    testWidgets('shows daily spending header text', (tester) async {
       await tester.pumpWidget(
-        _wrap(BalanceCard(selectedDate: DateTime(2026, 5, 1))),
+        _wrapWithMockDb(BalanceCard(selectedDate: DateTime(2026, 5, 1))),
       );
-      await tester.pump();
+
       expect(find.text('DAILY SPENDING FOR 1/5/2026'), findsOneWidget);
     });
 
     testWidgets('shows current spending amount', (tester) async {
       await tester.pumpWidget(
-        _wrap(BalanceCard(selectedDate: DateTime(2026, 5, 1))),
+        _wrapWithMockDb(BalanceCard(selectedDate: DateTime(2026, 5, 1))),
       );
-      await tester.pump();
+
       expect(find.text('R1,850.00'), findsOneWidget);
     });
 
     testWidgets('shows target amount', (tester) async {
       await tester.pumpWidget(
-        _wrap(BalanceCard(selectedDate: DateTime(2026, 5, 1))),
+        _wrapWithMockDb(BalanceCard(selectedDate: DateTime(2026, 5, 1))),
       );
-      await tester.pump();
+
       expect(find.text('Target: R1,950.00'), findsOneWidget);
     });
   });
-
-  // QuickStatsWidget
-
-  
-
-  // MonthlyTrendWidget
-
- 
 }
