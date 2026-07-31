@@ -1,6 +1,7 @@
 import 'package:budgetit/database/app_database.dart';
 import 'package:budgetit/database/schema.dart';
 import 'package:budgetit/utils/app_colour.dart';
+import 'package:budgetit/utils/icon_mapper.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,6 +22,9 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
   final _amountController = TextEditingController();
   TransactionType _type = TransactionType.expense;
   DateTime _date = DateTime.now();
+  List<Category> _categories = [];
+  Category? _selectedCategory;
+  bool _loadingCategories = true;
   bool _saving = false;
 
   static const _months = [
@@ -39,10 +43,43 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _loadCategories();
+  }
+
+  @override
   void dispose() {
     _descController.dispose();
     _amountController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadCategories() async {
+    setState(() => _loadingCategories = true);
+    final db = context.read<AppDatabase>();
+    final transactionType = _type;
+    final categoryType = _type == TransactionType.income
+        ? CategoryType.income
+        : CategoryType.expense;
+    final categories = await db.categoryDao.getCategoriesByType(categoryType);
+    categories.sort((a, b) => a.name.compareTo(b.name));
+    if (!mounted || transactionType != _type) return;
+    setState(() {
+      _categories = categories;
+      _selectedCategory = categories.isNotEmpty ? categories.first : null;
+      _loadingCategories = false;
+    });
+  }
+
+  void _setType(TransactionType type) {
+    if (_type == type) return;
+    setState(() {
+      _type = type;
+      _categories = [];
+      _selectedCategory = null;
+    });
+    _loadCategories();
   }
 
   Future<void> _pickDate() async {
@@ -63,13 +100,21 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
         double.parse(_amountController.text).toStringAsFixed(2),
       );
       final dao = context.read<AppDatabase>().transactionDao;
-      await dao.insertTransaction(
+      final transaction = await dao.insertTransaction(
         amount: amount,
         type: _type,
         shortDescription: _descController.text.trim(),
         transactionDate: _date,
         source: TransactionSource.manual,
       );
+      final category = _selectedCategory;
+      if (category != null) {
+        await dao.assignCategory(
+          transactionId: transaction.id,
+          categoryId: category.id,
+          assignmentSource: AssignmentSource.manual,
+        );
+      }
       if (mounted) {
         Navigator.of(context).pop();
         widget.onAdded?.call();
@@ -79,174 +124,230 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
     }
   }
 
+  //changes to this widget was AI assisted , the alert dialog
   @override
   Widget build(BuildContext context) {
-    final colours = MyColours();
+    final colours = context.colours;
+    final cardColor = colours.background;
+    final cardTextColor = colours.textPrimary;
     final dateLabel = '${_date.day} ${_months[_date.month - 1]} ${_date.year}';
 
-    return Dialog(
+    return AlertDialog(
       backgroundColor: colours.background,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: colours.secondary, width: 1.5),
+        side: BorderSide(color: Colors.black, width: 4),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
+      title: Text(
+        'Add Transaction',
+        style: TextStyle(
+          color: colours.textPrimary,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 420),
         child: Form(
           key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Add Transaction',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: colours.textPrimary,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    _TypeButton(
+                      label: 'Expense',
+                      selected: _type == TransactionType.expense,
+                      onTap: () => _setType(TransactionType.expense),
+                      colours: colours,
+                      cardColor: cardColor,
+                      cardTextColor: cardTextColor,
+                      borderColor: colours.secondary,
+                    ),
+                    const SizedBox(width: 8),
+                    _TypeButton(
+                      label: 'Income',
+                      selected: _type == TransactionType.income,
+                      onTap: () => _setType(TransactionType.income),
+                      colours: colours,
+                      cardColor: cardColor,
+                      cardTextColor: cardTextColor,
+                      borderColor: colours.secondary,
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 12),
-              Divider(
-                color: colours.secondary.withValues(alpha: 0.35),
-                height: 1,
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 14),
 
-              // Type toggle
-              Row(
-                children: [
-                  _TypeButton(
-                    label: 'Expense',
-                    selected: _type == TransactionType.expense,
-                    onTap: () =>
-                        setState(() => _type = TransactionType.expense),
-                    colours: colours,
-                  ),
-                  const SizedBox(width: 8),
-                  _TypeButton(
-                    label: 'Income',
-                    selected: _type == TransactionType.income,
-                    onTap: () => setState(() => _type = TransactionType.income),
-                    colours: colours,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              _fieldLabel('Description', colours),
-              const SizedBox(height: 6),
-              TextFormField(
-                controller: _descController,
-                style: TextStyle(color: colours.cardText, fontSize: 14),
-                decoration: _inputDecoration('e.g. Grocery run', colours),
-                validator: (v) => (v == null || v.trim().isEmpty)
-                    ? 'Description is required'
-                    : null,
-              ),
-              const SizedBox(height: 16),
-
-              _fieldLabel('Amount (R)', colours),
-              const SizedBox(height: 6),
-              TextFormField(
-                controller: _amountController,
-                style: TextStyle(color: colours.cardText, fontSize: 14),
-                decoration: _inputDecoration('0.00', colours),
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
-                ],
-                validator: (v) {
-                  if (v == null || v.isEmpty) return 'Amount is required';
-                  final parsed = double.tryParse(v);
-                  if (parsed == null || parsed <= 0) {
-                    return 'Enter a valid amount';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              _fieldLabel('Date', colours),
-              const SizedBox(height: 6),
-              GestureDetector(
-                onTap: _pickDate,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: colours.primary,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: colours.secondary, width: 1),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.calendar_today_outlined,
-                        size: 14,
-                        color: colours.cardText,
+                TextFormField(
+                  controller: _descController,
+                  style: TextStyle(color: colours.textPrimary),
+                  decoration:
+                      _inputDecoration(
+                        'e.g. Grocery run',
+                        context,
+                        cardColor,
+                        cardTextColor,
+                      ).copyWith(
+                        labelText: 'Description',
+                        labelStyle: TextStyle(color: colours.textPrimary),
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        dateLabel,
-                        style: TextStyle(color: colours.cardText, fontSize: 14),
-                      ),
-                    ],
-                  ),
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? 'Description is required'
+                      : null,
                 ),
-              ),
-              const SizedBox(height: 24),
+                const SizedBox(height: 14),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: _saving
-                        ? null
-                        : () => Navigator.of(context).pop(),
-                    child: Text(
-                      'Cancel',
-                      style: TextStyle(color: colours.secondary),
+                TextFormField(
+                  controller: _amountController,
+                  style: TextStyle(color: colours.textPrimary),
+                  decoration:
+                      _inputDecoration(
+                        '0.00',
+                        context,
+                        cardColor,
+                        cardTextColor,
+                      ).copyWith(
+                        labelText: 'Amount',
+                        labelStyle: TextStyle(color: colours.textPrimary),
+                        prefixText: 'R ',
+                        prefixStyle: TextStyle(color: colours.textPrimary),
+                      ),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'^\d*\.?\d{0,2}'),
+                    ),
+                  ],
+                  validator: (v) {
+                    if (v == null || v.isEmpty) return 'Amount is required';
+                    final parsed = double.tryParse(v);
+                    if (parsed == null || parsed <= 0) {
+                      return 'Enter a valid amount';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 14),
+
+                InkWell(
+                  onTap: _pickDate,
+                  child: InputDecorator(
+                    decoration:
+                        _inputDecoration(
+                          '',
+                          context,
+                          cardColor,
+                          cardTextColor,
+                        ).copyWith(
+                          labelText: 'Date',
+                          labelStyle: TextStyle(color: colours.textPrimary),
+                        ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_today_outlined,
+                          size: 18,
+                          color: colours.textPrimary,
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          dateLabel,
+                          style: TextStyle(color: colours.textPrimary),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: _saving ? null : _save,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: colours.secondary,
-                      foregroundColor: colours.background,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                ),
+                const SizedBox(height: 14),
+
+                DropdownButtonFormField<Category>(
+                  key: ValueKey(_selectedCategory?.id ?? _type.name),
+                  initialValue: _selectedCategory,
+                  isExpanded: true,
+                  dropdownColor: colours.background,
+                  style: TextStyle(color: colours.textPrimary),
+                  decoration:
+                      _inputDecoration(
+                        'Category',
+                        context,
+                        cardColor,
+                        cardTextColor,
+                      ).copyWith(
+                        labelText: 'Category',
+                        labelStyle: TextStyle(color: colours.textPrimary),
                       ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                    ),
-                    child: _saving
-                        ? SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                              color: colours.background,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : const Text(
-                            'Add',
-                            style: TextStyle(fontWeight: FontWeight.w600),
+                  items: _categories
+                      .map(
+                        (category) => DropdownMenuItem<Category>(
+                          value: category,
+                          child: Row(
+                            children: [
+                              Icon(
+                                category.iconData ?? Icons.category_outlined,
+                                color: colours.textPrimary,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(child: Text(category.name)),
+                            ],
                           ),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: _loadingCategories
+                      ? null
+                      : (category) {
+                          setState(() => _selectedCategory = category);
+                        },
+                  icon: _loadingCategories
+                      ? SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            color: colours.secondary,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : null,
+                  hint: Text(
+                    _loadingCategories
+                        ? 'Loading categories...'
+                        : 'No categories available',
+                    style: TextStyle(
+                      color: colours.textPrimary.withValues(alpha: 0.6),
+                    ),
                   ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
+      actions: [
+        TextButton(
+          onPressed: _saving ? null : () => Navigator.of(context).pop(),
+          child: Text('Cancel', style: TextStyle(color: colours.textPrimary)),
+        ),
+        ElevatedButton(
+          onPressed: _saving ? null : _save,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: colours.secondary,
+            foregroundColor: colours.background,
+          ),
+          child: _saving
+              ? SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    color: colours.background,
+                    strokeWidth: 2,
+                  ),
+                )
+              : const Text('Add'),
+        ),
+      ],
     );
   }
 }
@@ -256,12 +357,18 @@ class _TypeButton extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
   final MyColours colours;
-
+  final Color cardColor;
+  final Color cardTextColor;
+  final Color borderColor;
+  // defining the colours for the different modes of the buttons
   const _TypeButton({
     required this.label,
     required this.selected,
     required this.onTap,
     required this.colours,
+    required this.cardColor,
+    required this.cardTextColor,
+    required this.borderColor,
   });
 
   @override
@@ -272,15 +379,14 @@ class _TypeButton extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            color: selected ? colours.secondary : colours.primary,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: colours.secondary),
+            color: selected ? cardTextColor : cardColor,
+            border: Border.all(color: borderColor, width: selected ? 2 : 1),
           ),
           alignment: Alignment.center,
           child: Text(
             label,
-            style: TextStyle(
-              color: selected ? colours.background : colours.textPrimary,
+            style: colours.h2.copyWith(
+              color: selected ? cardColor : cardTextColor,
               fontWeight: FontWeight.w500,
               fontSize: 14,
             ),
@@ -291,36 +397,40 @@ class _TypeButton extends StatelessWidget {
   }
 }
 
-Widget _fieldLabel(String text, MyColours colours) => Text(
-  text,
-  style: TextStyle(
-    fontSize: 12,
+// input field decoration fixed
+InputDecoration _inputDecoration(
+  String hint,
+  BuildContext context,
+  Color fillColor,
+  Color textColor,
+) => InputDecoration(
+  hintText: hint,
+  hintStyle: context.colours.h2.copyWith(
+    color: textColor.withValues(alpha: 0.55),
+    fontSize: 14,
     fontWeight: FontWeight.w500,
-    color: colours.secondary,
+  ),
+  filled: true,
+  fillColor: fillColor,
+  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+  border: OutlineInputBorder(
+    borderRadius: BorderRadius.zero,
+    borderSide: BorderSide(color: context.colours.secondary),
+  ),
+  enabledBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.zero,
+    borderSide: BorderSide(color: context.colours.secondary),
+  ),
+  focusedBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.zero,
+    borderSide: BorderSide(color: context.colours.secondary, width: 2),
+  ),
+  errorBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.zero,
+    borderSide: BorderSide(color: context.colours.error, width: 4),
+  ),
+  focusedErrorBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.zero,
+    borderSide: BorderSide(color: context.colours.error, width: 4),
   ),
 );
-
-InputDecoration _inputDecoration(String hint, MyColours colours) =>
-    InputDecoration(
-      hintText: hint,
-      hintStyle: TextStyle(color: MyColours().cardText.withValues(alpha: 0.5)),
-      filled: true,
-      fillColor: colours.primary,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: colours.secondary, width: 1),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: colours.secondary, width: 1),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: colours.secondary, width: 1.5),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Colors.redAccent, width: 1),
-      ),
-    );

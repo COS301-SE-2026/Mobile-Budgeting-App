@@ -2,6 +2,7 @@
 # Run all commands from the root.
 # Flutter app lives at Flutter/budgetit/
 # All Flutter commands use FVM to ensure the pinned version is used.
+# Ensure this path is in your systems environmental variables: 'C:\Users\_YOUR_YOU_YOURS_\AppData\Local\Pub\Cache\bin'
 
 FLUTTER_DIR = Flutter/budgetit
 
@@ -13,8 +14,22 @@ flutter-get:
 flutter-run:
 	cd $(FLUTTER_DIR) && fvm flutter run
 
+
+
+
+
+
+flutter-bsg:
+	cd $(FLUTTER_DIR) && dart run build_runner build -d && fvm flutter run -t lib/bsg/main.dart
+
 flutter-run-android:
 	cd $(FLUTTER_DIR) && fvm flutter run -d android
+
+flutter-pages-build:
+	cd $(FLUTTER_DIR) && fvm flutter build web --target=lib/landing_page/main.dart
+
+flutter-pages-run:
+	cd $(FLUTTER_DIR) && flutter run -d chrome --target=lib/landing_page/main.dart
 
 flutter-test:
 	cd $(FLUTTER_DIR) && fvm flutter test test/
@@ -32,7 +47,8 @@ flutter-test-coverage:
 	cd $(FLUTTER_DIR) && fvm flutter test --coverage test/unit/ test/widget/ test/integration/
 
 flutter-build-apk:
-	cd $(FLUTTER_DIR) && fvm flutter build apk --release
+	cd $(FLUTTER_DIR) && fvm flutter build apk --release --no-tree-shake-icons
+
 
 flutter-build-appbundle:
 	cd $(FLUTTER_DIR) && fvm flutter build appbundle --release
@@ -55,6 +71,7 @@ flutter-update:
 # ── Setup ──────────────────────────────────────────────────
 
 setup-flutter:
+	cd $(FLUTTER_DIR)
 	@echo "Activating FVM..."
 	dart pub global activate fvm
 	@echo "Installing pinned Flutter version..."

@@ -13,9 +13,9 @@ class BoxPopupMenu extends StatelessWidget {
     return PopupMenuButton<BoxMenuAction>(
       onSelected: onSelected,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: MyColours().secondary,
+      color: context.colours.secondary,
       elevation: 6,
-      icon: Icon(Icons.more_vert, color: MyColours().background),
+      icon: Icon(Icons.more_vert, color: context.colours.background),
       itemBuilder: (context) => [
         PopupMenuItem(
           value: BoxMenuAction.details,
@@ -52,7 +52,7 @@ class _MenuRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isDestructive ? Colors.redAccent : MyColours().textPrimary;
+    final color = isDestructive ? Colors.redAccent : context.colours.textPrimary;
     return Row(
       children: [
         Icon(icon, size: 18, color: color),

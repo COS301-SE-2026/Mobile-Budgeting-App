@@ -4,6 +4,8 @@ Flutter/budgetit/macos/*
 Flutter/budgetit/windows/*
 Flutter/budgetit/android/*
 Flutter/budgetit/web/*
+flutter_*.log
+docker/flutter/.env
 
 
 
@@ -14,4 +16,8 @@ Flutter/budgetit/flutter/
 Flutter/budgetit/ios/
 Flutter/budgetit/linux/
 artifacts/
-backend/.env
+docker/flutter/.env
+Flutter\budgetit\lib\bsg\main.directories.g.dart
+
+**/.env
+**/.env.*
