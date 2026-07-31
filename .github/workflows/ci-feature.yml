@@ -316,16 +316,15 @@ jobs:
           name: budgetit-release-${{ github.ref_name }}
           path: Flutter/budgetit/build/app/outputs/flutter-apk/app-release.apk
           retention-days: 90
-          steps:
-            - name: Upload APK to S3
-              env:
-                AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-                AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-                AWS_DEFAULT_REGION: eu-north-1
-              run: |
-                aws s3 cp Flutter/budgetit/build/app/outputs/flutter-apk/app-release.apk \
-                  s3://budgetit-apk-releases/apk-releases/latest.apk
-
+        steps:
+          - name: Upload APK to S3
+            env:
+              AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+              AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+              AWS_DEFAULT_REGION: eu-north-1
+            run: 
+              aws s3 cp Flutter/budgetit/build/app/outputs/flutter-apk/app-release.apk \
+              s3://budgetit-apk-releases/apk-releases/latest.apk
 
       - name: Upload APK artifact (main branch pushes)
         if: github.ref == 'refs/heads/main' && github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/')
