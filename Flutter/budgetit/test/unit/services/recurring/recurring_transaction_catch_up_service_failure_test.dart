@@ -1,0 +1,443 @@
+import 'package:budgetit/database/schema.dart';
+import 'package:budgetit/models/recurring/recurring_transaction_catch_up_result.dart';
+import 'package:budgetit/services/recurring/recurring_transaction_catch_up_service.dart';
+import '../../../support/fixtures.dart';
+import 'package:decimal/decimal.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/mockito.dart';
+
+import '../../database/helpers.dart';
+import '../../database/mock_daos.mocks.dart';
+
+class MockCatchUpDatabase extends MockAppDatabase {
+  @override
+  Future<T> transaction<T>(
+    Future<T> Function()? action, {
+    bool? requireNew = false,
+  }) => action!();
+}
+
+void main() {
+  setUpAll(configureSqliteForTests);
+
+  final testToday = DateTime(2030, 7, 28);
+  final testTodayEndOfDay = DateTime(2030, 7, 28, 23, 59, 59, 999, 999);
+
+  group('RecurringTransactionCatchUpService failure paths', () {
+    test('rolls back if the transaction insert fails', () async {
+      final recurring = recurringTransactionFixture(
+        id: 'rec-broken-rent',
+        shortDescription: 'Broken rent',
+        nextTransactionDate: testToday,
+        startDate: testToday,
+      );
+
+      final database = MockCatchUpDatabase();
+      final transactionDao = MockTransactionDao();
+      final recurringTransactionDao = MockRecurringTransactionDao();
+      final service = RecurringTransactionCatchUpService(database);
+
+      when(database.transactionDao).thenReturn(transactionDao);
+      when(
+        database.recurringTransactionDao,
+      ).thenReturn(recurringTransactionDao);
+      when(
+        recurringTransactionDao.getDueRecurringTransactions(testTodayEndOfDay),
+      ).thenAnswer((_) async => [recurring]);
+      when(
+        transactionDao.insertTransaction(
+          amount: Decimal.parse('10.00'),
+          type: TransactionType.expense,
+          shortDescription: 'Broken rent',
+          longDescription: null,
+          transactionDate: testToday,
+          source: TransactionSource.recurring,
+          currency: 'ZAR',
+          recurringId: recurring.id,
+        ),
+      ).thenThrow(Exception('insert failed'));
+
+      final result = await service.catchUpDueRecurringTransactions(
+        trigger: CatchUpTrigger.test,
+        localTodayOverride: testToday,
+      );
+
+      expect(result.status, equals(CatchUpRunStatus.completed));
+      expect(result.completedWithFailures, isTrue);
+      expect(result.completedSuccessfully, isFalse);
+      expect(result.templateCount, equals(1));
+      expect(result.attemptedOccurrenceCount, equals(1));
+      expect(result.successfulOccurrenceCount, equals(0));
+      expect(result.failedOccurrenceCount, equals(1));
+
+      final templateResult = result.templates.single;
+      expect(templateResult.recurringTransactionId, equals(recurring.id));
+      expect(templateResult.shortDescription, equals('Broken rent'));
+      expect(templateResult.initialNextTransactionDate, equals(testToday));
+      expect(templateResult.finalNextTransactionDate, equals(testToday));
+      expect(templateResult.attemptedOccurrenceCount, equals(1));
+      expect(templateResult.successfulOccurrenceCount, equals(0));
+      expect(templateResult.failedOccurrenceCount, equals(1));
+
+      final occurrence = templateResult.occurrences.single;
+      expect(occurrence.status, equals(OccurrenceStatus.failed));
+      expect(occurrence.dueDate, equals(testToday));
+      expect(occurrence.transactionId, isNull);
+      expect(occurrence.failure, isNotNull);
+      expect(
+        occurrence.failure!.type,
+        equals(CatchUpFailureType.transactionInsertFailed),
+      );
+
+      verify(
+        transactionDao.insertTransaction(
+          amount: Decimal.parse('10.00'),
+          type: TransactionType.expense,
+          shortDescription: 'Broken rent',
+          longDescription: null,
+          transactionDate: testToday,
+          source: TransactionSource.recurring,
+          currency: 'ZAR',
+          recurringId: recurring.id,
+        ),
+      ).called(1);
+      verifyNever(
+        transactionDao.assignCategory(
+          transactionId: 'transaction-1',
+          categoryId: 'category-1',
+          assignmentSource: AssignmentSource.manual,
+        ),
+      );
+      verifyNever(recurringTransactionDao.advanceNextDate(recurring.id));
+    });
+
+    test('rolls back when the category assignment fails', () async {
+      final category = categoryFixture(
+        id: 'cat-food',
+        name: 'Food',
+        type: CategoryType.expense,
+      );
+      final recurring = recurringTransactionFixture(
+        id: 'rec-lunch',
+        shortDescription: 'Lunch',
+        amount: Decimal.parse('18.50'),
+        nextTransactionDate: testToday,
+        startDate: testToday,
+        categoryId: category.id,
+      );
+      final transactionFixtureValue = transactionFixture(
+        id: 'txn-lunch',
+        amount: Decimal.parse('18.50'),
+        type: TransactionType.expense,
+        shortDescription: 'Lunch',
+        transactionDate: testToday,
+        source: TransactionSource.recurring,
+      );
+
+      final database = MockCatchUpDatabase();
+      final transactionDao = MockTransactionDao();
+      final recurringTransactionDao = MockRecurringTransactionDao();
+      final service = RecurringTransactionCatchUpService(database);
+
+      when(database.transactionDao).thenReturn(transactionDao);
+      when(
+        database.recurringTransactionDao,
+      ).thenReturn(recurringTransactionDao);
+      when(
+        recurringTransactionDao.getDueRecurringTransactions(testTodayEndOfDay),
+      ).thenAnswer((_) async => [recurring]);
+      when(
+        transactionDao.insertTransaction(
+          amount: Decimal.parse('18.50'),
+          type: TransactionType.expense,
+          shortDescription: 'Lunch',
+          longDescription: null,
+          transactionDate: testToday,
+          source: TransactionSource.recurring,
+          currency: 'ZAR',
+          recurringId: recurring.id,
+        ),
+      ).thenAnswer((_) async => transactionFixtureValue);
+      when(
+        transactionDao.assignCategory(
+          transactionId: 'txn-lunch',
+          categoryId: 'cat-food',
+          assignmentSource: AssignmentSource.manual,
+        ),
+      ).thenThrow(Exception('category assignment failed'));
+
+      final result = await service.catchUpDueRecurringTransactions(
+        trigger: CatchUpTrigger.test,
+        localTodayOverride: testToday,
+      );
+
+      expect(result.status, equals(CatchUpRunStatus.completed));
+      expect(result.completedWithFailures, isTrue);
+      expect(result.completedSuccessfully, isFalse);
+      expect(result.templateCount, equals(1));
+      expect(result.attemptedOccurrenceCount, equals(1));
+      expect(result.successfulOccurrenceCount, equals(0));
+      expect(result.failedOccurrenceCount, equals(1));
+
+      final templateResult = result.templates.single;
+      expect(templateResult.recurringTransactionId, equals(recurring.id));
+      expect(templateResult.shortDescription, equals('Lunch'));
+      expect(templateResult.initialNextTransactionDate, equals(testToday));
+      expect(templateResult.finalNextTransactionDate, equals(testToday));
+      expect(templateResult.attemptedOccurrenceCount, equals(1));
+      expect(templateResult.successfulOccurrenceCount, equals(0));
+      expect(templateResult.failedOccurrenceCount, equals(1));
+
+      final occurrence = templateResult.occurrences.single;
+      expect(occurrence.status, equals(OccurrenceStatus.failed));
+      expect(occurrence.dueDate, equals(testToday));
+      expect(occurrence.transactionId, isNull);
+      expect(occurrence.failure, isNotNull);
+      expect(
+        occurrence.failure!.type,
+        equals(CatchUpFailureType.categoryAssignmentFailed),
+      );
+
+      verify(
+        transactionDao.insertTransaction(
+          amount: Decimal.parse('18.50'),
+          type: TransactionType.expense,
+          shortDescription: 'Lunch',
+          longDescription: null,
+          transactionDate: testToday,
+          source: TransactionSource.recurring,
+          currency: 'ZAR',
+          recurringId: recurring.id,
+        ),
+      ).called(1);
+      verify(
+        transactionDao.assignCategory(
+          transactionId: 'txn-lunch',
+          categoryId: 'cat-food',
+          assignmentSource: AssignmentSource.manual,
+        ),
+      ).called(1);
+      verifyNever(recurringTransactionDao.advanceNextDate(recurring.id));
+    });
+
+    test('stops when the next date fails to advance', () async {
+      final recurring = recurringTransactionFixture(
+        id: 'rec-advance',
+        shortDescription: 'Gym membership',
+        amount: Decimal.parse('25.00'),
+        nextTransactionDate: testToday,
+        startDate: testToday,
+      );
+      final transactionFixtureValue = transactionFixture(
+        id: 'txn-advance',
+        amount: Decimal.parse('25.00'),
+        type: TransactionType.expense,
+        shortDescription: 'Gym membership',
+        transactionDate: testToday,
+        source: TransactionSource.recurring,
+      );
+
+      final database = MockCatchUpDatabase();
+      final transactionDao = MockTransactionDao();
+      final recurringTransactionDao = MockRecurringTransactionDao();
+      final service = RecurringTransactionCatchUpService(database);
+
+      when(database.transactionDao).thenReturn(transactionDao);
+      when(
+        database.recurringTransactionDao,
+      ).thenReturn(recurringTransactionDao);
+      when(
+        recurringTransactionDao.getDueRecurringTransactions(testTodayEndOfDay),
+      ).thenAnswer((_) async => [recurring]);
+      when(
+        transactionDao.insertTransaction(
+          amount: Decimal.parse('25.00'),
+          type: TransactionType.expense,
+          shortDescription: 'Gym membership',
+          longDescription: null,
+          transactionDate: testToday,
+          source: TransactionSource.recurring,
+          currency: 'ZAR',
+          recurringId: recurring.id,
+        ),
+      ).thenAnswer((_) async => transactionFixtureValue);
+      when(
+        recurringTransactionDao.advanceNextDate(recurring.id),
+      ).thenThrow(Exception('advance failed'));
+
+      final result = await service.catchUpDueRecurringTransactions(
+        trigger: CatchUpTrigger.test,
+        localTodayOverride: testToday,
+      );
+
+      expect(result.status, equals(CatchUpRunStatus.completed));
+      expect(result.completedWithFailures, isTrue);
+      expect(result.completedSuccessfully, isFalse);
+      expect(result.templateCount, equals(1));
+      expect(result.attemptedOccurrenceCount, equals(1));
+      expect(result.successfulOccurrenceCount, equals(0));
+      expect(result.failedOccurrenceCount, equals(1));
+
+      final templateResult = result.templates.single;
+      expect(templateResult.recurringTransactionId, equals(recurring.id));
+      expect(templateResult.shortDescription, equals('Gym membership'));
+      expect(templateResult.initialNextTransactionDate, equals(testToday));
+      expect(templateResult.finalNextTransactionDate, equals(testToday));
+      expect(templateResult.attemptedOccurrenceCount, equals(1));
+      expect(templateResult.successfulOccurrenceCount, equals(0));
+      expect(templateResult.failedOccurrenceCount, equals(1));
+
+      final occurrence = templateResult.occurrences.single;
+      expect(occurrence.status, equals(OccurrenceStatus.failed));
+      expect(occurrence.dueDate, equals(testToday));
+      expect(occurrence.transactionId, isNull);
+      expect(occurrence.failure, isNotNull);
+      expect(
+        occurrence.failure!.type,
+        equals(CatchUpFailureType.advanceNextDateFailed),
+      );
+
+      verify(
+        transactionDao.insertTransaction(
+          amount: Decimal.parse('25.00'),
+          type: TransactionType.expense,
+          shortDescription: 'Gym membership',
+          longDescription: null,
+          transactionDate: testToday,
+          source: TransactionSource.recurring,
+          currency: 'ZAR',
+          recurringId: recurring.id,
+        ),
+      ).called(1);
+      verifyNever(
+        transactionDao.assignCategory(
+          transactionId: 'txn-advance',
+          categoryId: 'category-1',
+          assignmentSource: AssignmentSource.manual,
+        ),
+      );
+      verify(recurringTransactionDao.advanceNextDate(recurring.id)).called(1);
+    });
+
+    test(
+      'continues with later templates after an earlier template fails',
+      () async {
+        final failedRecurring = recurringTransactionFixture(
+          id: 'rec-failed-first',
+          shortDescription: 'Failed first template',
+          nextTransactionDate: testToday,
+          startDate: testToday,
+        );
+        final successfulRecurring = recurringTransactionFixture(
+          id: 'rec-successful-second',
+          shortDescription: 'Successful second template',
+          nextTransactionDate: testToday,
+          startDate: testToday,
+        );
+        final successfulTransaction = transactionFixture(
+          id: 'txn-successful-second',
+          amount: successfulRecurring.amount,
+          type: successfulRecurring.type,
+          shortDescription: successfulRecurring.shortDescription,
+          transactionDate: testToday,
+          source: TransactionSource.recurring,
+        );
+        final advancedSuccessfulRecurring = successfulRecurring.copyWith(
+          nextTransactionDate: DateTime(2030, 8, 28),
+        );
+
+        final database = MockCatchUpDatabase();
+        final transactionDao = MockTransactionDao();
+        final recurringTransactionDao = MockRecurringTransactionDao();
+        final service = RecurringTransactionCatchUpService(database);
+
+        when(database.transactionDao).thenReturn(transactionDao);
+        when(
+          database.recurringTransactionDao,
+        ).thenReturn(recurringTransactionDao);
+        when(
+          recurringTransactionDao.getDueRecurringTransactions(
+            testTodayEndOfDay,
+          ),
+        ).thenAnswer((_) async => [failedRecurring, successfulRecurring]);
+        when(
+          transactionDao.insertTransaction(
+            amount: failedRecurring.amount,
+            type: failedRecurring.type,
+            shortDescription: failedRecurring.shortDescription,
+            longDescription: failedRecurring.longDescription,
+            transactionDate: testToday,
+            source: TransactionSource.recurring,
+            currency: failedRecurring.currency,
+            recurringId: failedRecurring.id,
+          ),
+        ).thenThrow(Exception('first template failed'));
+        when(
+          transactionDao.insertTransaction(
+            amount: successfulRecurring.amount,
+            type: successfulRecurring.type,
+            shortDescription: successfulRecurring.shortDescription,
+            longDescription: successfulRecurring.longDescription,
+            transactionDate: testToday,
+            source: TransactionSource.recurring,
+            currency: successfulRecurring.currency,
+            recurringId: successfulRecurring.id,
+          ),
+        ).thenAnswer((_) async => successfulTransaction);
+        when(
+          recurringTransactionDao.advanceNextDate(successfulRecurring.id),
+        ).thenAnswer((_) async => advancedSuccessfulRecurring);
+
+        final result = await service.catchUpDueRecurringTransactions(
+          trigger: CatchUpTrigger.test,
+          localTodayOverride: testToday,
+        );
+
+        expect(result.status, equals(CatchUpRunStatus.completed));
+        expect(result.completedWithFailures, isTrue);
+        expect(result.templates, hasLength(2));
+        expect(result.templates[0].recurringTransactionId, failedRecurring.id);
+        expect(result.templates[0].failedOccurrenceCount, equals(1));
+        expect(
+          result.templates[1].recurringTransactionId,
+          successfulRecurring.id,
+        );
+        expect(result.templates[1].successfulOccurrenceCount, equals(1));
+        expect(result.failedOccurrenceCount, equals(1));
+        expect(result.successfulOccurrenceCount, equals(1));
+        verify(
+          recurringTransactionDao.advanceNextDate(successfulRecurring.id),
+        ).called(1);
+      },
+    );
+
+    test('marks an unexpected error as unknown', () async {
+      final database = MockCatchUpDatabase();
+      final transactionDao = MockTransactionDao();
+      final recurringTransactionDao = MockRecurringTransactionDao();
+      final service = RecurringTransactionCatchUpService(database);
+
+      when(database.transactionDao).thenReturn(transactionDao);
+      when(
+        database.recurringTransactionDao,
+      ).thenReturn(recurringTransactionDao);
+      when(
+        recurringTransactionDao.getDueRecurringTransactions(testTodayEndOfDay),
+      ).thenThrow(StateError('unexpected failure'));
+
+      final result = await service.catchUpDueRecurringTransactions(
+        trigger: CatchUpTrigger.test,
+        localTodayOverride: testToday,
+      );
+
+      expect(result.status, equals(CatchUpRunStatus.completed));
+      expect(result.completedWithFailures, isTrue);
+      expect(result.completedSuccessfully, isFalse);
+      expect(result.templateCount, equals(0));
+      expect(result.templates, isEmpty);
+      expect(result.attemptedOccurrenceCount, equals(0));
+      expect(result.successfulOccurrenceCount, equals(0));
+      expect(result.failedOccurrenceCount, equals(0));
+    });
+  });
+}

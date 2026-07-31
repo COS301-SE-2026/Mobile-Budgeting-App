@@ -2,6 +2,7 @@ import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
 import 'package:budgetit/shared/widgets/coming_soon_page.dart';
 import 'package:budgetit/shared/widgets/profile_page.dart';
+import 'package:budgetit/shared/widgets/help_menu_page.dart';
 import 'package:provider/provider.dart';
 import 'package:budgetit/utils/theme_provider.dart';
 
@@ -32,36 +33,37 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: context.colours.background,
       elevation: 0,
-
       leading: IconButton(
-        icon: 
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: context.colours.blue,
-              border: Border.all(color: Colors.black, width: 4),
-            ),
-          child: Icon(
-            Icons.menu,
+        tooltip: 'Help menu',
+        icon: Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: context.colours.blue,
+            border: Border.all(color: Colors.black, width: 4),
+          ),
+          child: const Icon(
+            Icons.help_outline,
             color: Colors.black,
-            
           ),
-          ),
+        ),
         onPressed: () {
-          _openComingSoonPage(
+          Navigator.push(
             context,
-            title: 'Menu Coming Soon',
-            message:
-                'The main menu is still being prepared. More navigation options will be added here soon.',
-            icon: Icons.menu,
+            MaterialPageRoute(builder: (_) => const HelpMenuPage()),
           );
         },
       ),
 
-      title: Text(
-        "BudgetIT",
-        style: context.colours.title,
+      title: FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.centerLeft,
+        child: Text(
+          "Budget IT",
+          softWrap: false,
+          overflow: TextOverflow.visible,
+          style: context.colours.title.copyWith(fontSize: 14),
+        ),
       ),
       actions: [
         IconButton(
