@@ -6,6 +6,7 @@ import 'package:budgetit/shared/widgets/box.dart';
 import 'package:budgetit/shared/widgets/edit_transaction_dialogue.dart';
 import 'package:budgetit/shared/widgets/searchbox.dart';
 import 'package:budgetit/shared/widgets/transac_menu.dart';
+
 import 'package:budgetit/views/transaction_manager/transaction.manager.dart';
 import 'package:provider/provider.dart';
 import 'package:budgetit/utils/theme_provider.dart';
@@ -140,7 +141,7 @@ void main() {
       _usePhoneSize(tester);
       await tester.pumpWidget(_screen(const TransactionManager()));
       await tester.pump();
-      expect(find.text('RECENT TRANSACTIONS'), findsOneWidget);
+      expect(find.text('Recent Transactions'), findsOneWidget);
     });
 
     testWidgets('shows date header with day and date', (tester) async {
@@ -228,6 +229,7 @@ void main() {
       await tester.pump();
       expect(find.text('All'), findsOneWidget);
     });
+
   });
 
 

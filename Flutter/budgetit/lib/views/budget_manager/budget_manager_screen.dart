@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:decimal/decimal.dart';
-import '../graphical_reports/graphical_reports_screen.dart';
 import '../../utils/app_colour.dart';
 import '../financial_reports/financial_report_screen.dart';
 import '../../database/app_database.dart';
@@ -299,6 +298,11 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(
+                  "BUDGET MANAGER",
+                  style: context.colours.h2,
+                ),
+                const SizedBox(height: 14),
                 _summaryCard(),
 
                 const SizedBox(height: 14),
@@ -371,11 +375,16 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     final budgets = snapshot.data ?? [];
 
                     if (budgets.isEmpty) {
+                      final cardColor =
+                          Theme.of(context).brightness == Brightness.light
+                              ? context.colours.background
+                              : context.colours.primary;
+
                       return Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(18),
                         decoration: BoxDecoration(
-                          color: context.colours.primary,
+                          color: cardColor,
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
                             color: context.colours.secondary,
@@ -440,49 +449,21 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                 SizedBox(
                   width: double.infinity,
                   height: 48,
-                  child: OutlinedButton.icon(
-                    onPressed: () async {
-                      await Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              GraphicalReportsScreen(database: widget.database),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.bar_chart_outlined),
-                    label: const Text(
-                      'VIEW GRAPHICAL REPORTS',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1,
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: context.colours.textPrimary,
-                      side: BorderSide(color: context.colours.secondary, width: 1.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
                   child: ElevatedButton.icon(
                     onPressed: () {
                       _showCreateBudgetDialog(context);
                     },
-                   
+                   //making the colour change in light mode 
                     label: Text(
                       "CREATE NEW BUDGET",
-                      style: context.colours.b3,
+                      style: context.colours.b3.copyWith(
+                        color: context.colours.secondary,
+                      ),
                     ),
 
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: context.colours.secondary,
-                      foregroundColor: context.colours.background,
+                      backgroundColor: context.colours.background,
+                      foregroundColor: context.colours.secondary,
                       shape: RoundedRectangleBorder(
                        // borderRadius: BorderRadius.circular(10),
                        side: BorderSide(color: Colors.black, width: 4),
@@ -515,6 +496,12 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
     return FutureBuilder<_BudgetSummary>(
       future: _budgetSummaryFuture,
       builder: (context, snapshot) {
+        final cardColor = Theme.of(context).brightness == Brightness.light
+            ? context.colours.secondary
+            : context.colours.blendedprimary;
+        final cardTextColor = Theme.of(context).brightness == Brightness.light
+            ? context.colours.background
+            : context.colours.secondary;
         final summary = snapshot.data;
 
         final totalSpent = summary?.totalSpent ?? 0;
@@ -524,7 +511,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
           width: double.infinity,
           padding: const EdgeInsets.all(22),
           decoration: BoxDecoration(
-            color: context.colours.blendedprimary,
+            color: cardColor,
             border: Border.all(color: Colors.black, width: 4),
             boxShadow: [
               BoxShadow(
@@ -539,17 +526,23 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
             children: [
               Text(
                 "MONTHLY BUDGET OVERVIEW",
-                style: context.colours.b1,
+                style: context.colours.b1.copyWith(
+                  color: cardTextColor,
+                ),
               ),
               const SizedBox(height: 18),
               Text(
                 _formatCurrency(totalSpent),
-                style: context.colours.bigDisplay,
+                style: context.colours.bigDisplay.copyWith(
+                  color: cardTextColor,
+                ),
               ),
               const SizedBox(height: 18),
               Text(
                 "Budget target: ${_formatCurrency(totalTarget)}",
-                style: context.colours.b1,
+                style: context.colours.b1.copyWith(
+                  color: cardTextColor,
+                ),
               ),
             ],
           ),
@@ -569,7 +562,17 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
     required VoidCallback onDelete,
     bool isOverLimit = false,
   }) {
+    //i used AAI to figure out how these theme colours can be made when modes changes
     final double progress = spent / limit;
+    final cardColor = Theme.of(context).brightness == Brightness.light
+        ? context.colours.secondary
+        : context.colours.blendedprimary;
+    final cardTextColor = Theme.of(context).brightness == Brightness.light
+        ? context.colours.background
+        : context.colours.secondary;
+    final progressTrackColor = Theme.of(context).brightness == Brightness.light
+        ? context.colours.background
+        : context.colours.secondary;
 
     return InkWell( 
       onTap: onTap,
@@ -588,9 +591,8 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
         padding: const EdgeInsets.all(14),
 
         decoration: BoxDecoration(
-          color: context.colours.blendedprimary,
-          
-          border: Border.all(color: Colors.black, width: 4),
+          color : cardColor,
+          border : Border.all(color:Colors.black,width:4),
         ),
         child: Column(
           children: [
@@ -626,7 +628,11 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     color: context.colours.secondary,
                     border: Border.all(color: Colors.black, width: 2),
                   ),
-                  child: Icon(icon, color: Colors.black, size: 20),
+                  child: Icon(
+                    icon,
+                    color: context.colours.background,
+                    size: 20,
+                  ),
                 ),
 
                 const SizedBox(width: 12),
@@ -637,11 +643,15 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     children: [
                       Text(
                         title,
-                        style: context.colours.budgetheader,
+                        style: context.colours.budgetheader.copyWith(
+                          color: cardTextColor,
+                        ),
                       ),
                       Text(
                         subtitle,
-                        style: context.colours.b5,
+                        style: context.colours.b5.copyWith(
+                          color: cardTextColor,
+                        ),
                       ),
                     ],
                   ),
@@ -652,7 +662,9 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                   children: [
                     Text(
                       "R${spent.toInt()} / R${limit.toInt()}",
-                      style: context.colours.b4,
+                      style: context.colours.b4.copyWith(
+                        color: cardTextColor,
+                      ),
                     ),
                     const SizedBox(width: 10),
                     InkWell(
@@ -676,13 +688,17 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
 
             const SizedBox(height: 12),
 
-            ClipRRect(
-             
-              child: LinearProgressIndicator(
-                value: progress > 1 ? 1 : progress,
-                minHeight: 6,
-                backgroundColor: context.colours.secondary,
-                valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: progressTrackColor, width: 1.5),
+              ),
+              child: ClipRRect(
+                child: LinearProgressIndicator (
+                  value: progress>1 ? 1 : progress,
+                  minHeight: 6,
+                  backgroundColor: progressTrackColor,
+                  valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+                ),
               ),
             ),
           ],
