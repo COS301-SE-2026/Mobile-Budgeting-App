@@ -6,11 +6,12 @@ import 'add_edit_recurring_transaction_dialog.dart';
 import 'recurring_transaction_card.dart';
 
 class RecurringTransactionsDropdown extends StatefulWidget { const RecurringTransactionsDropdown({super.key});
+
   @override
   State<RecurringTransactionsDropdown> createState() => _RecurringTransactionsDropdownState();
 }
 
-class _RecurringTransactionsDropdown extends State<RecurringTransactionsDropdown> {
+class _RecurringTransactionsDropdownState extends State<RecurringTransactionsDropdown> {
   bool _expanded = false;
   bool _isLoading = true;
   List<RecurringTransaction> _recurringTransactions = [];
@@ -45,7 +46,7 @@ class _RecurringTransactionsDropdown extends State<RecurringTransactionsDropdown
       builder: (_) => AddEditRecurringTransactionDialog(
         existing: rt,
         onSaved: _load,
-        onDelted: _load,
+        onDeleted: _load,
       ),
     );
   }
