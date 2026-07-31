@@ -1,0 +1,10 @@
+appId: com.example.budgetit
+name: Authenticated User Opens Help Menu
+tags:
+  - smoke
+  - authenticated
+---
+- runFlow:
+    file: "../auth/login.yaml"
+- runFlow:
+    file: "help_menu.yaml"

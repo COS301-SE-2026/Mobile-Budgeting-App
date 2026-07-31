@@ -1,0 +1,10 @@
+appId: com.example.budgetit
+name: Guest Opens Help Menu
+tags:
+  - smoke
+  - guest
+---
+- runFlow:
+    file: "../auth/guest.yaml"
+- runFlow:
+    file: "help_menu.yaml"

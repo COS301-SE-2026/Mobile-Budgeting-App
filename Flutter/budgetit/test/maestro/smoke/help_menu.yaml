@@ -1,0 +1,13 @@
+appId: com.example.budgetit
+name: Open Help Menu
+tags:
+  - smoke
+---
+# Expects the app to already be on the dashboard after authentication.
+- assertVisible: "Help menu"
+- tapOn: "Help menu"
+- extendedWaitUntil:
+    visible: "Help Menu"
+    timeout: 5000
+- assertVisible: "Help Menu"
+- assertVisible: "HELP MENU"
