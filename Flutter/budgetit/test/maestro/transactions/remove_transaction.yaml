@@ -1,0 +1,96 @@
+appId: com.example.budgetit
+name: Remove Manual Expense and Income Transactions
+tags:
+  - transactions
+  - destructive
+---
+- runFlow:
+    file: "add_transaction.yaml"
+
+- scrollUntilVisible:
+    element: "DAILY SPENDING FOR.*"
+    direction: UP
+    timeout: 5000
+- copyTextFrom:
+    text: "R[0-9,.]+"
+    index: 0
+- evalScript: '${output.beforeDeleteDaily = parseFloat(maestro.copiedText.replace("R", "").replaceAll(",", ""))}'
+- copyTextFrom:
+    text: "Monthly total: R[0-9,.]+"
+- evalScript: '${output.beforeDeleteMonthly = parseFloat(maestro.copiedText.replace("Monthly total: R", "").replaceAll(",", ""))}'
+- tapOn: "VIEW HEALTH ANALYSIS"
+- assertVisible: "Financial Health Analysis"
+- copyTextFrom:
+    text: "R[0-9,.]+"
+    rightOf:
+      text: "Income"
+- evalScript: '${output.beforeDeleteIncome = parseFloat(maestro.copiedText.replace("R", "").replaceAll(",", ""))}'
+- copyTextFrom:
+    text: "R[0-9,.]+"
+    rightOf:
+      text: "Expenses"
+- evalScript: '${output.beforeDeleteExpenses = parseFloat(maestro.copiedText.replace("R", "").replaceAll(",", ""))}'
+- copyTextFrom:
+    text: "R[0-9,.]+"
+    rightOf:
+      text: "Net Balance"
+- evalScript: '${output.beforeDeleteNet = parseFloat(maestro.copiedText.replace("R", "").replaceAll(",", ""))}'
+- copyTextFrom:
+    text: "[0-9,.]+%"
+    rightOf:
+      text: "Budget Usage"
+- evalScript: '${output.beforeDeleteBudget = parseFloat(maestro.copiedText.replace("%", "").replaceAll(",", ""))}'
+- tapOn: "CLOSE"
+
+- tapOn: "Tab 2 of 3"
+- tapOn: "Manual income.*"
+- tapOn: "Delete"
+- waitForAnimationToEnd
+- assertNotVisible: "Manual income.*"
+
+- tapOn: "Manual expense.*"
+- tapOn: "Delete"
+- waitForAnimationToEnd
+- assertNotVisible: "Manual expense.*"
+
+- tapOn: "Tab 1 of 3"
+- scrollUntilVisible:
+    element: "DAILY SPENDING FOR.*"
+    direction: UP
+    timeout: 5000
+- copyTextFrom:
+    text: "R[0-9,.]+"
+    index: 0
+- evalScript: '${output.afterDeleteDaily = parseFloat(maestro.copiedText.replace("R", "").replaceAll(",", ""))}'
+- copyTextFrom:
+    text: "Monthly total: R[0-9,.]+"
+- evalScript: '${output.afterDeleteMonthly = parseFloat(maestro.copiedText.replace("Monthly total: R", "").replaceAll(",", ""))}'
+- assertTrue: ${output.afterDeleteDaily < output.beforeDeleteDaily}
+- assertTrue: ${output.afterDeleteMonthly < output.beforeDeleteMonthly}
+
+- tapOn: "VIEW HEALTH ANALYSIS"
+- assertVisible: "Financial Health Analysis"
+- copyTextFrom:
+    text: "R[0-9,.]+"
+    rightOf:
+      text: "Income"
+- evalScript: '${output.afterDeleteIncome = parseFloat(maestro.copiedText.replace("R", "").replaceAll(",", ""))}'
+- copyTextFrom:
+    text: "R[0-9,.]+"
+    rightOf:
+      text: "Expenses"
+- evalScript: '${output.afterDeleteExpenses = parseFloat(maestro.copiedText.replace("R", "").replaceAll(",", ""))}'
+- copyTextFrom:
+    text: "R[0-9,.]+"
+    rightOf:
+      text: "Net Balance"
+- evalScript: '${output.afterDeleteNet = parseFloat(maestro.copiedText.replace("R", "").replaceAll(",", ""))}'
+- copyTextFrom:
+    text: "[0-9,.]+%"
+    rightOf:
+      text: "Budget Usage"
+- evalScript: '${output.afterDeleteBudget = parseFloat(maestro.copiedText.replace("%", "").replaceAll(",", ""))}'
+- assertTrue: ${output.afterDeleteIncome < output.beforeDeleteIncome}
+- assertTrue: ${output.afterDeleteExpenses < output.beforeDeleteExpenses}
+- assertTrue: ${output.afterDeleteNet < output.beforeDeleteNet}
+- assertTrue: ${output.afterDeleteBudget < output.beforeDeleteBudget}

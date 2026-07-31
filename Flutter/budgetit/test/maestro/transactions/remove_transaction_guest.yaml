@@ -1,0 +1,11 @@
+appId: com.example.budgetit
+name: Guest Removes Manual Transactions
+tags:
+  - transactions
+  - guest
+  - destructive
+---
+- runFlow:
+    file: "../auth/guest.yaml"
+- runFlow:
+    file: "remove_transaction.yaml"

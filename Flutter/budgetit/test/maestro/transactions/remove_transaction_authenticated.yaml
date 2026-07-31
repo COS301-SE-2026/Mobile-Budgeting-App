@@ -1,0 +1,11 @@
+appId: com.example.budgetit
+name: Authenticated User Removes Manual Transactions
+tags:
+  - transactions
+  - authenticated
+  - destructive
+---
+- runFlow:
+    file: "../auth/login.yaml"
+- runFlow:
+    file: "remove_transaction.yaml"
