@@ -44,7 +44,7 @@ jobs:
 
   prepare:
     name: Prepare
-    runs-on: self-hosted
+    runs-on: ubuntu-lates
     outputs:
 
       has_golden: ${{ steps.detect-tests.outputs.has_golden }}
@@ -94,7 +94,7 @@ jobs:
   dart-format:
     name: Dart Format
     needs: prepare
-    runs-on: self-hosted
+    runs-on: ubuntu-lates
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
@@ -118,7 +118,7 @@ jobs:
   flutter-analyze:
     name: Flutter Analyze
     needs: prepare
-    runs-on: self-hosted
+    runs-on: ubuntu-lates
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
@@ -148,7 +148,7 @@ jobs:
   unit-tests:
     name: Unit Tests
     needs: prepare
-    runs-on: self-hosted
+    runs-on: ubuntu-lates
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
@@ -189,7 +189,7 @@ jobs:
 
   sonarcloud:
     name: SonarCloud Analysis
-    runs-on: self-hosted
+    runs-on: ubuntu-lates
     needs: [prepare, unit-tests]
     if: needs.prepare.outputs.has_sonar == 'true'
     env:
@@ -226,7 +226,7 @@ jobs:
 
   golden-tests:
     name: Golden Tests
-    runs-on: self-hosted
+    runs-on: ubuntu-lates
     needs: prepare
     if: needs.prepare.outputs.has_golden == 'true'
     steps:
@@ -238,7 +238,7 @@ jobs:
 
   perf-benchmarks:
     name: Performance Benchmarks
-    runs-on: self-hosted
+    runs-on: ubuntu-lates
     needs: prepare
     if: needs.prepare.outputs.has_perf == 'true'
     steps:
@@ -250,7 +250,7 @@ jobs:
 
   integration-tests:
     name: Integration Tests
-    runs-on: self-hosted
+    runs-on: ubuntu-lates
     needs: prepare
     if: needs.prepare.outputs.has_integ == 'true'
     steps:
@@ -262,7 +262,7 @@ jobs:
 
   apk-build:
     name: Build APK
-    runs-on: self-hosted
+    runs-on: ubuntu-lates
     needs: unit-tests
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
@@ -341,7 +341,7 @@ jobs:
   
   pages:
     name: Build static files
-    runs-on: self-hosted
+    runs-on: ubuntu-lates
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
@@ -361,7 +361,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: self-hosted
+    runs-on: ubuntu-lates
     needs: build
     permissions:
       pages: write
