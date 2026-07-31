@@ -1,25 +1,21 @@
-name: Main Branch CI
+name: Feature Branch CI
 
 on:
   push:
     branches:
-      - feature/docker
+      - "feature/**"
     paths-ignore:
-      - "**.md"
-      - "docs/**"
       - "Flutter/budgetit/**/*.g.dart"
       - "Flutter/budgetit/**/*.freezed.dart"
   pull_request:
     branches:
-      - main
+      - "feature/**"
     paths-ignore:
-      - "**.md"
-      - "docs/**"
       - "Flutter/budgetit/**/*.g.dart"
       - "Flutter/budgetit/**/*.freezed.dart"
 
 concurrency:
-  group: ci-main-${{ github.event.pull_request.head.sha || github.sha }}
+  group: ci-feature-${{ github.event.pull_request.head.sha || github.sha }}
   cancel-in-progress: true
 
 jobs:
@@ -45,33 +41,8 @@ jobs:
   prepare:
     name: Prepare
     runs-on: self-hosted
-    outputs:
-      has_golden: ${{ steps.detect-tests.outputs.has_golden }}
-      has_perf: ${{ steps.detect-tests.outputs.has_perf }}
-      has_integ: ${{ steps.detect-tests.outputs.has_integ }}
-      has_sonar: ${{ steps.check-sonar.outputs.has_sonar }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
-
-      - name: Detect unimplemented test suites
-        id: detect-tests
-        working-directory: Flutter/budgetit
-        run: |
-          has() { grep -rqlE 'testWidgets|test\(' "$1" 2>/dev/null && echo true || echo false; }
-          echo "has_golden=$(has test/golden)" >> "$GITHUB_OUTPUT"
-          echo "has_perf=$(has test/performance)" >> "$GITHUB_OUTPUT"
-          echo "has_integ=$(has test/integration)" >> "$GITHUB_OUTPUT"
-
-      - name: Check SonarCloud secrets
-        id: check-sonar
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          if [ -n "$SONAR_TOKEN" ]; then
-            echo "has_sonar=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "has_sonar=false" >> "$GITHUB_OUTPUT"
-          fi
 
       - uses: ./.github/actions/flutter-setup
 
@@ -85,7 +56,7 @@ jobs:
             build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-
             build-runner-${{ runner.os }}-
 
-      - name: Run build_runner
+      - name: Dart Build Runner
         if: steps.build-runner-cache.outputs.cache-hit != 'true'
         working-directory: Flutter/budgetit
         run: dart run build_runner build --delete-conflicting-outputs
@@ -109,6 +80,7 @@ jobs:
             build-runner-${{ runner.os }}-
 
       - uses: ./.github/actions/memoized-step
+        continue-on-error: true
         with:
           check-name: dart-format
           working-directory: Flutter/budgetit
@@ -139,6 +111,7 @@ jobs:
         run: dart run build_runner build --delete-conflicting-outputs
 
       - uses: ./.github/actions/memoized-step
+        continue-on-error: true
         with:
           check-name: flutter-analyze
           working-directory: Flutter/budgetit
@@ -148,13 +121,13 @@ jobs:
     name: Unit Tests
     needs: prepare
     runs-on: self-hosted
+    continue-on-error: true
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
       - uses: ./.github/actions/flutter-setup
 
       - name: Cache build_runner outputs
-        id: build-runner-cache
         uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8
         with:
           path: Flutter/budgetit/.dart_tool/build
@@ -163,21 +136,9 @@ jobs:
             build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-
             build-runner-${{ runner.os }}-
 
-      - name: Dart Build Runner
-        if: steps.build-runner-cache.outputs.cache-hit != 'true'
-        working-directory: Flutter/budgetit
-        run: dart run build_runner build --delete-conflicting-outputs
-
-      - name: Unit tests
+      - name: Run unit tests
         working-directory: Flutter/budgetit
         run: flutter test --coverage --concurrency=4 $(find test -name '*_test.dart' -not -path 'test/golden/*' -not -path 'test/performance/*' -not -path 'test/integration/*')
-
-      - name: Upload coverage (lcov)
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-        with:
-          name: coverage-lcov
-          path: Flutter/budgetit/coverage/lcov.info
-          retention-days: 90
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f
@@ -185,183 +146,3 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: Flutter/budgetit/coverage/lcov.info
           fail_ci_if_error: true
-
-  sonarcloud:
-    name: SonarCloud Analysis
-    runs-on: self-hosted
-    needs: [prepare, unit-tests]
-    if: needs.prepare.outputs.has_sonar == 'true'
-    env:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
-        with:
-          fetch-depth: 0
-
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
-        with:
-          name: coverage-lcov
-          path: Flutter/budgetit/coverage
-
-      - name: SonarCloud scan
-        uses: SonarSource/sonarqube-scan-action@713881670b6b3676cda39549040e2d88c70d582e
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  dependency-audit:
-    name: Dependency Security Audit
-    needs: prepare
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@9a498708959aeaef5ef730655706c5a1df1edbc2
-    with:
-      upload-sarif: true
-      scan-args: |-
-        -r
-        --skip-git
-        ./Flutter/budgetit
-
-  golden-tests:
-    name: Golden Tests
-    runs-on: self-hosted
-    needs: prepare
-    if: needs.prepare.outputs.has_golden == 'true'
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
-      - uses: ./.github/actions/flutter-setup
-      - name: Run golden tests
-        working-directory: Flutter/budgetit
-        run: flutter test test/golden
-
-  perf-benchmarks:
-    name: Performance Benchmarks
-    runs-on: self-hosted
-    needs: prepare
-    if: needs.prepare.outputs.has_perf == 'true'
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
-      - uses: ./.github/actions/flutter-setup
-      - name: Run performance benchmarks
-        working-directory: Flutter/budgetit
-        run: flutter test test/performance
-
-  integration-tests:
-    name: Integration Tests
-    runs-on: self-hosted
-    needs: prepare
-    if: needs.prepare.outputs.has_integ == 'true'
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
-      - uses: ./.github/actions/flutter-setup
-      - name: Run integration tests
-        working-directory: Flutter/budgetit
-        run: flutter test test/integration/
-
-  apk-build:
-    name: Build APK
-    runs-on: self-hosted
-
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
-
-      - uses: ./.github/actions/flutter-setup
-        with:
-          needs-java: "true"
-
-      - name: Check Gradle cache on disk
-        id: gradle-disk
-        shell: bash
-        run: |
-          if [ -d "$HOME/.gradle/caches" ] && [ "$(ls -A "$HOME/.gradle/caches" 2>/dev/null)" ]; then
-            echo "on_disk=true" >> "${GITHUB_OUTPUT}"
-          else
-            echo "on_disk=false" >> "${GITHUB_OUTPUT}"
-          fi
-
-      - name: Restore Gradle cache
-        if: steps.gradle-disk.outputs.on_disk != 'true'
-        id: gradle-cache
-        uses: actions/cache/restore@2c8a9bd7457de244a408f35966fab2fb45fda9c8
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            gradle-${{ runner.os }}-
-
-      - name: Accept Android License
-        run: yes | flutter doctor --android-licenses || true
-
-      - name: Build release APK
-        working-directory: Flutter/budgetit
-        run: fvm flutter build apk --release --no-tree-shake-icons
-
-      - name: Save Gradle cache
-        if: steps.gradle-disk.outputs.on_disk != 'true' && steps.gradle-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@2c8a9bd7457de244a408f35966fab2fb45fda9c8
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-
-      - name: Upload APK artifact (release tags)
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-        with:
-          name: budgetit-release-${{ github.ref_name }}
-          path: Flutter/budgetit/build/app/outputs/flutter-apk/app-release.apk
-          retention-days: 90
-
-      - name: Upload APK to S3
-        if: startsWith(github.ref, 'refs/tags/v')
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: eu-north-1
-        run: |
-          aws s3 cp Flutter/budgetit/build/app/outputs/flutter-apk/app-release.apk \
-            s3://budgetit-apk-releases/apk-releases/latest.apk
-
-      - name: Upload APK artifact (main branch pushes)
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/')
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-        with:
-          name: budgetit-apk-main-${{ github.sha }}
-          path: Flutter/budgetit/build/app/outputs/flutter-apk/app-release.apk
-          retention-days: 7
-
-  pages:
-    name: Build static files
-    runs-on: self-hosted
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
-
-      - uses: ./.github/actions/flutter-setup
-
-      - name: Build landing page for web
-        working-directory: Flutter/budgetit
-        run: flutter build web --target=lib/landing_page/main.dart --release --base-href /Mobile-Budgeting-App/
-
-      - name: Upload static files as artifact
-        id: deployment
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: Flutter/budgetit/build/web
-
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: self-hosted
-    needs: pages
-    permissions:
-      pages: write
-      id-token: write
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4       
