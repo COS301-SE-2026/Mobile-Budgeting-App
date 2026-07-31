@@ -9,6 +9,7 @@ import 'package:budgetit/utils/theme_provider.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:budgetit/shared/widgets/recurring_transactions_dropdown.dart';
 
 enum _TransactionFilter { all, income, expense }
 
@@ -207,6 +208,8 @@ class _TransactionManagerState extends State<TransactionManager> {
                 ),
               ),
               const Divider(color: Colors.transparent),
+              const RecurringTransactionsDropdown(),
+              const  Divider(color: Colors.transparent),
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16.0,
