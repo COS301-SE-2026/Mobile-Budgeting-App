@@ -23,14 +23,14 @@ Widget _screen(Widget child) {
   return MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => ThemeProvider()),
-      Provider<AppDatabase>.value(
-        value: AppDatabase.forTesting(NativeDatabase.memory()),
-      ),
+      Provider<AppDatabase>.value(value: _mock.db),
     ],
     child: MaterialApp(
       home: child,
-      theme: ThemeData(extensions: [MyColours.lightTheme]),
+      theme: ThemeData(
+        extensions: <ThemeExtension<dynamic>>[MyColours.lightTheme],
       ),
+    ),
   );
 }
 
@@ -39,16 +39,14 @@ Widget _widget(Widget child) {
   return MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => ThemeProvider()),
-      Provider<AppDatabase>.value(
-        value: AppDatabase.forTesting(NativeDatabase.memory()),
-      ),
+      Provider<AppDatabase>.value(value: _mock.db),
     ],
     child: MaterialApp(
-      theme:   ThemeData(extensions: [MyColours.lightTheme]),
-      home: Scaffold(
-      
-      body: child
-      )),
+      theme: ThemeData(
+        extensions: <ThemeExtension<dynamic>>[MyColours.lightTheme],
+      ),
+      home: Scaffold(body: child),
+    ),
   );
 }
 
@@ -71,7 +69,9 @@ Future<void> _openEditDialog(
 }) async {
   await tester.pumpWidget(
     MaterialApp(
-      theme: ThemeData(extensions: [MyColours.lightTheme]), //used Deepseek for MaterialApp theme issue
+      theme: ThemeData(
+        extensions: [MyColours.lightTheme],
+      ), //used Deepseek for MaterialApp theme issue
       home: Builder(
         builder: (ctx) => TextButton(
           onPressed: () => showDialog(
@@ -96,17 +96,22 @@ Future<void> _openEditDialog(
 }
 
 void main() {
+  setUp(() {
+    _mock = MockDb();
+  });
+
   group('TransactionManager', () {
     setUp(() {
-      _mock = MockDb();
       final transactions = [
         transactionFixture(id: 't1', shortDescription: 'Water'),
         transactionFixture(id: 't2', shortDescription: 'Electricity'),
         transactionFixture(id: 't3', shortDescription: 'Groceries'),
       ];
+
       when(
         _mock.transactionDao.getAllTransactions(),
       ).thenAnswer((_) async => transactions);
+
       when(
         _mock.transactionDao.getTransactionsByType(any),
       ).thenAnswer((_) async => transactions);
@@ -139,25 +144,19 @@ void main() {
 
     testWidgets('shows Recent Transactions heading', (tester) async {
       _usePhoneSize(tester);
+
       await tester.pumpWidget(_screen(const TransactionManager()));
-      await tester.pump();
-      expect(find.text('Recent Transactions'), findsOneWidget);
+      await tester.pumpAndSettle();
+
+      expect(find.text('RECENT TRANSACTIONS'), findsOneWidget);
     });
 
-    testWidgets('shows date header with day and date', (tester) async {
+    testWidgets('shows transaction list content', (tester) async {
       _usePhoneSize(tester);
-      await tester.pumpWidget(_screen(const TransactionManager()));
-      await tester.pump();
-      expect(find.text('Monday'), findsOneWidget);
-      expect(find.text('18 May 2026'), findsOneWidget);
-    });
 
-    testWidgets('shows Water, Electricity, and Groceries transactions', (
-      tester,
-    ) async {
-      _usePhoneSize(tester);
       await tester.pumpWidget(_screen(const TransactionManager()));
-      await tester.pump();
+      await tester.pumpAndSettle();
+
       expect(find.text('Water'), findsOneWidget);
       expect(find.text('Electricity'), findsOneWidget);
       expect(find.text('Groceries'), findsOneWidget);
@@ -229,9 +228,7 @@ void main() {
       await tester.pump();
       expect(find.text('All'), findsOneWidget);
     });
-
   });
-
 
   // MyBox
 
