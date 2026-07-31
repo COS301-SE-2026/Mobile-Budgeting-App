@@ -57,11 +57,12 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colours = context.colours;
     return Scaffold(
       backgroundColor: context.colours.background,
       appBar: AppBar(
-        backgroundColor: context.colours.background,
-        iconTheme: IconThemeData(color: context.colours.textPrimary),
+        backgroundColor: colours.background,
+        iconTheme: IconThemeData(color: colours.secondary),
         title: Text(
           'Graphical Reports',
           style: TextStyle(
@@ -240,26 +241,60 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
 //this widget i used ai to help me
   Widget _incomeExpenseChart(GraphicalReportData report) {
     final cardTextColor = _reportCardTextColor(context);
+    final colours = context.colours;
     final maximum = [
       report.totalIncome,
       report.totalExpenses,
     ].reduce((first, second) => first > second ? first : second);
     final yInterval = maximum <= 0 ? 20.0 : maximum / 4;
 
+    double interval = 5000;
+    if (maximum>50000){
+      interval= 10000;
+    }
     return _chartCard(
       child: SizedBox(
         height: 260,
         child: BarChart(
           BarChartData(
-            maxY: maximum <= 0 ? 100 : maximum * 1.2,
+            alignment: BarChartAlignment.spaceAround,
+            groupsSpace: 80,
+            gridData: FlGridData(
+              show: true,
+              drawVerticalLine: false,
+              horizontalInterval: interval,
+              getDrawingHorizontalLine: (value){
+                return FlLine(
+                  color:  colours.textMuted,
+                  strokeWidth: 1,
+                  dashArray: [6,6],
+                );
+              },
+            ),
+            maxY: maximum <= 0 ? 100 : maximum * 1.25,
+            barTouchData: BarTouchData(
+              touchTooltipData: BarTouchTooltipData(
+                getTooltipColor: (group) => colours.primary,
+                getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                  return BarTooltipItem(
+                    _formatCurrency(rod.toY),
+                    TextStyle(
+                      color: colours.textPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                },
+              ),
+            ),
             barGroups: [
               BarChartGroupData(
                 x: 0,
                 barRods: [
                   BarChartRodData(
                     toY: report.totalIncome,
-                    width: 35,
-                    borderRadius: BorderRadius.circular(6),
+                    width: 55,
+                    color: colours.greenAccents,
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ],
               ),
@@ -268,18 +303,26 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                 barRods: [
                   BarChartRodData(
                     toY: report.totalExpenses,
-                    width: 35,
-                    borderRadius: BorderRadius.circular(6),
+                    width: 55,
+                    color: Colors.redAccent,
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ],
               ),
             ],
             titlesData: FlTitlesData(
-              topTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              rightTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
+              leftTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 45,
+                  interval: interval,
+                  getTitlesWidget: (value,meta){
+                    return Text(
+                      value == 0 ? "0" : "R${(value/1000).toStringAsFixed(0)}k",
+                      style: colours.b5.copyWith(color: colours.textMuted,),
+                    );
+                  },
+                ),
               ),
               leftTitles: AxisTitles(
                 sideTitles: SideTitles(
@@ -304,19 +347,44 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                     return Text(
                       value.toInt() == 0 ? 'Income' : 'Expenses',
                       style: TextStyle(color: cardTextColor),
+                  reservedSize: 35,
+                  getTitlesWidget: (value,meta) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top:10),
+                      child: Text(
+                        value.toInt() == 0 ? "Income" : "Expenses",
+                        style: colours.budgetheader,
+                      ),
                     );
                   },
                 ),
               ),
+              topTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+
+              rightTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ), 
             ),
-            borderData: FlBorderData(show: false),
-          ),
+            borderData: FlBorderData(
+              border: Border(
+                left: BorderSide(
+                  color: colours.secondary,),
+                  bottom: BorderSide(
+                    color: colours.secondary,
+                  ),
+              ),
+            ),
+          )
         ),
       ),
     );
   }
 
   Widget _categoryChart(GraphicalReportData report) {
+    final colours = context.colours;
+
     if (report.categorySpending.isEmpty) {
       return _emptyChartMessage();
     }
@@ -337,6 +405,17 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
       (sum, category) => sum + category.amount,
     );
 // i used ai to help me with thos chartCard, it didnt resize accordingly when the screens changed to phone size
+    final chartColours = [ 
+      colours.greenAccents,
+      colours.yellow,
+      colours.light,
+      colours.warning,
+      colours.textMuted,
+      colours.informational,
+      colours.secondary];
+    final total = report.categorySpending.fold(0.0,
+          (sum, item) => sum+item.amount,);
+
     return _chartCard(
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -479,6 +558,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
   }
 
   Widget _trendChart(GraphicalReportData report) {
+    final colours = context.colours;
     if (report.spendingTrend.isEmpty) {
       return _emptyChartMessage();
     }
@@ -540,7 +620,16 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                 ),
               ),
             ),
-            borderData: FlBorderData(show: false),
+            borderData: FlBorderData(
+            border: Border(
+              left: BorderSide(
+                color: colours.secondary,
+              ),
+              bottom: BorderSide(
+                color: colours.secondary,
+              ),
+             ),
+            ),
           ),
         ),
       ),
@@ -548,6 +637,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
   }
 
   Widget _chartCard({required Widget child}) {
+    final colours = context.colours;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
@@ -560,6 +650,9 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
             offset: const Offset(6, 6),
           ),
         ],
+        color: colours.bg2,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: colours.secondary),
       ),
       child: child,
     );
