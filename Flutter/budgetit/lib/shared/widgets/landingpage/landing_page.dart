@@ -52,7 +52,6 @@ class _LandingPageState extends State<LandingPage> {
 
     String current = _activeSection;
     double closest = double.infinity;
-//this section i used chatgpt to  help me out on how to make the render obejct 
     sections.forEach((name, key) {
       final ctx = key.currentContext;
       if (ctx == null) return;

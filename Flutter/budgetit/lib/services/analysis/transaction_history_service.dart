@@ -52,6 +52,12 @@ class TransactionHistoryService {
 
         double totalExpenses = 0;
         double totalIncome = 0;
+        double largestExpense = 0;
+        String? largestDescription;
+        String? largestCategory;
+        DateTime? largestDate;
+
+
         final expensesByCategory = <String, double>{};
         int transactionCount = 0;
 
@@ -65,6 +71,12 @@ class TransactionHistoryService {
                 final mapping = await _db.transactionDao.getCategoryForTransaction(tx.id);
                 final categoryName = mapping == null ? 'Uncategorised' : await _resolveCategoryName(mapping.categoryId);
                 expensesByCategory[categoryName] = (expensesByCategory[categoryName] ?? 0) + amount;
+
+                if(categoryName == 'Uncategorised' && amount > (largestExpense ?? 0)) {
+                    largestExpense = amount;
+                    largestDescription = tx.shortDescription;
+                    largestDate = tx.transactionDate; 
+                }
             } else {
                 totalIncome += amount;
             }
@@ -77,6 +89,10 @@ class TransactionHistoryService {
             totalIncome: totalIncome,
             expensesByCategory: expensesByCategory,
             transactionCount: transactionCount,
+            largestTransactionDescription: largestDescription,
+            largestTransactionCategory: largestCategory,
+            largestTransactionAmount: largestExpense == 0 ? null : largestExpense,
+            largestTransactionDate: largestDate,
         );
     }
 

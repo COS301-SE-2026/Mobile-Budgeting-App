@@ -1,0 +1,31 @@
+[
+  {
+    "amount": "25000.00",
+    "type": "income",
+    "short_description": "Monthly salary",
+    "long_description": "Overdue demo template for startup catch-up",
+    "next_date_offset": {
+      "unit": "months",
+      "amount": 2,
+      "day_of_month": 1
+    },
+    "period_type": "monthly",
+    "interval_amount": 1,
+    "currency": "ZAR",
+    "category_name": "Salary"
+  },
+  {
+    "amount": "950.00",
+    "type": "expense",
+    "short_description": "Weekly groceries",
+    "long_description": "Overdue demo template for startup catch-up",
+    "next_date_offset": {
+      "unit": "days",
+      "amount": 14
+    },
+    "period_type": "weekly",
+    "interval_amount": 1,
+    "currency": "ZAR",
+    "category_name": "Groceries"
+  }
+]
