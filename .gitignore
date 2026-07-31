@@ -15,5 +15,6 @@ Flutter/budgetit/flutter/
 Flutter/budgetit/ios/
 Flutter/budgetit/linux/
 artifacts/
-backend/.env
 
+**/.env
+**/.env.*

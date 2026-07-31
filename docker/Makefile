@@ -21,8 +21,7 @@ flutter-shell:
 	$(COMPOSE_CMD) $(FLUTTER_COMPOSE) run --rm dev bash
 
 flutter-build-apk:
-	$(COMPOSE_CMD) $(FLUTTER_COMPOSE) run --rm build-apk
-
+	$(COMPOSE_CMD) $(FLUTTER_COMPOSE) run --rm build-apk 
 flutter-build-aab:
 	$(COMPOSE_CMD) $(FLUTTER_COMPOSE) run --rm build-aab
 

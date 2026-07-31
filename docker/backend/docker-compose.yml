@@ -41,7 +41,7 @@ services:
       /bin/sh -c "
       sleep 5;
       /usr/bin/mc alias set localminio http://minio:9000 adminuser adminpassword;
-      /usr/bin/mc mb localminio/db-bucket;
+      /usr/bin/mc mb localminio/apk-bucket;
       exit 0;
       "
 
