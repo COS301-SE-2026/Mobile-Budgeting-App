@@ -396,6 +396,7 @@ class _TypeButton extends StatelessWidget {
     );
   }
 }
+
 // input field decoration fixed
 InputDecoration _inputDecoration(
   String hint,
@@ -412,7 +413,7 @@ InputDecoration _inputDecoration(
   filled: true,
   fillColor: fillColor,
   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-  border : OutlineInputBorder(
+  border: OutlineInputBorder(
     borderRadius: BorderRadius.zero,
     borderSide: BorderSide(color: context.colours.secondary),
   ),
