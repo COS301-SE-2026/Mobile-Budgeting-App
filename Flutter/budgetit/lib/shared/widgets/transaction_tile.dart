@@ -23,6 +23,12 @@ class TransactionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>();
     final colours = context.colours;
+    final cardColor = Theme.of(context).brightness == Brightness.dark
+        ? colours.blendedprimary
+        : colours.secondary;
+    final cardTextColor = Theme.of(context).brightness == Brightness.dark
+        ? colours.secondary
+        : colours.background;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -30,17 +36,14 @@ class TransactionTile extends StatelessWidget {
       padding: const EdgeInsets.all(18),
 
       decoration: BoxDecoration(
-        color: colours.secondary,
+        color: cardColor,
 
-        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.black, width: 4),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.18),
-
-            blurRadius: 12,
-
-            offset: const Offset(0, 5),
+            color: Colors.black,
+            offset: const Offset(6, 6),
           ),
         ],
       ),
@@ -53,7 +56,7 @@ class TransactionTile extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
 
             decoration: BoxDecoration(
-              color: colours.background.withValues(alpha: 0.15),
+              color: cardTextColor.withValues(alpha: 0.15),
 
               borderRadius: BorderRadius.circular(20),
             ),
@@ -61,8 +64,8 @@ class TransactionTile extends StatelessWidget {
             child: Text(
               "TRANSACTION",
 
-              style: TextStyle(
-                color: colours.background,
+              style: colours.h2.copyWith(
+                color: cardTextColor,
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1.2,
@@ -105,10 +108,10 @@ class TransactionTile extends StatelessWidget {
                     Text(
                       title,
 
-                      style: TextStyle(
+                      style: colours.h2.copyWith(
                         fontSize: 17,
                         fontWeight: FontWeight.bold,
-                        color: colours.background,
+                        color: cardTextColor,
                       ),
                     ),
 
@@ -117,8 +120,8 @@ class TransactionTile extends StatelessWidget {
                     Text(
                       subtitle,
 
-                      style: TextStyle(
-                        color: colours.background.withValues(alpha: 0.7),
+                      style: colours.h2.copyWith(
+                        color: cardTextColor.withValues(alpha: 0.7),
 
                         fontSize: 13,
 
@@ -136,7 +139,7 @@ class TransactionTile extends StatelessWidget {
                   Text(
                     amount,
 
-                    style: TextStyle(
+                    style: colours.h2.copyWith(
                       fontSize: 17,
 
                       fontWeight: FontWeight.bold,
@@ -150,7 +153,7 @@ class TransactionTile extends StatelessWidget {
                   Text(
                     isExpense ? "expense" : "income",
 
-                    style: TextStyle(
+                    style: colours.h2.copyWith(
                       fontSize: 11,
 
                       color: isExpense
