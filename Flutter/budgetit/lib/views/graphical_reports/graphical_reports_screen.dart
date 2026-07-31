@@ -8,9 +8,15 @@ import '../../services/graphical_report_service.dart';
 import '../../utils/app_colour.dart';
 
 class GraphicalReportsScreen extends StatefulWidget {
-  const GraphicalReportsScreen({super.key, required this.database});
+  const GraphicalReportsScreen({
+    super.key,
+    required this.database,
+    this.reportBuilder,
+  });
 
   final AppDatabase database;
+  final Future<GraphicalReportData> Function(ReportingPeriod period)?
+      reportBuilder;
 
   @override
   State<GraphicalReportsScreen> createState() => _GraphicalReportsScreenState();
@@ -19,22 +25,24 @@ class GraphicalReportsScreen extends StatefulWidget {
 class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
   ReportingPeriod _selectedPeriod = ReportingPeriod.monthly;
 
-  late final GraphicalReportService _reportService;
-  late Future<GraphicalReportData> _reportFuture;
+  late final Future<GraphicalReportData> Function(ReportingPeriod period)
+    _loadReport;
+late Future<GraphicalReportData> _reportFuture;
 
   @override
-  void initState() {
-    super.initState();
-    _reportService = GraphicalReportService(widget.database);
-    _reportFuture = _reportService.generateReport(_selectedPeriod);
-  }
+void initState() {
+  super.initState();
+  _loadReport =
+      widget.reportBuilder ?? GraphicalReportService(widget.database).generateReport;
+  _reportFuture = _loadReport(_selectedPeriod);
+}
 
   void _changePeriod(ReportingPeriod period) {
-    setState(() {
-      _selectedPeriod = period;
-      _reportFuture = _reportService.generateReport(period);
-    });
-  }
+  setState(() {
+    _selectedPeriod = period;
+    _reportFuture = _loadReport(period);
+  });
+}
 
   String _formatCurrency(double amount) {
     return 'R${amount.toStringAsFixed(2)}';
