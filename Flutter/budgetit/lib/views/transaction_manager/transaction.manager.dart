@@ -138,6 +138,19 @@ class _TransactionManagerState extends State<TransactionManager> {
                   horizontal: 16.0,
                   vertical: 5,
                 ),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'TRANSACTION MANAGER',
+                    style: context.colours.h2,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 5,
+                ),
                 child: Row(
                   children: [
                     Expanded(
