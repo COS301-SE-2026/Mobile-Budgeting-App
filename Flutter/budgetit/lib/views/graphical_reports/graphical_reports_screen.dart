@@ -17,26 +17,21 @@ class GraphicalReportsScreen extends StatefulWidget {
 }
 
 class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
-
-
   ReportingPeriod _selectedPeriod = ReportingPeriod.monthly;
 
-  late GraphicalReportService _reportService;
+  late final GraphicalReportService _reportService;
   late Future<GraphicalReportData> _reportFuture;
 
   @override
   void initState() {
     super.initState();
-
     _reportService = GraphicalReportService(widget.database);
-
     _reportFuture = _reportService.generateReport(_selectedPeriod);
   }
 
   void _changePeriod(ReportingPeriod period) {
     setState(() {
       _selectedPeriod = period;
-
       _reportFuture = _reportService.generateReport(period);
     });
   }
@@ -45,18 +40,27 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
     return 'R${amount.toStringAsFixed(2)}';
   }
 
+  Color _reportCardColor(BuildContext context) {
+    return context.colours.bg2;
+  }
+
+  Color _reportCardTextColor(BuildContext context) {
+    return context.colours.textPrimary;
+  }
+
   @override
   Widget build(BuildContext context) {
     final colours = context.colours;
+
     return Scaffold(
-      backgroundColor: context.colours.background,
+      backgroundColor: colours.background,
       appBar: AppBar(
         backgroundColor: colours.background,
         iconTheme: IconThemeData(color: colours.secondary),
         title: Text(
           'Graphical Reports',
           style: TextStyle(
-            color: colours.secondary,
+            color: colours.textPrimary,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -67,7 +71,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(
-                child: CircularProgressIndicator(color: context.colours.secondary),
+                child: CircularProgressIndicator(color: colours.secondary),
               );
             }
 
@@ -77,7 +81,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                   padding: const EdgeInsets.all(24),
                   child: Text(
                     'Could not load graphical reports.',
-                    style: TextStyle(color: context.colours.textPrimary),
+                    style: TextStyle(color: colours.textPrimary),
                   ),
                 ),
               );
@@ -89,7 +93,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
               return Center(
                 child: Text(
                   'No financial data is available.',
-                  style: TextStyle(color: context.colours.textPrimary),
+                  style: TextStyle(color: colours.textPrimary),
                 ),
               );
             }
@@ -101,31 +105,23 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                 children: [
                   _periodSelector(),
                   const SizedBox(height: 22),
-
                   if (!report.hasFinancialData)
                     _noDataCard()
                   else ...[
                     _summaryCards(report),
                     const SizedBox(height: 22),
-
                     _sectionTitle('Income versus Expenses'),
                     const SizedBox(height: 12),
                     _incomeExpenseChart(report),
-
                     const SizedBox(height: 24),
-
                     _sectionTitle('Spending by Category'),
                     const SizedBox(height: 12),
                     _categoryChart(report),
-
                     const SizedBox(height: 24),
-
                     _sectionTitle('Budget Used versus Limit'),
                     const SizedBox(height: 12),
                     _budgetChart(report),
-
                     const SizedBox(height: 24),
-
                     _sectionTitle('Spending Trend'),
                     const SizedBox(height: 12),
                     _trendChart(report),
@@ -143,6 +139,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
     return Row(
       children: ReportingPeriod.values.map((period) {
         final selected = period == _selectedPeriod;
+        final colours = context.colours;
 
         return Expanded(
           child: Padding(
@@ -150,15 +147,13 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
             child: ChoiceChip(
               selected: selected,
               label: Text(period.label),
-              selectedColor: context.colours.secondary,
-              backgroundColor: context.colours.primary,
+              selectedColor: colours.secondary,
+              backgroundColor: _reportCardColor(context),
               labelStyle: TextStyle(
-                color: selected ? context.colours.background : context.colours.textPrimary,
+                color: selected ? colours.background : _reportCardTextColor(context),
                 fontWeight: FontWeight.bold,
               ),
-              onSelected: (_) {
-                _changePeriod(period);
-              },
+              onSelected: (_) => _changePeriod(period),
             ),
           ),
         );
@@ -193,23 +188,22 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
     required double value,
     required IconData icon,
   }) {
+    final colours = context.colours;
+    final textColor = _reportCardTextColor(context);
+
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: context.colours.primary,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: context.colours.secondary),
-      ),
+      decoration: _cardDecoration(),
       child: Column(
         children: [
-          Icon(icon, color: context.colours.secondary),
+          Icon(icon, color: textColor),
           const SizedBox(height: 8),
-          Text(title, style: TextStyle(color: context.colours.textPrimary)),
+          Text(title, style: TextStyle(color: textColor)),
           const SizedBox(height: 6),
           Text(
             _formatCurrency(value),
             style: TextStyle(
-              color: context.colours.textPrimary,
+              color: colours.secondary,
               fontWeight: FontWeight.bold,
               fontSize: 18,
             ),
@@ -218,17 +212,14 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
       ),
     );
   }
-
+//AI assisted code for incomeexpense chart 
   Widget _incomeExpenseChart(GraphicalReportData report) {
     final colours = context.colours;
-    final maximum = [
-      report.totalIncome,
-      report.totalExpenses,
-    ].reduce((first, second) => first > second ? first : second);
-    double interval = 5000;
-    if (maximum>50000){
-      interval= 10000;
-    }
+    final maximum = report.totalIncome > report.totalExpenses
+        ? report.totalIncome
+        : report.totalExpenses;
+    final interval = maximum > 50000 ? 10000.0 : 5000.0;
+
     return _chartCard(
       child: SizedBox(
         height: 260,
@@ -236,22 +227,22 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
           BarChartData(
             alignment: BarChartAlignment.spaceAround,
             groupsSpace: 80,
+            maxY: maximum <= 0 ? 100 : maximum * 1.25,
             gridData: FlGridData(
               show: true,
               drawVerticalLine: false,
               horizontalInterval: interval,
-              getDrawingHorizontalLine: (value){
+              getDrawingHorizontalLine: (value) {
                 return FlLine(
-                  color:  colours.textMuted,
+                  color: colours.textMuted,
                   strokeWidth: 1,
-                  dashArray: [6,6],
+                  dashArray: [6, 6],
                 );
               },
             ),
-            maxY: maximum <= 0 ? 100 : maximum * 1.25,
             barTouchData: BarTouchData(
               touchTooltipData: BarTouchTooltipData(
-                getTooltipColor: (group) => colours.primary,
+                getTooltipColor: (_) => colours.primary,
                 getTooltipItem: (group, groupIndex, rod, rodIndex) {
                   return BarTooltipItem(
                     _formatCurrency(rod.toY),
@@ -288,15 +279,21 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
               ),
             ],
             titlesData: FlTitlesData(
+              topTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              rightTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
               leftTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
                   reservedSize: 45,
                   interval: interval,
-                  getTitlesWidget: (value,meta){
+                  getTitlesWidget: (value, metadata) {
                     return Text(
-                      value == 0 ? "0" : "R${(value/1000).toStringAsFixed(0)}k",
-                      style: colours.b5.copyWith(color: colours.textMuted,),
+                      value == 0 ? '0' : 'R${(value / 1000).toStringAsFixed(0)}k',
+                      style: colours.b5.copyWith(color: colours.textMuted),
                     );
                   },
                 ),
@@ -305,156 +302,132 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                 sideTitles: SideTitles(
                   showTitles: true,
                   reservedSize: 35,
-                  getTitlesWidget: (value,meta) {
+                  getTitlesWidget: (value, metadata) {
                     return Padding(
-                      padding: const EdgeInsets.only(top:10),
+                      padding: const EdgeInsets.only(top: 10),
                       child: Text(
-                        value.toInt() == 0 ? "Income" : "Expenses",
+                        value.toInt() == 0 ? 'Income' : 'Expenses',
                         style: colours.budgetheader,
                       ),
                     );
                   },
                 ),
               ),
-              topTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-
-              rightTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ), 
             ),
             borderData: FlBorderData(
               border: Border(
-                left: BorderSide(
-                  color: colours.secondary,),
-                  bottom: BorderSide(
-                    color: colours.secondary,
-                  ),
+                left: BorderSide(color: colours.secondary),
+                bottom: BorderSide(color: colours.secondary),
               ),
             ),
-          )
+          ),
         ),
       ),
     );
   }
-
+//fixes to colours and section data for widget
   Widget _categoryChart(GraphicalReportData report) {
-    final colours = context.colours;
-
     if (report.categorySpending.isEmpty) {
       return _emptyChartMessage();
     }
-    final chartColours = [ 
+
+    final colours = context.colours;
+    final cardTextColor = _reportCardTextColor(context);
+    final chartColours = [
       colours.greenAccents,
       colours.yellow,
       colours.light,
       colours.warning,
       colours.textMuted,
       colours.informational,
-      colours.secondary];
-    final total = report.categorySpending.fold(0.0,
-          (sum, item) => sum+item.amount,);
+      colours.secondary,
+    ];
+    final total = report.categorySpending.fold<double>(
+      0,
+      (sum, category) => sum + category.amount,
+    );
 
     return _chartCard(
-      child: SizedBox(
-        height: 360,
-        child: Row(
-          children: [
-            Expanded(
-              flex: 5,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  PieChart(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final chartSize = constraints.maxWidth < 180
+              ? constraints.maxWidth
+              : constraints.maxWidth.clamp(180.0, 260.0).toDouble();
+          final sectionRadius = chartSize * 0.28;
+          final centerRadius = chartSize * 0.17;
+
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: chartSize,
+                height: chartSize,
+                child: PieChart(
                   PieChartData(
-                    centerSpaceRadius: 55,
+                    centerSpaceRadius: centerRadius,
                     sectionsSpace: 3,
-                    sections: report.categorySpending
-                        .asMap()
-                        .entries
-                        .map((entry){
-                          final index =entry.key;
-                          final category = entry.value;
-                          
-                          return PieChartSectionData(
-                            value: category.amount,
-                            title: "",
-                            radius: 90,
-                            color: chartColours[index%chartColours.length], // dividing the colours among categories
-                          );
-                        }).toList(),
-                      ), 
-                    ),
-            Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "Total Spent",
-                        style: colours.b3.copyWith(
-                          color: colours.textMuted,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        _formatCurrency(total),
-                        style: colours.h2,
-                      ),
-                    ],
+                    sections: report.categorySpending.asMap().entries.map((entry) {
+                      return PieChartSectionData(
+                        value: entry.value.amount,
+                        title: '',
+                        radius: sectionRadius,
+                        color: chartColours[entry.key % chartColours.length],
+                      );
+                    }).toList(),
                   ),
-                ],
+                ),
               ),
-            ),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 12,
+                runSpacing: 10,
+                children: report.categorySpending.asMap().entries.map((entry) {
+                  final category = entry.value;
+                  final percentage = total == 0 ? 0 : (category.amount / total) * 100;
+                  final colour = chartColours[entry.key % chartColours.length];
 
-            Expanded(
-              flex: 4,
-              child: ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: report.categorySpending.length,
-                itemBuilder: (context, index) {
-                  final category = report.categorySpending[index];
-                  final colour = chartColours[index % chartColours.length];
-                  final percentage = (category.amount / total) * 100;
-
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
+                  return SizedBox(
+                    width: constraints.maxWidth < 360
+                        ? constraints.maxWidth
+                        : (constraints.maxWidth - 12) / 2,
                     child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Container(
-                          width: 14,
-                          height: 14,
+                          width: 12,
+                          height: 12,
                           decoration: BoxDecoration(
                             color: colour,
                             borderRadius: BorderRadius.circular(3),
                           ),
                         ),
-                        const SizedBox(width: 10),
-
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             category.categoryName,
-                            style: colours.b4.copyWith(
-                              color: colours.textPrimary,
-                            ),
                             overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: cardTextColor,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
-
+                        const SizedBox(width: 6),
                         Text(
-                          "${percentage.toStringAsFixed(1)}%",
-                          style: colours.b4.copyWith(
-                            color: colours.textMuted,
+                          '${percentage.toStringAsFixed(1)}%',
+                          style: TextStyle(
+                            color: cardTextColor,
+                            fontSize: 12,
                           ),
                         ),
                       ],
                     ),
                   );
-                }
-             ),
-            ),
-          ],
-        ),
+                }).toList(),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -464,12 +437,13 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
       return _emptyChartMessage();
     }
 
+    final colours = context.colours;
+    final cardTextColor = _reportCardTextColor(context);
+
     return _chartCard(
       child: Column(
         children: report.budgetComparisons.map((budget) {
-          final progress = budget.limit <= 0
-              ? 0.0
-              : budget.spent / budget.limit;
+          final progress = budget.limit <= 0 ? 0.0 : budget.spent / budget.limit;
 
           return Padding(
             padding: const EdgeInsets.only(bottom: 18),
@@ -482,14 +456,14 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                     Text(
                       budget.categoryName,
                       style: TextStyle(
-                        color: context.colours.textPrimary,
+                        color: cardTextColor,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
                       '${_formatCurrency(budget.spent)} / '
                       '${_formatCurrency(budget.limit)}',
-                      style: TextStyle(color: context.colours.textPrimary),
+                      style: TextStyle(color: cardTextColor),
                     ),
                   ],
                 ),
@@ -497,7 +471,8 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                 LinearProgressIndicator(
                   value: progress > 1 ? 1 : progress,
                   minHeight: 9,
-                  backgroundColor: context.colours.secondary,
+                  backgroundColor: colours.secondary.withOpacity(0.25),
+                  color: colours.secondary,
                 ),
               ],
             ),
@@ -508,16 +483,15 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
   }
 
   Widget _trendChart(GraphicalReportData report) {
-    final colours = context.colours;
     if (report.spendingTrend.isEmpty) {
       return _emptyChartMessage();
     }
 
-    final spots = report.spendingTrend
-        .asMap()
-        .entries
-        .map((entry) => FlSpot(entry.key.toDouble(), entry.value.amount))
-        .toList();
+    final colours = context.colours;
+    final cardTextColor = _reportCardTextColor(context);
+    final spots = report.spendingTrend.asMap().entries.map((entry) {
+      return FlSpot(entry.key.toDouble(), entry.value.amount);
+    }).toList();
 
     return _chartCard(
       child: SizedBox(
@@ -529,24 +503,57 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                 spots: spots,
                 isCurved: true,
                 barWidth: 3,
+                color: colours.secondary,
                 dotData: const FlDotData(show: true),
               ),
             ],
-            titlesData: const FlTitlesData(
-              topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              rightTitles: AxisTitles(
+            titlesData: FlTitlesData(
+              topTitles: const AxisTitles(
                 sideTitles: SideTitles(showTitles: false),
+              ),
+              rightTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              leftTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 42,
+                  getTitlesWidget: (value, metadata) {
+                    return Text(
+                      value.toInt().toString(),
+                      style: TextStyle(
+                        color: cardTextColor,
+                        fontSize: 10,
+                      ),
+                    );
+                  },
+                ),
+              ),
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  getTitlesWidget: (value, metadata) {
+                    final index = value.toInt();
+                    final label = index >= 0 && index < report.spendingTrend.length
+                        ? report.spendingTrend[index].label
+                        : '';
+
+                    return Text(
+                      label,
+                      style: TextStyle(
+                        color: cardTextColor,
+                        fontSize: 10,
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
             borderData: FlBorderData(
-            border: Border(
-              left: BorderSide(
-                color: colours.secondary,
+              border: Border(
+                left: BorderSide(color: colours.secondary),
+                bottom: BorderSide(color: colours.secondary),
               ),
-              bottom: BorderSide(
-                color: colours.secondary,
-              ),
-             ),
             ),
           ),
         ),
@@ -555,16 +562,27 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
   }
 
   Widget _chartCard({required Widget child}) {
-    final colours = context.colours;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: colours.bg2,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colours.secondary),
-      ),
+      decoration: _cardDecoration(),
       child: child,
+    );
+  }
+
+  BoxDecoration _cardDecoration() {
+    final colours = context.colours;
+
+    return BoxDecoration(
+      color : _reportCardColor(context),
+      borderRadius : BorderRadius.circular(20),
+      border: Border.all(color: colours.secondary),
+      boxShadow : [
+        BoxShadow(
+          color: colours.category,
+          offset: const Offset(6, 6),
+        ),
+      ],
     );
   }
 
@@ -580,26 +598,30 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
   }
 
   Widget _emptyChartMessage() {
+    final cardTextColor = _reportCardTextColor(context);
+
     return _chartCard(
       child: Text(
         'No data is available for this graph.',
         textAlign: TextAlign.center,
-        style: TextStyle(color: context.colours.textPrimary),
+        style: TextStyle(color: cardTextColor),
       ),
     );
   }
 
   Widget _noDataCard() {
+    final cardTextColor = _reportCardTextColor(context);
+
     return _chartCard(
       child: Column(
         children: [
-          Icon(Icons.insert_chart_outlined, color: context.colours.secondary, size: 48),
+          Icon(Icons.insert_chart_outlined, color: cardTextColor, size: 48),
           const SizedBox(height: 14),
           Text(
             'No financial data is available for the selected period.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: context.colours.textPrimary,
+              color: cardTextColor,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -607,7 +629,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
           Text(
             'Select another reporting period or add transactions.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: context.colours.textPrimary),
+            style: TextStyle(color: cardTextColor),
           ),
         ],
       ),

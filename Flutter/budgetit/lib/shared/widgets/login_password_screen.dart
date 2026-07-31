@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../utils/app_colour.dart';
 import 'verify_email_screen.dart';
 import 'forgot_password_screen.dart';
 import 'coming_soon_page.dart';
@@ -23,12 +24,14 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
 
   bool _passwordVisible = false;
   bool _confirmPasswordVisible = false;
-
-  // Colours
-  static const _green = Color(0xFF04240C);
-  static const _cream = Color(0xFFDDD6AE);
-  static const _glassColor = Color(0x22DDD6AE); // cream at ~13% opacity
-  static const _glassBorder = Color(0x44DDD6AE); // cream at ~27% opacity
+// using the app colours we defined in app colour file..
+  Color get _green => context.colours.primary;
+  Color get _cream => context.colours.cardText;
+  Color get _glassColor => context.colours.cardText.withValues(alpha: 0.13);
+  Color get _softCream => _cream.withValues(alpha: 0.8);
+  Color get _mutedCream => _cream.withValues(alpha: 0.6);
+  Color get _faintCream => _cream.withValues(alpha: 0.4);
+  Color get _borderColor => context.colours.category;
 
   @override
   void dispose() {
@@ -72,38 +75,23 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
     );
   }
 
-  // --- Top Bar ---
+  // Top Bar
   Widget _buildTopBar() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          IconButton(
-            icon: const Icon(Icons.menu, color: Colors.white),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const ComingSoonPage(
-                  title: 'Menu Coming Soon',
-                  message:
-                      'The main menu is still being prepared. More navigation options will be added here soon.',
-                  icon: Icons.menu,
-                ),
-              ),
-            ),
-          ),
-          const Text(
+          const SizedBox(width: 48),
+          Text(
             'Budget IT',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1,
+            style: context.colours.title.copyWith(
+              color: _cream,
+              fontSize: 20,
             ),
-          ),
+          ),// i dont know if this should be placed but agile
           IconButton(
-            icon: const Icon(Icons.settings, color: Colors.white),
+            icon: Icon(Icons.settings, color: _cream),
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(
@@ -121,22 +109,26 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
     );
   }
 
-  // --- Header ---
+  //Header 
   Widget _buildHeader() {
     return Column(
       children: [
         Text(
           _selectedTab == 0 ? 'Welcome Back' : 'Create Account',
-          style: const TextStyle(
-            color: Colors.white,
+          style: context.colours.h2.copyWith(
+            color: _cream,
             fontSize: 28,
             fontWeight: FontWeight.bold,
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
-          'Secure your financial future with precision.',
-          style: TextStyle(color: Colors.white60, fontSize: 13),
+        Text(
+          'Nerf your expenses',// we might change this slogan lowkey
+          style: context.colours.h2.copyWith(
+            color: _softCream,
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ],
     );
@@ -146,9 +138,11 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
   Widget _buildCard(AppAuthProvider auth) {
     return Container(
       decoration: BoxDecoration(
-        color: _glassColor,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _glassBorder, width: 1),
+        color: context.colours.blendedprimary,
+        border: Border.all(color: _borderColor, width: 4),
+        boxShadow: [
+          BoxShadow(color: _borderColor, offset: const Offset(6, 6)),
+        ],
       ),
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -182,8 +176,8 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
   Widget _buildTabSwitcher() {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0x33DDD6AE),
-        borderRadius: BorderRadius.circular(10),
+        color: _cream.withValues(alpha: 0.2),
+        border: Border.all(color: _borderColor, width: 4),
       ),
       child: Row(children: [_buildTab('Login', 0), _buildTab('Register', 1)]),
     );
@@ -206,13 +200,12 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: isSelected ? _cream : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
+            color: isSelected ? _cream : _cream.withValues(alpha: 0),
           ),
           child: Text(
             label,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: context.colours.h2.copyWith(
               color: isSelected ? _green : _cream,
               fontWeight: FontWeight.w600,
               fontSize: 14,
@@ -281,18 +274,25 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0x1ADDD6AE),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _glassBorder),
+        color: _cream.withValues(alpha: 0.1),
+        border: Border.all(color: _borderColor, width: 4),
       ),
       child: TextField(
         controller: controller,
         keyboardType: keyboardType,
         obscureText: obscure,
-        style: const TextStyle(color: Colors.white, fontSize: 14),
+        style: context.colours.h2.copyWith(
+          color: _cream,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: const TextStyle(color: Colors.white38),
+          hintStyle: context.colours.h2.copyWith(
+            color: _mutedCream,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
           prefixIcon: Icon(icon, color: _cream, size: 20),
           suffixIcon: suffix,
           border: InputBorder.none,
@@ -314,10 +314,10 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
           context,
           MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
         ),
-        child: const Text(
+        child: Text(
           'Forgot?',
-          style: TextStyle(
-            color: Color(0xFFDDD6AE),
+          style: context.colours.h2.copyWith(
+            color: _cream,
             fontSize: 13,
             fontWeight: FontWeight.w500,
           ),
@@ -333,18 +333,22 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: const Color(0x33CF6679),
+          color: context.colours.error.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: const Color(0xFFCF6679)),
+          border: Border.all(color: context.colours.error),
         ),
         child: Row(
           children: [
-            const Icon(Icons.error_outline, color: Color(0xFFCF6679), size: 16),
+            Icon(Icons.error_outline, color: context.colours.error, size: 16),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 auth.errorMessage!,
-                style: const TextStyle(color: Color(0xFFCF6679), fontSize: 13),
+                style: context.colours.h2.copyWith(
+                  color: context.colours.error,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ],
@@ -365,22 +369,23 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
           foregroundColor: _green,
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: _borderColor, width: 4),
           ),
-          disabledBackgroundColor: const Color(0x88DDD6AE),
+          disabledBackgroundColor: _cream.withValues(alpha: 0.53),
         ),
         child: auth.isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 height: 20,
                 width: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Color(0xFF04240C),
+                  color: _green,
                 ),
               )
             : Text(
                 label,
-                style: const TextStyle(
+                style: context.colours.h2.copyWith(
+                  color: _green,
                   fontWeight: FontWeight.bold,
                   fontSize: 15,
                 ),
@@ -393,15 +398,19 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
   Widget _buildDivider() {
     return Row(
       children: [
-        Expanded(child: Divider(color: Colors.white24)),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12),
+        Expanded(child: Divider(color: _faintCream)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Text(
             'OR',
-            style: TextStyle(color: Colors.white38, fontSize: 12),
+            style: context.colours.h2.copyWith(
+              color: _mutedCream,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
-        Expanded(child: Divider(color: Colors.white24)),
+        Expanded(child: Divider(color: _faintCream)),
       ],
     );
   }
@@ -416,13 +425,18 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
             : () => context.read<AppAuthProvider>().continueAsGuest(),
         style: OutlinedButton.styleFrom(
           foregroundColor: _cream,
-          side: const BorderSide(color: Color(0x88DDD6AE)),
+          side: BorderSide(color: _borderColor, width: 4),
           padding: const EdgeInsets.symmetric(vertical: 14),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+          shape: const RoundedRectangleBorder(),
+        ),
+        child: Text(
+          'Continue as Guest',
+          style: context.colours.h2.copyWith(
+            color: _cream,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
           ),
         ),
-        child: const Text('Continue as Guest', style: TextStyle(fontSize: 14)),
       ),
     );
   }
@@ -444,8 +458,10 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: _glassColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _glassBorder),
+        border: Border.all(color: _borderColor, width: 4),
+        boxShadow: [
+          BoxShadow(color: _borderColor, offset: const Offset(6, 6)),
+        ],
       ),
       child: Icon(icon, color: _cream, size: 28),
     );
@@ -455,14 +471,15 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
   Widget _buildSecureBadge() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: const [
-        Icon(Icons.lock, color: Colors.white38, size: 12),
-        SizedBox(width: 6),
+      children: [
+        Icon(Icons.lock, color: _mutedCream, size: 12),
+        const SizedBox(width: 6),
         Text(
           'SECURE END-TO-END ENCRYPTION',
-          style: TextStyle(
-            color: Colors.white38,
+          style: context.colours.h2.copyWith(
+            color: _mutedCream,
             fontSize: 10,
+            fontWeight: FontWeight.w500,
             letterSpacing: 1.2,
           ),
         ),
