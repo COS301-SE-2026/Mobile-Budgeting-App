@@ -63,7 +63,40 @@ make -C docker backend-up
 curl http://localhost:8000/health
 ```
 
----
+![Typing](https://readme-typing-svg.demolab.com?font=Fira+Code&pause=1000&color=DDD6AE&width=650&center=true&lines=Designed+to+help+users+track+income+and+expenses;Manage+your+budget;Nerf+your+expenses)
+
+
+# Project Description
+A mobile budgeting app designed to help users track income and expenses, manage budgets, import bank statements, and understand their spending through reports and insights.
+## Project Documents
+
+
+| Document | Description |
+|---|---|
+| [Software Requirements Specification (SRS)](docs/SRS.md) | Defines the system requirements, user stories, use cases, and functional scope of the application. |
+| [Software Architecture Specification (SAS)](docs/SAS.md) | Describes the system architecture, design decisions, components, and technical structure. |
+| [Coding Standards](docs/CodingStandardsDocument_Budget_IT.pdf) | Outlines the coding conventions, formatting rules, naming guidelines, and development practices followed by the team. |
+| [Testing Policy](docs/TestingPolicy.md) | Explains the testing approach, required test types, coverage expectations, and quality assurance process. |
+| [User Manual](docs/UserManual.md) | Provides instructions for installing, navigating, and using the application. |
+| [Brand Style Guide](docs/brandstyle.md) | Documents the project’s visual identity, typography, colours, and branding guidelines. |
+##  Team
+
+<p align="center">
+  <img src="docs/GroupMembers.jpeg" alt="Dev OOPs Team" width="700"/>
+</p>
+
+<div align="center">
+
+
+| Member | Role | LinkedIn |
+| :--- | :--- | :---: |
+| **Pavan Naidoo** | Scrum Master & Full-Stack Lead | [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/pavan-naidoo-5333613b5/) |
+| **Lufuno Mphagi** | Backend & Data Lead | [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/lufuno-mphagi/) |
+| **Kiolin Gounden** | AI & Analytics Lead | [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/kiolin-gounden-10577924b/) |
+| **Jessica Marodi** | Frontend Lead & UI/UX | [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/jessica-m-9722a3380/) |
+| **Donovan Nelson** | DevOps & Infrastructure | [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/donovan-nelson/) |
+
+</div>
 
 ## Tech Stack
 ### Web
