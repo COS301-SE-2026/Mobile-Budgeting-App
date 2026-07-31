@@ -424,55 +424,56 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
               )
             else
               ...transactions.map(
-                (transaction) => Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: context.colours.primary,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: context.colours.secondary),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.receipt_long_outlined,
-                        color: context.colours.textPrimary,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              transaction.shortDescription,
-                              style: TextStyle(
-                                color: context.colours.textPrimary,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                              ),
-                            ),
-                            Text(
-                              _formatDate(transaction.transactionDate),
-                              style: TextStyle(
-                                color: context.colours.textPrimary,
-                                fontSize: 11,
-                              ),
-                            ),
-                          ],
+                (transaction) {
+                  final isIncome = transaction.type == TransactionType.income;
+                  final moneyColor = isIncome
+                      ? context.colours.greenAccents
+                      : context.colours.error;
+
+                  return Container(
+                    margin : const EdgeInsets.only(bottom: 10),
+                    padding : const EdgeInsets.all(14),
+                    decoration : BoxDecoration(color:context.colours.primary,
+                      borderRadius : BorderRadius.circular(10),
+                      border : Border.all(color : context.colours.secondary),
+                    ),
+                    child: Row(
+
+                      children: [
+                        Icon(
+                          isIncome ? Icons.arrow_circle_up_outlined : Icons.arrow_circle_down_outlined,
+                          color: moneyColor,
+                          size: 20,
                         ),
-                      ),
-                      Text(
-                        _formatCurrency(transaction.amount.toDouble()),
-                        style: TextStyle(
-                          color: context.colours.secondary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                transaction.shortDescription,
+                                style: context.colours.budgetheader.copyWith(color: context.colours.cardText,
+                                ),
+                              ),
+                              Text(
+                                _formatDate(transaction.transactionDate) ,
+                                style: context.colours.b5.copyWith(
+                                color: context.colours.cardText,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
+                        Text(
+                          _formatCurrency(transaction.amount.toDouble()),
+                          style: context.colours.b4.copyWith(color: moneyColor,
+                              fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
           ],
         );
