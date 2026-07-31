@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../../views/landingpage/custom_app_bar.dart';
-import '../../views/landingpage/hero_section.dart';
+import 'custom_app_bar.dart';
+import 'hero_section.dart';
 
-import '../../views/landingpage/import_section.dart';
-import '../../views/landingpage/how_it_works.dart';
-import '../../views/landingpage/download_section.dart';
-import '../../views/landingpage/about_section.dart';
-import '../../views/landingpage/footer.dart';
+import 'import_section.dart';
+import 'how_it_works.dart';
+import 'download_section.dart';
+import 'about_section.dart';
+import 'footer.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});

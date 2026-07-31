@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../utils/app_colour.dart';
+import '../../../utils/app_colour.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DownloadSection extends StatelessWidget {
-  
   const DownloadSection({super.key});
 
   @override
@@ -27,10 +27,6 @@ class DownloadSection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 48),
-          _PlatformBadge(
-            icon: Icons.play_arrow_rounded,
-            label: "AVAILABLE ON\nPLAY STORE",
-          ),//need the image of the
         ],
       ),
     );
@@ -52,7 +48,7 @@ class _PlatformBadge extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width:110,
+          width: 110,
           height: 110,
           decoration: BoxDecoration(
             color: context.colours.primary,
@@ -74,14 +70,39 @@ class _PlatformBadge extends StatelessWidget {
       ],
     );
   }
-}//end
-//making the download button widget
-class _DownloadButton extends StatelessWidget {
+}
+
+class _DownloadButton extends StatefulWidget {
+  @override
+  State<_DownloadButton> createState() => _DownloadButtonState();
+}
+
+class _DownloadButtonState extends State<_DownloadButton> {
+  static const _downloadUrl =
+      'https://budgetit-apk-releases.s3.eu-north-1.amazonaws.com/apk-releases/budgetit-manual-test.apk';
+
+  bool _launching = false;
+
+  Future<void> _handleDownload() async { //used claude for helper function errors
+    setState(() => _launching = true);
+    try {
+      final uri = Uri.parse(_downloadUrl);
+      final launched = await launchUrl(uri, webOnlyWindowName: '_blank');
+      if (!launched && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not start download.')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _launching = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colours = context.colours;
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: _launching ? null : _handleDownload,
       style: ElevatedButton.styleFrom(
         backgroundColor: colours.secondary,
         foregroundColor: context.colours.background,
@@ -91,10 +112,19 @@ class _DownloadButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(30),
         ),
       ),
-      child: const Text(
-        "Download the app",
-        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
-      ),
+      child: _launching
+          ? SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: context.colours.background,
+              ),
+            )
+          : const Text(
+              "Download the app",
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+            ),
     );
   }
 }

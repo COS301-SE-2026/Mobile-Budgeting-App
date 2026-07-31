@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../utils/app_colour.dart';
+import '../../../utils/app_colour.dart';
 
 class HeroSection extends StatefulWidget {
   final VoidCallback? onGetStarted; 
@@ -21,7 +21,7 @@ class HeroSection extends StatefulWidget {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          // Decorative background circles
+         
           Positioned(
             top: -40,
             left: 20,
