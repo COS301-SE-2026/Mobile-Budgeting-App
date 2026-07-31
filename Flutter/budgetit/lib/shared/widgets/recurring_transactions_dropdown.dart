@@ -84,17 +84,17 @@ class _RecurringTransactionsDropdownState extends State<RecurringTransactionsDro
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     decoration: BoxDecoration(
                       shape: BoxShape.rectangle,
-                      color: colours.primary,
+                      color: colours.secondary,
                       border: Border.all(color: Colors.black, width: 4.0),
 
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.autorenew, color: colours.cardText),
+                        Icon(Icons.autorenew, color: colours.background),
                         const SizedBox(width: 8),
                         Text(
-                          _recurringTransactions.isEmpty ? 'RECURRING TRANSACTIONS' : 'RECURRING TRANSACTION (${_recurringTransactions.length})',
-                          style: colours.h2,
+                          _recurringTransactions.isEmpty ? 'RECURRING TRANSACTIONS' : 'RECURRING TRANSACTIONS',
+                          style: colours.h2.copyWith(color: colours.background),
                         ),
                         const Spacer(),
                         AnimatedRotation(
@@ -102,7 +102,7 @@ class _RecurringTransactionsDropdownState extends State<RecurringTransactionsDro
                           duration: const Duration(milliseconds: 200),
                           child: Icon(
                             Icons.expand_more,
-                            color: colours.cardText,
+                            color: colours.background,
                           ),
                         ),
                       ],

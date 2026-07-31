@@ -189,14 +189,14 @@ class _AddEditRecurringTransactionDialogState extends State<AddEditRecurringTran
                       label: 'Expense',
                       selected: _type == TransactionType.expense,
                       onTap: () => setState(() => _type = TransactionType.expense),
-                      colours: colours,
+                      
                     ),
                     const SizedBox(width: 8),
                     _TypeButton(
                       label: 'Income',
                       selected: _type == TransactionType.income,
                       onTap: () => setState(() => _type = TransactionType.income),
-                      colours: colours,
+                      
                     ),
                   ],
                 ),
@@ -252,7 +252,7 @@ class _AddEditRecurringTransactionDialogState extends State<AddEditRecurringTran
                       },
                       selected: _unit == unit,
                       onTap: () => setState(() => _unit = unit),
-                      colours: colours,
+                      
                       compact: true,
                     );
                   }).toList(),
@@ -388,19 +388,18 @@ class _TypeButton extends StatelessWidget {
   final String label;
   final bool selected;
   final VoidCallback onTap;
-  final MyColours colours;
   final bool compact;
 
   const _TypeButton({
     required this.label,
     required this.selected,
     required this.onTap,
-    required this.colours,
     this.compact = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final colours = context.colours;
     final content = Container(
       padding: EdgeInsets.symmetric(
         vertical: 8,

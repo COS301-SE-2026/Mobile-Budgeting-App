@@ -102,7 +102,7 @@ class _RecurringTransactionCardState extends State<RecurringTransactionCard> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        '$frequency \u2022 Next: $nextDate',
+                        'Next: $nextDate',
                         style: context.colours.h4,
                         overflow: TextOverflow.ellipsis,
                       ),
