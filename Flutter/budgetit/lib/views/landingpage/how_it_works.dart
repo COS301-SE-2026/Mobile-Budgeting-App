@@ -14,7 +14,6 @@ class HowItWorks extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          //used chatgpt for text construct and step item
           Text(
             "How it works :",
             style: TextStyle(

@@ -222,7 +222,7 @@ class FeatureCard extends StatelessWidget {
                 Text(
                   description,
                   style: TextStyle(
-                    color: colours.background.withOpacity(0.85),
+                    color: colours.background.withValues(alpha: 0.85),
                     fontSize: 15,
                     height: 1.5,
                   ),
@@ -248,7 +248,7 @@ class _FeatureChip extends StatelessWidget {
         vertical: 10,
       ),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: Colors.white.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(30),
         border: Border.all(
           color: Colors.white24,
