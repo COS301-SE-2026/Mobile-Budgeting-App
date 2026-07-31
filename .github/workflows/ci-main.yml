@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - feature/docker
     paths-ignore:
       - "**.md"
       - "docs/**"
@@ -12,6 +13,7 @@ on:
   pull_request:
     branches:
       - main
+      - feature/docker
     paths-ignore:
       - "**.md"
       - "docs/**"
@@ -46,6 +48,7 @@ jobs:
     name: Prepare
     runs-on: self-hosted
     outputs:
+
       has_golden: ${{ steps.detect-tests.outputs.has_golden }}
       has_perf: ${{ steps.detect-tests.outputs.has_perf }}
       has_integ: ${{ steps.detect-tests.outputs.has_integ }}
@@ -262,7 +265,8 @@ jobs:
   apk-build:
     name: Build APK
     runs-on: self-hosted
-    needs: unit-tests
+    env:
+      ANDROID_NDK_VERSION : 27.0.11902837
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
@@ -316,6 +320,17 @@ jobs:
           path: Flutter/budgetit/build/app/outputs/flutter-apk/app-release.apk
           retention-days: 90
 
+      - name: Upload APK to S3
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: eu-north-1
+        run: |
+          aws s3 cp Flutter/budgetit/build/app/outputs/flutter-apk/app-release.apk \
+          s3://budgetit-apk-releases/apk-releases/latest.apk
+
+
       - name: Upload APK artifact (main branch pushes)
         if: github.ref == 'refs/heads/main' && github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
@@ -324,4 +339,33 @@ jobs:
           path: Flutter/budgetit/build/app/outputs/flutter-apk/app-release.apk
           retention-days: 7
 
+  pages:
+    name: Build static files
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: ./.github/actions/flutter-setup
 
+      - name: Build landing page for web
+        working-directory: Flutter/budgetit
+        run: flutter build web --target=lib/landing_page/main.dart --release --base-href /Mobile-Budgeting-App/
+
+      - name: Upload static files as artifact
+        id: deployment
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: Flutter/budgetit/build/web
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: self-hosted
+    needs: pages
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
