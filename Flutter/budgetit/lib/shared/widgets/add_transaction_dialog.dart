@@ -123,7 +123,8 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
       if (mounted) setState(() => _saving = false);
     }
   }
-//changes to this widget was AI assisted , the alert dialog
+
+  //changes to this widget was AI assisted , the alert dialog
   @override
   Widget build(BuildContext context) {
     final colours = context.colours;
@@ -395,7 +396,7 @@ class _TypeButton extends StatelessWidget {
     );
   }
 }
-
+// input field decoration fixed
 InputDecoration _inputDecoration(
   String hint,
   BuildContext context,
@@ -403,27 +404,28 @@ InputDecoration _inputDecoration(
   Color textColor,
 ) => InputDecoration(
   hintText: hint,
-  hintStyle : context.colours.h2.copyWith(
-    color: textColor.withValues(alpha: 0.55),fontSize: 14,
+  hintStyle: context.colours.h2.copyWith(
+    color: textColor.withValues(alpha: 0.55),
+    fontSize: 14,
     fontWeight: FontWeight.w500,
   ),
   filled: true,
   fillColor: fillColor,
-  contentPadding : const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
   border : OutlineInputBorder(
     borderRadius: BorderRadius.zero,
     borderSide: BorderSide(color: context.colours.secondary),
   ),
-  enabledBorder : OutlineInputBorder(
-    borderRadius : BorderRadius.zero,
+  enabledBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.zero,
     borderSide: BorderSide(color: context.colours.secondary),
   ),
   focusedBorder: OutlineInputBorder(
-    borderRadius : BorderRadius.zero,
-    borderSide : BorderSide(color: context.colours.secondary, width: 2),
+    borderRadius: BorderRadius.zero,
+    borderSide: BorderSide(color: context.colours.secondary, width: 2),
   ),
-  errorBorder : OutlineInputBorder(
-    borderRadius : BorderRadius.zero,
+  errorBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.zero,
     borderSide: BorderSide(color: context.colours.error, width: 4),
   ),
   focusedErrorBorder: OutlineInputBorder(
