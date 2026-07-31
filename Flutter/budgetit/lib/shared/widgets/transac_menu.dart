@@ -19,11 +19,13 @@ class _FABMenuState extends State<FABMenu> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: MyColours().secondary,
+      color: context.colours.secondary,
       padding: const EdgeInsets.all(1),
+      alignment: Alignment.center,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
+        mainAxisSize: MainAxisSize.min,
+        
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -35,11 +37,11 @@ class _FABMenuState extends State<FABMenu> {
                 child: Container(
                   decoration: BoxDecoration(
                     color: isHover1
-                        ? MyColours().background
-                        : MyColours().secondary,
+                        ? context.colours.background
+                        : context.colours.secondary,
                     borderRadius: const BorderRadius.all(Radius.circular(10)),
                     border: Border.all(
-                      color: MyColours().background,
+                      color: context.colours.background,
                       width: 2,
                       style: BorderStyle.solid,
                     ),
@@ -49,8 +51,8 @@ class _FABMenuState extends State<FABMenu> {
                     'Add Transaction',
                     style: TextStyle(
                       color: isHover1
-                          ? MyColours().secondary
-                          : MyColours().background,
+                          ? context.colours.secondary
+                          : context.colours.background,
                     ),
                   ),
                 ),
@@ -68,11 +70,11 @@ class _FABMenuState extends State<FABMenu> {
                 child: Container(
                   decoration: BoxDecoration(
                     color: isHover2
-                        ? MyColours().background
-                        : MyColours().secondary,
+                        ? context.colours.background
+                        : context.colours.secondary,
                     borderRadius: const BorderRadius.all(Radius.circular(10)),
                     border: Border.all(
-                      color: MyColours().background,
+                      color: context.colours.background,
                       width: 2,
                       style: BorderStyle.solid,
                     ),
@@ -82,8 +84,8 @@ class _FABMenuState extends State<FABMenu> {
                     'Import PDF/CSV',
                     style: TextStyle(
                       color: isHover2
-                          ? MyColours().secondary
-                          : MyColours().background,
+                          ? context.colours.secondary
+                          : context.colours.background,
                     ),
                   ),
                 ),

@@ -81,37 +81,50 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final colours = MyColours();
+    final colours = context.colours;
+    final cardColor = Theme.of(context).brightness == Brightness.dark
+        ? colours.blendedprimary
+        : colours.secondary;
+    final cardTextColor = Theme.of(context).brightness == Brightness.dark
+        ? colours.secondary
+        : colours.background;
+    final borderColor = colours.category;
     final dateLabel = '${_date.day} ${_months[_date.month - 1]} ${_date.year}';
-
+// for this dialog change, i couldnot make the changes myself, i asked AI to add the boarder style to the input fields and the selection buttons only.
     return Dialog(
-      backgroundColor: colours.background,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: colours.secondary, width: 1.5),
-      ),
+      backgroundColor: colours.background.withValues(alpha: 0),
+      shape: const RoundedRectangleBorder(),
       child: Padding(
         padding: const EdgeInsets.all(20),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Add Transaction',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: colours.textPrimary,
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: cardColor,
+            border: Border.all(color: borderColor, width: 4),
+            boxShadow: [
+              BoxShadow(color: borderColor, offset: const Offset(6, 6)),
+            ],
+          ),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Add Transaction',
+                  style: colours.h2.copyWith(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: cardTextColor,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              Divider(
-                color: colours.secondary.withValues(alpha: 0.35),
-                height: 1,
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 12),
+                Divider(
+                  color: cardTextColor.withValues(alpha: 0.35),
+                  height: 1,
+                ),
+                const SizedBox(height: 16),
 
               // Type toggle
               Row(
@@ -122,6 +135,9 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                     onTap: () =>
                         setState(() => _type = TransactionType.expense),
                     colours: colours,
+                    cardColor: cardColor,
+                    cardTextColor: cardTextColor,
+                    borderColor: borderColor,
                   ),
                   const SizedBox(width: 8),
                   _TypeButton(
@@ -129,29 +145,50 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                     selected: _type == TransactionType.income,
                     onTap: () => setState(() => _type = TransactionType.income),
                     colours: colours,
+                    cardColor: cardColor,
+                    cardTextColor: cardTextColor,
+                    borderColor: borderColor,
                   ),
                 ],
               ),
               const SizedBox(height: 16),
 
-              _fieldLabel('Description', colours),
+              _fieldLabel('Description', colours, cardTextColor),
               const SizedBox(height: 6),
               TextFormField(
                 controller: _descController,
-                style: TextStyle(color: colours.cardText, fontSize: 14),
-                decoration: _inputDecoration('e.g. Grocery run', colours),
+                style: colours.h2.copyWith(
+                  color: cardTextColor,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+                decoration: _inputDecoration(
+                  'e.g. Grocery run',
+                  context,
+                  cardColor,
+                  cardTextColor,
+                ),
                 validator: (v) => (v == null || v.trim().isEmpty)
                     ? 'Description is required'
                     : null,
               ),
               const SizedBox(height: 16),
 
-              _fieldLabel('Amount (R)', colours),
+              _fieldLabel('Amount (R)', colours, cardTextColor),
               const SizedBox(height: 6),
               TextFormField(
                 controller: _amountController,
-                style: TextStyle(color: colours.cardText, fontSize: 14),
-                decoration: _inputDecoration('0.00', colours),
+                style: colours.h2.copyWith(
+                  color: cardTextColor,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+                decoration: _inputDecoration(
+                  '0.00',
+                  context,
+                  cardColor,
+                  cardTextColor,
+                ),
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
@@ -169,7 +206,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
               ),
               const SizedBox(height: 16),
 
-              _fieldLabel('Date', colours),
+              _fieldLabel('Date', colours, cardTextColor),
               const SizedBox(height: 6),
               GestureDetector(
                 onTap: _pickDate,
@@ -179,21 +216,24 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                     vertical: 10,
                   ),
                   decoration: BoxDecoration(
-                    color: colours.primary,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: colours.secondary, width: 1),
+                    color: cardColor,
+                    border: Border.all(color: borderColor, width: 4),
                   ),
                   child: Row(
                     children: [
                       Icon(
                         Icons.calendar_today_outlined,
                         size: 14,
-                        color: colours.cardText,
+                        color: cardTextColor,
                       ),
                       const SizedBox(width: 8),
                       Text(
                         dateLabel,
-                        style: TextStyle(color: colours.cardText, fontSize: 14),
+                        style: colours.h2.copyWith(
+                          color: cardTextColor,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),
@@ -210,17 +250,20 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                         : () => Navigator.of(context).pop(),
                     child: Text(
                       'Cancel',
-                      style: TextStyle(color: colours.secondary),
+                      style: colours.h2.copyWith(
+                        color: cardTextColor,
+                        fontSize: 13,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton(
                     onPressed: _saving ? null : _save,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: colours.secondary,
-                      foregroundColor: colours.background,
+                      backgroundColor: cardTextColor,
+                      foregroundColor: cardColor,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        side: BorderSide(color: borderColor, width: 4),
                       ),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 20,
@@ -232,18 +275,23 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                             width: 16,
                             height: 16,
                             child: CircularProgressIndicator(
-                              color: colours.background,
+                              color: cardColor,
                               strokeWidth: 2,
                             ),
                           )
-                        : const Text(
+                        : Text(
                             'Add',
-                            style: TextStyle(fontWeight: FontWeight.w600),
+                            style: colours.h2.copyWith(
+                              color: cardColor,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                   ),
                 ],
               ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -256,12 +304,18 @@ class _TypeButton extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
   final MyColours colours;
-
+  final Color cardColor;
+  final Color cardTextColor;
+  final Color borderColor;
+// defining the colours for the different modes of the buttons
   const _TypeButton({
     required this.label,
     required this.selected,
     required this.onTap,
     required this.colours,
+    required this.cardColor,
+    required this.cardTextColor,
+    required this.borderColor,
   });
 
   @override
@@ -272,15 +326,14 @@ class _TypeButton extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            color: selected ? colours.secondary : colours.primary,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: colours.secondary),
+            color: selected ? cardTextColor : cardColor,
+            border: Border.all(color: borderColor, width: 4),
           ),
           alignment: Alignment.center,
           child: Text(
             label,
-            style: TextStyle(
-              color: selected ? colours.background : colours.textPrimary,
+            style: colours.h2.copyWith(
+              color: selected ? cardColor : cardTextColor,
               fontWeight: FontWeight.w500,
               fontSize: 14,
             ),
@@ -291,36 +344,50 @@ class _TypeButton extends StatelessWidget {
   }
 }
 
-Widget _fieldLabel(String text, MyColours colours) => Text(
+Widget _fieldLabel(String text, MyColours colours, Color labelColor) => Text(
   text,
-  style: TextStyle(
+  style: colours.h2.copyWith(
     fontSize: 12,
     fontWeight: FontWeight.w500,
-    color: colours.secondary,
+    color: labelColor,
   ),
 );
+//this following input decoration, i did use AI to help me format it since is repetition of the same thing
 
-InputDecoration _inputDecoration(String hint, MyColours colours) =>
+InputDecoration _inputDecoration(
+  String hint,
+  BuildContext context,
+  Color fillColor,
+  Color textColor,
+) =>
     InputDecoration(
       hintText: hint,
-      hintStyle: TextStyle(color: MyColours().cardText.withValues(alpha: 0.5)),
+      hintStyle: context.colours.h2.copyWith(
+        color: textColor.withValues(alpha: 0.55),
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+      ),
       filled: true,
-      fillColor: colours.primary,
+      fillColor: fillColor,
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: colours.secondary, width: 1),
+        borderRadius: BorderRadius.zero,
+        borderSide: BorderSide(color: context.colours.category, width: 4),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: colours.secondary, width: 1),
+        borderRadius: BorderRadius.zero,
+        borderSide: BorderSide(color: context.colours.category, width: 4),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: colours.secondary, width: 1.5),
+        borderRadius: BorderRadius.zero,
+        borderSide: BorderSide(color: context.colours.category, width: 4),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Colors.redAccent, width: 1),
+        borderRadius: BorderRadius.zero,
+        borderSide: BorderSide(color: context.colours.error, width: 4),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.zero,
+        borderSide: BorderSide(color: context.colours.error, width: 4),
       ),
     );

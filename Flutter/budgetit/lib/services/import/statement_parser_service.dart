@@ -5,6 +5,7 @@ import 'package:crypto/crypto.dart';
 import 'dart:convert';
 import '../../models/import/parsed_transaction.dart';
 import 'package:pdfrx/pdfrx.dart';
+import 'package:flutter/foundation.dart';
 
 
 
@@ -30,11 +31,11 @@ class StatementParserService {
             .map((h) => h.toString().toLowerCase().trim())
             .toList();
         
-        final dateIdx = _findCol(headers, ['date', 'transaction date', 'posting date', 'value date']);
-        final descIdx = _findCol(headers, ['description', 'details', 'narration', 'merchant', 'reference']);
-        final amountIdx = _findCol(headers, ['amount', 'transaction amount']);
-        final creditIdx = _findCol(headers, ['credit', 'deposit', 'money in']);
-        final debitIdx = _findCol(headers, ['debit', 'withdrawal', 'money out']);
+        final dateIdx = findCol(headers, ['date', 'transaction date', 'posting date', 'value date']);
+        final descIdx = findCol(headers, ['description', 'details', 'narration', 'merchant', 'reference']);
+        final amountIdx = findCol(headers, ['amount', 'transaction amount']);
+        final creditIdx = findCol(headers, ['credit', 'deposit', 'money in']);
+        final debitIdx = findCol(headers, ['debit', 'withdrawal', 'money out']);
         
         if (dateIdx == -1) {
             throw FormatException('Could not find a date column.');
@@ -60,7 +61,7 @@ class StatementParserService {
                         headers[j]: row[j].toString().trim(),
                 };
         
-                final date = _parseDate(row[dateIdx].toString().trim());
+                final date = parseDate(row[dateIdx].toString().trim());
                 final description = row[descIdx].toString().trim();
                 if (description.isEmpty) continue;
         
@@ -68,12 +69,12 @@ class StatementParserService {
                 bool isIncome;
         
                 if (amountIdx != -1) {
-                    amount = _parseAmount(row[amountIdx].toString().trim()).abs();
-                    final raw = _parseAmount(row[amountIdx].toString().trim());
+                    amount = parseAmount(row[amountIdx].toString().trim()).abs();
+                    final raw = parseAmount(row[amountIdx].toString().trim());
                     isIncome = raw >= Decimal.zero;
                 } else {
-                    final credit = _parseAmount(row[creditIdx].toString().trim());
-                    final debit = _parseAmount(row[debitIdx].toString().trim());
+                    final credit = parseAmount(row[creditIdx].toString().trim());
+                    final debit = parseAmount(row[debitIdx].toString().trim());
                     if (credit > Decimal.zero) {
                         amount = credit;
                         isIncome = true;
@@ -102,8 +103,8 @@ class StatementParserService {
     Future<List<ParsedTransaction>> _parsePdf(String path) async {
         try {
             final text = await _extractPdfText(path);
-            print('PDF FULL TEXT:\n$text');
-            return _parsePdfLines(text.split('\n'));
+            //print('PDF FULL TEXT:\n$text');
+            return parsePdfLines(text.split('\n'));
         } catch (e) {
             throw FormatException('Could not extract text from PDf: $e');
         }
@@ -120,14 +121,15 @@ class StatementParserService {
         return buffer.toString();
     }
 
-    List<ParsedTransaction> _parsePdfLines(List<String> lines) {
+    @visibleForTesting
+    List<ParsedTransaction> parsePdfLines(List<String> lines) {
         for(final line in lines){
-            print ('PDF LINE: $line');
+            //print ('PDF LINE: $line');
         }
         //final datePattern = RegExp(r'(\d{4}[\/\-]\d{2}[\/\-]\d{2}|\d{1,2}[\/\-]\d{2}[\/\-]\d{2})',
-        final datePattern = RegExp(r'(\d{4}[\/\-]\d{2}[\/\-]\d{2}|\d{1,2}[\/\-]\d{2}[\/\-]\d{2,4}|\d{2}[\/\-]\d{2})',
+        final datePattern = RegExp(r'(\d{4}[\/\-]\d{2}[\/\-]\d{2}|\d{1,2}[\/\-]\d{2}[\/\-]\d{2,4}|\d{2}[\/\-]\d{2}|\d{1,2}\s+[A-Za-z]{3}(?:\s+\d{4})?)',
         );
-        final amountPattern = RegExp(r'\$?([\-]?\d{1,3}(?:,\d{3})*(?:\.\d{2}))');
+        final amountPattern = RegExp(r'\$?([\-]?\d{1,3}(?:,\d{3})*(?:\.\d{2}))\s*(Cr|Dr)?', caseSensitive: false);
 
         final skipKeywords = ['total','balance','account #','transaction', 'description','summary','page number','statement date', 'beginning balance', 'ending balance',];
 
@@ -150,18 +152,24 @@ class StatementParserService {
             final dateMatch = datePattern.firstMatch(trimmed);
             final amountMatch = amountPattern.firstMatch(trimmed);
             if(dateMatch==null||amountMatch==null) {
+              final isLikelyHeaderFragment = !trimmed.contains(' ') && trimmed.length < 15 && !trimmed.contains(RegExp(r'\d'));
+              if(!isLikelyHeaderFragment){
                 pendingLines.add(trimmed);
                 if(pendingLines.length>3){
                     pendingLines.removeAt(0);
                 }
+              }
                 continue;
             }
 
             try{
-                final date= _parseDate(dateMatch.group(0)!);
-                final rawAmount = amountMatch.group(0)!.replaceAll(RegExp(r'[\s,]'),'');
-                final amount = _parseAmount(rawAmount).abs();
-                final isIncome = !rawAmount.startsWith('-');
+                final date= parseDate(dateMatch.group(0)!);
+                final rawAmount = amountMatch.group(1)!.replaceAll(RegExp(r'[\s,]'),'');
+                final amount = parseAmount(rawAmount).abs();
+
+                final crDrSuffix = amountMatch.group(2)?.toUpperCase();
+
+                final isIncome = crDrSuffix == 'CR';
                 final beforeDate = trimmed.substring(0,dateMatch.start).trim();
                 final afterDate = trimmed.substring(dateMatch.end).trim();
                 final amountStr = amountMatch.group(0)!;
@@ -177,10 +185,12 @@ class StatementParserService {
                 if(description.isNotEmpty) description,
                ];
 
-               final finalDescription = descriptionParts.join(' ').trim();
+               final joinedDescription = descriptionParts.join(' ').replaceAll(RegExp(r'\s+'), ' ').trim();
+
+               final finalDescription = joinedDescription.isEmpty ? 'Uncategorised transaction' : joinedDescription;
                pendingLines.clear();
 
-                if(finalDescription.isEmpty || amount == Decimal.zero){
+                if(amount == Decimal.zero){
                     continue;
                 }
                 results.add(ParsedTransaction(
@@ -196,11 +206,16 @@ class StatementParserService {
                 continue;
             }
         }
+        print('DEBUG: parsePdfLines returning ${results.length} transactions');
+        for (final r in results) {
+          print('DEBUG: ${r.date} | ${r.isIncome ? "IN" : "OUT"} | ${r.amount} | ${r.description}');
+        }
 
         return results;
     }
 
-    int _findCol(List<String> headers, List<String> candidates){
+    @visibleForTesting
+    int findCol(List<String> headers, List<String> candidates){
         for(final candidate in candidates) {
             final idx = headers.indexWhere((h)=> h.contains(candidate));
             if(idx != -1){
@@ -210,8 +225,31 @@ class StatementParserService {
         return -1;
     }
 
-    DateTime _parseDate(String raw) {
+    static const Map<String, int> _monthAbbreviations = {
+      'jan': 1, 'feb': 2, 'mar': 3, 'apr': 4, 'may': 5, 'jun': 6,
+      'jul': 7, 'aug': 8, 'sep': 9, 'oct': 10, 'nov': 11, 'dec': 12,
+    };
+
+    @visibleForTesting
+    DateTime parseDate(String raw) {
         final cleaned = raw.trim();
+
+        final dayMonthYear = RegExp(r'^(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})$'); //ai used for regexps (all of them)
+        final matchDMY = dayMonthYear.firstMatch(cleaned);
+        if(matchDMY != null){
+          final month = _monthAbbreviations[matchDMY.group(2)!.toLowerCase()];
+          if(month != null){
+            return DateTime(int.parse(matchDMY.group(3)!), month, int.parse(matchDMY.group(1)!));
+          }
+        }
+        final dayMonth = RegExp(r'^(\d{1,2})\s+([A-Za-z]{3})$');
+        final matchDM = dayMonth.firstMatch(cleaned);
+        if(matchDM != null){
+          final month = _monthAbbreviations[matchDM.group(2)!.toLowerCase()];
+          if(month != null) {
+            return DateTime(DateTime.now().year, month, int.parse(matchDM.group(1)!));
+          }
+        }
 
         final formats = [
                   RegExp(r'^(\d{4})-(\d{2})-(\d{2})$'),   // yyyy-mm-dd
@@ -252,12 +290,12 @@ class StatementParserService {
         throw FormatException('Unrecognized date format: $cleaned'); //forgot to move this neh
 }
 
-Decimal _parseAmount(String raw) {
+@visibleForTesting
+Decimal parseAmount(String raw) {
     if (raw.isEmpty) {
         return Decimal.zero;
     }
-    var cleaned = raw .replaceAll(RegExp(r'[()]'), '') 
-    .replaceAll(',', '');
+    var cleaned = raw.replaceAll(',', '').trim();
     final negative = cleaned.startsWith('(') && cleaned.endsWith(')');
     cleaned = cleaned.replaceAll(RegExp(r'[()]'), '');
     if (cleaned.isEmpty) {

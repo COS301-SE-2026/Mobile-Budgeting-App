@@ -2,7 +2,7 @@ import 'package:budgetit/shared/widgets/add_transaction_dialog.dart';
 import 'package:budgetit/shared/widgets/transac_menu.dart';
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
-import 'package:budgetit/screens/import/import_screen.dart';
+import 'package:budgetit/shared/widgets/import/import_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:budgetit/database/app_database.dart';
 
@@ -34,7 +34,7 @@ class _FABState extends State<FAB> {
 
     showModalBottomSheet<void>(
       context: outerContext,
-      backgroundColor: MyColours().secondary,
+      backgroundColor: context.colours.secondary,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -63,15 +63,19 @@ class _FABState extends State<FAB> {
         width: MediaQuery.of(context).size.width * 0.15,
         height: MediaQuery.of(context).size.height * 0.07,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: _pressed ? MyColours().tertiary : MyColours().secondary,
+          boxShadow: [BoxShadow( 
+                    offset: const Offset(6, 6),
+                    color: Colors.black,
+                  )],
+          border: Border.all(color: Colors.black, width: 4.0),
+          color: _pressed ? context.colours.informational : context.colours.secondary,
           shape: BoxShape.rectangle,
         ),
         child: Align(
           alignment: const Alignment(-0.1, -0.1),
           child: Icon(
             Icons.add,
-            color: _pressed ? MyColours().secondary : MyColours().background,
+            color: _pressed ? context.colours.secondary : context.colours.background,
             size: MediaQuery.of(context).size.width * 0.08,
           ),
         ),

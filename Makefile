@@ -2,6 +2,7 @@
 # Run all commands from the root.
 # Flutter app lives at Flutter/budgetit/
 # All Flutter commands use FVM to ensure the pinned version is used.
+# Ensure this path is in your systems environmental variables: 'C:\Users\_YOUR_YOU_YOURS_\AppData\Local\Pub\Cache\bin'
 
 FLUTTER_DIR = Flutter/budgetit
 
@@ -12,6 +13,14 @@ flutter-get:
 
 flutter-run:
 	cd $(FLUTTER_DIR) && fvm flutter run
+
+
+
+
+
+
+flutter-bsg:
+	cd $(FLUTTER_DIR) && dart run build_runner build -d && fvm flutter run -t lib/bsg/main.dart
 
 flutter-run-android:
 	cd $(FLUTTER_DIR) && fvm flutter run -d android
@@ -55,6 +64,7 @@ flutter-update:
 # ── Setup ──────────────────────────────────────────────────
 
 setup-flutter:
+	cd $(FLUTTER_DIR)
 	@echo "Activating FVM..."
 	dart pub global activate fvm
 	@echo "Installing pinned Flutter version..."

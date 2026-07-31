@@ -1,0 +1,23 @@
+coverage:
+  status:
+    project:
+      default:
+        informational: true
+      newdev:
+        target: auto
+        threshold: 0%
+      main:
+        target: auto
+        threshold: 0%
+    patch:
+      default:
+        informational: true
+      newdev:
+        target: 50%
+      main:
+        target: 80%
+
+comment:
+  layout: "diff, flags, files"
+  behavior: default
+  require_changes: false

@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
-import 'package:decimal/decimal.dart';
 import '../../database/app_database.dart';
 import '../../database/daos/transaction_dao.dart';
 import '../../database/daos/category_dao.dart';
