@@ -209,7 +209,7 @@ class _TransactionManagerState extends State<TransactionManager> {
               ),
               const Divider(color: Colors.transparent),
               const RecurringTransactionsDropdown(),
-              const  Divider(color: Colors.transparent),
+              const Divider(color: Colors.transparent),
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16.0,
@@ -240,7 +240,7 @@ class _TransactionManagerState extends State<TransactionManager> {
                   ),
                 )
               else
-               + ...grouped.entries.map((entry) {
+                ...grouped.entries.map((entry) {
                   final date = entry.key;
                   final txns = entry.value;
                   return Column(
@@ -268,7 +268,8 @@ class _TransactionManagerState extends State<TransactionManager> {
                                 : Icons.arrow_circle_down_outlined,
                             category:
                                 _transactionCategoryNames[t.id] ??
-                                (t.type == TransactionType.income ? 'Income'
+                                (t.type == TransactionType.income
+                                    ? 'Income'
                                     : 'Expense'),
                             categories: const [],
                             transactionType: t.type,
