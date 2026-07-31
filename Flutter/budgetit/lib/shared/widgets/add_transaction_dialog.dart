@@ -1,6 +1,7 @@
 import 'package:budgetit/database/app_database.dart';
 import 'package:budgetit/database/schema.dart';
 import 'package:budgetit/utils/app_colour.dart';
+import 'package:budgetit/utils/icon_mapper.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,6 +22,9 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
   final _amountController = TextEditingController();
   TransactionType _type = TransactionType.expense;
   DateTime _date = DateTime.now();
+  List<Category> _categories = [];
+  Category? _selectedCategory;
+  bool _loadingCategories = true;
   bool _saving = false;
 
   static const _months = [
@@ -39,10 +43,43 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _loadCategories();
+  }
+
+  @override
   void dispose() {
     _descController.dispose();
     _amountController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadCategories() async {
+    setState(() => _loadingCategories = true);
+    final db = context.read<AppDatabase>();
+    final transactionType = _type;
+    final categoryType = _type == TransactionType.income
+        ? CategoryType.income
+        : CategoryType.expense;
+    final categories = await db.categoryDao.getCategoriesByType(categoryType);
+    categories.sort((a, b) => a.name.compareTo(b.name));
+    if (!mounted || transactionType != _type) return;
+    setState(() {
+      _categories = categories;
+      _selectedCategory = categories.isNotEmpty ? categories.first : null;
+      _loadingCategories = false;
+    });
+  }
+
+  void _setType(TransactionType type) {
+    if (_type == type) return;
+    setState(() {
+      _type = type;
+      _categories = [];
+      _selectedCategory = null;
+    });
+    _loadCategories();
   }
 
   Future<void> _pickDate() async {
@@ -63,13 +100,21 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
         double.parse(_amountController.text).toStringAsFixed(2),
       );
       final dao = context.read<AppDatabase>().transactionDao;
-      await dao.insertTransaction(
+      final transaction = await dao.insertTransaction(
         amount: amount,
         type: _type,
         shortDescription: _descController.text.trim(),
         transactionDate: _date,
         source: TransactionSource.manual,
       );
+      final category = _selectedCategory;
+      if (category != null) {
+        await dao.assignCategory(
+          transactionId: transaction.id,
+          categoryId: category.id,
+          assignmentSource: AssignmentSource.manual,
+        );
+      }
       if (mounted) {
         Navigator.of(context).pop();
         widget.onAdded?.call();
@@ -78,223 +123,230 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
       if (mounted) setState(() => _saving = false);
     }
   }
-
+//changes to this widget was AI assisted , the alert dialog
   @override
   Widget build(BuildContext context) {
     final colours = context.colours;
-    final cardColor = Theme.of(context).brightness == Brightness.dark
-        ? colours.blendedprimary
-        : colours.secondary;
-    final cardTextColor = Theme.of(context).brightness == Brightness.dark
-        ? colours.secondary
-        : colours.background;
-    final borderColor = colours.category;
+    final cardColor = colours.background;
+    final cardTextColor = colours.textPrimary;
     final dateLabel = '${_date.day} ${_months[_date.month - 1]} ${_date.year}';
-// for this dialog change, i couldnot make the changes myself, i asked AI to add the boarder style to the input fields and the selection buttons only.
-    return Dialog(
-      backgroundColor: colours.background.withValues(alpha: 0),
-      shape: const RoundedRectangleBorder(),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: cardColor,
-            border: Border.all(color: borderColor, width: 4),
-            boxShadow: [
-              BoxShadow(color: borderColor, offset: const Offset(6, 6)),
-            ],
-          ),
-          child: Form(
-            key: _formKey,
+
+    return AlertDialog(
+      backgroundColor: colours.background,
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: Colors.black, width: 4),
+      ),
+      title: Text(
+        'Add Transaction',
+        style: TextStyle(
+          color: colours.textPrimary,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 420),
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Add Transaction',
-                  style: colours.h2.copyWith(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: cardTextColor,
-                  ),
+                Row(
+                  children: [
+                    _TypeButton(
+                      label: 'Expense',
+                      selected: _type == TransactionType.expense,
+                      onTap: () => _setType(TransactionType.expense),
+                      colours: colours,
+                      cardColor: cardColor,
+                      cardTextColor: cardTextColor,
+                      borderColor: colours.secondary,
+                    ),
+                    const SizedBox(width: 8),
+                    _TypeButton(
+                      label: 'Income',
+                      selected: _type == TransactionType.income,
+                      onTap: () => _setType(TransactionType.income),
+                      colours: colours,
+                      cardColor: cardColor,
+                      cardTextColor: cardTextColor,
+                      borderColor: colours.secondary,
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 12),
-                Divider(
-                  color: cardTextColor.withValues(alpha: 0.35),
-                  height: 1,
-                ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 14),
 
-              // Type toggle
-              Row(
-                children: [
-                  _TypeButton(
-                    label: 'Expense',
-                    selected: _type == TransactionType.expense,
-                    onTap: () =>
-                        setState(() => _type = TransactionType.expense),
-                    colours: colours,
-                    cardColor: cardColor,
-                    cardTextColor: cardTextColor,
-                    borderColor: borderColor,
-                  ),
-                  const SizedBox(width: 8),
-                  _TypeButton(
-                    label: 'Income',
-                    selected: _type == TransactionType.income,
-                    onTap: () => setState(() => _type = TransactionType.income),
-                    colours: colours,
-                    cardColor: cardColor,
-                    cardTextColor: cardTextColor,
-                    borderColor: borderColor,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              _fieldLabel('Description', colours, cardTextColor),
-              const SizedBox(height: 6),
-              TextFormField(
-                controller: _descController,
-                style: colours.h2.copyWith(
-                  color: cardTextColor,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-                decoration: _inputDecoration(
-                  'e.g. Grocery run',
-                  context,
-                  cardColor,
-                  cardTextColor,
-                ),
-                validator: (v) => (v == null || v.trim().isEmpty)
-                    ? 'Description is required'
-                    : null,
-              ),
-              const SizedBox(height: 16),
-
-              _fieldLabel('Amount (R)', colours, cardTextColor),
-              const SizedBox(height: 6),
-              TextFormField(
-                controller: _amountController,
-                style: colours.h2.copyWith(
-                  color: cardTextColor,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-                decoration: _inputDecoration(
-                  '0.00',
-                  context,
-                  cardColor,
-                  cardTextColor,
-                ),
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
-                ],
-                validator: (v) {
-                  if (v == null || v.isEmpty) return 'Amount is required';
-                  final parsed = double.tryParse(v);
-                  if (parsed == null || parsed <= 0) {
-                    return 'Enter a valid amount';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              _fieldLabel('Date', colours, cardTextColor),
-              const SizedBox(height: 6),
-              GestureDetector(
-                onTap: _pickDate,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: cardColor,
-                    border: Border.all(color: borderColor, width: 4),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.calendar_today_outlined,
-                        size: 14,
-                        color: cardTextColor,
+                TextFormField(
+                  controller: _descController,
+                  style: TextStyle(color: colours.textPrimary),
+                  decoration:
+                      _inputDecoration(
+                        'e.g. Grocery run',
+                        context,
+                        cardColor,
+                        cardTextColor,
+                      ).copyWith(
+                        labelText: 'Description',
+                        labelStyle: TextStyle(color: colours.textPrimary),
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        dateLabel,
-                        style: colours.h2.copyWith(
-                          color: cardTextColor,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? 'Description is required'
+                      : null,
+                ),
+                const SizedBox(height: 14),
+
+                TextFormField(
+                  controller: _amountController,
+                  style: TextStyle(color: colours.textPrimary),
+                  decoration:
+                      _inputDecoration(
+                        '0.00',
+                        context,
+                        cardColor,
+                        cardTextColor,
+                      ).copyWith(
+                        labelText: 'Amount',
+                        labelStyle: TextStyle(color: colours.textPrimary),
+                        prefixText: 'R ',
+                        prefixStyle: TextStyle(color: colours.textPrimary),
+                      ),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'^\d*\.?\d{0,2}'),
+                    ),
+                  ],
+                  validator: (v) {
+                    if (v == null || v.isEmpty) return 'Amount is required';
+                    final parsed = double.tryParse(v);
+                    if (parsed == null || parsed <= 0) {
+                      return 'Enter a valid amount';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 14),
+
+                InkWell(
+                  onTap: _pickDate,
+                  child: InputDecorator(
+                    decoration:
+                        _inputDecoration(
+                          '',
+                          context,
+                          cardColor,
+                          cardTextColor,
+                        ).copyWith(
+                          labelText: 'Date',
+                          labelStyle: TextStyle(color: colours.textPrimary),
                         ),
-                      ),
-                    ],
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_today_outlined,
+                          size: 18,
+                          color: colours.textPrimary,
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          dateLabel,
+                          style: TextStyle(color: colours.textPrimary),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 24),
+                const SizedBox(height: 14),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: _saving
-                        ? null
-                        : () => Navigator.of(context).pop(),
-                    child: Text(
-                      'Cancel',
-                      style: colours.h2.copyWith(
-                        color: cardTextColor,
-                        fontSize: 13,
+                DropdownButtonFormField<Category>(
+                  key: ValueKey(_selectedCategory?.id ?? _type.name),
+                  initialValue: _selectedCategory,
+                  isExpanded: true,
+                  dropdownColor: colours.background,
+                  style: TextStyle(color: colours.textPrimary),
+                  decoration:
+                      _inputDecoration(
+                        'Category',
+                        context,
+                        cardColor,
+                        cardTextColor,
+                      ).copyWith(
+                        labelText: 'Category',
+                        labelStyle: TextStyle(color: colours.textPrimary),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: _saving ? null : _save,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: cardTextColor,
-                      foregroundColor: cardColor,
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(color: borderColor, width: 4),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                    ),
-                    child: _saving
-                        ? SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                              color: cardColor,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : Text(
-                            'Add',
-                            style: colours.h2.copyWith(
-                              color: cardColor,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
+                  items: _categories
+                      .map(
+                        (category) => DropdownMenuItem<Category>(
+                          value: category,
+                          child: Row(
+                            children: [
+                              Icon(
+                                category.iconData ?? Icons.category_outlined,
+                                color: colours.textPrimary,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(child: Text(category.name)),
+                            ],
                           ),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: _loadingCategories
+                      ? null
+                      : (category) {
+                          setState(() => _selectedCategory = category);
+                        },
+                  icon: _loadingCategories
+                      ? SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            color: colours.secondary,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : null,
+                  hint: Text(
+                    _loadingCategories
+                        ? 'Loading categories...'
+                        : 'No categories available',
+                    style: TextStyle(
+                      color: colours.textPrimary.withValues(alpha: 0.6),
+                    ),
                   ),
-                ],
-              ),
+                ),
               ],
             ),
           ),
         ),
       ),
+      actions: [
+        TextButton(
+          onPressed: _saving ? null : () => Navigator.of(context).pop(),
+          child: Text('Cancel', style: TextStyle(color: colours.textPrimary)),
+        ),
+        ElevatedButton(
+          onPressed: _saving ? null : _save,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: colours.secondary,
+            foregroundColor: colours.background,
+          ),
+          child: _saving
+              ? SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    color: colours.background,
+                    strokeWidth: 2,
+                  ),
+                )
+              : const Text('Add'),
+        ),
+      ],
     );
   }
 }
@@ -307,7 +359,7 @@ class _TypeButton extends StatelessWidget {
   final Color cardColor;
   final Color cardTextColor;
   final Color borderColor;
-// defining the colours for the different modes of the buttons
+  // defining the colours for the different modes of the buttons
   const _TypeButton({
     required this.label,
     required this.selected,
@@ -327,7 +379,7 @@ class _TypeButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
             color: selected ? cardTextColor : cardColor,
-            border: Border.all(color: borderColor, width: 4),
+            border: Border.all(color: borderColor, width: selected ? 2 : 1),
           ),
           alignment: Alignment.center,
           child: Text(
@@ -344,50 +396,38 @@ class _TypeButton extends StatelessWidget {
   }
 }
 
-Widget _fieldLabel(String text, MyColours colours, Color labelColor) => Text(
-  text,
-  style: colours.h2.copyWith(
-    fontSize: 12,
-    fontWeight: FontWeight.w500,
-    color: labelColor,
-  ),
-);
-//this following input decoration, i did use AI to help me format it since is repetition of the same thing
-
 InputDecoration _inputDecoration(
   String hint,
   BuildContext context,
   Color fillColor,
   Color textColor,
-) =>
-    InputDecoration(
-      hintText: hint,
-      hintStyle: context.colours.h2.copyWith(
-        color: textColor.withValues(alpha: 0.55),
-        fontSize: 14,
-        fontWeight: FontWeight.w500,
-      ),
-      filled: true,
-      fillColor: fillColor,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.zero,
-        borderSide: BorderSide(color: context.colours.category, width: 4),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.zero,
-        borderSide: BorderSide(color: context.colours.category, width: 4),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.zero,
-        borderSide: BorderSide(color: context.colours.category, width: 4),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.zero,
-        borderSide: BorderSide(color: context.colours.error, width: 4),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.zero,
-        borderSide: BorderSide(color: context.colours.error, width: 4),
-      ),
-    );
+) => InputDecoration(
+  hintText: hint,
+  hintStyle : context.colours.h2.copyWith(
+    color: textColor.withValues(alpha: 0.55),fontSize: 14,
+    fontWeight: FontWeight.w500,
+  ),
+  filled: true,
+  fillColor: fillColor,
+  contentPadding : const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+  border : OutlineInputBorder(
+    borderRadius: BorderRadius.zero,
+    borderSide: BorderSide(color: context.colours.secondary),
+  ),
+  enabledBorder : OutlineInputBorder(
+    borderRadius : BorderRadius.zero,
+    borderSide: BorderSide(color: context.colours.secondary),
+  ),
+  focusedBorder: OutlineInputBorder(
+    borderRadius : BorderRadius.zero,
+    borderSide : BorderSide(color: context.colours.secondary, width: 2),
+  ),
+  errorBorder : OutlineInputBorder(
+    borderRadius : BorderRadius.zero,
+    borderSide: BorderSide(color: context.colours.error, width: 4),
+  ),
+  focusedErrorBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.zero,
+    borderSide: BorderSide(color: context.colours.error, width: 4),
+  ),
+);
