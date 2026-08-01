@@ -192,8 +192,12 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
     final textColor = _reportCardTextColor(context);
 
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: _cardDecoration(),
+      padding: const EdgeInsets.all(28),
+      decoration: BoxDecoration(
+        color: cardColor,
+        border: Border.all(color: Colors.black, width: 4),
+        boxShadow: [BoxShadow(color: Colors.black, offset: const Offset(6, 6))],
+      ),
       child: Column(
         children: [
           Icon(icon, color: textColor),
