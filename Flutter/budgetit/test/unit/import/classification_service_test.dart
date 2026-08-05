@@ -28,21 +28,21 @@ void main() {
   group('ClassificationService', () {
     test('assigns category when keyword matches and id is known', () {
       final service = ClassificationService({
-        'Groceries': 'cat-groceries',
-        'Dining Out': 'cat-dining',
+        'Groceries': 'pav-groceries',
+        'Dining Out': 'pav-dining',
       });
       final tx = _pt('REAL PLACE', isIncome: false);
 
       service.classifyAll([tx]);
 
-      expect(tx.categoryId, equals('cat-groceries'));
+      expect(tx.categoryId, equals('pav-groceries'));
       expect(tx.categoryName, equals('Groceries'));
     });
 
     test('picks the first matching keyword rule', () {
       final service = ClassificationService({
         'Clothing': 'PAVAN-Clothing',
-        'Dining Out': 'cat-dining',
+        'Dining Out': 'pav-dining',
       });
       final tx = _pt('PAVS PLACE');
       service.classifyAll([tx]);
@@ -60,16 +60,16 @@ void main() {
     });
 
     test('no keyword match, income transaction, other income known', () {
-      final service = ClassificationService({'Other Income': 'cat-other-income'});
+      final service = ClassificationService({'Other Income': 'pav-other-income'});
       final tx = _pt('PAVS PLACE', isIncome: true);
       service.classifyAll([tx]);
-      expect(tx.categoryId, equals('cat-other-income'));
+      expect(tx.categoryId, equals('pav-other-income'));
       expect(tx.categoryName, equals('Other Income'));
 
     });
 
     test('no keyword match, expense transaction, other income not known', () {
-      final service = ClassificationService({'Groceries':'cat-groceries'});
+      final service = ClassificationService({'Groceries':'pav-groceries'});
       final tx = _pt('PAVS OTHER PLACE', isIncome: false);
       service.classifyAll([tx]);
       expect(tx.categoryId, isNull);
@@ -77,7 +77,7 @@ void main() {
     });
 
     test('no keyword match, expense transaction, reset to null', () {
-      final service = ClassificationService({'Groceries':'cat-groceries'});
+      final service = ClassificationService({'Groceries':'pav-groceries'});
       final tx = _pt('PAVS OTHER PLACE', isIncome: false, categoryId: 'old-id', categoryName: 'Old Category');
       service.classifyAll([tx]);
       expect(tx.categoryId, isNull);
@@ -85,7 +85,7 @@ void main() {
 
     });
     test('categoryOverriden transactions are skipped entirely', () {
-      final service = ClassificationService({'Groceries':'cat-groceries'});
+      final service = ClassificationService({'Groceries':'pav-groceries'});
       final tx = _pt('PAVS OTHER PLACE', categoryId: 'manual-id', categoryName: 'Manually Chosen', categoryOverridden: true);
       service.classifyAll([tx]);
       expect(tx.categoryId, equals('manual-id'));
@@ -94,7 +94,7 @@ void main() {
 
     test('classifyAll processes a mixed batch correctly', () {
       final service = ClassificationService({
-        'Groceries': 'cat-groceries',
+        'Groceries': 'pav-groceries',
         'Salary': 'pav-salary',
       });
 
@@ -117,7 +117,7 @@ void main() {
       });
 
             test('returns 1.0 when all transactions are classified', () {
-        final service = ClassificationService({'Groceries': 'cat-groceries'});
+        final service = ClassificationService({'Groceries': 'pav-groceries'});
         final txs = [_pt('CHECKERS'), _pt('SPAR')];
         service.classifyAll(txs);
 
@@ -125,7 +125,7 @@ void main() {
       });
 
       test('returns correct fraction for a partially classified batch', () {
-        final service = ClassificationService({'Groceries': 'cat-groceries'});
+        final service = ClassificationService({'Groceries': 'pav-groceries'});
         final classified = _pt('CHECKERS');
         final unclassified = _pt('UNKNOWN VENDOR', isIncome: false);
         final txs = [classified, unclassified];
