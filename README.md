@@ -8,12 +8,12 @@
 # Our Objectives
 
 Budget It was developed to:
-- Provide an **offline-first** mobile budgeting application that allows users to manage their personal finances entirely on their device without requiring an internet connection.
-- Enable users to record, organise, and manage income and expenses through manual transaction entry.
+- Provide an **offline-first** mobile budgeting app that enables users to track, manage their personal finances entirely on their device without requiring an internet connection.
+- Enable users to log, organise, and manage income and expenses through manual transaction entry.
 - Support the import of bank statements in **CSV** and **PDF** formats to simplify transaction management.
-- Deliver monthly budget tracking, financial reports,and interactive visualisations that help users understand their spending habits.
-- Leverage **on-device AI** to automatically categorise transactions,analyse spending behaviour, and assess users' financial health while preserving privacy.
-- Protect user data by storing and processing all financial information locally on the device.
+- Deliver monthly budget tracking, financial reports,and visualisations that help users understand their spending habits.
+- Leverage **on-device AI** to automatically categorise transactions,analyse spending behaviour, and assess users' financial health.
+- Protect user data by storing and processing all financial information locally on their device.
 - Empower users to make informed financial decisions through intelligent insights and personalised budgeting tools.
 
 
