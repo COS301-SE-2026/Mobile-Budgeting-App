@@ -100,6 +100,91 @@ void main() {
       expect(find.byIcon(Icons.autorenew), findsOneWidget);
     });
 
+    group('press-state styling', () {
+      testWidgets('icon and amount colors change while pressed then revert on release', (
+        tester,
+      ) async {
+        await tester.pumpWidget(_wrap(_rt(type: TransactionType.expense)));
+
+        final iconFinder = find.byIcon(Icons.autorenew);
+        Color colorBefore = tester.widget<Icon>(iconFinder).color!;
+
+        final gesture = await tester.startGesture(
+          tester.getCenter(find.byType(RecurringTransactionCard)),
+        );
+        await tester.pump();
+
+        final colorDuringPress = tester.widget<Icon>(iconFinder).color!;
+        expect(colorDuringPress, isNot(equals(colorBefore)));
+
+        await gesture.up();
+        await tester.pump();
+
+        final colorAfterRelease = tester.widget<Icon>(iconFinder).color!;
+        expect(colorAfterRelease, equals(colorBefore));
+      });
+
+      testWidgets('tap cancel (drag away) reverts press state', (tester) async {
+        await tester.pumpWidget(_wrap(_rt()));
+
+        final iconFinder = find.byIcon(Icons.autorenew);
+        final colorBefore = tester.widget<Icon>(iconFinder).color!;
+
+        final gesture = await tester.startGesture(
+          tester.getCenter(find.byType(RecurringTransactionCard)),
+        );
+        await tester.pump();
+        // Drag far outside the widget bounds to trigger onTapCancel.
+        await gesture.moveTo(const Offset(-1000, -1000));
+        await gesture.up();
+        await tester.pumpAndSettle();
+
+        final colorAfter = tester.widget<Icon>(iconFinder).color!;
+        expect(colorAfter, equals(colorBefore));
+      });
+    });
+
+    group('frequency label branches', () {
+      testWidgets('daily, interval 1 renders without error', (tester) async {
+        await tester.pumpWidget(_wrap(_rt(unit: PeriodType.daily, intervalAmount: 1)));
+        expect(find.byType(RecurringTransactionCard), findsOneWidget);
+      });
+
+      testWidgets('daily, interval > 1 renders without error', (tester) async {
+        await tester.pumpWidget(_wrap(_rt(unit: PeriodType.daily, intervalAmount: 3)));
+        expect(find.byType(RecurringTransactionCard), findsOneWidget);
+      });
+
+      testWidgets('weekly, interval 1 renders without error', (tester) async {
+        await tester.pumpWidget(_wrap(_rt(unit: PeriodType.weekly, intervalAmount: 1)));
+        expect(find.byType(RecurringTransactionCard), findsOneWidget);
+      });
+
+      testWidgets('weekly, interval > 1 renders without error', (tester) async {
+        await tester.pumpWidget(_wrap(_rt(unit: PeriodType.weekly, intervalAmount: 2)));
+        expect(find.byType(RecurringTransactionCard), findsOneWidget);
+      });
+
+      testWidgets('monthly, interval 1 renders without error', (tester) async {
+        await tester.pumpWidget(_wrap(_rt(unit: PeriodType.monthly, intervalAmount: 1)));
+        expect(find.byType(RecurringTransactionCard), findsOneWidget);
+      });
+
+      testWidgets('monthly, interval > 1 renders without error', (tester) async {
+        await tester.pumpWidget(_wrap(_rt(unit: PeriodType.monthly, intervalAmount: 6)));
+        expect(find.byType(RecurringTransactionCard), findsOneWidget);
+      });
+
+      testWidgets('yearly, interval 1 renders without error', (tester) async {
+        await tester.pumpWidget(_wrap(_rt(unit: PeriodType.yearly, intervalAmount: 1)));
+        expect(find.byType(RecurringTransactionCard), findsOneWidget);
+      });
+
+      testWidgets('yearly, interval > 1 renders without error', (tester) async {
+        await tester.pumpWidget(_wrap(_rt(unit: PeriodType.yearly, intervalAmount: 2)));
+        expect(find.byType(RecurringTransactionCard), findsOneWidget);
+      });
+    });
 
 
   });
