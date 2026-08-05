@@ -1,6 +1,6 @@
 <div>
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:04240C,50:04240C,100:04240C&height=220&section=header&text=Budget%20It&fontSize=65&fontColor=FFFFFF&animation=fadeIn&fontAlignY=38&desc=Offline%20Mobile%20Budgeting%20Application&descAlignY=68&descSize=24&descColor=DDD6AE"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:04240C,50:04240C,100:04240C&height=220&section=header&text=Budget%20It&fontSize=65&fontColor=DDD6AE&animation=fadeIn&fontAlignY=38&desc=Offline%20Mobile%20Budgeting%20Application&descAlignY=68&descSize=24&descColor=DDD6AE"/>
 
 
 </div>
