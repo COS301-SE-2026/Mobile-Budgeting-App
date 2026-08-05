@@ -1,3 +1,51 @@
+<div>
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:04240C,50:04240C,100:04240C&height=220&section=header&text=Budget%20It&fontSize=65&fontColor=FFFFFF&animation=fadeIn&fontAlignY=38&desc=Offline%20Mobile%20Budgeting%20Application&descAlignY=68&descSize=24&descColor=DDD6AE"/>
+
+
+</div>
+
+# Our Objectives
+
+Budget It was developed to:
+- Provide an **offline-first** mobile budgeting application that allows users to manage their personal finances entirely on their device without requiring an internet connection.
+- Enable users to record, organise, and manage income and expenses through manual transaction entry.
+- Support the import of bank statements in **CSV** and **PDF** formats to simplify transaction management.
+- Deliver monthly budget tracking, financial reports,and interactive visualisations that help users understand their spending habits.
+- Leverage **on-device AI** to automatically categorise transactions,analyse spending behaviour, and assess users' financial health while preserving privacy.
+- Protect user data by storing and processing all financial information locally on the device.
+- Empower users to make informed financial decisions through intelligent insights and personalised budgeting tools.
+
+
+# The Team
+
+<p>
+    <img src="docs/GroupMembers.jpeg">
+</p>
+
+| Member | Role | LinkedIn |
+|:------|:-----|:---------|
+| **Kiolin Gounden** | AI, Analytics Lead & UI Designer | [LinkedIn](https://www.linkedin.com/in/kiolin-gounden-10577924b/) |
+| **Lufuno Mphagi** | Backend & Data Lead | [LinkedIn](https://www.linkedin.com/in/lufuno-mphagi) |
+| **Pavan Naidoo** | Team Lead & Full-stack Lead | [LinkedIn](https://www.linkedin.com/in/pavan-naidoo-5333613b5/) |
+| **Jessica Marodi** | UI Designer & Frontend Developer | [LinkedIn](https://www.linkedin.com/in/jessica-m-9722a3380/) |
+| **Donovan Nelson** | DevOps & Infrastructure Engineer | [LinkedIn](https://www.linkedin.com/in/donovan-nelson) |
+
+---
+
+# Documentation
+
+| Document | Link |
+|:------------|:--------|
+| Software Requirements Specification | [SRS](docs/SRS.md) |
+| Software Architecture Specification | [SAS](docs/SAS.md) |
+| Brand Style Guide | [Brand Style Guide](docs/BrandStyleGuide.pdf) |
+| Coding Standards | [Coding Standards](docs/CodingStandards.pdf) |
+| User Manual | [User Manual](docs/UserManual.pdf) |
+| Testing Policy | [Testing Policy](docs/TestingPolicy.pdf) |
+| Developer Guide | [Developer Guide](docs/DeveloperGuide.pdf) |
+| Landing Page | https://cos301-se-2026.github.io/Mobile-Budgeting-App/ |
+| Project Board | https://github.com/orgs/COS301-SE-2026/projects/77 |
 
 ---
 
