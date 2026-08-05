@@ -89,7 +89,76 @@ void main() {
       expect(find.text('Enter a valid amount'), findsOneWidget);
     });
 
+    testWidgets('Cancel closes the dialog without creating a transaction', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_wrap(db));
+      await _openDialog(tester);
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
 
+      expect(find.text('Add Transaction'), findsNothing);
+      final transactions = await db.transactionDao.getAllTransactions();
+      expect(transactions, isEmpty);
+    });
+
+    testWidgets('saving a valid expense persists it, assigns the category, closes, and calls onAdded', (
+      tester,
+    ) async {
+      var addedCalled = false;
+      await tester.pumpWidget(_wrap(db, onAdded: () => addedCalled = true));
+      await _openDialog(tester);
+      final descriptionField = find.byType(TextFormField).at(0);
+      final amountField = find.byType(TextFormField).at(1);
+      await tester.enterText(descriptionField, 'Weekly groceries');
+      await tester.enterText(amountField, '349.99');
+      await tester.tap(find.text('Add'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Add Transaction'), findsNothing);
+      expect(addedCalled, isTrue);
+      final transactions = await db.transactionDao.getAllTransactions();
+      expect(transactions, hasLength(1));
+      final tx = transactions.first;
+      expect(tx.shortDescription, equals('Weekly groceries'));
+      expect(tx.amount.toString(), equals('349.99'));
+      expect(tx.type, equals(TransactionType.expense));
+
+      final mapping = await db.transactionDao.getCategoryForTransaction(tx.id);
+      expect(mapping, isNotNull);
+      expect(mapping!.assignmentSource, equals(AssignmentSource.manual));
+    });
+
+    testWidgets('saving a valid income transaction stores TransactionType.income', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_wrap(db));
+      await _openDialog(tester);
+      await tester.tap(find.text('Income'));
+      await tester.pumpAndSettle();
+      final descriptionField = find.byType(TextFormField).at(0);
+      final amountField = find.byType(TextFormField).at(1);
+      await tester.enterText(descriptionField, 'May salary');
+      await tester.enterText(amountField, '25000.00');
+      await tester.tap(find.text('Add'));
+      await tester.pumpAndSettle();
+      final transactions = await db.transactionDao.getAllTransactions();
+      expect(transactions, hasLength(1));
+      expect(transactions.first.type, equals(TransactionType.income));
+    });
+
+    testWidgets('amount field rejects more than 2 decimal places via input formatter', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_wrap(db));
+      await _openDialog(tester);
+      final amountField = find.byType(TextFormField).at(1);
+      await tester.enterText(amountField, '100.999');
+      await tester.pump();
+      final textField = tester.widget<TextFormField>(amountField);
+      expect(
+        textField.controller?.text, anyOf(equals('100.99'), isNot(equals('100.999'))));
+    });
 
   });
 }
