@@ -23,7 +23,7 @@ Budget It was developed to:
     <img src="docs/GroupMembers.jpeg">
 </p>
 
-| Member | Role | LinkedIn |
+| Member | Role | Profile |
 |:------|:-----|:---------|
 | **Kiolin Gounden** | AI, Analytics Lead & UI Designer | [LinkedIn](https://www.linkedin.com/in/kiolin-gounden-10577924b/) |
 | **Lufuno Mphagi** | Backend & Data Lead | [LinkedIn](https://www.linkedin.com/in/lufuno-mphagi) |
