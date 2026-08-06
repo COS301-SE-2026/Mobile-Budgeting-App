@@ -263,15 +263,25 @@ jobs:
 
   apk-build:
     name: Build APK
-    runs-on: self-hosted
+    runs-on:
+      - self-hosted
+      - linux
+      - flutter-3.41.9
+      - android-ndk-28.2.13676358
     env:
-      ANDROID_NDK_VERSION: 27.0.11902837
+      ANDROID_NDK_VERSION: 28.2.13676358
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      - uses: ./.github/actions/flutter-setup
-        with:
-          needs-java: "true"
+      - uses: ./.github/actions/flutter-ci-setup
+
+      - name: Verify runner toolchain
+        shell: bash
+        run: ./.github/CI-scripts/verify-runner-toolchain.sh --diagnostic
+
+      - name: Apply CI Gradle properties
+        shell: bash
+        run: ./.github/CI-scripts/create-gradle-ci-properties.sh apply
 
       - name: Check Gradle cache on disk
         id: gradle-disk
@@ -310,6 +320,11 @@ jobs:
             ~/.gradle/caches
             ~/.gradle/wrapper
           key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
+      - name: Restore Gradle properties
+        if: always()
+        shell: bash
+        run: ./.github/CI-scripts/create-gradle-ci-properties.sh restore
 
       - name: Upload APK artifact (release tags)
         if: startsWith(github.ref, 'refs/tags/v')
