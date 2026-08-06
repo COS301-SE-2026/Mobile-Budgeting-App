@@ -50,7 +50,7 @@ collectable_files=()
 mapfile -t collectable_files < <(
   find "$source_root" \
     \( -type d \( -name .dart_tool -o -name build -o -name coverage \) -prune \) -o \
-    \( -type f \( -name '*.g.dart' -o -name '*.freezed.dart' \) -print \) | LC_ALL=C sort
+    \( -type f \( -name '*.g.dart' -o -name '*.freezed.dart' -o -name '*.mocks.dart' \) -print \) | LC_ALL=C sort
 )
 
 if [ "$expect_generated" = true ] && [ "${#collectable_files[@]}" -eq 0 ]; then
