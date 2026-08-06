@@ -48,9 +48,32 @@ ci_require_cmd() {
   done
 
   if [ "${#missing_commands[@]}" -ne 0 ]; then
-    ci_error "Runner is missing the following required command\s: ${missing_commands[*]}"
+    ci_error "Runner is missing the following required commands: ${missing_commands[*]}"
     return 1
   fi
+}
+
+ci_first_match_in_text() {
+  local regex=${1-}
+
+  if [ -z "$regex" ]; then
+    ci_error 'ci_first_match_in_text requires a regex'
+    return 1
+  fi
+
+  sed -n "s/${regex}/\\1/p" | head -n 1
+}
+
+ci_first_match() {
+  local regex=${1-}
+  local file_path=${2-}
+
+  if [ -z "$regex" ] || [ -z "$file_path" ]; then
+    ci_error 'ci_first_match requires a regex and a file path'
+    return 1
+  fi
+
+  sed -n "s/${regex}/\\1/p" "$file_path" | head -n 1
 }
 
 ci_repo_root() {
@@ -117,7 +140,7 @@ ci_write_bool_output() {
   if [ "$output_value" != "$CI_BOOLEAN_TRUE" ] && [ "$output_value" != "$CI_BOOLEAN_FALSE" ]; then
     ci_error "Boolean output ${output_name} must be true or false, got: ${output_value}"
     return 1
-  fip
+  fi
 
   if [ -z "${GITHUB_OUTPUT:-}" ]; then
     ci_error "${CI_MISSING_OUTPUT_MESSAGE} ${output_name}"
