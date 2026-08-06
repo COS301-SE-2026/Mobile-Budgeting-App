@@ -1,0 +1,44 @@
+name: Flutter CI Setup
+description: Validate the provisioned Flutter toolchain and fetch Dart dependencies without installing any SDKs from scratch.
+inputs:
+  app-directory:
+    description: Flutter project directory
+    required: false
+    default: Flutter/budgetit
+  expected-flutter-version:
+    description: Flutter framework version
+    required: false
+    default: "3.41.9"
+
+runs:
+  using: composite
+  steps:
+    - name: Verify that Flutter is available
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        readonly EXPECTED_FLUTTER_VERSION='${{ inputs.expected-flutter-version }}'
+        readonly FLUTTER_VERSION_REGEX='.*"frameworkVersion"[[:space:]]*:[[:space:]]*"\([^"]*\)".*'
+
+        source "${GITHUB_ACTION_PATH}/../../CI-scripts/ci-common.sh"
+
+        ci_require_cmd flutter dart sed
+
+        flutter --version
+        flutter_version=$(flutter --version --machine 2>/dev/null | ci_first_match_in_text "$FLUTTER_VERSION_REGEX")
+
+        if [ -z "$flutter_version" ]; then
+          echo "Unable to determine the Flutter version"
+          exit 1
+        fi
+
+        if [ "$flutter_version" != "$EXPECTED_FLUTTER_VERSION" ]; then
+          echo "Expected Flutter $EXPECTED_FLUTTER_VERSION, but found $flutter_version instead."
+          exit 1
+        fi
+
+    - name: Fetch Dart dependencies
+      shell: bash
+      working-directory: ${{ inputs.app-directory }}
+      run: flutter pub get --enforce-lockfile
