@@ -25,7 +25,7 @@ jobs:
     permissions:
       security-events: write
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
       - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e
@@ -34,7 +34,7 @@ jobs:
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}}
       - name: Upload SARIF to GitHub Security tab
         if: success() || failure()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@5595ccaf912efad79be6eef63a5619ff05969be3
         with:
           sarif_file: results.sarif
 
@@ -42,13 +42,13 @@ jobs:
     name: Prepare
     runs-on: self-hosted
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
       - uses: ./.github/actions/flutter-setup
 
       - name: Cache build_runner outputs
         id: build-runner-cache
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
           path: Flutter/budgetit/.dart_tool/build
           key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart', 'Flutter/budgetit/test/**/*.dart', '!Flutter/budgetit/lib/**/*.g.dart', '!Flutter/budgetit/lib/**/*.freezed.dart', '!Flutter/budgetit/test/**/*.g.dart', '!Flutter/budgetit/test/**/*.freezed.dart') }}
@@ -66,12 +66,12 @@ jobs:
     needs: prepare
     runs-on: self-hosted
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
       - uses: ./.github/actions/flutter-setup
 
       - name: Cache build_runner outputs
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
           path: Flutter/budgetit/.dart_tool/build
           key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart', 'Flutter/budgetit/test/**/*.dart', '!Flutter/budgetit/lib/**/*.g.dart', '!Flutter/budgetit/lib/**/*.freezed.dart', '!Flutter/budgetit/test/**/*.g.dart', '!Flutter/budgetit/test/**/*.freezed.dart') }}
@@ -91,13 +91,13 @@ jobs:
     needs: prepare
     runs-on: self-hosted
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
       - uses: ./.github/actions/flutter-setup
 
       - name: Cache build_runner outputs
         id: build-runner-cache
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
           path: Flutter/budgetit/.dart_tool/build
           key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart', 'Flutter/budgetit/test/**/*.dart', '!Flutter/budgetit/lib/**/*.g.dart', '!Flutter/budgetit/lib/**/*.freezed.dart', '!Flutter/budgetit/test/**/*.g.dart', '!Flutter/budgetit/test/**/*.freezed.dart') }}
@@ -123,12 +123,12 @@ jobs:
     runs-on: self-hosted
     continue-on-error: true
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
       - uses: ./.github/actions/flutter-setup
 
       - name: Cache build_runner outputs
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
           path: Flutter/budgetit/.dart_tool/build
           key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart', 'Flutter/budgetit/test/**/*.dart', '!Flutter/budgetit/lib/**/*.g.dart', '!Flutter/budgetit/lib/**/*.freezed.dart', '!Flutter/budgetit/test/**/*.g.dart', '!Flutter/budgetit/test/**/*.freezed.dart') }}
