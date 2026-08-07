@@ -244,9 +244,9 @@ jobs:
         shell: bash
         run: ./.github/CI-scripts/verify-runner-toolchain.sh --diagnostic
 
-      - name: Apply CI Gradle properties
+      - name: Copy CI Gradle properties into workspace
         shell: bash
-        run: ./.github/CI-scripts/create-gradle-ci-properties.sh apply
+        run: cp .github/gradle/ci-gradle.properties Flutter/budgetit/android/gradle.properties
 
       - name: Check Gradle cache on disk
         id: gradle-disk
@@ -285,11 +285,6 @@ jobs:
             ~/.gradle/caches
             ~/.gradle/wrapper
           key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-
-      - name: Restore Gradle properties
-        if: always()
-        shell: bash
-        run: ./.github/CI-scripts/create-gradle-ci-properties.sh restore
 
       - name: Upload APK artifact (release tags)
         if: startsWith(github.ref, 'refs/tags/v')
