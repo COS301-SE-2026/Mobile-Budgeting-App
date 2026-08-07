@@ -15,37 +15,37 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CI_SCRIPTS_DIR: .github/CI-scripts
-      CI_SCRIPT_GLOB: "*.sh"
+      CI_SH_SCRIPT_GLOB: "*.sh"
+      CI_PY_SCRIPT_GLOB: "*.py"
       CI_SHEBANG_PREFIX: '#!'
       CI_SHELLCHECK_COMMAND: shellcheck
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
-      - name: Validate shell syntax and permissions
+      - name: Validate shell and Python script syntax and permissions
         shell: bash
         run: |
           set -euo pipefail
 
           shopt -s nullglob
-          ci_scripts=("${CI_SCRIPTS_DIR}"/${CI_SCRIPT_GLOB})
+          sh_scripts=("${CI_SCRIPTS_DIR}"/${CI_SH_SCRIPT_GLOB})
+          py_scripts=("${CI_SCRIPTS_DIR}"/${CI_PY_SCRIPT_GLOB})
 
-          if [ "${#ci_scripts[@]}" -eq 0 ]; then
+          if [ "${#sh_scripts[@]}" -eq 0 ] && [ "${#py_scripts[@]}" -eq 0 ]; then
             echo "No CI scripts were found under ${CI_SCRIPTS_DIR}"
             exit 1
           fi
 
-          for script_path in "${ci_scripts[@]}"; do
+          for script_path in "${sh_scripts[@]}"; do
             if [ ! -f "$script_path" ]; then
               echo "CI Script: $script_path is Missing"
               exit 1
             fi
 
-
             if [ ! -x "$script_path" ]; then
               echo "Script is not set as executable: $script_path"
               exit 1
             fi
-
 
             first_line=$(sed -n '1p' "$script_path")
             if [[ "$first_line" != "${CI_SHEBANG_PREFIX}"* ]]; then
@@ -54,6 +54,26 @@ jobs:
             fi
 
             bash -n "$script_path"
+          done
+
+          for script_path in "${py_scripts[@]}"; do
+            if [ ! -f "$script_path" ]; then
+              echo "CI Script: $script_path is Missing"
+              exit 1
+            fi
+
+            if [ ! -x "$script_path" ]; then
+              echo "Script is not an executable: $script_path"
+              exit 1
+            fi
+
+            first_line=$(sed -n '1p' "$script_path")
+            if [[ "$first_line" != "${CI_SHEBANG_PREFIX}"* ]]; then
+              echo "Shebang in CI script: $script_path is missing"
+              exit 1
+            fi
+
+            python3 -m py_compile "$script_path"
           done
 
       - name: Run ShellCheck when available
