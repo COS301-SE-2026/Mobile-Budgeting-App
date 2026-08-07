@@ -102,7 +102,7 @@ void main() {
     });
 
 
-    test('forceAll: true inserts duplicates instead of skipping them', () async {
+    test('inserts duplicates instead of skipping them', () async {
       final transactions = [ _parsed(description: 'Duplicate transaction', amount: '50.00', isDuplicate: true)];
       final result = await orchestrator.commitImport(transactions, forceAll: true);
       expect(result.inserted, equals(1));
@@ -130,6 +130,33 @@ void main() {
       expect(mapping!.categoryId, equals(category.id));
       expect(mapping.assignmentSource, equals(AssignmentSource.ai));
     });
+
+
+    test('assigns category with AssignmentSource.manual when categoryOverridden is true', () async {
+      final category = await categoryDao.insertCategory( name: 'Groceries', type: CategoryType.expense);
+      final transactions = [
+        _parsed(
+          description: 'Checkers groceries',
+          amount: '250.00',
+          categoryId: category.id,
+          categoryOverridden: true,
+        ),
+      ];
+      await orchestrator.commitImport(transactions);
+      final stored = await taDao.getAllTransactions();
+      final mapping = await taDao.getCategoryForTransaction(stored.first.id);
+
+      expect(mapping!.assignmentSource, equals(AssignmentSource.manual));
+    });
+
+    test('no category assignment is made when categoryId is null', () async {
+      final transactions = [ _parsed(description: 'Uncategorised expense', amount: '75.00')];
+      await orchestrator.commitImport(transactions);
+      final stored = await taDao.getAllTransactions();
+      final mapping = await taDao.getCategoryForTransaction(stored.first.id);
+
+      expect(mapping, isNull);
+    });    
 
 
   });
