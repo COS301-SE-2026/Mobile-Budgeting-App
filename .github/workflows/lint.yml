@@ -1,0 +1,49 @@
+name: Reusable Flutter Lint
+
+on:
+  workflow_call:
+    inputs:
+      blocking:
+        description: Whether lint failures fail this workflow
+        required: false
+        default: true
+        type: boolean
+      generated-artifact:
+        description: Generated Dart artifact to download
+        required: true
+        type: string
+
+jobs:
+  lint:
+    name: Flutter Lint
+    runs-on:
+      - self-hosted
+      - linux
+      - flutter-3.41.9
+    continue-on-error: ${{ !inputs.blocking }}
+    permissions:
+      contents: read
+      checks: write
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Set up the provisioned Flutter SDK
+        uses: ./.github/actions/flutter-ci-setup
+
+      - name: Download generated Dart
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: ${{ inputs.generated-artifact }}
+          path: Flutter/budgetit
+
+      - name: Register Dart analyzer annotations
+        uses: leancodepl/dart-problem-matcher@db2c48534f89233ae58cb81a45ebc8fd21d90bff
+
+      - name: Check Dart formatting
+        working-directory: Flutter/budgetit
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze Flutter sources
+        working-directory: Flutter/budgetit
+        run: flutter analyze
