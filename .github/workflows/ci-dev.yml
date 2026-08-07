@@ -49,7 +49,6 @@ jobs:
     runs-on: self-hosted
     outputs:
       has_integration_tests: ${{ steps.detect-tests.outputs.has_integration_tests }}
-      has_sonar: ${{ steps.check-sonar.outputs.has_sonar }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
@@ -60,16 +59,6 @@ jobs:
           has() { grep -rqlE 'testWidgets|test\(' "$1" 2>/dev/null && echo true || echo false; }
           echo "has_integration_tests=$(has test/integration)" >> "$GITHUB_OUTPUT"
 
-      - name: Check SonarCloud secrets
-        id: check-sonar
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          if [ -n "$SONAR_TOKEN" ]; then
-            echo "has_sonar=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "has_sonar=false" >> "$GITHUB_OUTPUT"
-          fi
 
       - uses: ./.github/actions/flutter-setup
 
@@ -106,12 +95,9 @@ jobs:
             build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-
             build-runner-${{ runner.os }}-
 
-      - uses: ./.github/actions/memoized-step
-        continue-on-error: true
-        with:
-          check-name: dart-format
-          working-directory: Flutter/budgetit
-          command: dart format --output=none --set-exit-if-changed .
+      - name: Dart format
+        working-directory: Flutter/budgetit
+        run: dart format --output=none --set-exit-if-changed .
 
   flutter-analyze:
     name: Flutter Analyze
@@ -137,12 +123,9 @@ jobs:
         working-directory: Flutter/budgetit
         run: dart run build_runner build --delete-conflicting-outputs
 
-      - uses: ./.github/actions/memoized-step
-        continue-on-error: true
-        with:
-          check-name: flutter-analyze
-          working-directory: Flutter/budgetit
-          command: flutter analyze
+      - name: Flutter analyze
+        working-directory: Flutter/budgetit
+        run: flutter analyze
 
   unit-tests:
     name: Unit Tests
@@ -186,28 +169,7 @@ jobs:
           files: Flutter/budgetit/coverage/lcov.info
           fail_ci_if_error: true
 
-  sonarcloud:
-    name: SonarCloud
-    runs-on: self-hosted
-    needs: [prepare, unit-tests]
-    if: needs.prepare.outputs.has_sonar == 'true'
-    env:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          fetch-depth: 0
 
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
-        with:
-          name: coverage-lcov
-          path: Flutter/budgetit/coverage
-
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   integration-tests:
     name: Integration Tests

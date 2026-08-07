@@ -79,12 +79,9 @@ jobs:
             build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-
             build-runner-${{ runner.os }}-
 
-      - uses: ./.github/actions/memoized-step
-        continue-on-error: true
-        with:
-          check-name: dart-format
-          working-directory: Flutter/budgetit
-          command: dart format --output=none --set-exit-if-changed .
+      - name: Dart format
+        working-directory: Flutter/budgetit
+        run: dart format --output=none --set-exit-if-changed .
 
   flutter-analyze:
     name: Flutter Analyze
@@ -110,12 +107,9 @@ jobs:
         working-directory: Flutter/budgetit
         run: dart run build_runner build --delete-conflicting-outputs
 
-      - uses: ./.github/actions/memoized-step
-        continue-on-error: true
-        with:
-          check-name: flutter-analyze
-          working-directory: Flutter/budgetit
-          command: flutter analyze
+      - name: Flutter analyze
+        working-directory: Flutter/budgetit
+        run: flutter analyze
 
   unit-tests:
     name: Unit Tests
