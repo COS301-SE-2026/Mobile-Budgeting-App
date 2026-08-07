@@ -12,4 +12,5 @@
 | `codecov/codecov-action` | `codecov/codecov-action` | `v7.0.0` | `fb8b3582c8e4def4969c97caa2f19720cb33a72f` | GitHub releases + tags |
 | `SonarSource/sonarqube-scan-action` | `SonarSource/sonarqube-scan-action` | `v8.2.1` | `22918119ff8e1ca75a623e15c8296b6ea4fbe28f` | GitHub releases + tags |
 | `google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml` | `google/osv-scanner-action` | `v2.3.8` | `9a498708959aeaef5ef730655706c5a1df1edbc2` | GitHub releases + tags |
+| `dorny/paths-filter` | `dorny/paths-filter` | `v3.0.3` | `d1c1ffe0248fe513906c8e24db8ea791d46f8590` | GitHub release tag + commit URL |
 | `Beakyn/gha-get-milestone-data` | `Beakyn/gha-get-milestone-data` | `v1.0.1` | `c331e461afb56bfc633dbef30fbe39528abe29da` | GitHub releases + tags |
