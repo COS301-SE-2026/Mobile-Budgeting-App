@@ -1,0 +1,73 @@
+name: Reusable Flutter Integration Tests
+
+on:
+  workflow_call:
+    inputs:
+      blocking:
+        description: Whether integration-test failures fail this workflow
+        required: false
+        default: true
+        type: boolean
+      generated-artifact:
+        description: Generated Dart artifact to download
+        required: true
+        type: string
+
+jobs:
+  integration-tests:
+    name: Integration Tests
+    runs-on:
+      - self-hosted
+      - linux
+      - flutter-3.41.9
+    continue-on-error: ${{ !inputs.blocking }}
+    permissions:
+      contents: read
+      checks: write
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Set up the provisioned Flutter SDK
+        uses: ./.github/actions/flutter-ci-setup
+
+      - name: Download generated Dart
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: ${{ inputs.generated-artifact }}
+          path: Flutter/budgetit
+
+      - name: Run integration tests and retain the machine report
+        id: tests
+        continue-on-error: true
+        working-directory: Flutter/budgetit
+        run: |
+          mkdir -p test-results
+          set +e
+          flutter test --machine test/integration/ > test-results/integration.json
+          status=$?
+          echo "exit-code=${status}" >> "${GITHUB_OUTPUT}"
+          exit "${status}"
+
+      - name: Upload integration-test report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: integration-test-report-${{ github.run_id }}
+          path: Flutter/budgetit/test-results/integration.json
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Publish integration-test report
+        if: always()
+        uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2
+        with:
+          name: Integration Tests
+          path: Flutter/budgetit/test-results/integration.json
+          reporter: flutter-json
+          fail-on-error: ${{ inputs.blocking }}
+          fail-on-empty: false
+
+      - name: Enforce blocking integration-test result
+        if: always() && inputs.blocking && steps.tests.outputs.exit-code != '0'
+        run: exit 1
