@@ -6,7 +6,6 @@ set -euo pipefail
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 source "${script_dir}/ci-common.sh"
 
-
 readonly GENERATED_DART_PATTERNS=(
   '*.g.dart'
   '*.freezed.dart'
@@ -67,8 +66,7 @@ while [ "$#" -gt 0 ]; do
       exit 0
       ;;
     *)
-      ci_error "Unknown argument: $1"
-      exit 1
+      fail "Unknown argument: $1"
       ;;
   esac
   shift
@@ -78,8 +76,7 @@ done
 ci_require_cmd git python3 sort awk
 
 if [ -z "$event_name" ]; then
-  ci_error 'GITHUB_EVENT_NAME must be set or --event-name must be provided'
-  exit 1
+  fail 'GITHUB_EVENT_NAME must be set or --event-name must be provided'
 fi
 
 
@@ -89,13 +86,11 @@ read_event_value() {
   local reader_script="${script_dir}/read-json-value.py"
 
   if [ -z "$json_path" ] || [ -z "$key_path" ]; then
-    ci_error 'read_event_value requires a JSON path and key path'
-    exit 1
+    fail 'read_event_value requires a JSON path and key path'
   fi
 
   if [ ! -f "$json_path" ]; then
-    ci_error "GitHub event payload does not exist: ${json_path}"
-    exit 1
+    fail "GitHub event payload does not exist: ${json_path}"
   fi
 
   python3 "$reader_script" "$json_path" "$key_path"
@@ -106,8 +101,7 @@ resolve_commit_ref() {
   local ref_name=${1-}
 
   if [ -z "$ref_name" ]; then
-    ci_error 'resolve_commit_ref requires a ref name'
-    exit 1
+    fail 'resolve_commit_ref requires a ref name'
   fi
 
   git rev-parse --verify "${ref_name}^{commit}"
@@ -200,8 +194,7 @@ collect_changed_files_from_range() {
   local end_ref=${2-}
 
   if [ -z "$start_ref" ] || [ -z "$end_ref" ]; then
-    ci_error 'collect_changed_files_from_range requires both start and end refs'
-    exit 1
+    fail 'collect_changed_files_from_range requires both start and end refs'
   fi
 
   git diff --name-only "$start_ref" "$end_ref" | LC_ALL=C sort -u
@@ -211,8 +204,7 @@ collect_changed_files_from_commit() {
   local commit_ref=${1-}
 
   if [ -z "$commit_ref" ]; then
-    ci_error 'collect_changed_files_from_commit requires a commit ref'
-    exit 1
+    fail 'collect_changed_files_from_commit requires a commit ref'
   fi
 
   git diff-tree --root --no-commit-id -r --name-only "$commit_ref" | LC_ALL=C sort -u
@@ -235,8 +227,7 @@ load_changed_files_for_commit() {
   local label=${2-}
 
   if [ -z "$commit_ref" ] || [ -z "$label" ]; then
-    ci_error 'load_changed_files_for_commit requires a commit ref and label'
-    exit 1
+    fail 'load_changed_files_for_commit requires a commit ref and label'
   fi
 
   comparison_label=$label
@@ -250,8 +241,7 @@ load_changed_files_for_range() {
   local label=${3-}
 
   if [ -z "$start_ref" ] || [ -z "$end_ref" ] || [ -z "$label" ]; then
-    ci_error 'load_changed_files_for_range requires start ref, end ref, and label'
-    exit 1
+    fail 'load_changed_files_for_range requires start ref, end ref, and label'
   fi
 
   comparison_label=$label
@@ -263,8 +253,7 @@ load_changed_files_for_workflow_dispatch() {
   load_manual_dispatch_inputs
 
   if [ -z "$manual_base_ref" ] || [ -z "$manual_head_ref" ]; then
-    ci_error 'workflow_dispatch change detection requires --base-ref/--head-ref or inputs.base_ref/inputs.head_ref'
-    exit 1
+    fail 'workflow_dispatch change detection requires --base-ref/--head-ref or inputs.base_ref/inputs.head_ref'
   fi
 
   load_changed_files_for_range \
@@ -276,8 +265,7 @@ load_changed_files_for_workflow_dispatch() {
 
 load_changed_files_for_pull_request() {
   if [ -z "$event_path" ]; then
-    ci_error 'GITHUB_EVENT_PATH must be set for pull request change detection'
-    exit 1
+    fail 'GITHUB_EVENT_PATH must be set for pull request change detection'
   fi
 
   base_sha=$(read_event_value "$event_path" 'pull_request.base.sha')
@@ -295,8 +283,7 @@ load_changed_files_for_push() {
   fi
 
   if [ -z "$event_path" ]; then
-    ci_error 'GITHUB_EVENT_PATH must be set for push change detection'
-    exit 1
+    fail 'GITHUB_EVENT_PATH must be set for push change detection'
   fi
 
   before_sha=$(read_event_value "$event_path" 'before')
@@ -330,8 +317,7 @@ case "$event_name" in
     if [ -n "${GITHUB_REF_TYPE:-}" ] && [ "$GITHUB_REF_TYPE" = 'tag' ]; then
       load_changed_files_for_tag_commit
     else
-      ci_error "Unsupported GitHub event for change detection: ${event_name}"
-      exit 1
+      fail "Unsupported GitHub event for change detection: ${event_name}"
     fi
     ;;
 esac
@@ -424,4 +410,4 @@ if [ -n "$summary_file" ]; then
   } >> "$summary_file"
 fi
 
-ci_log "Categorized ${#trimmed_changed_files[@]} changed file(s) for ${comparison_label}"
+printf 'Categorized %s changed file(s) for %s\n' "${#trimmed_changed_files[@]}" "$comparison_label" >&2

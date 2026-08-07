@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly CI_ANNOTATION_WARNING_PREFIX='::warning::'
-readonly CI_ANNOTATION_ERROR_PREFIX='::error::'
-
 readonly CI_BOOLEAN_TRUE='true'
 readonly CI_BOOLEAN_FALSE='false'
 
@@ -14,28 +11,11 @@ readonly CI_PATH_TRAVERSAL_MESSAGE='Path traversal is forbidden'
 
 readonly CI_MISSING_OUTPUT_MESSAGE='GITHUB_OUTPUT is not set for boolean output'
 
-ci_log() {
-  printf '[Ci] %s\n' "$*" >&2
+fail() {
+  printf '%s\n' "$1" >&2
+  exit 1
 }
 
-ci_warn() {
-  printf '%s%s\n' "$CI_ANNOTATION_WARNING_PREFIX" "$(ci_escape_github_message "$*")"
-}
-
-ci_error() {
-  printf '%s%s\n' "$CI_ANNOTATION_ERROR_PREFIX" "$(ci_escape_github_message "$*")"
-}
-
-ci_escape_github_message() {
-  local raw_message=${1-}
-  local escaped_message
-
-  escaped_message=${raw_message//'%'/'%25'}
-  escaped_message=${escaped_message//$'\r'/'%0D'}
-  escaped_message=${escaped_message//$'\n'/'%0A'}
-
-  printf '%s' "$escaped_message"
-}
 
 ci_require_cmd() {
   local missing_commands=()
@@ -48,7 +28,7 @@ ci_require_cmd() {
   done
 
   if [ "${#missing_commands[@]}" -ne 0 ]; then
-    ci_error "Runner is missing the following required commands: ${missing_commands[*]}"
+    printf 'Runner is missing the following required commands: %s\n' "${missing_commands[*]}" >&2
     return 1
   fi
 }
@@ -57,7 +37,7 @@ ci_first_match_in_text() {
   local regex=${1-}
 
   if [ -z "$regex" ]; then
-    ci_error 'ci_first_match_in_text requires a regex'
+    printf 'ci_first_match_in_text requires a regex\n' >&2
     return 1
   fi
 
@@ -69,7 +49,7 @@ ci_first_match() {
   local file_path=${2-}
 
   if [ -z "$regex" ] || [ -z "$file_path" ]; then
-    ci_error 'ci_first_match requires a regex and a file path'
+    printf 'ci_first_match requires a regex and a file path\n' >&2
     return 1
   fi
 
@@ -108,17 +88,17 @@ ci_validate_relative_path() {
   local relative_path=${1-}
 
   if [ -z "$relative_path" ]; then
-    ci_error "$CI_PATH_EMPTY_MESSAGE"
+    printf '%s\n' "$CI_PATH_EMPTY_MESSAGE" >&2
     return 1
   fi
 
   if [[ "$relative_path" == "$CI_PATH_PREFIX"* ]]; then
-    ci_error "${CI_PATH_RELATIVE_PATH_MESSAGE}: ${relative_path}"
+    printf '%s: %s\n' "$CI_PATH_RELATIVE_PATH_MESSAGE" "$relative_path" >&2
     return 1
   fi
 
   if ci_is_relative_path_traversal "$relative_path"; then
-    ci_error "${CI_PATH_TRAVERSAL_MESSAGE}: ${relative_path}"
+    printf '%s: %s\n' "$CI_PATH_TRAVERSAL_MESSAGE" "$relative_path" >&2
     return 1
   fi
 }
@@ -138,12 +118,12 @@ ci_write_bool_output() {
   local output_value=${2-}
 
   if [ "$output_value" != "$CI_BOOLEAN_TRUE" ] && [ "$output_value" != "$CI_BOOLEAN_FALSE" ]; then
-    ci_error "Boolean output ${output_name} must be true or false, got: ${output_value}"
+    printf 'Boolean output %s must be true or false, got: %s\n' "$output_name" "$output_value" >&2
     return 1
   fi
 
   if [ -z "${GITHUB_OUTPUT:-}" ]; then
-    ci_error "${CI_MISSING_OUTPUT_MESSAGE} ${output_name}"
+    printf '%s %s\n' "$CI_MISSING_OUTPUT_MESSAGE" "$output_name" >&2
     return 1
   fi
 

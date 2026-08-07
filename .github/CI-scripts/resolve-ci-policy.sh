@@ -6,7 +6,6 @@ script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 
 source "${script_dir}/ci-common.sh"
 
-
 readonly EVENT_NAME_WORKFLOW_DISPATCH='workflow_dispatch'
 readonly EVENT_NAME_PULL_REQUEST='pull_request'
 readonly EVENT_NAME_PULL_REQUEST_TARGET='pull_request_target'
@@ -121,8 +120,7 @@ while [ "$#" -gt 0 ]; do
       exit 0
       ;;
     *)
-      ci_error "Unknown argument: $1"
-      exit 1
+      fail "Unknown argument: $1"
       ;;
   esac
   shift
@@ -131,8 +129,7 @@ done
 ci_require_cmd python3
 
 if [ -z "$event_name" ]; then
-  ci_error 'GITHUB_EVENT_NAME must be set or --event-name must be provided'
-  exit 1
+  fail 'GITHUB_EVENT_NAME must be set or --event-name must be provided'
 fi
 
 
@@ -142,8 +139,7 @@ read_event_value() {
   local reader_script="${script_dir}/read-json-value.py"
 
   if [ -z "$json_path" ] || [ -z "$key_path" ]; then
-    ci_error 'read_event_value requires a JSON path and key path'
-    exit 1
+    fail 'read_event_value requires a JSON path and key path'
   fi
 
   if [ ! -f "$json_path" ]; then
@@ -194,8 +190,7 @@ print_policy_or_fail() {
   local candidate_policy=${1-}
 
   if ! is_valid_policy "$candidate_policy"; then
-    ci_error "Invalid CI policy: ${candidate_policy}"
-    exit 1
+    fail "Invalid CI policy: ${candidate_policy}"
   fi
 
   printf '%s\n' "$candidate_policy"
@@ -380,5 +375,5 @@ if [ -n "${GITHUB_OUTPUT:-}" ]; then
   printf 'policy=%s\n' "$policy" >> "$GITHUB_OUTPUT"
 fi
 
-ci_log "Resolved CI policy: ${policy}"
+printf 'Resolved CI policy: %s\n' "$policy" >&2
 printf '%s\n' "$policy"

@@ -4,6 +4,15 @@ set -euo pipefail
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 source "${script_dir}/ci-common.sh"
 
+log_section() {
+  printf '\n%s\n' "$1" >&2
+}
+
+log_line() {
+  printf '%s\n' "$1" >&2
+}
+
+
 readonly EXPECTED_FLUTTER_VERSION='3.41.9'
 readonly EXPECTED_JAVA_MAJOR_VERSION='17'
 readonly EXPECTED_AGP_VERSION='8.11.1'
@@ -44,8 +53,7 @@ EOF
       exit 0
       ;;
     *)
-      ci_error "Unknown argument: $1"
-      exit 1
+      fail "Unknown argument: $1"
       ;;
   esac
   shift
@@ -54,10 +62,7 @@ done
 failures=()
 report_lines=()
 
-print_section() {
-  printf '\n' >&2
-  ci_log "$1"
-}
+
 
 report_value() {
   report_lines+=("$1: $2")
@@ -75,7 +80,7 @@ report_missing_command() {
 }
 
 validate_required_commands() {
-  print_section 'Tool availability'
+  log_section 'Tool availability'
 
   if ci_require_cmd flutter java gradle grep sed awk; then
     report_value 'flutter' 'available'
@@ -95,7 +100,7 @@ validate_required_commands() {
 }
 
 validate_flutter_version() {
-  print_section 'Flutter version'
+  log_section 'Flutter version'
 
   local flutter_version_output
   local flutter_version
@@ -117,7 +122,7 @@ validate_flutter_version() {
 }
 
 validate_java_version() {
-  print_section 'Java version'
+  log_section 'Java version'
 
   local java_version_output
   local java_version
@@ -149,7 +154,7 @@ validate_java_version() {
 }
 
 validate_android_sdk() {
-  print_section 'Android SDK and NDK'
+  log_section 'Android SDK and NDK'
 
   local android_sdk_root
   local compile_sdk_platform_dir
@@ -187,7 +192,7 @@ validate_android_sdk() {
 }
 
 validate_flutter_gradle_contract() {
-  print_section 'Flutter Gradle contract'
+  log_section 'Flutter Gradle contract'
 
   local flutter_extension_file
   local flutter_compile_sdk
@@ -264,7 +269,7 @@ validate_flutter_gradle_contract() {
 }
 
 validate_gradle_version() {
-  print_section 'Gradle version'
+  log_section 'Gradle version'
 
   local gradle_version_output
   local gradle_version
@@ -290,7 +295,7 @@ validate_gradle_version
 
 if [ "$show_diagnostics" = true ] || [ "${#failures[@]}" -ne 0 ]; then
   printf '\n' >&2
-  ci_log 'Runner toolchain diagnostics'
+  log_line 'Runner toolchain diagnostics'
   for line in "${report_lines[@]}"; do
     printf ' - %s\n' "$line"
   done
@@ -298,9 +303,9 @@ fi
 
 if [ "${#failures[@]}" -ne 0 ]; then
   for failure in "${failures[@]}"; do
-    ci_error "$failure"
+    log_line "$failure"
   done
   exit 1
 fi
 
-ci_log 'Runner toolchain verification passed'
+log_line 'Runner toolchain verification passed'
