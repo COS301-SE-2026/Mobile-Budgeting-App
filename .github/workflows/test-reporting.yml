@@ -1,0 +1,47 @@
+name: Reusable Flutter Test Reporting
+
+on:
+  workflow_call:
+    inputs:
+      report-artifact:
+        description: Artifact containing the Flutter machine JSON report
+        required: true
+        type: string
+      report-path:
+        description: Path to the Flutter machine JSON report inside the artifact
+        required: true
+        type: string
+      report-name:
+        description: Name of the GitHub test check
+        required: true
+        type: string
+      blocking:
+        description: Whether failed tests fail the reporting job
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  report:
+    name: ${{ inputs.report-name }}
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ !inputs.blocking }}
+    permissions:
+      contents: read
+      checks: write
+    steps:
+      - name: Download Flutter test report
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: ${{ inputs.report-artifact }}
+          path: test-results
+
+      - name: Publish Flutter test report
+        if: always()
+        uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2
+        with:
+          name: ${{ inputs.report-name }}
+          path: test-results/${{ inputs.report-path }}
+          reporter: flutter-json
+          fail-on-error: ${{ inputs.blocking }}
+          fail-on-empty: false
