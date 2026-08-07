@@ -14,3 +14,5 @@
 | `google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml` | `google/osv-scanner-action` | `v2.3.8` | `9a498708959aeaef5ef730655706c5a1df1edbc2` | GitHub releases + tags |
 | `dorny/paths-filter` | `dorny/paths-filter` | `v3.0.3` | `d1c1ffe0248fe513906c8e24db8ea791d46f8590` | GitHub release tag + commit URL |
 | `Beakyn/gha-get-milestone-data` | `Beakyn/gha-get-milestone-data` | `v1.0.1` | `c331e461afb56bfc633dbef30fbe39528abe29da` | GitHub releases + tags |
+| `dorny/test-reporter` | `dorny/test-reporter` | `v3.0.0` | `a43b3a5f7366b97d083190328d2c652e1a8b6aa2` | GitHub API tag ref + annotated commit resolution |
+| `leancodepl/dart-problem-matcher` | `leancodepl/dart-problem-matcher` | `0.0.2` | `db2c48534f89233ae58cb81a45ebc8fd21d90bff` | GitHub API tag ref + upstream README |
