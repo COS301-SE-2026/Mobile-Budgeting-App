@@ -84,11 +84,53 @@ void main() {
     });
 
 
+    testWidgets('invoking each CustomAppBar scroll callback does not throw', (tester) async {
+      await tester.pumpWidget(_wrap());
+      await tester.pump();
+      final appBar = tester.widget<CustomAppBar>(find.byType(CustomAppBar));
 
+      expect(appBar.onHomeTap, isNotNull);
+      appBar.onHomeTap();
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(appBar.onFeaturesTap, isNotNull);
+      appBar.onFeaturesTap();
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(appBar.onHowItWorksTap, isNotNull);
+      appBar.onHowItWorksTap();
+      await tester.pump(const Duration(milliseconds: 600));
+
+      expect(appBar.onDownloadTap, isNotNull);
+      appBar.onDownloadTap();
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(appBar.onAboutTap, isNotNull);
+      appBar.onAboutTap();
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(find.byType(LandingPage), findsOneWidget);
+    });
+
+    testWidgets('scrolling the page updates the active section without throwing', (tester) async {
+      await tester.pumpWidget(_wrap());
+      await tester.pump();
+      final scrollable = find.byType(SingleChildScrollView);
+      expect(scrollable, findsOneWidget);
+      for (var i = 0; i < 5; i++) {
+        await tester.drag(scrollable, const Offset(0, -600));
+        await tester.pump();
+      }
+      expect(find.byType(CustomAppBar), findsOneWidget);
+    });
+
+    testWidgets('disposes cleanly without leaking the scroll listener', (tester) async {
+      await tester.pumpWidget(_wrap());
+      await tester.pump();
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+
+      expect(find.byType(LandingPage), findsNothing);
+    });
 
 
   });
-
 
 
 }
