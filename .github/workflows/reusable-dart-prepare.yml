@@ -1,0 +1,52 @@
+name: Reusable Dart Prepare
+
+on:
+  workflow_call:
+    outputs:
+      generated_dart_artifact:
+        description: Generated Dart artifact name
+        value: ${{ jobs.prepare.outputs.generated_dart_artifact }}
+
+jobs:
+  prepare:
+    name: Prepare Generated Dart Artifacts
+    runs-on:
+      - self-hosted
+      - linux
+      - flutter-3.41.9
+      - android-ndk-28.2.13676358
+    permissions:
+      contents: read
+    outputs:
+      generated_dart_artifact: ${{ steps.artifact.outputs.generated_dart_artifact }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - uses: ./.github/actions/flutter-ci-setup
+        with:
+          app-directory: Flutter/budgetit
+          expected-flutter-version: "3.41.9"
+
+      - name: Generate Dart code
+        working-directory: Flutter/budgetit
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Collect generated Dart files
+        run: ./.github/CI-scripts/collect-generated-dart.sh --source-root Flutter/budgetit --stage-root artifacts/generated-dart --expect-generated
+
+      - name: Derive artifact name
+        id: artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          artifact_name="generated-dart-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}"
+          echo "generated_dart_artifact=${artifact_name}" >> "${GITHUB_OUTPUT}"
+
+      - name: Upload generated Dart artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: ${{ steps.artifact.outputs.generated_dart_artifact }}
+          path: artifacts/generated-dart
+          if-no-files-found: error
+          retention-days: 7
