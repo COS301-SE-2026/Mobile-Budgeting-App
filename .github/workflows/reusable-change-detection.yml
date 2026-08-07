@@ -2,137 +2,63 @@ name: Reusable Change Detection
 
 on:
   workflow_call:
-    inputs:
-      event_name:
-        description: GitHub event to classify
-        required: true
-        type: string
-      event_path:
-        description: Path to the event payload
-        required: false
-        default: ''
-        type: string
-      ref_type:
-        description: Git ref type for the event
-        required: false
-        default: ''
-        type: string
-      ref_name:
-        description: Git ref name for the event
-        required: false
-        default: ''
-        type: string
-      base_ref:
-        description: Optional base ref for manual and reusable callers
-        required: false
-        default: ''
-        type: string
-      head_ref:
-        description: Optional head ref for manual and reusable callers
-        required: false
-        default: ''
-        type: string
-      sha:
-        description: Git SHA for the event
-        required: false
-        default: ''
-        type: string
-      manual_policy:
-        description: Optional policy override for manual dispatches
-        required: false
-        default: ''
-        type: string
     outputs:
-      dart_changed:
-        description: Whether Flutter app files changed
-        value: ${{ jobs.detect.outputs.dart_changed }}
+      flutter_app_changed:
+        description: Whether non-generated Flutter application files changed
+        value: ${{ jobs.detect.outputs.flutter_app_changed }}
+      flutter_landing_changed:
+        description: Whether landing-page files changed
+        value: ${{ jobs.detect.outputs.flutter_landing_changed }}
+      flutter_generated_changed:
+        description: Whether generated Dart files changed
+        value: ${{ jobs.detect.outputs.flutter_generated_changed }}
+      flutter_shared_changed:
+        description: Whether shared Flutter files changed
+        value: ${{ jobs.detect.outputs.flutter_shared_changed }}
+      flutter_config_changed:
+        description: Whether Flutter dependency or configuration files changed
+        value: ${{ jobs.detect.outputs.flutter_config_changed }}
       backend_changed:
         description: Whether backend files changed
         value: ${{ jobs.detect.outputs.backend_changed }}
-      shared_changed:
-        description: Whether shared CI files changed
-        value: ${{ jobs.detect.outputs.shared_changed }}
-      docs_only:
-        description: Whether the change set is docs-only
-        value: ${{ jobs.detect.outputs.docs_only }}
-      run_full_ci:
-        description: Whether full CI should run
-        value: ${{ jobs.detect.outputs.run_full_ci }}
-      policy:
-        description: Resolved CI policy name
-        value: ${{ jobs.detect.outputs.policy }}
+      ci_shared_changed:
+        description: Whether CI or repository build files changed
+        value: ${{ jobs.detect.outputs.ci_shared_changed }}
+      security_global_changed:
+        description: Whether security policy files changed
+        value: ${{ jobs.detect.outputs.security_global_changed }}
+      documentation_changed:
+        description: Whether documentation files changed
+        value: ${{ jobs.detect.outputs.documentation_changed }}
+      unknown_changed:
+        description: Whether an unclassified path changed
+        value: ${{ jobs.detect.outputs.unknown_changed }}
 
 jobs:
   detect:
-    name: Detect Changes and Resolve Policy
+    name: Detect Changed Paths
     runs-on: ubuntu-latest
     permissions:
       contents: read
     outputs:
-      dart_changed: ${{ steps.detect.outputs.dart_changed }}
-      backend_changed: ${{ steps.detect.outputs.backend_changed }}
-      shared_changed: ${{ steps.detect.outputs.shared_changed }}
-      docs_only: ${{ steps.detect.outputs.docs_only }}
-      run_full_ci: ${{ steps.detect.outputs.run_full_ci }}
-      policy: ${{ steps.policy.outputs.policy }}
+      flutter_app_changed: ${{ steps.filter.outputs.flutter_app }}
+      flutter_landing_changed: ${{ steps.filter.outputs.flutter_landing }}
+      flutter_generated_changed: ${{ steps.filter.outputs.flutter_generated }}
+      flutter_shared_changed: ${{ steps.filter.outputs.flutter_shared }}
+      flutter_config_changed: ${{ steps.filter.outputs.flutter_config }}
+      backend_changed: ${{ steps.filter.outputs.backend }}
+      ci_shared_changed: ${{ steps.filter.outputs.ci_shared }}
+      security_global_changed: ${{ steps.filter.outputs.security_global }}
+      documentation_changed: ${{ steps.filter.outputs.documentation }}
+      unknown_changed: ${{ steps.filter.outputs.unknown }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
 
       - name: Detect changed paths
-        id: detect
-        env:
-          GITHUB_EVENT_NAME: ${{ inputs.event_name }}
-          GITHUB_EVENT_PATH: ${{ inputs.event_path }}
-          GITHUB_REF_TYPE: ${{ inputs.ref_type }}
-          GITHUB_REF_NAME: ${{ inputs.ref_name }}
-          GITHUB_SHA: ${{ inputs.sha }}
-          GITHUB_STEP_SUMMARY: ${{ runner.temp }}/change-detection-summary.md
-        run: ./.github/CI-scripts/detect-changes.sh
-
-      - name: Resolve CI policy
-        id: policy
-        env:
-          POLICY_EVENT_NAME: ${{ inputs.event_name }}
-          POLICY_EVENT_PATH: ${{ inputs.event_path }}
-          POLICY_REF_TYPE: ${{ inputs.ref_type }}
-          POLICY_REF_NAME: ${{ inputs.ref_name }}
-          POLICY_BASE_REF: ${{ inputs.base_ref }}
-          POLICY_HEAD_REF: ${{ inputs.head_ref }}
-          POLICY_MANUAL_POLICY: ${{ inputs.manual_policy }}
-        run: |
-          set -euo pipefail
-
-          policy=$(./.github/CI-scripts/resolve-ci-policy.sh \
-            --event-name "$POLICY_EVENT_NAME" \
-            --event-path "$POLICY_EVENT_PATH" \
-            --ref-type "$POLICY_REF_TYPE" \
-            --ref-name "$POLICY_REF_NAME" \
-            --base-ref "$POLICY_BASE_REF" \
-            --head-ref "$POLICY_HEAD_REF" \
-            --manual-policy "$POLICY_MANUAL_POLICY")
-
-          printf 'policy=%s\n' "$policy" >> "$GITHUB_OUTPUT"
-
-      - name: Append policy summary
-        if: always()
-        env:
-          DETECT_DART_CHANGED: ${{ steps.detect.outputs.dart_changed }}
-          DETECT_BACKEND_CHANGED: ${{ steps.detect.outputs.backend_changed }}
-          DETECT_SHARED_CHANGED: ${{ steps.detect.outputs.shared_changed }}
-          DETECT_DOCS_ONLY: ${{ steps.detect.outputs.docs_only }}
-          DETECT_RUN_FULL_CI: ${{ steps.detect.outputs.run_full_ci }}
-          DETECT_POLICY: ${{ steps.policy.outputs.policy }}
-        run: |
-          set -euo pipefail
-
-          {
-            printf '# Reusable change detection summary\n\n'
-            printf '| Key | Value |\n'
-            printf '|---|---|\n'
-            printf '| Policy | `%s` |\n' "$DETECT_POLICY"
-            printf '| dart_changed | `%s` |\n' "$DETECT_DART_CHANGED"
-            printf '| backend_changed | `%s` |\n' "$DETECT_BACKEND_CHANGED"
-            printf '| shared_changed | `%s` |\n' "$DETECT_SHARED_CHANGED"
-            printf '| docs_only | `%s` |\n' "$DETECT_DOCS_ONLY"
-            printf '| run_full_ci | `%s` |\n' "$DETECT_RUN_FULL_CI"
-          } >> "$GITHUB_STEP_SUMMARY"
+        id: filter
+        uses: dorny/paths-filter@d1c1ffe0248fe513906c8e24db8ea791d46f8590
+        with:
+          filters: .github/ci-path-filters.yml
+          token: ${{ github.token }}

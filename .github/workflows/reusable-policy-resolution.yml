@@ -1,0 +1,68 @@
+name: Reusable Policy Resolution
+
+on:
+  workflow_call:
+    inputs:
+      event_name:
+        description: GitHub event to classify
+        required: true
+        type: string
+      event_path:
+        description: Path to the event payload
+        required: false
+        default: ''
+        type: string
+      ref_type:
+        description: Git ref type for the event
+        required: false
+        default: ''
+        type: string
+      ref_name:
+        description: Git ref name for the event
+        required: false
+        default: ''
+        type: string
+      base_ref:
+        description: Optional base ref for manual and reusable callers
+        required: false
+        default: ''
+        type: string
+      manual_policy:
+        description: Optional policy override for manual dispatches
+        required: false
+        default: ''
+        type: string
+    outputs:
+      policy:
+        description: Resolved CI policy name
+        value: ${{ jobs.resolve.outputs.policy }}
+
+jobs:
+  resolve:
+    name: Resolve CI Policy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      policy: ${{ steps.policy.outputs.policy }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Resolve policy
+        id: policy
+        env:
+          POLICY_EVENT_NAME: ${{ inputs.event_name }}
+          POLICY_EVENT_PATH: ${{ inputs.event_path }}
+          POLICY_REF_TYPE: ${{ inputs.ref_type }}
+          POLICY_REF_NAME: ${{ inputs.ref_name }}
+          POLICY_BASE_REF: ${{ inputs.base_ref }}
+          POLICY_MANUAL_POLICY: ${{ inputs.manual_policy }}
+        run: |
+          set -euo pipefail
+          ./.github/CI-scripts/resolve-ci-policy.sh \
+            --event-name "$POLICY_EVENT_NAME" \
+            --event-path "$POLICY_EVENT_PATH" \
+            --ref-type "$POLICY_REF_TYPE" \
+            --ref-name "$POLICY_REF_NAME" \
+            --base-ref "$POLICY_BASE_REF" \
+            --manual-policy "$POLICY_MANUAL_POLICY" >/dev/null

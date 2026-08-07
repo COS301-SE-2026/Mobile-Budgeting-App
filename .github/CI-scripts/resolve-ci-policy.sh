@@ -370,7 +370,6 @@ resolve_policy() {
 
 policy=$(resolve_policy)
 
-
 if [ -n "${GITHUB_OUTPUT:-}" ]; then
   printf 'policy=%s\n' "$policy" >> "$GITHUB_OUTPUT"
 fi
