@@ -102,6 +102,35 @@ void main() {
     });
 
 
+    test('forceAll: true inserts duplicates instead of skipping them', () async {
+      final transactions = [ _parsed(description: 'Duplicate transaction', amount: '50.00', isDuplicate: true)];
+      final result = await orchestrator.commitImport(transactions, forceAll: true);
+      expect(result.inserted, equals(1));
+      expect(result.duplicatesSkipped, equals(0));
+
+      final stored = await taDao.getAllTransactions();
+      expect(stored, hasLength(1));
+    });
+
+    test('assigns category with AssignmentSource.ai when not manually overridden', () async {
+      final category = await categoryDao.insertCategory( name: 'Groceries', type: CategoryType.expense);
+      final transactions = [
+        _parsed(
+          description: 'Checkers groceries',
+          amount: '250.00',
+          categoryId: category.id,
+        ),
+      ];
+
+      await orchestrator.commitImport(transactions);
+      final stored = await taDao.getAllTransactions();
+      final mapping = await taDao.getCategoryForTransaction(stored.first.id);
+
+      expect(mapping, isNotNull);
+      expect(mapping!.categoryId, equals(category.id));
+      expect(mapping.assignmentSource, equals(AssignmentSource.ai));
+    });
+
 
   });
 
