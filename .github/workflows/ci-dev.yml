@@ -24,6 +24,9 @@ concurrency:
   group: ci-dev-${{ github.event.pull_request.head.sha || github.sha }}
   cancel-in-progress: true
 
+env:
+  GENERATED_DART_ARTIFACT_NAME: generated-dart-${{ github.sha }}-${{ github.run_id }}
+
 jobs:
   secret-scan:
     name: Secret Scan
@@ -77,6 +80,20 @@ jobs:
         working-directory: Flutter/budgetit
         run: dart run build_runner build --delete-conflicting-outputs
 
+      - name: Upload generated Dart artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: ${{ env.GENERATED_DART_ARTIFACT_NAME }}
+          path: |
+            Flutter/budgetit/lib/**/*.g.dart
+            Flutter/budgetit/lib/**/*.freezed.dart
+            Flutter/budgetit/lib/**/*.mocks.dart
+            Flutter/budgetit/test/**/*.g.dart
+            Flutter/budgetit/test/**/*.freezed.dart
+            Flutter/budgetit/test/**/*.mocks.dart
+          if-no-files-found: error
+          overwrite: true
+
   dart-format:
     name: Dart Format
     needs: prepare
@@ -86,14 +103,11 @@ jobs:
 
       - uses: ./.github/actions/flutter-setup
 
-      - name: Cache build_runner outputs
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+      - name: Download generated Dart artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
-          path: Flutter/budgetit/.dart_tool/build
-          key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart', 'Flutter/budgetit/test/**/*.dart', '!Flutter/budgetit/lib/**/*.g.dart', '!Flutter/budgetit/lib/**/*.freezed.dart', '!Flutter/budgetit/test/**/*.g.dart', '!Flutter/budgetit/test/**/*.freezed.dart') }}
-          restore-keys: |
-            build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-
-            build-runner-${{ runner.os }}-
+          name: ${{ env.GENERATED_DART_ARTIFACT_NAME }}
+          path: Flutter/budgetit
 
       - name: Dart format
         working-directory: Flutter/budgetit
@@ -108,20 +122,11 @@ jobs:
 
       - uses: ./.github/actions/flutter-setup
 
-      - name: Cache build_runner outputs
-        id: build-runner-cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+      - name: Download generated Dart artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
-          path: Flutter/budgetit/.dart_tool/build
-          key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart', 'Flutter/budgetit/test/**/*.dart', '!Flutter/budgetit/lib/**/*.g.dart', '!Flutter/budgetit/lib/**/*.freezed.dart', '!Flutter/budgetit/test/**/*.g.dart', '!Flutter/budgetit/test/**/*.freezed.dart') }}
-          restore-keys: |
-            build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-
-            build-runner-${{ runner.os }}-
-
-      - name: Dart Build Runner
-        if: steps.build-runner-cache.outputs.cache-hit != 'true'
-        working-directory: Flutter/budgetit
-        run: dart run build_runner build --delete-conflicting-outputs
+          name: ${{ env.GENERATED_DART_ARTIFACT_NAME }}
+          path: Flutter/budgetit
 
       - name: Flutter analyze
         working-directory: Flutter/budgetit
@@ -136,20 +141,11 @@ jobs:
 
       - uses: ./.github/actions/flutter-setup
 
-      - name: Cache build_runner outputs
-        id: build-runner-cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+      - name: Download generated Dart artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
-          path: Flutter/budgetit/.dart_tool/build
-          key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart', 'Flutter/budgetit/test/**/*.dart', '!Flutter/budgetit/lib/**/*.g.dart', '!Flutter/budgetit/lib/**/*.freezed.dart', '!Flutter/budgetit/test/**/*.g.dart', '!Flutter/budgetit/test/**/*.freezed.dart') }}
-          restore-keys: |
-            build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-
-            build-runner-${{ runner.os }}-
-
-      - name: Dart Build Runner
-        if: steps.build-runner-cache.outputs.cache-hit != 'true'
-        working-directory: Flutter/budgetit
-        run: dart run build_runner build --delete-conflicting-outputs
+          name: ${{ env.GENERATED_DART_ARTIFACT_NAME }}
+          path: Flutter/budgetit
 
       - name: Unit tests
         working-directory: Flutter/budgetit
@@ -179,6 +175,13 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - uses: ./.github/actions/flutter-setup
+
+      - name: Download generated Dart artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: ${{ env.GENERATED_DART_ARTIFACT_NAME }}
+          path: Flutter/budgetit
+
       - name: Integration Tests
         working-directory: Flutter/budgetit
         run: flutter test test/integration/
