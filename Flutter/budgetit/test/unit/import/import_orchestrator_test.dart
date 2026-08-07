@@ -70,8 +70,40 @@ void main() {
       expect(result.failed, equals(0));
       expect(result.errors, isEmpty);
     });
-  });
 
+    test('inserts non-duplicate transactions and reports correct counts', () async {
+      final transactions = [
+        _parsed(description: 'Checkers groceries', amount: '250.00'),
+        _parsed(description: 'Salary payment', amount: '12000.00', isIncome: true),
+      ];
+      final result = await orchestrator.commitImport(transactions);
+
+      expect(result.totalParsed, equals(2));
+      expect(result.inserted, equals(2));
+      expect(result.duplicatesSkipped, equals(0));
+      expect(result.failed, equals(0));
+      final stored = await taDao.getAllTransactions();
+      expect(stored, hasLength(2));
+    });
+
+    test('skips duplicates by default', () async {
+      final transactions = [
+        _parsed(description: 'New transaction', amount: '100.00'),
+        _parsed(description: 'Duplicate transaction', amount: '50.00', isDuplicate: true),
+      ];
+      final result = await orchestrator.commitImport(transactions);
+
+      expect(result.inserted, equals(1));
+      expect(result.duplicatesSkipped, equals(1));
+      expect(result.totalParsed, equals(2));
+      final stored = await taDao.getAllTransactions();
+      expect(stored, hasLength(1));
+      expect(stored.first.shortDescription, equals('New transaction'));
+    });
+
+
+
+  });
 
 
 
