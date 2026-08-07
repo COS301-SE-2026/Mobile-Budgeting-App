@@ -41,6 +41,7 @@ EOF
   shift
 done
 
+repo_root=$(ci_repo_root)
 source_root=$(ci_repo_path "$source_root_relative")
 stage_root=$(ci_repo_path "$stage_root_relative")
 manifest_path="${stage_root}/${GENERATED_DART_MANIFEST_FILE}"
@@ -63,7 +64,7 @@ mkdir -p "$stage_root"
 : > "$manifest_path"
 
 for source_file in "${collectable_files[@]}"; do
-  relative_path=${source_file#"${source_root}/"}
+  relative_path=${source_file#"${repo_root}/"}
   destination_path="${stage_root}/${relative_path}"
   destination_dir=${destination_path%/*}
   file_checksum=''
