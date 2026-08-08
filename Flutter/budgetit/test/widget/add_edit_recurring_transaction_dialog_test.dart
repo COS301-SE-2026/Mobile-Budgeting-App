@@ -76,6 +76,41 @@ void main() {
     await db.close();
   });
 
+group('Add mode', () {
+  testWidgets('shows "Add Recurring Transaction" title and no delete button', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_wrap(db));
+    await _openDialog(tester);
+
+    expect(find.text('Add Recurring Transaction'), findsOneWidget);
+    expect(find.byIcon(Icons.delete_outline), findsNothing);
+    expect(find.text('Add'), findsOneWidget);
+  });
+
+  testWidgets('defaults to Expense, Monthly, interval 1', (tester) async {
+    await tester.pumpWidget(_wrap(db));
+    await _openDialog(tester);
+
+    expect(find.text('1 month'), findsOneWidget);
+  });
+
+  testWidgets('shows validation errors when saving with empty fields', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_wrap(db));
+    await _openDialog(tester);
+
+    await tester.tap(find.text('Add'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Description is required'), findsOneWidget);
+    expect(find.text('Amount is required'), findsOneWidget);
+  });
+
+
+
+});
 
 
 
