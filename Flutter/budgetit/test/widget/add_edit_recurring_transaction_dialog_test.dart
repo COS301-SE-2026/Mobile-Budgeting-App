@@ -133,7 +133,45 @@ group('Add mode', () {
       await tester.pump();
 
       expect(find.text('Income'), findsOneWidget);
-    });
+  });
+
+  testWidgets('tapping a period button changes the selected repeat unit', (tester) async {
+    await tester.pumpWidget(_wrap(db));
+    await _openDialog(tester);
+
+    expect(find.text('Daily'), findsOneWidget);
+    expect(find.text('Weekly'), findsOneWidget);
+    expect(find.text('Monthly'), findsOneWidget);
+    expect(find.text('Yearly'), findsOneWidget);
+    await tester.tap(find.text('Weekly'));
+    await tester.pump();
+    expect(find.text('1 week'), findsOneWidget);
+  });
+
+  testWidgets('increment button raises the interval and pluralises the noun', (tester) async {
+    await tester.pumpWidget(_wrap(db));
+    await _openDialog(tester);
+
+    expect(find.text('1 month'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pump();
+    expect(find.text('2 months'), findsOneWidget);
+  });
+
+  testWidgets('decrement button never goes below interval 1', (tester) async {
+    await tester.pumpWidget(_wrap(db));
+    await _openDialog(tester);
+
+    expect(find.text('1 month'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.remove));
+    await tester.pump();
+    expect(find.text('1 month'), findsOneWidget);
+  });
+
+
+
+
+
 
 });
 
