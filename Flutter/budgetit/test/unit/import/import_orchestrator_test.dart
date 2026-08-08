@@ -156,7 +156,57 @@ void main() {
       final mapping = await taDao.getCategoryForTransaction(stored.first.id);
 
       expect(mapping, isNull);
-    });    
+    });
+
+    test('a row that fails to insert is counted as failed with an error message, no failures', () async {
+      final overlongDescription = 'x' * 700;
+      final transactions = [
+        _parsed(description: 'Valid transaction', amount: '10.00'),
+        _parsed(description: overlongDescription, amount: '20.00'),
+        _parsed(description: 'Another valid transaction', amount: '30.00'),
+      ];
+      final result = await orchestrator.commitImport(transactions);
+
+      expect(result.totalParsed, equals(3));
+      expect(result.inserted, equals(2));
+      expect(result.failed, equals(1));
+      expect(result.duplicatesSkipped, equals(0));
+      expect(result.errors, hasLength(1));
+      expect(result.errors.keys.first, equals(overlongDescription.substring(0, 100)));
+      final stored = await taDao.getAllTransactions();
+      expect(stored, hasLength(2));
+    });
+
+    test('mixed batch: duplicate skipped, one succeeds, one fails - totals reconcile', () async {
+      final overlongDescription = 'y' * 700;
+      final transactions = [
+        _parsed(description: 'Duplicate row', amount: '10.00', isDuplicate: true),
+        _parsed(description: 'Good row', amount: '20.00'),
+        _parsed(description: overlongDescription, amount: '30.00'),
+      ];
+      final result = await orchestrator.commitImport(transactions);
+
+      expect(result.totalParsed, equals(3));
+      expect(result.duplicatesSkipped, equals(1));
+      expect(result.inserted, equals(1));
+      expect(result.failed, equals(1));
+      expect(result.duplicatesSkipped + result.inserted + result.failed, equals(result.totalParsed));
+    });
+
+    test('inserted transactions carry TransactionSource.import and the correct type', () async {
+      final transactions = [
+        _parsed(description: 'Expense row', amount: '10.00', isIncome: false),
+        _parsed(description: 'Income row', amount: '20.00', isIncome: true),
+      ];
+      await orchestrator.commitImport(transactions);
+      final stored = await taDao.getAllTransactions();
+      final expenseRow = stored.firstWhere((t) => t.shortDescription == 'Expense row');
+      final incomeRow = stored.firstWhere((t) => t.shortDescription == 'Income row');
+
+      expect(expenseRow.source, equals(TransactionSource.import));
+      expect(expenseRow.type, equals(TransactionType.expense));
+      expect(incomeRow.type, equals(TransactionType.income));
+    });
 
 
   });
