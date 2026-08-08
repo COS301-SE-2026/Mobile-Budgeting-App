@@ -230,9 +230,56 @@ group('Add mode', () {
   });
 
 
-
 });
+  group('edit mode', () {
+    testWidgets('shows "Edit Recurring Transaction" title, a delete button, pre-filled fields, and "Save"', (tester) async {
+      final existing = await _seedExisting(db, shortDescription: 'Netflix subscription', amount: '199.00');
+      await tester.pumpWidget(_wrap(db, existing: existing));
+      await _openDialog(tester);
+
+      expect(find.text('Edit Recurring Transaction'), findsOneWidget);
+      expect(find.byIcon(Icons.delete_outline), findsOneWidget);
+      expect(find.text('Save'), findsOneWidget);
+      final descField = tester.widget<TextFormField>(find.byType(TextFormField).at(0));
+      expect(descField.controller?.text, equals('Netflix subscription'));
+      final amountField = tester.widget<TextFormField>(find.byType(TextFormField).at(1));
+      expect(amountField.controller?.text, equals('199.00'));
+    });
+
+    testWidgets('pre-selects the existing unit and interval', (tester) async {
+      final existing = await _seedExisting(
+        db,
+        unit: PeriodType.yearly,
+        intervalAmount: 3,
+      );
+      await tester.pumpWidget(_wrap(db, existing: existing));
+      await _openDialog(tester);
+
+      expect(find.text('3 years'), findsOneWidget);
+    });
+
+    testWidgets('saving edits updates the existing record in place', (tester) async {
+      final existing = await _seedExisting(db, shortDescription: 'Old name', amount: '50.00');
+      var savedCalled = false;
+      await tester.pumpWidget(_wrap(db, existing: existing, onSaved: () => savedCalled = true));
+      await _openDialog(tester);
+      final descField = find.byType(TextFormField).at(0);
+      await tester.enterText(descField, '');
+      await tester.enterText(descField, 'Updated name');
+      final amountField = find.byType(TextFormField).at(1);
+      await tester.enterText(amountField, '');
+      await tester.enterText(amountField, '75.50');
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+
+      expect(savedCalled, isTrue);
+      final all = await db.recurringTransactionDao.getAllRecurringTransactions();
+      expect(all, hasLength(1));
+      expect(all.first.id, equals(existing.id));
+      expect(all.first.shortDescription, equals('Updated name'));
+      expect(all.first.amount.toString(), equals('75.50'));
+    });
 
 
-
+  });
 }
