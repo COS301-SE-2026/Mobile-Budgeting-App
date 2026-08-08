@@ -280,6 +280,34 @@ group('Add mode', () {
       expect(all.first.amount.toString(), equals('75.50'));
     });
 
+    testWidgets('tapping the delete icon soft-deletes the record, closes, and calls onDeleted', (tester) async {
+      final existing = await _seedExisting(db);
+      var deletedCalled = false;
+      await tester.pumpWidget(_wrap(db, existing: existing, onDeleted: () => deletedCalled = true));
+      await _openDialog(tester);
+      await tester.tap(find.byIcon(Icons.delete_outline));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Edit Recurring Transaction'), findsNothing);
+      expect(deletedCalled, isTrue);
+      final active = await db.recurringTransactionDao.getAllRecurringTransactions();
+      expect(active, isEmpty);
+      final includingDeleted = await db.recurringTransactionDao.getAllRecurringTransactions(includeDeleted: true);
+      expect(includingDeleted, hasLength(1));
+      expect(includingDeleted.first.deletedAt, isNotNull);
+    });
+
+    testWidgets('Cancel in edit mode leaves the existing record untouched', (tester) async {
+      final existing = await _seedExisting(db, shortDescription: 'Untouched');
+      await tester.pumpWidget(_wrap(db, existing: existing));
+      await _openDialog(tester);
+      await tester.enterText(find.byType(TextFormField).at(0), 'Should not be saved');
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      final all = await db.recurringTransactionDao.getAllRecurringTransactions();
+      
+      expect(all.first.shortDescription, equals('Untouched'));
+    });
 
   });
 }
