@@ -168,8 +168,66 @@ group('Add mode', () {
     expect(find.text('1 month'), findsOneWidget);
   });
 
+  testWidgets('decrement after incrementing returns to singular noun at 1', (tester) async {
+    await tester.pumpWidget(_wrap(db));
+    await _openDialog(tester);
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pump();
 
+    expect(find.text('2 months'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.remove));
+    await tester.pump();
+    expect(find.text('1 month'), findsOneWidget);
+  });
 
+  testWidgets('Cancel closes the dialog without creating a record', (tester) async {
+    await tester.pumpWidget(_wrap(db));
+    await _openDialog(tester);
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Add Recurring Transaction'), findsNothing);
+    final all = await db.recurringTransactionDao.getAllRecurringTransactions();
+    expect(all, isEmpty);
+  });
+
+  testWidgets('saving a valid new recurring transaction persists it, closes, and calls onSaved', (tester) async {
+    var savedCalled = false;
+    await tester.pumpWidget(_wrap(db, onSaved: () => savedCalled = true));
+    await _openDialog(tester);
+    await tester.enterText(find.byType(TextFormField).at(0), 'Spotify subscription');
+    await tester.enterText(find.byType(TextFormField).at(1), '99.00');
+    await tester.tap(find.text('Weekly'));
+    await tester.tap(find.byIcon(Icons.add)); 
+    await tester.tap(find.text('Add'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Add Recurring Transaction'), findsNothing);
+    expect(savedCalled, isTrue);
+    final all = await db.recurringTransactionDao.getAllRecurringTransactions();
+    expect(all, hasLength(1));
+    final rt = all.first;
+    expect(rt.shortDescription, equals('Spotify subscription'));
+    expect(rt.amount.toString(), equals('99.00'));
+    expect(rt.unit, equals(PeriodType.weekly));
+    expect(rt.intervalAmount, equals(2));
+    expect(rt.type, equals(TransactionType.expense));
+    expect(rt.nextTransactionDate, equals(rt.startDate));
+  });
+
+  testWidgets('saving a new income recurring transaction stores TransactionType.income', (tester) async {
+    await tester.pumpWidget(_wrap(db));
+    await _openDialog(tester);
+    await tester.tap(find.text('Income'));
+    await tester.enterText(find.byType(TextFormField).at(0), 'Freelance retainer');
+    await tester.enterText(find.byType(TextFormField).at(1), '5000.00');
+    await tester.tap(find.text('Add'));
+    await tester.pumpAndSettle();
+
+    final all = await db.recurringTransactionDao.getAllRecurringTransactions();
+    expect(all, hasLength(1));
+    expect(all.first.type, equals(TransactionType.income));
+  });
 
 
 
