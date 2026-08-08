@@ -77,9 +77,7 @@ void main() {
   });
 
 group('Add mode', () {
-  testWidgets('shows "Add Recurring Transaction" title and no delete button', (
-    tester,
-  ) async {
+  testWidgets('shows "Add Recurring Transaction" title and no delete button', (tester) async {
     await tester.pumpWidget(_wrap(db));
     await _openDialog(tester);
 
@@ -95,12 +93,9 @@ group('Add mode', () {
     expect(find.text('1 month'), findsOneWidget);
   });
 
-  testWidgets('shows validation errors when saving with empty fields', (
-    tester,
-  ) async {
+  testWidgets('shows validation errors when saving with empty fields', (tester) async {
     await tester.pumpWidget(_wrap(db));
     await _openDialog(tester);
-
     await tester.tap(find.text('Add'));
     await tester.pumpAndSettle();
 
@@ -108,7 +103,37 @@ group('Add mode', () {
     expect(find.text('Amount is required'), findsOneWidget);
   });
 
+  testWidgets('rejects a description longer than 100 characters', (tester) async {
+    await tester.pumpWidget(_wrap(db));
+    await _openDialog(tester);
 
+    final descField = find.byType(TextFormField).at(0);
+    await tester.enterText(descField, 'x' * 101);
+    await tester.tap(find.text('Add'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Must be 100 characters or less'), findsOneWidget);
+  });
+
+  testWidgets('rejects a zero amount', (tester) async {
+    await tester.pumpWidget(_wrap(db));
+    await _openDialog(tester);
+    await tester.enterText(find.byType(TextFormField).at(0), 'Gym membership');
+    await tester.enterText(find.byType(TextFormField).at(1), '0');
+    await tester.tap(find.text('Add'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Enter a valid amount'), findsOneWidget);
+  });
+
+  testWidgets('switching to Income updates the type toggle selection', (tester) async {
+      await tester.pumpWidget(_wrap(db));
+      await _openDialog(tester);
+      await tester.tap(find.text('Income'));
+      await tester.pump();
+
+      expect(find.text('Income'), findsOneWidget);
+    });
 
 });
 
