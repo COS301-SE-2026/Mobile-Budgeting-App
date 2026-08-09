@@ -8,6 +8,7 @@
 | `actions/cache/save` | `actions/cache` | `v6.1.0` | `55cc8345863c7cc4c66a329aec7e433d2d1c52a9` | GitHub releases + tags |
 | `actions/upload-artifact` | `actions/upload-artifact` | `v7.0.1` | `043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` | GitHub releases + tags |
 | `actions/download-artifact` | `actions/download-artifact` | `v8.0.1` | `3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` | GitHub releases + tags |
+| `actions/upload-pages-artifact` | `actions/upload-pages-artifact` | `v4.0.0` | `7b1f4a764d45c48632c6b24a0339c27f5614fb0b` | GitHub API tag resolution + release/action metadata |
 | `actions/setup-java` | `actions/setup-java` | `v5.7.0` | `b6effb05e454b25005698d916606bdc6ffcbf961` | GitHub releases + tags |
 | `codecov/codecov-action` | `codecov/codecov-action` | `v7.0.0` | `fb8b3582c8e4def4969c97caa2f19720cb33a72f` | GitHub releases + tags |
 | `SonarSource/sonarqube-scan-action` | `SonarSource/sonarqube-scan-action` | `v8.2.1` | `22918119ff8e1ca75a623e15c8296b6ea4fbe28f` | GitHub releases + tags |
