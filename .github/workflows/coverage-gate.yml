@@ -1,0 +1,41 @@
+name: Reusable Coverage Gate
+
+on:
+  workflow_call:
+    inputs:
+      blocking:
+        description: Whether coverage upload or Codecov failures should fail this workflow
+        required: false
+        default: true
+        type: boolean
+      coverage-artifact-pattern:
+        description: Artifact pattern for LCOV coverage reports from test jobs
+        required: true
+        type: string
+
+jobs:
+  coverage:
+    name: Coverage Gate
+    if: always()
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ !inputs.blocking }}
+    permissions:
+      contents: read
+    steps:
+      - name: Download coverage artifacts
+        id: download-coverage
+        continue-on-error: true
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          pattern: ${{ inputs.coverage-artifact-pattern }}
+          path: coverage
+          merge-multiple: true
+
+      - name: Upload coverage and check Codecov thresholds
+        if: always()
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage/**/lcov.info
+          fail_ci_if_error: ${{ inputs.blocking }}
+          verbose: true
