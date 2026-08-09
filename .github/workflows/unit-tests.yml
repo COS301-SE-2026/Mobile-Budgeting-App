@@ -56,14 +56,21 @@ jobs:
               -not -path 'test/integration/*') \
             > test-results/unit.json
 
-      - name: Upload unit-test report and coverage
+      - name: Upload unit-test report
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: unit-test-report-${{ github.run_id }}
-          path: |
-            Flutter/budgetit/test-results/unit.json
-            Flutter/budgetit/coverage/lcov.info
+          path: Flutter/budgetit/test-results/unit.json
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Upload unit-test coverage
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: unit-coverage-${{ github.run_id }}
+          path: Flutter/budgetit/coverage/lcov.info
           if-no-files-found: warn
           retention-days: 7
 
