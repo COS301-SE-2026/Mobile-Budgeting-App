@@ -1,0 +1,65 @@
+name: Reusable APK Build
+
+on:
+  workflow_call:
+    inputs:
+      blocking:
+        description: Whether APK build failures should fail this workflow
+        required: false
+        default: true
+        type: boolean
+      generated-artifact:
+        description: Generated Dart artifact to download
+        required: true
+        type: string
+    outputs:
+      artifact-name:
+        description: Name of the uploaded release APK artifact
+        value: ${{ jobs.build.outputs.artifact-name }}
+
+jobs:
+  build:
+    name: Build APK
+    runs-on:
+      - self-hosted
+      - linux
+      - flutter-3.41.9
+      - android-ndk-28.2.13676358
+    continue-on-error: ${{ !inputs.blocking }}
+    permissions:
+      contents: read
+    outputs:
+      artifact-name: apk-${{ github.sha }}-${{ github.run_id }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Set up Flutter SDK
+        uses: ./.github/actions/flutter-ci-setup
+
+      - name: Download generated Dart
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: ${{ inputs.generated-artifact }}
+          path: Flutter/budgetit
+
+      - name: Verify runner and Gradle toolchain
+        shell: bash
+        run: ./.github/CI-scripts/verify-runner-toolchain.sh --diagnostic
+
+      - name: Apply Gradle properties
+        shell: bash
+        run: cp .github/gradle/ci-gradle.properties Flutter/budgetit/android/gradle.properties
+
+      - name: Build release APK
+        working-directory: Flutter/budgetit
+        run: flutter build apk --release --no-tree-shake-icons
+
+      - name: Upload release APK artifact
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: apk-${{ github.sha }}-${{ github.run_id }}
+          path: Flutter/budgetit/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 7
