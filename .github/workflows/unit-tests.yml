@@ -12,10 +12,17 @@ on:
         description: Generated Dart artifact to download
         required: true
         type: string
+      source-ref:
+        description: Source ref to test
+        required: true
+        type: string
     outputs:
       report-artifact:
         description: Artifact containing the machine-readable unit-test report
         value: ${{ jobs.unit-tests.outputs.report-artifact }}
+      coverage-artifact:
+        description: Artifact containing LCOV coverage for unit tests
+        value: ${{ jobs.unit-tests.outputs.coverage-artifact }}
 
 jobs:
   unit-tests:
@@ -26,13 +33,16 @@ jobs:
       - flutter-3.41.9
     continue-on-error: ${{ !inputs.blocking }}
     permissions:
+      actions: read
       contents: read
-      checks: write
     outputs:
       report-artifact: unit-test-report-${{ github.run_id }}
+      coverage-artifact: unit-coverage-${{ github.run_id }}
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.source-ref }}
 
       - name: Set up the provisioned Flutter SDK
         uses: ./.github/actions/flutter-ci-setup
@@ -43,18 +53,20 @@ jobs:
           name: ${{ inputs.generated-artifact }}
           path: Flutter/budgetit
 
-      - name: Run unit tests and retain the machine report
+      - name: Run unit tests
         id: tests
         continue-on-error: true
         working-directory: Flutter/budgetit
+        shell: bash
         run: |
           mkdir -p test-results
-          flutter test --machine --coverage --concurrency=4 \
-            $(find test -name '*_test.dart' \
-              -not -path 'test/golden/*' \
-              -not -path 'test/performance/*' \
-              -not -path 'test/integration/*') \
-            > test-results/unit.json
+          set +e
+          flutter test --machine --coverage --concurrency=4 test/unit/ \
+            > test-results/unit.json \
+            2> >(tee test-results/unit.log >&2)
+          status=$?
+          echo "exit-code=${status}" >> "${GITHUB_OUTPUT}"
+          exit "${status}"
 
       - name: Upload unit-test report
         if: always()
@@ -62,7 +74,16 @@ jobs:
         with:
           name: unit-test-report-${{ github.run_id }}
           path: Flutter/budgetit/test-results/unit.json
-          if-no-files-found: warn
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload unit test diagnostics
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: unit-test-diagnostics-${{ github.run_id }}
+          path: Flutter/budgetit/test-results/unit.log
+          if-no-files-found: error
           retention-days: 7
 
       - name: Upload unit-test coverage
@@ -71,15 +92,12 @@ jobs:
         with:
           name: unit-coverage-${{ github.run_id }}
           path: Flutter/budgetit/coverage/lcov.info
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 7
 
-      - name: Publish unit-test report
-        if: always()
-        uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2
-        with:
-          name: Unit Tests
-          path: Flutter/budgetit/test-results/unit.json
-          reporter: flutter-json
-          fail-on-error: ${{ inputs.blocking }}
-          fail-on-empty: false
+      - name: Enforce blocking unit test result
+        if: ${{ always() && inputs.blocking && steps.tests.outcome != 'success' }}
+        shell: bash
+        run: |
+          echo 'Unit test process failed.' >&2
+          exit 1
