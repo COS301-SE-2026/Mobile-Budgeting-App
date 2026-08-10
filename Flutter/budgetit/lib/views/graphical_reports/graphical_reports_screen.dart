@@ -18,6 +18,7 @@ class GraphicalReportsScreen extends StatefulWidget {
 
 class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
   ReportingPeriod _selectedPeriod = ReportingPeriod.monthly;
+  late int _selectedYear;
 
   late final GraphicalReportService _reportService;
   late Future<GraphicalReportData> _reportFuture;
@@ -25,27 +26,61 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
   @override
   void initState() {
     super.initState();
+    _selectedYear = DateTime.now().year;
     _reportService = GraphicalReportService(widget.database);
-    _reportFuture = _reportService.generateReport(_selectedPeriod);
+    _reportFuture = _generateSelectedReport();
+  }
+
+  Future<GraphicalReportData> _generateSelectedReport() {
+    final today = DateTime.now();
+
+    return _reportService.generateReport(
+      _selectedPeriod,
+      anchorDate: DateTime(_selectedYear, today.month, today.day),
+    );
   }
 
   void _changePeriod(ReportingPeriod period) {
     setState(() {
       _selectedPeriod = period;
-      _reportFuture = _reportService.generateReport(period);
+      _reportFuture = _generateSelectedReport();
     });
   }
 
+  void _changeYear(int year) {
+    setState(() {
+      _selectedYear = year;
+      _reportFuture = _generateSelectedReport();
+    });
+  }
+
+  //this is private
   String _formatCurrency(double amount) {
     return 'R${amount.toStringAsFixed(2)}';
   }
 
   Color _reportCardColor(BuildContext context) {
-    return context.colours.bg2;
+    return Theme.of(context).brightness == Brightness.dark
+        ? context.colours.blendedprimary
+        : context.colours.secondary;
   }
 
   Color _reportCardTextColor(BuildContext context) {
-    return context.colours.textPrimary;
+    return Theme.of(context).brightness == Brightness.dark
+        ? context.colours.secondary
+        : context.colours.background;
+  }
+
+  Color _lightModeCreamAccent(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? context.colours.secondary
+        : context.colours.cardText;
+  }
+
+  Color _periodCheckColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? context.colours.background
+        : context.colours.cardText;
   }
 
   @override
@@ -56,10 +91,10 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
       backgroundColor: colours.background,
       appBar: AppBar(
         backgroundColor: colours.background,
-        iconTheme: IconThemeData(color: colours.secondary),
+        iconTheme: IconThemeData(color: colours.textPrimary),
         title: Text(
           'Graphical Reports',
-          style: TextStyle(
+          style: colours.h2.copyWith(
             color: colours.textPrimary,
             fontWeight: FontWeight.bold,
           ),
@@ -81,7 +116,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                   padding: const EdgeInsets.all(24),
                   child: Text(
                     'Could not load graphical reports.',
-                    style: TextStyle(color: colours.textPrimary),
+                    style: colours.b1.copyWith(color: colours.textPrimary),
                   ),
                 ),
               );
@@ -93,7 +128,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
               return Center(
                 child: Text(
                   'No financial data is available.',
-                  style: TextStyle(color: colours.textPrimary),
+                  style: colours.b1.copyWith(color: colours.textPrimary),
                 ),
               );
             }
@@ -104,6 +139,11 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _periodSelector(),
+                  //adding the filter for year btw
+                  if (_selectedPeriod == ReportingPeriod.yearly) ...[
+                    const SizedBox(height: 16),
+                    _yearPicker(),
+                  ],
                   const SizedBox(height: 22),
                   if (!report.hasFinancialData)
                     _noDataCard()
@@ -141,16 +181,45 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
         final selected = period == _selectedPeriod;
         final colours = context.colours;
 
+      // fixing the check mark selection and padding when its activate
         return Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: ChoiceChip(
               selected: selected,
-              label: Text(period.label),
+              showCheckmark: false,
+              labelPadding: const EdgeInsets.symmetric(horizontal: 2),
+              label: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 16,
+                    child: selected
+                        ? Icon(
+                            Icons.check,
+                            size: 14,
+                            color: _periodCheckColor(context),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: Text(
+                      period.label,
+                      overflow: TextOverflow.visible,
+                      softWrap: false,
+                    ),
+                  ),
+                ],
+              ),
               selectedColor: colours.secondary,
               backgroundColor: _reportCardColor(context),
-              labelStyle: TextStyle(
-                color: selected ? colours.background : _reportCardTextColor(context),
+              checkmarkColor: _periodCheckColor(context),
+              labelStyle: colours.b1.copyWith(
+                color: selected
+                    ? colours.background
+                    : _reportCardTextColor(context),
                 fontWeight: FontWeight.bold,
               ),
               onSelected: (_) => _changePeriod(period),
@@ -158,6 +227,51 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
           ),
         );
       }).toList(),
+    );
+  }
+
+  Widget _yearPicker() {
+    final currentYear = DateTime.now().year;
+    final years= List.generate(8, (index) => currentYear + 1 - index);
+    final textColor = _reportCardTextColor(context);
+
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      decoration: _cardDecoration(),
+      
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<int>(
+          value: _selectedYear,
+          dropdownColor: _reportCardColor(context),
+          iconEnabledColor: textColor,
+          style: context.colours.b1.copyWith(
+            color: textColor,
+            fontWeight: FontWeight.bold,
+          ),
+          items: years.map((year) {
+            return DropdownMenuItem<int>(
+              value: year,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.calendar_month_outlined,
+                    color: textColor,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 10),
+                  Text('$year'),
+                ],
+              ),
+            );
+          }).toList(),
+          onChanged: (year) {
+            if (year == null) return;
+            _changeYear(year);
+          },
+        ),
+      ),
     );
   }
 
@@ -188,13 +302,12 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
     required double value,
     required IconData icon,
   }) {
-    final colours = context.colours;
     final textColor = _reportCardTextColor(context);
 
     return Container(
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        color: cardColor,
+        color: _reportCardColor(context),
         border: Border.all(color: Colors.black, width: 4),
         boxShadow: [BoxShadow(color: Colors.black, offset: const Offset(6, 6))],
       ),
@@ -202,12 +315,12 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
         children: [
           Icon(icon, color: textColor),
           const SizedBox(height: 8),
-          Text(title, style: TextStyle(color: textColor)),
+          Text(title, style: context.colours.b1.copyWith(color: textColor)),
           const SizedBox(height: 6),
           Text(
             _formatCurrency(value),
-            style: TextStyle(
-              color: colours.secondary,
+            style: context.colours.h2.copyWith(
+              color: _lightModeCreamAccent(context),
               fontWeight: FontWeight.bold,
               fontSize: 18,
             ),
@@ -410,7 +523,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                           child: Text(
                             category.categoryName,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
+                            style: context.colours.b5.copyWith(
                               color: cardTextColor,
                               fontSize: 12,
                             ),
@@ -419,7 +532,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                         const SizedBox(width: 6),
                         Text(
                           '${percentage.toStringAsFixed(1)}%',
-                          style: TextStyle(
+                          style: context.colours.b5.copyWith(
                             color: cardTextColor,
                             fontSize: 12,
                           ),
@@ -459,7 +572,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                   children: [
                     Text(
                       budget.categoryName,
-                      style: TextStyle(
+                      style: context.colours.budgetheader.copyWith(
                         color: cardTextColor,
                         fontWeight: FontWeight.bold,
                       ),
@@ -467,7 +580,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                     Text(
                       '${_formatCurrency(budget.spent)} / '
                       '${_formatCurrency(budget.limit)}',
-                      style: TextStyle(color: cardTextColor),
+                      style: context.colours.b4.copyWith(color: cardTextColor),
                     ),
                   ],
                 ),
@@ -475,7 +588,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                 LinearProgressIndicator(
                   value: progress > 1 ? 1 : progress,
                   minHeight: 9,
-                  backgroundColor: colours.secondary.withOpacity(0.25),
+                  backgroundColor: colours.secondary.withValues(alpha: 0.25),
                   color: colours.secondary,
                 ),
               ],
@@ -491,8 +604,8 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
       return _emptyChartMessage();
     }
 
-    final colours = context.colours;
     final cardTextColor = _reportCardTextColor(context);
+    final trendColor = _lightModeCreamAccent(context);
     final spots = report.spendingTrend.asMap().entries.map((entry) {
       return FlSpot(entry.key.toDouble(), entry.value.amount);
     }).toList();
@@ -507,7 +620,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                 spots: spots,
                 isCurved: true,
                 barWidth: 3,
-                color: colours.secondary,
+                color: trendColor,
                 dotData: const FlDotData(show: true),
               ),
             ],
@@ -525,7 +638,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                   getTitlesWidget: (value, metadata) {
                     return Text(
                       value.toInt().toString(),
-                      style: TextStyle(
+                      style: context.colours.b5.copyWith(
                         color: cardTextColor,
                         fontSize: 10,
                       ),
@@ -538,13 +651,14 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                   showTitles: true,
                   getTitlesWidget: (value, metadata) {
                     final index = value.toInt();
-                    final label = index >= 0 && index < report.spendingTrend.length
+                    final label =
+                        index >= 0 && index < report.spendingTrend.length
                         ? report.spendingTrend[index].label
                         : '';
 
                     return Text(
                       label,
-                      style: TextStyle(
+                      style: context.colours.b5.copyWith(
                         color: cardTextColor,
                         fontSize: 10,
                       ),
@@ -555,8 +669,8 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
             ),
             borderData: FlBorderData(
               border: Border(
-                left: BorderSide(color: colours.secondary),
-                bottom: BorderSide(color: colours.secondary),
+                left: BorderSide(color: trendColor),
+                bottom: BorderSide(color: trendColor),
               ),
             ),
           ),
@@ -608,7 +722,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
       child: Text(
         'No data is available for this graph.',
         textAlign: TextAlign.center,
-        style: TextStyle(color: cardTextColor),
+        style: context.colours.b1.copyWith(color: cardTextColor),
       ),
     );
   }
@@ -624,7 +738,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
           Text(
             'No financial data is available for the selected period.',
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: context.colours.b1.copyWith(
               color: cardTextColor,
               fontWeight: FontWeight.bold,
             ),
@@ -633,7 +747,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
           Text(
             'Select another reporting period or add transactions.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: cardTextColor),
+            style: context.colours.b1.copyWith(color: cardTextColor),
           ),
         ],
       ),
