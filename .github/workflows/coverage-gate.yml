@@ -8,34 +8,77 @@ on:
         required: false
         default: true
         type: boolean
-      coverage-artifact-pattern:
-        description: Artifact pattern for LCOV coverage reports from test jobs
+      unit-coverage-artifact:
+        description: Artifact containing the unit-test LCOV report
         required: true
         type: string
+      widget-coverage-artifact:
+        description: Artifact containing the widget-test LCOV report
+        required: true
+        type: string
+      source-ref:
+        description: Source ref represented by the coverage reports
+        required: true
+        type: string
+    secrets:
+      CODECOV_TOKEN:
+        description: Codecov upload token
+        required: false
 
 jobs:
   coverage:
-    name: Coverage Gate
+    name: Upload Coverage
     if: always()
     runs-on: ubuntu-latest
     continue-on-error: ${{ !inputs.blocking }}
     permissions:
+      actions: read
       contents: read
     steps:
-      - name: Download coverage artifacts
-        id: download-coverage
-        continue-on-error: true
+      - name: Check out covered source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.source-ref }}
+
+      - name: Download  unit coverage artifact
+        id: download-unit
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
-          pattern: ${{ inputs.coverage-artifact-pattern }}
-          path: coverage
-          merge-multiple: true
+          name: ${{ inputs.unit-coverage-artifact }}
+          path: coverage/unit
 
-      - name: Upload coverage and check Codecov thresholds
+      - name: Download widget coverage artifact
+        id: download-widget
         if: always()
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: ${{ inputs.widget-coverage-artifact }}
+          path: coverage/widget
+
+      - name: Verify unit LCOV report
+        id: verify-unit
+        if: always()
+        shell: bash
+        run: test -s coverage/unit/lcov.info
+
+      - name: Verify widget LCOV report
+        id: verify-widget
+        if: always()
+        shell: bash
+        run: test -s coverage/widget/lcov.info
+
+      - name: Upload unit and widget coverage to Codecov
+        if: >-
+          ${{
+            always() &&
+            steps.download-unit.outcome == 'success' &&
+            steps.download-widget.outcome == 'success' &&
+            steps.verify-unit.outcome == 'success' &&
+            steps.verify-widget.outcome == 'success'
+          }}
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: coverage/**/lcov.info
+          files: coverage/unit/lcov.info,coverage/widget/lcov.info
           fail_ci_if_error: ${{ inputs.blocking }}
           verbose: true
