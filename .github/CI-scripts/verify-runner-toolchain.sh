@@ -1,311 +1,225 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -Eeuo pipefail
 
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 source "${script_dir}/ci-common.sh"
 
-log_section() {
-  printf '\n%s\n' "$1" >&2
-}
+readonly FLUTTER_VERSION='3.41.9'
+readonly JAVA_MAJOR='17'
+readonly GRADLE_VERSION='8.14'
+readonly COMPILE_SDK='36'
+readonly NDK_VERSION='28.2.13676358'
 
-log_line() {
-  printf '%s\n' "$1" >&2
-}
-
-
-readonly EXPECTED_FLUTTER_VERSION='3.41.9'
-readonly EXPECTED_JAVA_MAJOR_VERSION='17'
-readonly EXPECTED_AGP_VERSION='8.11.1'
-readonly EXPECTED_KOTLIN_VERSION='2.1.0'
-readonly EXPECTED_GRADLE_VERSION='8.14'
-readonly EXPECTED_FLUTTER_COMPILE_SDK='36'
-readonly EXPECTED_FLUTTER_NDK_VERSION='28.2.13676358'
-
-readonly FLUTTER_VERSION_JSON_REGEX='.*"frameworkVersion"[[:space:]]*:[[:space:]]*"\([^"]*\)".*'
-readonly FLUTTER_VERSION_TEXT_REGEX='^Flutter \([0-9][0-9.]*\).*$'
-readonly JAVA_VERSION_REGEX='^.*version "\([0-9][0-9._-]*\)".*$'
-readonly FLUTTER_COMPILE_SDK_REGEX='^.*val compileSdkVersion: Int = \([0-9][0-9]*\).*$'
-readonly FLUTTER_NDK_VERSION_REGEX='^.*val ndkVersion: String = "\([^"]*\)".*$'
-readonly AGP_VERSION_REGEX='^.*com.android.application") version "\([^"]*\)" apply false.*$'
-readonly KOTLIN_VERSION_REGEX='^.*org.jetbrains.kotlin.android") version "\([^"]*\)" apply false.*$'
-readonly GRADLE_VERSION_REGEX='^Gradle \([0-9][0-9.]*\).*$'
-
-
-readonly PROJECT_COMPILE_SDK_WIRING='compileSdk = flutter.compileSdkVersion'
-readonly PROJECT_NDK_WIRING='ndkVersion = flutter.ndkVersion'
-
-readonly ANDROID_SDK_PLATFORM_PREFIX='platforms/android-'
-readonly ANDROID_NDK_PREFIX='ndk/'
+readonly FLUTTER_VERSION_RE='.*"frameworkVersion"[[:space:]]*:[[:space:]]*"\([^"]*\)".*'
+readonly JAVA_VERSION_RE='^.*version "\([0-9][0-9._-]*\)".*$'
+readonly GRADLE_VERSION_RE='^Gradle \([0-9][0-9.]*\).*$'
 
 show_diagnostics=false
+errors=()
 
-while [ "$#" -gt 0 ]; do
-  case "$1" in
-    --diagnostic|--diagnostics)
-      show_diagnostics=true
-      ;;
-    -h|--help)
-      cat <<'EOF'
+usage() {
+  cat <<'EOF'
 Usage: verify-runner-toolchain.sh [--diagnostic]
 
-Validates the pre-provisioned Flutter / Android / Gradle runner toolchain.
+Checks the Flutter and Android tools needed to build the APK.
+The script only checks the runner. It does not install anything.
 EOF
-      exit 0
-      ;;
-    *)
-      fail "Unknown argument: $1"
-      ;;
-  esac
-  shift
-done
-
-failures=()
-report_lines=()
-
-
-
-report_value() {
-  report_lines+=("$1: $2")
 }
 
-record_failure() {
-  failures+=("$1")
-}
-
-report_missing_command() {
-  local command_name=$1
-
-  report_value "$command_name" 'missing'
-  record_failure "Required command is missing: $command_name"
-}
-
-validate_required_commands() {
-  log_section 'Tool availability'
-
-  if ci_require_cmd flutter java gradle grep sed awk; then
-    report_value 'flutter' 'available'
-    report_value 'java' 'available'
-    report_value 'gradle' 'available'
-    report_value 'grep' 'available'
-    report_value 'sed' 'available'
-    report_value 'awk' 'available'
-    return 0
-  fi
-
-  for command_name in flutter java gradle grep sed awk; do
-    if ! command -v "$command_name" >/dev/null 2>&1; then
-      report_missing_command "$command_name"
-    fi
-  done
-}
-
-validate_flutter_version() {
-  log_section 'Flutter version'
-
-  local flutter_version_output
-  local flutter_version
-
-  flutter_version_output=$(flutter --version --machine 2>&1 || true)
-  flutter_version=$(printf '%s\n' "$flutter_version_output" | ci_first_match_in_text "$FLUTTER_VERSION_JSON_REGEX")
-
-  if [ -z "$flutter_version" ]; then
-    flutter_version=$(printf '%s\n' "$flutter_version_output" | ci_first_match_in_text "$FLUTTER_VERSION_TEXT_REGEX")
-  fi
-
-  report_value 'Flutter version' "${flutter_version:-unknown}"
-
-  if [ -z "$flutter_version" ]; then
-    record_failure 'Unable to determine Flutter version'
-  elif [ "$flutter_version" != "$EXPECTED_FLUTTER_VERSION" ]; then
-    record_failure "Flutter version expected ${EXPECTED_FLUTTER_VERSION} but found version ${flutter_version} instead"
-  fi
-}
-
-validate_java_version() {
-  log_section 'Java version'
-
-  local java_version_output
-  local java_version
-  local java_major_version
-
-  java_version_output=$(java -version 2>&1 || true)
-  java_version=$(printf '%s\n' "$java_version_output" | ci_first_match_in_text "$JAVA_VERSION_REGEX")
-  java_major_version=''
-
-  if [ -n "$java_version" ]; then
-    case "$java_version" in
-      1.*)
-        java_major_version=$(printf '%s' "$java_version" | cut -d. -f2)
+parse_args() {
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      --diagnostic|--diagnostics)
+        show_diagnostics=true
+        ;;
+      -h|--help)
+        usage
+        exit 0
         ;;
       *)
-        java_major_version=$(printf '%s' "$java_version" | cut -d. -f1)
+        fail "Unknown option: $1"
         ;;
     esac
-  fi
-
-  report_value 'Java version' "${java_version:-unknown}"
-  report_value 'JAVA_HOME' "${JAVA_HOME:-unknown}"
-
-  if [ -z "$java_major_version" ]; then
-    record_failure 'Unable to determine Java version'
-  elif [ "$java_major_version" != "$EXPECTED_JAVA_MAJOR_VERSION" ]; then
-    record_failure "Java major version expected ${EXPECTED_JAVA_MAJOR_VERSION} but found version ${java_major_version} instead"
-  fi
-}
-
-validate_android_sdk() {
-  log_section 'Android SDK and NDK'
-
-  local android_sdk_root
-  local compile_sdk_platform_dir
-  local ndk_dir
-
-  android_sdk_root=${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}
-
-  if [ -z "$android_sdk_root" ]; then
-    report_value 'Android SDK root' 'missing'
-    record_failure 'ANDROID_SDK_ROOT or ANDROID_HOME must be set'
-    return 0
-  fi
-
-  report_value 'Android SDK root' "$android_sdk_root"
-  if [ ! -d "$android_sdk_root" ]; then
-    record_failure "Android SDK root does not exist: $android_sdk_root"
-    return 0
-  fi
-
-  compile_sdk_platform_dir="${android_sdk_root}/${ANDROID_SDK_PLATFORM_PREFIX}${EXPECTED_FLUTTER_COMPILE_SDK}"
-  if [ -d "$compile_sdk_platform_dir" ]; then
-    report_value 'Android compile SDK platform' "$compile_sdk_platform_dir"
-  else
-    report_value 'Android compile SDK platform' "missing: $compile_sdk_platform_dir"
-    record_failure "Android compile SDK platform is not installed: android-${EXPECTED_FLUTTER_COMPILE_SDK}"
-  fi
-
-  ndk_dir="${android_sdk_root}/${ANDROID_NDK_PREFIX}${EXPECTED_FLUTTER_NDK_VERSION}"
-  if [ -d "$ndk_dir" ]; then
-    report_value 'Android NDK' "$ndk_dir"
-  else
-    report_value 'Android NDK' "missing: $ndk_dir"
-    record_failure "Android NDK is not installed: ${EXPECTED_FLUTTER_NDK_VERSION}"
-  fi
-}
-
-validate_flutter_gradle_contract() {
-  log_section 'Flutter Gradle contract'
-
-  local flutter_extension_file
-  local flutter_compile_sdk
-  local flutter_ndk_version
-  local android_settings_file
-  local android_app_file
-  local project_agp_version
-  local project_kotlin_version
-
-  flutter_extension_file="$(cd -- "$(dirname -- "$(command -v flutter)")/.." && pwd)/packages/flutter_tools/gradle/src/main/kotlin/FlutterExtension.kt"
-  flutter_compile_sdk=''
-  flutter_ndk_version=''
-
-  if [ -f "$flutter_extension_file" ]; then
-    flutter_compile_sdk=$(ci_first_match "$FLUTTER_COMPILE_SDK_REGEX" "$flutter_extension_file")
-    flutter_ndk_version=$(ci_first_match "$FLUTTER_NDK_VERSION_REGEX" "$flutter_extension_file")
-  fi
-
-  report_value 'Flutter compile SDK' "${flutter_compile_sdk:-unknown}"
-  report_value 'Flutter NDK version' "${flutter_ndk_version:-unknown}"
-
-  if [ -z "$flutter_compile_sdk" ]; then
-    record_failure 'Unable to determine Flutter compile SDK version'
-  elif [ "$flutter_compile_sdk" != "$EXPECTED_FLUTTER_COMPILE_SDK" ]; then
-    record_failure "Flutter compile SDK expected ${EXPECTED_FLUTTER_COMPILE_SDK} but found ${flutter_compile_sdk}"
-  fi
-
-  if [ -z "$flutter_ndk_version" ]; then
-    record_failure 'Unable to determine Flutter NDK version'
-  elif [ "$flutter_ndk_version" != "$EXPECTED_FLUTTER_NDK_VERSION" ]; then
-    record_failure "Flutter NDK version expected ${EXPECTED_FLUTTER_NDK_VERSION} but found ${flutter_ndk_version}"
-  fi
-
-  android_settings_file=$(ci_repo_path 'Flutter/budgetit/android/settings.gradle.kts')
-  android_app_file=$(ci_repo_path 'Flutter/budgetit/android/app/build.gradle.kts')
-
-  project_agp_version=''
-  project_kotlin_version=''
-  if [ -f "$android_settings_file" ]; then
-    project_agp_version=$(ci_first_match "$AGP_VERSION_REGEX" "$android_settings_file")
-    project_kotlin_version=$(ci_first_match "$KOTLIN_VERSION_REGEX" "$android_settings_file")
-  fi
-
-  report_value 'Project AGP version' "${project_agp_version:-unknown}"
-  report_value 'Project Kotlin version' "${project_kotlin_version:-unknown}"
-
-  if [ -z "$project_agp_version" ]; then
-    record_failure 'Unable to determine Android Gradle Plugin version from settings.gradle.kts'
-  elif [ "$project_agp_version" != "$EXPECTED_AGP_VERSION" ]; then
-    record_failure "Android Gradle Plugin expected ${EXPECTED_AGP_VERSION} but found ${project_agp_version}"
-  fi
-
-  if [ -z "$project_kotlin_version" ]; then
-    record_failure 'Unable to determine Kotlin plugin version from settings.gradle.kts'
-  elif [ "$project_kotlin_version" != "$EXPECTED_KOTLIN_VERSION" ]; then
-    record_failure "Kotlin plugin expected ${EXPECTED_KOTLIN_VERSION} but found version ${project_kotlin_version} instead"
-  fi
-
-  if [ -f "$android_app_file" ]; then
-    if grep -q "$PROJECT_COMPILE_SDK_WIRING" "$android_app_file"; then
-      report_value 'Project compile SDK wiring' 'delegates to flutter.compileSdkVersion'
-    else
-      report_value 'Project compile SDK wiring' 'unexpected'
-      record_failure 'Android app build file does not delegate compileSdk to flutter.compileSdkVersion'
-    fi
-
-    if grep -q "$PROJECT_NDK_WIRING" "$android_app_file"; then
-      report_value 'Project NDK wiring' 'delegates to flutter.ndkVersion'
-    else
-      report_value 'Project NDK wiring' 'unexpected'
-      record_failure 'Android app build file does not delegate ndkVersion to flutter.ndkVersion'
-    fi
-  fi
-}
-
-validate_gradle_version() {
-  log_section 'Gradle version'
-
-  local gradle_version_output
-  local gradle_version
-
-  gradle_version_output=$(gradle -v 2>&1 || true)
-  gradle_version=$(printf '%s\n' "$gradle_version_output" | ci_first_match_in_text "$GRADLE_VERSION_REGEX")
-
-  report_value 'Gradle version' "${gradle_version:-unknown}"
-
-  if [ -z "$gradle_version" ]; then
-    record_failure 'Unable to determine Gradle version'
-  elif [ "$gradle_version" != "$EXPECTED_GRADLE_VERSION" ]; then
-    record_failure "Gradle version expected ${EXPECTED_GRADLE_VERSION} but found ${gradle_version}"
-  fi
-}
-
-validate_required_commands
-validate_flutter_version
-validate_java_version
-validate_android_sdk
-validate_flutter_gradle_contract
-validate_gradle_version
-
-if [ "$show_diagnostics" = true ] || [ "${#failures[@]}" -ne 0 ]; then
-  printf '\n' >&2
-  log_line 'Runner toolchain diagnostics'
-  for line in "${report_lines[@]}"; do
-    printf ' - %s\n' "$line"
+    shift
   done
-fi
+}
 
-if [ "${#failures[@]}" -ne 0 ]; then
-  for failure in "${failures[@]}"; do
-    log_line "$failure"
+section() {
+  printf '\n%s\n' "$1"
+}
+
+add_error() {
+  errors+=("$1")
+  printf 'Error: %s\n' "$1" >&2
+}
+
+check_version() {
+  local name=$1
+  local actual=$2
+  local expected=$3
+
+  printf '%s: %s\n' "$name" "${actual:-unknown}"
+
+  if [ -z "$actual" ]; then
+    add_error "Could not read the ${name} version."
+  elif [ "$actual" != "$expected" ]; then
+    add_error "Expected ${name} ${expected}, found ${actual}."
+  fi
+}
+
+check_directory() {
+  local name=$1
+  local path=$2
+
+  if [ -d "$path" ]; then
+    printf '%s: %s\n' "$name" "$path"
+  else
+    add_error "Missing ${name}: ${path}"
+  fi
+}
+
+check_file() {
+  local name=$1
+  shift
+
+  local path
+  for path in "$@"; do
+    if [ -f "$path" ]; then
+      printf '%s: %s\n' "$name" "$path"
+      return 0
+    fi
   done
-  exit 1
-fi
 
-log_line 'Runner toolchain verification passed'
+  add_error "Missing ${name}."
+}
+
+check_commands() {
+  section 'Tools'
+  ci_require_cmd flutter dart java gradle sed || exit 1
+
+  if [ "$show_diagnostics" = true ]; then
+    local command_name
+    for command_name in flutter dart java gradle; do
+      printf '%s: %s\n' "$command_name" "$(command -v "$command_name")"
+    done
+  fi
+}
+
+check_flutter() {
+  local output=''
+  local version=''
+
+  if output=$(flutter --version --machine 2>&1); then
+    version=$(printf '%s\n' "$output" | ci_first_match_in_text "$FLUTTER_VERSION_RE")
+  fi
+
+  check_version 'Flutter' "$version" "$FLUTTER_VERSION"
+}
+
+check_dart() {
+  local output=''
+
+  if output=$(dart --version 2>&1); then
+    printf 'Dart: %s\n' "$output"
+  else
+    add_error 'Could not run dart --version.'
+  fi
+}
+
+check_java() {
+  local output=''
+  local version=''
+  local major=''
+
+  if output=$(java -version 2>&1); then
+    version=$(printf '%s\n' "$output" | ci_first_match_in_text "$JAVA_VERSION_RE")
+  fi
+
+  if [ -n "$version" ]; then
+    if [[ "$version" == 1.* ]]; then
+      major=${version#1.}
+    else
+      major=$version
+    fi
+    major=${major%%.*}
+  fi
+
+  check_version 'Java' "$major" "$JAVA_MAJOR"
+
+  if [ "$show_diagnostics" = true ]; then
+    printf 'Java details: %s\n' "${version:-unknown}"
+    printf 'JAVA_HOME: %s\n' "${JAVA_HOME:-unset}"
+  fi
+}
+
+check_gradle() {
+  local output=''
+  local version=''
+
+  if output=$(gradle -v 2>&1); then
+    version=$(printf '%s\n' "$output" | ci_first_match_in_text "$GRADLE_VERSION_RE")
+  fi
+
+  check_version 'Gradle' "$version" "$GRADLE_VERSION"
+}
+
+check_android_sdk() {
+  section 'Android SDK'
+
+  local sdk_root=${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}
+  if [ -z "$sdk_root" ]; then
+    add_error 'ANDROID_SDK_ROOT or ANDROID_HOME is not set.'
+    return
+  fi
+
+  check_directory 'SDK root' "$sdk_root"
+  check_directory "Android SDK ${COMPILE_SDK}" "${sdk_root}/platforms/android-${COMPILE_SDK}"
+  check_directory "Android NDK ${NDK_VERSION}" "${sdk_root}/ndk/${NDK_VERSION}"
+}
+
+check_android_project() {
+  section 'Android project'
+
+  local repo_root
+  local android_dir
+  repo_root=$(cd -- "${script_dir}/../.." && pwd)
+  android_dir="${repo_root}/Flutter/budgetit/android"
+
+  check_file 'settings Gradle file' \
+    "${android_dir}/settings.gradle.kts" \
+    "${android_dir}/settings.gradle"
+
+  check_file 'app Gradle file' \
+    "${android_dir}/app/build.gradle.kts" \
+    "${android_dir}/app/build.gradle"
+
+  check_file 'root Gradle file' \
+    "${android_dir}/build.gradle.kts" \
+    "${android_dir}/build.gradle"
+
+  check_file 'Gradle properties' "${android_dir}/gradle.properties"
+}
+
+main() {
+  parse_args "$@"
+
+  check_commands
+
+  section 'Versions'
+  check_flutter
+  check_dart
+  check_java
+  check_gradle
+
+  check_android_sdk
+  check_android_project
+
+  if [ "${#errors[@]}" -gt 0 ]; then
+    printf '\n%d check(s) failed.\n' "${#errors[@]}" >&2
+    exit 1
+  fi
+
+  printf '\nRunner checks passed.\n'
+}
+
+main "$@"
