@@ -17,7 +17,6 @@ import 'utils/theme_provider.dart';
 import 'shared/widgets/main_appbar.dart';
 import 'utils/app_colour.dart';
 import 'views/budget_manager/budget_manager_screen.dart';
-import 'package:budgetit/services/analysis/background_anomaly_scanner.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,17 +30,17 @@ void main() async {
   }
 
   runApp(
-  
     MultiProvider(
       providers: [
-        Provider<AppDatabase>(create: (_) => db, dispose: (_, db) => db.close()),
-        ChangeNotifierProvider( //USED DEEPSEEK TO FIX CONTEXT ERRORS 
+        Provider<AppDatabase>(
+          create: (_) => db,
+          dispose: (_, db) => db.close(),
+        ),
+        ChangeNotifierProvider(
+          //USED DEEPSEEK TO FIX CONTEXT ERRORS
           create: (_) => AppAuthProvider(authService: CognitoAuthService()),
         ),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        ChangeNotifierProvider(
-          create: (context) => BackgroundAnomalyScanner(context.read<AppDatabase>()),
-        ),
       ],
       child: const BudgetApp(),
     ),
@@ -52,11 +51,8 @@ Future<void> _configureAmplify() async {
   try {
     await Amplify.addPlugin(AmplifyAuthCognito());
     await Amplify.configure(amplifyconfig);
-  } on AmplifyAlreadyConfiguredException {
-    
-  }
+  } on AmplifyAlreadyConfiguredException {}
 }
-
 
 class BudgetApp extends StatelessWidget {
   const BudgetApp({super.key});
@@ -70,28 +66,25 @@ class BudgetApp extends StatelessWidget {
       themeMode: themeProvider.isDark ? ThemeMode.dark : ThemeMode.light,
       theme: ThemeData(
         brightness: Brightness.light,
-        extensions: [MyColours.lightTheme], 
+        extensions: [MyColours.lightTheme],
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         extensions: [MyColours.darkTheme],
       ),
       initialRoute: '/',
-      routes: {
-        '/transaction_manager': (context) => const TransactionManager(),
-      },
+      routes: {'/transaction_manager': (context) => const TransactionManager()},
       home: const AuthWrapper(),
     );
   }
 }
-
 
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 
   @override
   Widget build(BuildContext context) {
-    context.watch<ThemeProvider>(); 
+    context.watch<ThemeProvider>();
     final auth = context.watch<AppAuthProvider>();
 
     switch (auth.status) {
@@ -106,11 +99,10 @@ class AuthWrapper extends StatelessWidget {
         return const LoginRegisterScreen();
       case AuthStatus.skipped:
       case AuthStatus.loggedIn:
-        return const HomePage(); 
+        return const HomePage();
     }
   }
 }
-
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -124,10 +116,12 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-   
     context.watch<ThemeProvider>();
 
-    final db = context.read<AppDatabase>(); 
+    final db = context.read<AppDatabase>();
+    final selectedNavIconColor = Theme.of(context).brightness == Brightness.dark
+        ? context.colours.background
+        : context.colours.cardText;
 
     return Scaffold(
       appBar: const MainAppbar(),
@@ -141,20 +135,23 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: context.colours.background,
           indicatorColor: context.colours.secondary,
           onDestinationSelected: _onDestinationSelected,
-          destinations: const [
+          destinations: [
             NavigationDestination(
               icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home),
+              selectedIcon: Icon(Icons.home, color: selectedNavIconColor),
               label: '',
             ),
             NavigationDestination(
               icon: Icon(Icons.attach_money),
-              selectedIcon: Icon(Icons.attach_money),
+              selectedIcon: Icon(
+                Icons.attach_money,
+                color: selectedNavIconColor,
+              ),
               label: '',
             ),
             NavigationDestination(
               icon: Icon(Icons.pie_chart_outline),
-              selectedIcon: Icon(Icons.pie_chart),
+              selectedIcon: Icon(Icons.pie_chart, color: selectedNavIconColor),
               label: '',
             ),
           ],
