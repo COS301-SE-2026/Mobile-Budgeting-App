@@ -2,6 +2,12 @@ name: Reusable Change Detection
 
 on:
   workflow_call:
+    inputs:
+      force_full:
+        description: Ignore path applicability and expose all applicable checks
+        required: false
+        default: false
+        type: boolean
     outputs:
       flutter_app_changed:
         description: Whether non-generated Flutter application files changed
@@ -33,6 +39,30 @@ on:
       unknown_changed:
         description: Whether an unclassified path changed
         value: ${{ jobs.detect.outputs.unknown_changed }}
+      should_prepare_generated_dart:
+        description: Whether generated Dart preparation is needed for the changed paths
+        value: ${{ jobs.detect.outputs.should_prepare_generated_dart }}
+      should_lint:
+        description: Whether lint should run for the changed paths
+        value: ${{ jobs.detect.outputs.should_lint }}
+      should_unit_tests:
+        description: Whether unit tests should run for the changed paths
+        value: ${{ jobs.detect.outputs.should_unit_tests }}
+      should_widget_tests:
+        description: Whether widget tests should run for the changed paths
+        value: ${{ jobs.detect.outputs.should_widget_tests }}
+      should_integration_tests:
+        description: Whether integration tests are applicable to the changed paths
+        value: ${{ jobs.detect.outputs.should_integration_tests }}
+      should_osv_scan:
+        description: Whether OSV scanning should run for the changed paths
+        value: ${{ jobs.detect.outputs.should_osv_scan }}
+      should_apk_build:
+        description: Whether APK building is applicable to the changed paths
+        value: ${{ jobs.detect.outputs.should_apk_build }}
+      should_pages_build:
+        description: Whether Pages building is applicable to the changed paths
+        value: ${{ jobs.detect.outputs.should_pages_build }}
 
 jobs:
   detect:
@@ -51,6 +81,83 @@ jobs:
       security_global_changed: ${{ steps.filter.outputs.security_global }}
       documentation_changed: ${{ steps.filter.outputs.documentation }}
       unknown_changed: ${{ steps.filter.outputs.unknown }}
+      should_prepare_generated_dart: >-
+        ${{
+          inputs.force_full ||
+          steps.filter.outputs.flutter_app == 'true' ||
+          steps.filter.outputs.flutter_landing == 'true' ||
+          steps.filter.outputs.flutter_shared == 'true' ||
+          steps.filter.outputs.flutter_config == 'true' ||
+          steps.filter.outputs.ci_shared == 'true' ||
+          steps.filter.outputs.unknown == 'true'
+        }}
+      should_lint: >-
+        ${{
+          inputs.force_full ||
+          steps.filter.outputs.flutter_app == 'true' ||
+          steps.filter.outputs.flutter_landing == 'true' ||
+          steps.filter.outputs.flutter_shared == 'true' ||
+          steps.filter.outputs.flutter_config == 'true' ||
+          steps.filter.outputs.ci_shared == 'true' ||
+          steps.filter.outputs.unknown == 'true'
+        }}
+      should_unit_tests: >-
+        ${{
+          inputs.force_full ||
+          steps.filter.outputs.flutter_app == 'true' ||
+          steps.filter.outputs.flutter_shared == 'true' ||
+          steps.filter.outputs.flutter_config == 'true' ||
+          steps.filter.outputs.ci_shared == 'true' ||
+          steps.filter.outputs.unknown == 'true'
+        }}
+      should_widget_tests: >-
+        ${{
+          inputs.force_full ||
+          steps.filter.outputs.flutter_app == 'true' ||
+          steps.filter.outputs.flutter_shared == 'true' ||
+          steps.filter.outputs.flutter_config == 'true' ||
+          steps.filter.outputs.ci_shared == 'true' ||
+          steps.filter.outputs.unknown == 'true'
+        }}
+      should_integration_tests: >-
+        ${{
+          inputs.force_full ||
+          steps.filter.outputs.flutter_app == 'true' ||
+          steps.filter.outputs.flutter_shared == 'true' ||
+          steps.filter.outputs.flutter_config == 'true' ||
+          steps.filter.outputs.ci_shared == 'true' ||
+          steps.filter.outputs.unknown == 'true'
+        }}
+      should_osv_scan: >-
+        ${{
+          inputs.force_full ||
+          steps.filter.outputs.flutter_app == 'true' ||
+          steps.filter.outputs.flutter_generated == 'true' ||
+          steps.filter.outputs.flutter_shared == 'true' ||
+          steps.filter.outputs.flutter_config == 'true' ||
+          steps.filter.outputs.backend == 'true' ||
+          steps.filter.outputs.ci_shared == 'true' ||
+          steps.filter.outputs.security_global == 'true' ||
+          steps.filter.outputs.unknown == 'true'
+        }}
+      should_apk_build: >-
+        ${{
+          inputs.force_full ||
+          steps.filter.outputs.flutter_app == 'true' ||
+          steps.filter.outputs.flutter_shared == 'true' ||
+          steps.filter.outputs.flutter_config == 'true' ||
+          steps.filter.outputs.ci_shared == 'true' ||
+          steps.filter.outputs.unknown == 'true'
+        }}
+      should_pages_build: >-
+        ${{
+          inputs.force_full ||
+          steps.filter.outputs.flutter_landing == 'true' ||
+          steps.filter.outputs.flutter_shared == 'true' ||
+          steps.filter.outputs.flutter_config == 'true' ||
+          steps.filter.outputs.ci_shared == 'true' ||
+          steps.filter.outputs.unknown == 'true'
+        }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
