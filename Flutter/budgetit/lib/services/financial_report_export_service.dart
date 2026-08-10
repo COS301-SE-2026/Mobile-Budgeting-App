@@ -1,24 +1,32 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
+import 'file_export_saver.dart';
+import 'web_file_downloader.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../models/financial_report.dart';
-import 'file_export_saver.dart';
-import 'web_file_downloader.dart';
 
 class FinancialReportExportService {
-  FinancialReportExportService({WebFileDownloader? downloader})
-    : _downloader = downloader ?? createWebFileDownloader();
+  FinancialReportExportService({
+    WebFileDownloader? downloader,
+    FileExportSaver? fileSaver,
+    bool? isWeb,
+  }) : _downloader = downloader ?? createWebFileDownloader(),
+       _fileSaver = fileSaver ?? createFileExportSaver(),
+       _isWeb = isWeb ?? kIsWeb;
 
   final WebFileDownloader _downloader;
+  final FileExportSaver _fileSaver;
+  final bool _isWeb;
 
   Future<void> downloadPdfOnWeb(FinancialReport report) async {
     final bytes = await _buildPdfBytes(report);
     const fileName = 'financial_report.pdf';
 
-    if (kIsWeb) {
+    if (_isWeb) {
       _downloader.downloadBytes(
         bytes: bytes,
         fileName: fileName,
@@ -27,7 +35,7 @@ class FinancialReportExportService {
       return;
     }
 
-    await saveAndOpenFile(
+    await _fileSaver.saveAndOpenFile(
       bytes: bytes,
       fileName: fileName,
       mimeType: 'application/pdf',
@@ -38,7 +46,7 @@ class FinancialReportExportService {
     final bytes = _buildCsvBytes(report);
     const fileName = 'financial_report.csv';
 
-    if (kIsWeb) {
+    if (_isWeb) {
       _downloader.downloadBytes(
         bytes: bytes,
         fileName: fileName,
@@ -47,7 +55,7 @@ class FinancialReportExportService {
       return;
     }
 
-    await saveAndOpenFile(
+    await _fileSaver.saveAndOpenFile(
       bytes: bytes,
       fileName: fileName,
       mimeType: 'text/csv',
