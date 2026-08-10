@@ -16,7 +16,7 @@ on:
         required: true
         type: string
       blocking:
-        description: Whether failed tests fail the reporting job
+        description: Whether failed test reports should fail this workflow
         required: false
         default: true
         type: boolean
@@ -31,17 +31,29 @@ jobs:
       checks: write
     steps:
       - name: Download Flutter test report
+        id: download-report
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           name: ${{ inputs.report-artifact }}
           path: test-results
 
-      - name: Publish Flutter test report
+      - name: Verify Flutter test report is present and not empty
+        id: verify-report
         if: always()
+        shell: bash
+        run: |
+          report="test-results/${{ inputs.report-path }}"
+          if [[ ! -s "${report}" ]]; then
+            echo "Missing or empty test report: ${report}" >&2
+            exit 1
+          fi
+
+      - name: Publish Flutter test report
+        if: ${{ always() && steps.verify-report.outcome == 'success' }}
         uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2
         with:
           name: ${{ inputs.report-name }}
           path: test-results/${{ inputs.report-path }}
           reporter: flutter-json
           fail-on-error: ${{ inputs.blocking }}
-          fail-on-empty: false
+          fail-on-empty: true
