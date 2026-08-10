@@ -12,10 +12,17 @@ on:
         description: Generated Dart artifact to download
         required: true
         type: string
+      source-ref:
+        description: Source ref to build
+        required: true
+        type: string
     outputs:
       artifact-name:
         description: Name of the uploaded release APK artifact
         value: ${{ jobs.build.outputs.artifact-name }}
+      source-sha:
+        description: Source SHA represented by the APK artifact
+        value: ${{ jobs.build.outputs.source-sha }}
 
 jobs:
   build:
@@ -27,12 +34,24 @@ jobs:
       - android-ndk-28.2.13676358
     continue-on-error: ${{ !inputs.blocking }}
     permissions:
+      actions: read
       contents: read
     outputs:
-      artifact-name: apk-${{ github.sha }}-${{ github.run_id }}
+      artifact-name: ${{ steps.source.outputs.artifact-name }}
+      source-sha: ${{ steps.source.outputs.source-sha }}
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.source-ref }}
+
+      - name: Resolve checked out source
+        id: source
+        shell: bash
+        run: |
+          source_sha="$(git rev-parse HEAD)"
+          echo "source-sha=${source_sha}" >> "${GITHUB_OUTPUT}"
+          echo "artifact-name=apk-${source_sha}-${GITHUB_RUN_ID}" >> "${GITHUB_OUTPUT}"
 
       - name: Set up Flutter SDK
         uses: ./.github/actions/flutter-ci-setup
@@ -59,7 +78,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: apk-${{ github.sha }}-${{ github.run_id }}
+          name: ${{ steps.source.outputs.artifact-name }}
           path: Flutter/budgetit/build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 7
