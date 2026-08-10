@@ -12,6 +12,17 @@ on:
         description: Generated Dart artifact to download
         required: true
         type: string
+      source-ref:
+        description: Exact source ref to test
+        required: true
+        type: string
+    outputs:
+      report-artifact:
+        description: Artifact containing the machine-readable widget-test report
+        value: ${{ jobs.widget-tests.outputs.report-artifact }}
+      coverage-artifact:
+        description: Artifact containing widget-test LCOV coverage
+        value: ${{ jobs.widget-tests.outputs.coverage-artifact }}
 
 jobs:
   widget-tests:
@@ -22,11 +33,16 @@ jobs:
       - flutter-3.41.9
     continue-on-error: ${{ !inputs.blocking }}
     permissions:
+      actions: read
       contents: read
-      checks: write
+    outputs:
+      report-artifact: widget-test-report-${{ github.run_id }}
+      coverage-artifact: widget-coverage-${{ github.run_id }}
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.source-ref }}
 
       - name: Set up the provisioned Flutter SDK
         uses: ./.github/actions/flutter-ci-setup
@@ -37,30 +53,51 @@ jobs:
           name: ${{ inputs.generated-artifact }}
           path: Flutter/budgetit
 
-      - name: Run widget tests and retain the machine report
+      - name: Run widget tests
+        id: tests
         continue-on-error: true
         working-directory: Flutter/budgetit
+        shell: bash
         run: |
           mkdir -p test-results
-          flutter test --machine --coverage test/widget/ > test-results/widget.json
+          set +e
+          flutter test --machine --coverage --concurrency=4 test/widget/ \
+            > test-results/widget.json \
+            2> >(tee test-results/widget.log >&2)
+          status=$?
+          echo "exit-code=${status}" >> "${GITHUB_OUTPUT}"
+          exit "${status}"
 
       - name: Upload widget-test report
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: widget-test-results-${{ github.run_id }}
-          path: |
-            Flutter/budgetit/test-results/widget.json
-            Flutter/budgetit/coverage/lcov.info
-          if-no-files-found: warn
+          name: widget-test-report-${{ github.run_id }}
+          path: Flutter/budgetit/test-results/widget.json
+          if-no-files-found: error
           retention-days: 7
 
-      - name: Publish widget-test report
+      - name: Upload widget test diagnostics
         if: always()
-        uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: Widget Tests
-          path: Flutter/budgetit/test-results/widget.json
-          reporter: flutter-json
-          fail-on-error: ${{ inputs.blocking }}
-          fail-on-empty: false
+          name: widget-test-diagnostics-${{ github.run_id }}
+          path: Flutter/budgetit/test-results/widget.log
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload widget test coverage
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: widget-coverage-${{ github.run_id }}
+          path: Flutter/budgetit/coverage/lcov.info
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Enforce blocking widget test result
+        if: ${{ always() && inputs.blocking && steps.tests.outcome != 'success' }}
+        shell: bash
+        run: |
+          echo 'Widget-test process failed.' >&2
+          exit 1
