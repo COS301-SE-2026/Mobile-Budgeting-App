@@ -1,72 +1,72 @@
-name: Reusable Change Detection
+name: Change Detection
 
 on:
   workflow_call:
     inputs:
       force_full:
-        description: Ignore path applicability and expose all applicable checks
+        description: Run all checks, ignoring changed paths
         required: false
         default: false
         type: boolean
     outputs:
       flutter_app_changed:
-        description: Whether non-generated Flutter application files changed
+        description: True if non-generated Flutter app files changed
         value: ${{ jobs.detect.outputs.flutter_app_changed }}
       flutter_landing_changed:
-        description: Whether landing-page files changed
+        description: True if landing page files changed
         value: ${{ jobs.detect.outputs.flutter_landing_changed }}
       flutter_generated_changed:
-        description: Whether generated Dart files changed
+        description: True if generated Dart files changed
         value: ${{ jobs.detect.outputs.flutter_generated_changed }}
       flutter_shared_changed:
-        description: Whether shared Flutter files changed
+        description: True if shared Flutter files changed
         value: ${{ jobs.detect.outputs.flutter_shared_changed }}
       flutter_config_changed:
-        description: Whether Flutter dependency or configuration files changed
+        description: True if Flutter dependencies or config changed
         value: ${{ jobs.detect.outputs.flutter_config_changed }}
       backend_changed:
-        description: Whether backend files changed
+        description: True if backend files changed
         value: ${{ jobs.detect.outputs.backend_changed }}
       ci_shared_changed:
-        description: Whether CI or repository build files changed
+        description: True if CI or build files changed
         value: ${{ jobs.detect.outputs.ci_shared_changed }}
       security_global_changed:
-        description: Whether security policy files changed
+        description: True if security policy files changed
         value: ${{ jobs.detect.outputs.security_global_changed }}
       documentation_changed:
-        description: Whether documentation files changed
+        description: True if docs changed
         value: ${{ jobs.detect.outputs.documentation_changed }}
       unknown_changed:
-        description: Whether an unclassified path changed
+        description: True if an unknown path changed
         value: ${{ jobs.detect.outputs.unknown_changed }}
       should_prepare_generated_dart:
-        description: Whether generated Dart preparation is needed for the changed paths
+        description: True if generated Dart should be prepared
         value: ${{ jobs.detect.outputs.should_prepare_generated_dart }}
       should_lint:
-        description: Whether lint should run for the changed paths
+        description: True if lint should run
         value: ${{ jobs.detect.outputs.should_lint }}
       should_unit_tests:
-        description: Whether unit tests should run for the changed paths
+        description: True if unit tests should run
         value: ${{ jobs.detect.outputs.should_unit_tests }}
       should_widget_tests:
-        description: Whether widget tests should run for the changed paths
+        description: True if widget tests should run
         value: ${{ jobs.detect.outputs.should_widget_tests }}
       should_integration_tests:
-        description: Whether integration tests are applicable to the changed paths
+        description: True if integration tests should run
         value: ${{ jobs.detect.outputs.should_integration_tests }}
       should_osv_scan:
-        description: Whether OSV scanning should run for the changed paths
+        description: True if the OSV scan should run
         value: ${{ jobs.detect.outputs.should_osv_scan }}
       should_apk_build:
-        description: Whether APK building is applicable to the changed paths
+        description: True if the APK build should run
         value: ${{ jobs.detect.outputs.should_apk_build }}
       should_pages_build:
-        description: Whether Pages building is applicable to the changed paths
+        description: True if the Pages build should run
         value: ${{ jobs.detect.outputs.should_pages_build }}
 
 jobs:
   detect:
-    name: Detect Changed Paths
+    name: Detect Changes
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -163,7 +163,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Detect changed paths
+      - name: Detect Changes
         id: filter
         uses: dorny/paths-filter@d1c1ffe0248fe513906c8e24db8ea791d46f8590
         with:
