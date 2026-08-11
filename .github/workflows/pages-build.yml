@@ -1,0 +1,90 @@
+name: Pages Build
+
+on:
+  workflow_call:
+    inputs:
+      blocking:
+        description: Fail the workflow when the Pages build fails
+        required: false
+        default: true
+        type: boolean
+      generated-artifact:
+        description: Generated Dart artifact
+        required: true
+        type: string
+      source-ref:
+        description: Source commit
+        required: true
+        type: string
+    outputs:
+      artifact-name:
+        description: Pages artifact
+        value: ${{ jobs.build.outputs.artifact-name }}
+      release-artifact-name:
+        description: Candidate artifact
+        value: ${{ jobs.build.outputs.release-artifact-name }}
+      source-sha:
+        description: Source commit
+        value: ${{ jobs.build.outputs.source-sha }}
+
+jobs:
+  build:
+    name: Build Pages
+    runs-on:
+      - self-hosted
+      - linux
+      - flutter-3.41.9
+    continue-on-error: ${{ !inputs.blocking }}
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      artifact-name: ${{ steps.source.outputs.artifact-name }}
+      release-artifact-name: ${{ steps.source.outputs.release-artifact-name }}
+      source-sha: ${{ steps.source.outputs.source-sha }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.source-ref }}
+
+      - name: Get source commit
+        id: source
+        shell: bash
+        run: |
+          source_sha="$(git rev-parse HEAD)"
+          {
+            echo "source-sha=${source_sha}"
+            echo "artifact-name=github-pages-${source_sha}-${GITHUB_RUN_ID}"
+            echo "release-artifact-name=github-pages-release-${source_sha}-${GITHUB_RUN_ID}"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Set up Flutter
+        uses: ./.github/actions/flutter-ci-setup
+
+      - name: Download generated Dart
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: ${{ inputs.generated-artifact }}
+          path: Flutter/budgetit
+
+      - name: Build Pages
+        working-directory: Flutter/budgetit
+        run: flutter build web --target=lib/landing_page/main.dart --release --base-href /Mobile-Budgeting-App/
+
+      - name: Upload Pages artifact
+        if: always()
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b
+        with:
+          name: ${{ steps.source.outputs.artifact-name }}
+          path: Flutter/budgetit/build/web
+          retention-days: 7
+
+      - name: Upload candidate artifact
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: ${{ steps.source.outputs.release-artifact-name }}
+          path: Flutter/budgetit/build/web
+          if-no-files-found: error
+          retention-days: 7
