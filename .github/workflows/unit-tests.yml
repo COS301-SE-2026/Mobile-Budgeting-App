@@ -1,27 +1,27 @@
-name: Reusable Flutter Unit Tests
+name: Unit Tests
 
 on:
   workflow_call:
     inputs:
       blocking:
-        description: Whether unit-test failures fail this workflow
+        description: Fail the workflow when unit tests fail
         required: false
         default: true
         type: boolean
       generated-artifact:
-        description: Generated Dart artifact to download
+        description: Generated Dart artifact
         required: true
         type: string
       source-ref:
-        description: Source ref to test
+        description: Source ref
         required: true
         type: string
     outputs:
       report-artifact:
-        description: Artifact containing the machine-readable unit-test report
+        description: Unit test report artifact
         value: ${{ jobs.unit-tests.outputs.report-artifact }}
       coverage-artifact:
-        description: Artifact containing LCOV coverage for unit tests
+        description: Unit test LCOV artifact
         value: ${{ jobs.unit-tests.outputs.coverage-artifact }}
 
 jobs:
@@ -39,12 +39,12 @@ jobs:
       report-artifact: unit-test-report-${{ github.run_id }}
       coverage-artifact: unit-coverage-${{ github.run_id }}
     steps:
-      - name: Check out source
+      - name: Checkout source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ inputs.source-ref }}
 
-      - name: Set up the provisioned Flutter SDK
+      - name: Set up Flutter
         uses: ./.github/actions/flutter-ci-setup
 
       - name: Download generated Dart
@@ -68,7 +68,7 @@ jobs:
           echo "exit-code=${status}" >> "${GITHUB_OUTPUT}"
           exit "${status}"
 
-      - name: Upload unit-test report
+      - name: Upload unit test report
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
@@ -86,7 +86,7 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-      - name: Upload unit-test coverage
+      - name: Upload unit coverage
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
@@ -95,9 +95,9 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-      - name: Enforce blocking unit test result
+      - name: Check unit test result
         if: ${{ always() && inputs.blocking && steps.tests.outcome != 'success' }}
         shell: bash
         run: |
-          echo 'Unit test process failed.' >&2
+          echo 'Unit tests failed.' >&2
           exit 1
