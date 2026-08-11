@@ -1,144 +1,122 @@
-name: Feature Branch CI
+name: Feature CI
 
 on:
   push:
     branches:
       - "feature/**"
-    paths-ignore:
-      - "Flutter/budgetit/**/*.g.dart"
-      - "Flutter/budgetit/**/*.freezed.dart"
+    tags:
+      - "ci-feature-test-*"
   pull_request:
     branches:
       - "feature/**"
-    paths-ignore:
-      - "Flutter/budgetit/**/*.g.dart"
-      - "Flutter/budgetit/**/*.freezed.dart"
+  workflow_dispatch:
+    inputs:
+      force_full:
+        description: Ignore path detection and run all feature-policy checks
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: ci-feature-${{ github.event.pull_request.head.sha || github.sha }}
   cancel-in-progress: true
 
-env:
-  GENERATED_DART_ARTIFACT_NAME: generated-dart-${{ github.sha }}-${{ github.run_id }}
+permissions:
+  actions: read
+  checks: write
+  contents: read
+  security-events: write
 
 jobs:
-  secret-scan:
-    name: Secret Scan
-    runs-on: ubuntu-slim
-    permissions:
-      security-events: write
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          fetch-depth: 0
-      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}}
-      - name: Upload SARIF to GitHub Security tab
-        if: success() || failure()
-        uses: github/codeql-action/upload-sarif@5595ccaf912efad79be6eef63a5619ff05969be3
-        with:
-          sarif_file: results.sarif
+  changes:
+    name: Detect Changed Paths
+    uses: ./.github/workflows/change-detection.yml
+    with:
+      force_full: ${{ startsWith(github.ref, 'refs/tags/ci-feature-test-') || inputs.force_full || false }}
+
+
+  osv-scan:
+    name: OSV Dependency Scan
+    needs: changes
+    if: needs.changes.outputs.should_osv_scan == 'true'
+    uses: ./.github/workflows/osv-scan.yml
+    with:
+      blocking: false
 
   prepare:
-    name: Prepare
-    runs-on: self-hosted
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+    name: Prepare Generated Dart
+    needs: changes
+    if: needs.changes.outputs.should_prepare_generated_dart == 'true'
+    uses: ./.github/workflows/generated-dart.yml
 
-      - uses: ./.github/actions/flutter-setup
-
-      - name: Cache build_runner outputs
-        id: build-runner-cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
-        with:
-          path: Flutter/budgetit/.dart_tool/build
-          key: build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-${{ hashFiles('Flutter/budgetit/lib/**/*.dart', 'Flutter/budgetit/test/**/*.dart', '!Flutter/budgetit/lib/**/*.g.dart', '!Flutter/budgetit/lib/**/*.freezed.dart', '!Flutter/budgetit/test/**/*.g.dart', '!Flutter/budgetit/test/**/*.freezed.dart') }}
-          restore-keys: |
-            build-runner-${{ runner.os }}-${{ hashFiles('Flutter/budgetit/pubspec.lock') }}-
-            build-runner-${{ runner.os }}-
-
-      - name: Dart Build Runner
-        if: steps.build-runner-cache.outputs.cache-hit != 'true'
-        working-directory: Flutter/budgetit
-        run: dart run build_runner build --delete-conflicting-outputs
-
-      - name: Upload generated Dart artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-        with:
-          name: ${{ env.GENERATED_DART_ARTIFACT_NAME }}
-          path: |
-            Flutter/budgetit/lib/**/*.g.dart
-            Flutter/budgetit/lib/**/*.freezed.dart
-            Flutter/budgetit/lib/**/*.mocks.dart
-            Flutter/budgetit/test/**/*.g.dart
-            Flutter/budgetit/test/**/*.freezed.dart
-            Flutter/budgetit/test/**/*.mocks.dart
-          if-no-files-found: error
-          overwrite: true
-
-  dart-format:
-    name: Dart Format
-    needs: prepare
-    runs-on: self-hosted
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-
-      - uses: ./.github/actions/flutter-setup
-
-      - name: Download generated Dart artifact
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
-        with:
-          name: ${{ env.GENERATED_DART_ARTIFACT_NAME }}
-          path: Flutter/budgetit
-
-      - name: Dart format
-        working-directory: Flutter/budgetit
-        run: dart format --output=none --set-exit-if-changed .
-
-  flutter-analyze:
-    name: Flutter Analyze
-    needs: prepare
-    runs-on: self-hosted
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-
-      - uses: ./.github/actions/flutter-setup
-
-      - name: Download generated Dart artifact
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
-        with:
-          name: ${{ env.GENERATED_DART_ARTIFACT_NAME }}
-          path: Flutter/budgetit
-
-      - name: Flutter analyze
-        working-directory: Flutter/budgetit
-        run: flutter analyze
+  lint:
+    name: Lint
+    needs: [changes, prepare]
+    if: needs.changes.outputs.should_lint == 'true'
+    uses: ./.github/workflows/lint.yml
+    with:
+      blocking: false
+      generated-artifact: ${{ needs.prepare.outputs.artifact-name }}
+      source-ref: ${{ needs.prepare.outputs.source-sha }}
 
   unit-tests:
     name: Unit Tests
-    needs: prepare
-    runs-on: self-hosted
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+    needs: [changes, prepare]
+    if: needs.changes.outputs.should_unit_tests == 'true'
+    uses: ./.github/workflows/unit-tests.yml
+    with:
+      blocking: false
+      generated-artifact: ${{ needs.prepare.outputs.artifact-name }}
+      source-ref: ${{ needs.prepare.outputs.source-sha }}
 
-      - uses: ./.github/actions/flutter-setup
+  widget-tests:
+    name: Widget Tests
+    needs: [changes, prepare]
+    if: needs.changes.outputs.should_widget_tests == 'true'
+    uses: ./.github/workflows/widget-tests.yml
+    with:
+      blocking: false
+      generated-artifact: ${{ needs.prepare.outputs.artifact-name }}
+      source-ref: ${{ needs.prepare.outputs.source-sha }}
 
-      - name: Download generated Dart artifact
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
-        with:
-          name: ${{ env.GENERATED_DART_ARTIFACT_NAME }}
-          path: Flutter/budgetit
+  report-unit-tests:
+    name: Report Unit Tests
+    needs: unit-tests
+    if: always() && needs.unit-tests.result != 'skipped' && needs.unit-tests.result != 'cancelled'
+    uses: ./.github/workflows/test-reporting.yml
+    with:
+      report-artifact: ${{ needs.unit-tests.outputs.report-artifact }}
+      report-path: unit.json
+      report-name: Unit Tests
+      blocking: false
 
-      - name: Run unit tests
-        working-directory: Flutter/budgetit
-        run: flutter test --coverage --concurrency=4 $(find test -name '*_test.dart' -not -path 'test/golden/*' -not -path 'test/performance/*' -not -path 'test/integration/*')
+  report-widget-tests:
+    name: Report Widget Tests
+    needs: widget-tests
+    if: always() && needs.widget-tests.result != 'skipped' && needs.widget-tests.result != 'cancelled'
+    uses: ./.github/workflows/test-reporting.yml
+    with:
+      report-artifact: ${{ needs.widget-tests.outputs.report-artifact }}
+      report-path: widget.json
+      report-name: Widget Tests
+      blocking: false
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: Flutter/budgetit/coverage/lcov.info
-          fail_ci_if_error: false
+  coverage-gate:
+    name: Coverage Gate
+    needs: [prepare, unit-tests, widget-tests]
+    if: >-
+      ${{
+        always() &&
+        needs.unit-tests.result != 'skipped' &&
+        needs.unit-tests.result != 'cancelled' &&
+        needs.widget-tests.result != 'skipped' &&
+        needs.widget-tests.result != 'cancelled'
+      }}
+    uses: ./.github/workflows/coverage-gate.yml
+    with:
+      blocking: false
+      source-ref: ${{ needs.prepare.outputs.source-sha }}
+      unit-coverage-artifact: ${{ needs.unit-tests.outputs.coverage-artifact }}
+      widget-coverage-artifact: ${{ needs.widget-tests.outputs.coverage-artifact }}
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
