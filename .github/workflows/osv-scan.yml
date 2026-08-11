@@ -1,22 +1,22 @@
-name: Reusable OSV Dependency Scan
+name: OSV Scan
 
 on:
   workflow_call:
     inputs:
       blocking:
-        description: Whether OSV findings should fail this workflow
+        description: Fail the workflow when OSV finds vulnerabilities
         required: false
         default: true
         type: boolean
       source-ref:
-        description: Optional source ref for scanning instead of the event default ref
+        description: Source ref to scan; defaults to the event ref
         required: false
         default: ''
         type: string
 
 jobs:
   osv-scan:
-    name: OSV Dependency Scan
+    name: OSV Scan
     permissions:
       actions: read
       contents: read
