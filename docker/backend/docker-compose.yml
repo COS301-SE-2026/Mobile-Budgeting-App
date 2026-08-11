@@ -1,0 +1,53 @@
+services:
+  backend-api:
+    build:
+      context: ../..
+      dockerfile: docker/backend/Dockerfile
+      args:
+        - PYTHON_IMAGE=${PYTHON_IMAGE:-python:3.12-slim}
+        - APP_HOST=${APP_HOST:-0.0.0.0}
+        - APP_PORT=${APP_PORT:-8000}
+    ports:
+      - "${APP_PORT:-8000}:${APP_PORT:-8000}"
+    volumes:
+      - ../../backend/src:/app/src
+    env_file:
+      - ../../backend/.env
+    networks:
+      - budgetit-net
+
+  minio:
+    image: quay.io/minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: server --console-address ":9001" /data
+    volumes:
+      - minio-data:/data
+    environment:
+      - MINIO_ROOT_USER=adminuser
+      - MINIO_ROOT_PASSWORD=adminpassword
+    networks:
+      - budgetit-net
+    restart: always
+
+  createbuckets:
+    image: quay.io/minio/mc:latest
+    depends_on:
+      - minio
+    networks:
+      - budgetit-net
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      /usr/bin/mc alias set localminio http://minio:9000 adminuser adminpassword;
+      /usr/bin/mc mb localminio/apk-bucket;
+      exit 0;
+      "
+
+volumes:
+  minio-data:
+
+networks:
+  budgetit-net:
+    name: ${NETWORK_NAME:-budgetit-net}
