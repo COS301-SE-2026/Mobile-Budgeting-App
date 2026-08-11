@@ -1,0 +1,39 @@
+name: Pages Release
+
+on:
+  push:
+    tags:
+      - "release-landing-*"
+
+concurrency:
+  group: pages-production-release
+  cancel-in-progress: false
+
+permissions:
+  actions: read
+  contents: read
+  pull-requests: read
+  security-events: write
+  pages: write
+  id-token: write
+
+jobs:
+  secret-scan:
+    name: Secret Scan
+    uses: ./.github/workflows/secret-scan.yml
+    secrets:
+      GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+  deploy-pages-production:
+    name: Deploy Pages
+    needs: secret-scan
+    uses: ./.github/workflows/pages-deploy.yml
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+      pages: write
+      id-token: write
+    with:
+      channel: production
+      source-sha: ${{ github.sha }}
