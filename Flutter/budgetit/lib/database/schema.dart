@@ -140,6 +140,8 @@ class Transactions extends Table {
 
   TextColumn get userId => text().nullable()();
 
+  TextColumn get importId => text().references(Imports, #id).nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -309,4 +311,20 @@ class AppSettings extends Table {
 
   @override
   Set<Column> get primaryKey => {key};
+}
+
+enum ImportFileType {pdf,csv}
+class Imports extends Table{
+  TextColumn get id => text()();
+  TextColumn get userid => text().nullable()();
+  TextColumn get fileSha256 => text()();
+  TextColumn get originalFileName => text()();
+  TextColumn get fileType => textEnum<ImportFileType>()();
+  TextColumn get accountIdentifier => text().nullable()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
 }
