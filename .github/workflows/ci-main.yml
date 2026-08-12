@@ -18,7 +18,7 @@ on:
   workflow_dispatch:
     inputs:
       force_full:
-        description: Ignore path detection and run all main  checks
+        description: Run all main checks, ignoring changed paths
         required: false
         default: false
         type: boolean
@@ -35,13 +35,13 @@ permissions:
 
 jobs:
   changes:
-    name: Detect Changed Paths
+    name: Detect Changes
     uses: ./.github/workflows/change-detection.yml
     with:
       force_full: ${{ startsWith(github.ref, 'refs/tags/ci-main-test-') || inputs.force_full || false }}
 
   secret-scan:
-    name: Candidate Secret Scan
+    name: Secret Scan
     if: >-
       ${{
         github.event_name == 'pull_request' &&
@@ -58,7 +58,7 @@ jobs:
       GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
 
   osv-scan:
-    name: OSV Dependency Scan
+    name: OSV Scan
     needs: changes
     if: >-
       ${{
@@ -91,7 +91,7 @@ jobs:
         }}
 
   prepare:
-    name: Prepare Generated Dart
+    name: Generate Dart
     needs: changes
     if: >-
       ${{
@@ -206,7 +206,7 @@ jobs:
       source-ref: ${{ needs.prepare.outputs.source-sha }}
 
   report-unit-tests:
-    name: Report Unit Tests
+    name: Unit Test Report
     needs: unit-tests
     if: always() && needs.unit-tests.result != 'skipped' && needs.unit-tests.result != 'cancelled'
     uses: ./.github/workflows/test-reporting.yml
@@ -217,7 +217,7 @@ jobs:
       blocking: true
 
   report-widget-tests:
-    name: Report Widget Tests
+    name: Widget Test Report
     needs: widget-tests
     if: always() && needs.widget-tests.result != 'skipped' && needs.widget-tests.result != 'cancelled'
     uses: ./.github/workflows/test-reporting.yml
@@ -228,7 +228,7 @@ jobs:
       blocking: true
 
   report-integration-tests:
-    name: Report Integration Tests
+    name: Integration Test Report
     needs: integration-tests
     if: always() && needs.integration-tests.result != 'skipped' && needs.integration-tests.result != 'cancelled'
     uses: ./.github/workflows/test-reporting.yml
@@ -239,7 +239,7 @@ jobs:
       blocking: true
 
   coverage-gate:
-    name: Coverage Gate
+    name: Coverage
     needs: [prepare, unit-tests, widget-tests]
     if: >-
       ${{
@@ -259,7 +259,7 @@ jobs:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   apk-build:
-    name: APK Build
+    name: Build APK
     needs: [changes, prepare]
     if: >-
       ${{
@@ -279,7 +279,7 @@ jobs:
       source-ref: ${{ needs.prepare.outputs.source-sha }}
 
   pages-build:
-    name: Pages Build
+    name: Build Pages
     needs: [changes, prepare]
     if: >-
       ${{
@@ -299,7 +299,7 @@ jobs:
       source-ref: ${{ needs.prepare.outputs.source-sha }}
 
   publish-apk-candidate:
-    name: Publish APK Candidate
+    name: Publish APK candidate
     needs:
       - secret-scan
       - osv-scan
@@ -333,7 +333,7 @@ jobs:
       RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 
   publish-pages-candidate:
-    name: Publish Pages Candidate
+    name: Publish Pages candidate
     needs:
       - secret-scan
       - osv-scan

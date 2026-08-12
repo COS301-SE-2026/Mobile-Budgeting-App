@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
     inputs:
       force_full:
-        description: Ignore path detection and run all feature-policy checks
+        description: Run all feature checks, ignoring changed paths
         required: false
         default: false
         type: boolean
@@ -29,14 +29,13 @@ permissions:
 
 jobs:
   changes:
-    name: Detect Changed Paths
+    name: Detect Changes
     uses: ./.github/workflows/change-detection.yml
     with:
       force_full: ${{ startsWith(github.ref, 'refs/tags/ci-feature-test-') || inputs.force_full || false }}
 
-
   osv-scan:
-    name: OSV Dependency Scan
+    name: OSV Scan
     needs: changes
     if: needs.changes.outputs.should_osv_scan == 'true'
     uses: ./.github/workflows/osv-scan.yml
@@ -44,7 +43,7 @@ jobs:
       blocking: false
 
   prepare:
-    name: Prepare Generated Dart
+    name: Generate Dart
     needs: changes
     if: needs.changes.outputs.should_prepare_generated_dart == 'true'
     uses: ./.github/workflows/generated-dart.yml
@@ -80,7 +79,7 @@ jobs:
       source-ref: ${{ needs.prepare.outputs.source-sha }}
 
   report-unit-tests:
-    name: Report Unit Tests
+    name: Unit Test Report
     needs: unit-tests
     if: always() && needs.unit-tests.result != 'skipped' && needs.unit-tests.result != 'cancelled'
     uses: ./.github/workflows/test-reporting.yml
@@ -91,7 +90,7 @@ jobs:
       blocking: false
 
   report-widget-tests:
-    name: Report Widget Tests
+    name: Widget Test Report
     needs: widget-tests
     if: always() && needs.widget-tests.result != 'skipped' && needs.widget-tests.result != 'cancelled'
     uses: ./.github/workflows/test-reporting.yml
@@ -102,7 +101,7 @@ jobs:
       blocking: false
 
   coverage-gate:
-    name: Coverage Gate
+    name: Coverage
     needs: [prepare, unit-tests, widget-tests]
     if: >-
       ${{
