@@ -1,15 +1,15 @@
-name: Reusable Flutter Lint
+name: Lint
 
 on:
   workflow_call:
     inputs:
       blocking:
-        description: Whether lint failures fail this workflow
+        description: Fail the workflow when lint fails
         required: false
         default: true
         type: boolean
       generated-artifact:
-        description: Generated Dart artifact to download
+        description: Generated Dart artifact name
         required: true
         type: string
       source-ref:
@@ -19,7 +19,7 @@ on:
 
 jobs:
   lint:
-    name: Flutter Lint
+    name: Lint
     runs-on:
       - self-hosted
       - linux
@@ -29,13 +29,13 @@ jobs:
       actions: read
       contents: read
     steps:
-      - name: Check out source
+      - name: Checkout source
         id: checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ inputs.source-ref }}
 
-      - name: Set up the provisioned Flutter SDK
+      - name: Set up Flutter
         id: setup
         uses: ./.github/actions/flutter-ci-setup
 
@@ -46,24 +46,24 @@ jobs:
           name: ${{ inputs.generated-artifact }}
           path: Flutter/budgetit
 
-      - name: Register Dart analyzer annotations
+      - name: Add analyzer annotations
         id: problem-matcher
         uses: leancodepl/dart-problem-matcher@db2c48534f89233ae58cb81a45ebc8fd21d90bff
 
-      - name: Check Dart formatting
+      - name: Check formatting
         id: format
         continue-on-error: true
         working-directory: Flutter/budgetit
         run: dart format --output=none --set-exit-if-changed .
 
-      - name: Analyze Flutter sources
+      - name: Analyze
         id: analyze
         if: ${{ always() && steps.checkout.outcome == 'success' && steps.setup.outcome == 'success' && steps.generated.outcome == 'success' }}
         continue-on-error: true
         working-directory: Flutter/budgetit
         run: flutter analyze
 
-      - name: Enforce lint result
+      - name: Check lint result
         if: >-
           ${{
             always() &&
@@ -78,5 +78,5 @@ jobs:
           }}
         shell: bash
         run: |
-          echo 'One or more lint steps failed.' >&2
+          echo 'Lint checks failed.' >&2
           exit 1
