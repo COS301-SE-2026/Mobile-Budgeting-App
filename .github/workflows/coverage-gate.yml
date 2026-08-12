@@ -1,23 +1,23 @@
-name: Reusable Coverage Gate
+name: Coverage
 
 on:
   workflow_call:
     inputs:
       blocking:
-        description: Whether coverage upload or Codecov failures should fail this workflow
+        description: Fail the workflow when coverage upload fails
         required: false
         default: true
         type: boolean
       unit-coverage-artifact:
-        description: Artifact containing the unit-test LCOV report
+        description: Unit test LCOV artifact
         required: true
         type: string
       widget-coverage-artifact:
-        description: Artifact containing the widget-test LCOV report
+        description: Widget test LCOV artifact
         required: true
         type: string
       source-ref:
-        description: Source ref represented by the coverage reports
+        description: Source commit
         required: true
         type: string
     secrets:
@@ -27,7 +27,7 @@ on:
 
 jobs:
   coverage:
-    name: Upload Coverage
+    name: Coverage
     if: always()
     runs-on: ubuntu-latest
     continue-on-error: ${{ !inputs.blocking }}
@@ -35,19 +35,19 @@ jobs:
       actions: read
       contents: read
     steps:
-      - name: Check out covered source
+      - name: Checkout source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ inputs.source-ref }}
 
-      - name: Download  unit coverage artifact
+      - name: Download unit coverage
         id: download-unit
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           name: ${{ inputs.unit-coverage-artifact }}
           path: coverage/unit
 
-      - name: Download widget coverage artifact
+      - name: Download widget coverage
         id: download-widget
         if: always()
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
@@ -55,19 +55,19 @@ jobs:
           name: ${{ inputs.widget-coverage-artifact }}
           path: coverage/widget
 
-      - name: Verify unit LCOV report
+      - name: Check unit LCOV
         id: verify-unit
         if: always()
         shell: bash
         run: test -s coverage/unit/lcov.info
 
-      - name: Verify widget LCOV report
+      - name: Check widget LCOV
         id: verify-widget
         if: always()
         shell: bash
         run: test -s coverage/widget/lcov.info
 
-      - name: Upload unit and widget coverage to Codecov
+      - name: Upload coverage to Codecov
         if: >-
           ${{
             always() &&
