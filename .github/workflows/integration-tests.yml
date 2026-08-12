@@ -1,24 +1,24 @@
-name: Reusable Flutter Integration Tests
+name: Integration Tests
 
 on:
   workflow_call:
     inputs:
       blocking:
-        description: Whether integration-test failures fail this workflow
+        description: Fail the workflow when integration tests fail
         required: false
         default: true
         type: boolean
       generated-artifact:
-        description: Generated Dart artifact to download
+        description: Generated Dart artifact
         required: true
         type: string
       source-ref:
-        description: Source ref to test
+        description: Source ref
         required: true
         type: string
     outputs:
       report-artifact:
-        description: Artifact containing the JSON integration test report
+        description: Integration test report artifact
         value: ${{ jobs.integration-tests.outputs.report-artifact }}
 
 jobs:
@@ -35,12 +35,12 @@ jobs:
     outputs:
       report-artifact: integration-test-report-${{ github.run_id }}
     steps:
-      - name: Check out source
+      - name: Checkout source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ inputs.source-ref }}
 
-      - name: Set up the provisioned Flutter SDK
+      - name: Set up Flutter
         uses: ./.github/actions/flutter-ci-setup
 
       - name: Download generated Dart
@@ -64,7 +64,7 @@ jobs:
           echo "exit-code=${status}" >> "${GITHUB_OUTPUT}"
           exit "${status}"
 
-      - name: Upload integration-test report
+      - name: Upload integration test report
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
@@ -73,7 +73,7 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-      - name: Upload integrationn test diagnostics
+      - name: Upload integration test diagnostics
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
@@ -82,9 +82,9 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-      - name: Enforce blocking integration-test result
+      - name: Check integration test result
         if: ${{ always() && inputs.blocking && steps.tests.outcome != 'success' }}
         shell: bash
         run: |
-          echo 'Integration test process failed.' >&2
+          echo 'Integration tests failed.' >&2
           exit 1
