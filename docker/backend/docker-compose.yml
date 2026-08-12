@@ -44,10 +44,28 @@ services:
       /usr/bin/mc mb localminio/apk-bucket;
       exit 0;
       "
+    
+  db:
+    image: postgres:latest
+    container_name: my-postgres-db
+    restart: always
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
 
 volumes:
   minio-data:
+  pgdata:
 
 networks:
   budgetit-net:
     name: ${NETWORK_NAME:-budgetit-net}
+
+
+
