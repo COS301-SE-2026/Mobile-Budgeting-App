@@ -1485,6 +1485,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.11.0"
+  widgetbook_generator:
+    dependency: "direct dev"
+    description:
+      name: widgetbook_generator
+      sha256: "8fd3b4208bb74cbe60cd6fc99b443561b65542658b20d6dd700a2496edbd5647"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.24.0"
   win32:
     dependency: transitive
     description:
