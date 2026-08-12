@@ -178,7 +178,7 @@ class BudgetTemplates extends Table {
   TextColumn get id => text()();
 
   /// The category this budget applies to.
-  TextColumn get categoryId => text().references(Categories, #id)();
+  TextColumn get categoryId => text().references(Categories, #id).nullable()();
 
   /// The budget amount per period.
   TextColumn get amount => text().map(DecimalConverter())();
@@ -231,6 +231,8 @@ class BudgetPeriods extends Table {
 
   /// When the period was last modified.
   DateTimeColumn get updatedAt => dateTime()();
+
+  DateTimeColumn get deletedAt => dateTime().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -285,6 +287,8 @@ class RecurringTransactions extends Table {
   TextColumn get categoryId => text().references(Categories, #id).nullable()();
 
   TextColumn get userId => text().nullable()();
+
+  DateTimeColumn get recurringOccurrenceDate => dateTime().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
