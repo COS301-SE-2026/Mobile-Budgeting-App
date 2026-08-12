@@ -1,24 +1,24 @@
-name: Reusable Generated Dart Preparation
+name: Generated Dart
 
 on:
   workflow_call:
     inputs:
       source-ref:
-        description: Optional source ref to generate from instead of the event default ref
+        description: Source ref to use; defaults to the event ref
         required: false
         default: ''
         type: string
     outputs:
       artifact-name:
-        description: Generated Dart artifact later jobs
+        description: Generated Dart artifact for later jobs
         value: ${{ jobs.prepare.outputs.artifact-name }}
       source-sha:
-        description: Source SHA used to generate the artifact
+        description: Source SHA for the artifact
         value: ${{ jobs.prepare.outputs.source-sha }}
 
 jobs:
   prepare:
-    name: Prepare Generated Dart
+    name: Generate Dart
     runs-on:
       - self-hosted
       - linux
@@ -29,12 +29,12 @@ jobs:
       artifact-name: ${{ steps.source.outputs.artifact-name }}
       source-sha: ${{ steps.source.outputs.source-sha }}
     steps:
-      - name: Check out source
+      - name: Checkout source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ inputs.source-ref }}
 
-      - name: Resolve checked out source
+      - name: Get source commit
         id: source
         shell: bash
         run: |
@@ -42,14 +42,14 @@ jobs:
           echo "source-sha=${source_sha}" >> "${GITHUB_OUTPUT}"
           echo "artifact-name=generated-dart-${source_sha}-${GITHUB_RUN_ID}" >> "${GITHUB_OUTPUT}"
 
-      - name: Verify Flutter setup
+      - name: Set up Flutter
         uses: ./.github/actions/flutter-ci-setup
 
-      - name: Generate Dart sources
+      - name: Generate Dart
         working-directory: Flutter/budgetit
         run: dart run build_runner build --delete-conflicting-outputs
 
-      - name: Upload generated Dart artifact
+      - name: Upload generated Dart
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: ${{ steps.source.outputs.artifact-name }}
