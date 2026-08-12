@@ -158,6 +158,10 @@ class TransactionCategoryMap extends Table {
   /// When the assignment was made.
   DateTimeColumn get assignedAt => dateTime()();
 
+  DateTimeColumn get updatedAt => dateTime()();
+
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
   /// How the assignment was determined (manual, AI, import).
   TextColumn get assignmentSource => textEnum<AssignmentSource>()();
 
