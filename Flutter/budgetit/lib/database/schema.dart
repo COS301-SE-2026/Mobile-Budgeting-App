@@ -73,6 +73,7 @@ class Categories extends Table {
 
   /// When the category was soft-deleted (null if active).
   DateTimeColumn get deletedAt => dateTime().nullable()();
+  TextColumn get userId => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -137,6 +138,8 @@ class Transactions extends Table {
   TextColumn get recurringId =>
       text().references(RecurringTransactions, #id).nullable()();
 
+  TextColumn get userId => text().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -190,6 +193,8 @@ class BudgetTemplates extends Table {
 
   /// When the template was soft-deleted (null if active).
   DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  TextColumn get userId => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -274,6 +279,8 @@ class RecurringTransactions extends Table {
 
   /// (Nullable) category for recurring transactions , inherited by generated children.
   TextColumn get categoryId => text().references(Categories, #id).nullable()();
+
+  TextColumn get userId => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
