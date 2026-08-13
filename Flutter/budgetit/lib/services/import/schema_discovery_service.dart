@@ -53,6 +53,42 @@ class SchemaDiscoveryService {
 
     return schema;
   }
+  String _fingerprint(String sourceType, List<CandidateRow> rows) {
+    final markers = rows.map((r) => r.signMarker ?? '∅').toSet().toList()
+      ..sort();
+    final key = '$sourceType|${markers.join(",")}|rows:${rows.length.clamp(0, 50)}';
+    return sha256.convert(utf8.encode(key)).toString().substring(0, 16);
+  }
 
 
+  bool _isConsistent(StatementSchema schema, List<CandidateRow> rows) {
+    if (rows.length < 3) return true;
+
+    final resolved = rows.map((r) => resolveIsIncome(r, schema)).toList();
+    final allSame = resolved.every((v) => v == resolved.first);
+    return !allSame;
+  }
+}
+
+bool resolveIsIncome(CandidateRow row, StatementSchema schema) {
+  final marker = row.signMarker?.toUpperCase();
+
+  switch (schema.signConvention) {
+    case SignConvention.crSuffixMeansIncome:
+      return marker == 'CR';
+    case SignConvention.minusPrefixMeansExpense:
+      return marker != '-';
+    case SignConvention.separateDebitCredit:
+      return marker == 'CREDIT' || marker == 'CR' || marker == 'IN';
+    case SignConvention.signedAmount:
+      return marker != '-';
+    case SignConvention.keywordBased:
+      const incomeKeywords = [
+        'eft', 'salary', 'payroll', 'wages', 'transfer in',
+        'payback', 'interest earned', 'refund', 'credit',
+        'deposit', 'reversal', 'payshap credit',
+      ];
+      final descLower = row.description.toLowerCase();
+      return incomeKeywords.any((k) => descLower.contains(k));
+  }
 }
