@@ -277,22 +277,128 @@ class StatementParserService {
         return buffer.toString();
     }
 
-    @visibleForTesting
-    List<ParsedTransaction> parsePdfLines(List<String> lines) {
-        for(final line in lines){
-            //print ('PDF LINE: $line');
-        }
-        //final datePattern = RegExp(r'(\d{4}[\/\-]\d{2}[\/\-]\d{2}|\d{1,2}[\/\-]\d{2}[\/\-]\d{2})',
-        final datePattern = RegExp(r'(\d{4}[\/\-]\d{2}[\/\-]\d{2}|\d{1,2}[\/\-]\d{2}[\/\-]\d{2,4}|\d{2}[\/\-]\d{2}|\d{1,2}\s+[A-Za-z]{3}(?:\s+\d{4})?)',
-        );
-        final amountPattern = RegExp(r'\$?([\-]?\d{1,3}(?:,\d{3})*(?:\.\d{2}))\s*(Cr|Dr)?', caseSensitive: false);
+    static const List<String> _skipKeywords = [
+      'total', 'balance', 'account #', 'transaction', 'description',
+      'summary', 'page number', 'statement date', 'beginning balance',
+      'ending balance',
+    ];
 
-        final skipKeywords = ['total','balance','account #','transaction', 'description','summary','page number','statement date', 'beginning balance', 'ending balance',];
+    static final RegExp _datePattern = RegExp( r'(\d{4}[\/\-]\d{2}[\/\-]\d{2}|\d{1,2}[\/\-]\d{2}[\/\-]\d{2,4}|\d{2}[\/\-]\d{2}|\d{1,2}\s+[A-Za-z]{3}(?:\s+\d{4})?)');
+    static final RegExp _amountPattern = RegExp(
+      r'\$?([\-]?\d{1,3}(?:,\d{3})*(?:\.\d{2}))\s*(Cr|Dr)?',
+      caseSensitive: false,
+    );
+
+    List<CandidateRow> _extractPdfCandidates(List<String> lines) {
+      final candidates = <CandidateRow>[];
+      final pendingLines = <String>[];
+
+      for (final rawLine in lines) {
+        final trimmed = rawLine.trim();
+      if (trimmed.isEmpty) continue;
+      final lower = trimmed.toLowerCase();
+      if (_skipKeywords.any((k) => lower.contains(k))) {
+        pendingLines.clear();
+        continue;
+      }
+      final dateMatch = _datePattern.firstMatch(trimmed);
+      final amountMatch = _amountPattern.firstMatch(trimmed);
+      if (dateMatch == null || amountMatch == null) {
+        final isLikelyHeaderFragment = !trimmed.contains(' ') && trimmed.length < 15 && !trimmed.contains(RegExp(r'\d'));
+        if (!isLikelyHeaderFragment) {
+          pendingLines.add(trimmed);
+          if (pendingLines.length > 3) pendingLines.removeAt(0);
+        }
+        continue;
+      }
+
+      try {
+        final date = parseDate(dateMatch.group(0)!);
+        final numGroup = amountMatch.group(1)!;
+        final isNegative = numGroup.trim().startsWith('-');
+        final rawAmountStr = numGroup.replaceAll(RegExp(r'[\s,\-]'), '');
+        final absAmount = parseAmount(rawAmountStr).abs();
+        if (absAmount == Decimal.zero) {
+          continue;
+        }
+
+        final crDrSuffix = amountMatch.group(2)?.toUpperCase();
+        final marker = isNegative ? '-' : crDrSuffix;
+
+        final beforeDate = trimmed.substring(0, dateMatch.start).trim();
+        final afterDate = trimmed.substring(dateMatch.end).trim();
+        final amountStr = amountMatch.group(0)!;
+        final amountPos = afterDate.lastIndexOf(amountStr);
+        final description = amountPos > 0
+            ? afterDate.substring(0, amountPos).trim()
+            : afterDate.replaceAll(amountStr, '').trim();
+
+        final descriptionParts = <String>[
+          ...pendingLines,
+          if (beforeDate.isNotEmpty) beforeDate,
+          if (description.isNotEmpty) description,
+        ];
+        final joinedDescription = descriptionParts.join(' ').replaceAll(RegExp(r'\s+'), ' ').trim();
+        final finalDescription = joinedDescription.isEmpty ? 'Uncategorised transaction' : joinedDescription;
+        pendingLines.clear();
+
+        candidates.add(CandidateRow(
+          date: date,
+          absAmount: absAmount,
+          description: finalDescription,
+          signMarker: marker,
+          rawSource: trimmed,
+        ));
+      } catch (_) {
+        pendingLines.clear();
+        continue;
+      }
+    }
+
+    return candidates;
+  }
+
+
+
+
+    @visibleForTesting
+    Future<List<ParsedTransaction>> parsePdfLines(List<String> lines) async {
+       // for(final line in lines){
+            //print ('PDF LINE: $line');
+        //}
+        //final datePattern = RegExp(r'(\d{4}[\/\-]\d{2}[\/\-]\d{2}|\d{1,2}[\/\-]\d{2}[\/\-]\d{2})',
+        //final datePattern = RegExp(r'(\d{4}[\/\-]\d{2}[\/\-]\d{2}|\d{1,2}[\/\-]\d{2}[\/\-]\d{2,4}|\d{2}[\/\-]\d{2}|\d{1,2}\s+[A-Za-z]{3}(?:\s+\d{4})?)',
+        //);
+        //final amountPattern = RegExp(r'\$?([\-]?\d{1,3}(?:,\d{3})*(?:\.\d{2}))\s*(Cr|Dr)?', caseSensitive: false);
+
+        //final skipKeywords = ['total','balance','account #','transaction', 'description','summary','page number','statement date', 'beginning balance', 'ending balance',];
+        final candidates = _extractPdfCandidates(lines);
+        if (candidates.isEmpty) {
+          return [];
+        }
+        final schema = await _schemaDiscovery.discover(
+          sourceType: 'pdf',
+          sampleRows: candidates,
+        );
+
 
         final results = <ParsedTransaction>[];
 
+        for(final c in candidates){
+          final isIncome = resolveIsIncome(c, schema);
+          results.add(ParsedTransaction(
+            date: c.date,
+            description: c.description,
+            amount: c.absAmount,
+            isIncome: isIncome,
+            deduplicationHash: _hash(c.date, c.absAmount, c.description),
+            rawData: {'raw_line': c.rawSource},
+          ));
+        }
+        return results;
 
-        final pendingLines = <String>[];
+
+       /* final pendingLines = <String>[];
             for (final rawLine in lines) {
                 final trimmed = rawLine.trim();
                 if (trimmed.isEmpty) {
@@ -367,7 +473,7 @@ class StatementParserService {
           print('DEBUG: ${r.date} | ${r.isIncome ? "IN" : "OUT"} | ${r.amount} | ${r.description}');
         }
 
-        return results;
+        return results;*/
     }
 
     @visibleForTesting
