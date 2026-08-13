@@ -21,7 +21,7 @@ class _CsvCandidate {
   final String? typeMarker;  //for separate columns
   final List<dynamic> rawRow;
 
-  _CsvCandiddate({
+  _CsvCandidate({
     required this.date,
     required this.description,
     required this.signedAmount,
@@ -79,13 +79,17 @@ class StatementParserService {
           }
 
         if (creditIdx != -1 && debitIdx != -1) {
-          return _parseCsvWithSeparateCreditDebit(rows, headers, dateIdx, descIdx, creditIdx, debitIdx);
+          return _parseCsvSeparateColumns(rows, headers, dateIdx, descIdx, creditIdx, debitIdx);
         }
 
-        final candidates = <CandidateRow>[];
+        final candidates = <_CsvCandidate>[];
         for(var i=1;i<rows.length;i++){
-          continue;
-        }
+          final row = rows[i];
+          if(row.every((c) => c.toString().trim().isEmpty)){
+            continue;
+          }
+    
+        
 
         try{
           final date = parseDate(row[dateIdx].toString().trim());
@@ -99,6 +103,7 @@ class StatementParserService {
             if(t.isNotEmpty) {
               typeMarker  = t.toUpperCase();
             }
+          }
 
             candidates.add(_CsvCandidate(
               date: date,
@@ -112,8 +117,48 @@ class StatementParserService {
             continue;
           }
         }
+
+        if (candidates.isEmpty) return [];
+
+        final hasFullTypeColumn = typeIdx != -1 && candidates.every((c) => c.typeMarker != null);
+        if (hasFullTypeColumn) {
+          return _finalizeCsv(candidates, (c) {
+            final m = c.typeMarker!;
+            return m.contains('CREDIT') || m == 'CR' || m.contains('IN');
+          });
+        }
+
+        final hasNegative = candidates.any((c) => c.signedAmount < Decimal.zero);
+        final hasPositive = candidates.any((c) => c.signedAmount > Decimal.zero);
+        if (hasNegative && hasPositive) {
+          return _finalizeCsv( candidates, (c) => c.signedAmount >= Decimal.zero);
+        }
+
+        final rowCandidates = candidates
+            .map((c) => CandidateRow(
+                date: c.date,
+                absAmount: c.absAmount,
+                description: c.description,
+                signMarker: c.resolvedMarker,
+                rawSource: c.rawRow.join(','),
+              ))
+            .toList();
+
+        final schema = await _schemaDiscovery.discover(sourceType: 'csv', sampleRows: rowCandidates);
+
+        return _finalizeCsv(candidates, (c) {
+          final asRow = CandidateRow(
+              date: c.date,
+              absAmount: c.absAmount,
+              description: c.description,
+              signMarker: c.resolvedMarker,
+              rawSource: '',
+          );
+        return resolveIsIncome(asRow, schema);
+        });
+      } 
         
-        final results = <ParsedTransaction>[];
+       /* final results = <ParsedTransaction>[];
         
         for (var i = 1; i < rows.length; i++) {
             final row = rows[i];
@@ -164,12 +209,12 @@ class StatementParserService {
             }
         
             return results;
-        }
+        }*/
 
     List<ParsedTransaction> _parseCsvSeparateColumns(
       List<List<dynamic>> rows,
       List<String> headers,
-      int dateIdx;
+      int dateIdx,
       int descIdx,
       int creditIdx,
       int debitIdx,
@@ -226,10 +271,10 @@ class StatementParserService {
       for(final c in candidates) {
         final isIncome = isIncomeResolver(c);
         final rawMap = <String, String>{
-          for(var j=0,j<c.rawRow.length;j++) 
+          for(var j=0;j < c.rawRow.length; j++) 
             'col_$j' : c.rawRow[j].toString(),
         };
-        resukts.add(ParsedTransaction(
+        results.add(ParsedTransaction(
           date: c.date,
           description: c.description,
           amount: c.absAmount,
