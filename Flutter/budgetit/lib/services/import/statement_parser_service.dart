@@ -218,6 +218,44 @@ class StatementParserService {
       return results;
     }
 
+    List<ParsedTransaction> _finalizeCsv(
+      List<_CsvCandidate> candidates,
+      bool Function(_CsvCandidate) isIncomeResolver,
+    ) {
+      final results = <ParsedTransaction>[];
+      for(final c in candidates) {
+        final isIncome = isIncomeResolver(c);
+        final rawMap = <String, String>{
+          for(var j=0,j<c.rawRow.length;j++) 
+            'col_$j' : c.rawRow[j].toString(),
+        };
+        resukts.add(ParsedTransaction(
+          date: c.date,
+          description: c.description,
+          amount: c.absAmount,
+          isIncome: isIncome,
+          deduplicationHash: _hash(c.date, c.absAmount, c.description),
+          rawData: rawMap,
+        ));
+      }
+      return results;
+    }
+
+    ({Decimal signedAmount, String? explicitMarker}) _parseCsvAmountField(
+      String raw) {
+    final trimmed = raw.trim();
+    final crDrMatch = RegExp(r'(Cr|Dr)\s*$', caseSensitive: false).firstMatch(trimmed);
+    String? explicitMarker;
+    var numericPart = trimmed;
+    if (crDrMatch != null) {
+      explicitMarker = crDrMatch.group(1)!.toUpperCase();
+      numericPart = trimmed.substring(0, crDrMatch.start).trim();
+    }
+
+    final value = parseAmount(numericPart);
+    return (signedAmount: value, explicitMarker: explicitMarker);
+  }
+
     Future<List<ParsedTransaction>> _parsePdf(String path) async {
         try {
             final text = await _extractPdfText(path);
