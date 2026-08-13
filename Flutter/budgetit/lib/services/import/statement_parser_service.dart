@@ -6,8 +6,33 @@ import 'dart:convert';
 import '../../models/import/parsed_transaction.dart';
 import 'package:pdfrx/pdfrx.dart';
 import 'package:flutter/foundation.dart';
+import 'schema_discovery_service.dart';
+import 'stub_schema_classifier.dart';
+import '../../models/import/candidate_row.dart';
+import '../../models/import/statement_schema.dart';
 
 
+
+class _CsvCandidate {
+  final DateTime date;
+  final String description;
+  final Decimal signedAmount; //sign parsed straight frim the field
+  final String? explicitMarker; //CR/DR
+  final String? typeMarker;  //for separate columns
+  final List<dynamic> rawRow;
+
+  _CsvCandiddate({
+    required this.date,
+    required this.description,
+    required this.signedAmount,
+    this.explicitMarker,
+    this.typeMarker,
+    required this.rawRow,
+  });
+
+  String? get resolvedMarker => typeMarker ?? explicitMarker ?? (signedAmount< Decimal.zero ? '-' : null);
+  Decimal get absAmount => signedAmount.abs();
+}
 
 
 class StatementParserService {
