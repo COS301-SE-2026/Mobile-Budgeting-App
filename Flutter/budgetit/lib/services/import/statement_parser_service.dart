@@ -36,6 +36,13 @@ class _CsvCandidate {
 
 
 class StatementParserService {
+  final SchemaDiscoveryService _schemaDiscovery;
+
+  StatementParserService({
+    SchemaDiscoveryService? schemaDiscovery,
+  })
+    : _schemaDiscovery = schemaDiscovery ?? SchemaDiscoveryService(classifier: StubSchemaClassifier());
+
     Future<List<ParsedTransaction>> parse (String path) async {
         final lower=path.toLowerCase();
         if (lower.endsWith('.csv')) {
@@ -52,15 +59,14 @@ class StatementParserService {
         final rows = const CsvToListConverter(eol: '\n').convert(content);
         if (rows.length < 2) throw FormatException('CSV has no data rows.');
         
-        final headers = rows.first
-            .map((h) => h.toString().toLowerCase().trim())
-            .toList();
+        final headers = rows.first.map((h) => h.toString().toLowerCase().trim()).toList();
         
         final dateIdx = findCol(headers, ['date', 'transaction date', 'posting date', 'value date']);
         final descIdx = findCol(headers, ['description', 'details', 'narration', 'merchant', 'reference']);
         final amountIdx = findCol(headers, ['amount', 'transaction amount']);
         final creditIdx = findCol(headers, ['credit', 'deposit', 'money in']);
         final debitIdx = findCol(headers, ['debit', 'withdrawal', 'money out']);
+        final typeIdx = findCol(headers, ['type','transaction type','dr/cr','indicator']);
         
         if (dateIdx == -1) {
             throw FormatException('Could not find a date column.');
@@ -70,7 +76,25 @@ class StatementParserService {
         }
         if (amountIdx == -1 && (creditIdx == -1 || debitIdx == -1)) {
             throw FormatException('Could not find amount columns.');
-            }
+          }
+
+        if (creditIdx != -1 && debitIdx != -1) {
+          return _parseCsvWithSeparateCreditDebit(rows, headers, dateIdx, descIdx, creditIdx, debitIdx);
+        }
+
+        final candidates = <CandidateRow>[];
+        for(var i=1;i<rows.length;i++){
+          continue;
+        }
+
+        try{
+          final date = parseDate(row[dateIdx].toString().trim());
+          final description = row[descIdx].toString().trim();
+          if (description.isEmpty) continue;
+          final amountField = _parseCsvAmountField(row[amountIdx].toString());
+
+          String? typeMarker;
+        }
         
         final results = <ParsedTransaction>[];
         
