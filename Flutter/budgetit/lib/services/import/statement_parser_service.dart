@@ -94,6 +94,23 @@ class StatementParserService {
           final amountField = _parseCsvAmountField(row[amountIdx].toString());
 
           String? typeMarker;
+          if(typeIdx != -1 && typeIdx < row.length) {
+            final t = row[typeIdx].toString().trim();
+            if(t.isNotEmpty) {
+              typeMarker  = t.toUpperCase();
+            }
+
+            candidates.add(_CsvCandidate(
+              date: date,
+              description: description,
+              signedAmount: amountField.signedAmount,
+              explicitMarker: amountField.explicitMarker,
+              typeMarker: typeMarker,
+              rawRow: row,
+            ));
+          } catch (_) {
+            continue;
+          }
         }
         
         final results = <ParsedTransaction>[];
@@ -148,6 +165,58 @@ class StatementParserService {
         
             return results;
         }
+
+    List<ParsedTransaction> _parseCsvSeparateColumns(
+      List<List<dynamic>> rows,
+      List<String> headers,
+      int dateIdx;
+      int descIdx,
+      int creditIdx,
+      int debitIdx,
+    ) {
+      final results = <ParsedTransaction>[];
+      for (var i = 1; i < rows.length; i++) {
+        final row = rows[i];
+        if (row.every((c) => c.toString().trim().isEmpty)) {
+          continue;
+        }
+
+        try {
+          final rawMap = <String, String>{
+            for (var j = 0; j < headers.length && j < row.length; j++)
+              headers[j]: row[j].toString().trim(),
+          };
+
+          final date = parseDate(row[dateIdx].toString().trim());
+          final description = row[descIdx].toString().trim();
+          if (description.isEmpty) continue;
+          final credit = parseAmount(row[creditIdx].toString().trim());
+          final debit = parseAmount(row[debitIdx].toString().trim());
+
+          Decimal amount;
+          bool isIncome;
+          if (credit > Decimal.zero) {
+            amount = credit;
+            isIncome = true;
+          } else {
+            amount = debit.abs();
+            isIncome = false;
+          }
+
+          results.add(ParsedTransaction(
+            date: date,
+            description: description,
+            amount: amount,
+            isIncome: isIncome,
+            deduplicationHash: _hash(date, amount, description),
+            rawData: rawMap,
+          ));
+        } catch (_) {
+          continue;
+        }
+      }
+      return results;
+    }
 
     Future<List<ParsedTransaction>> _parsePdf(String path) async {
         try {
