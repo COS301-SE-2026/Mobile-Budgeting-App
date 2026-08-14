@@ -207,34 +207,37 @@ jobs:
 
   report-unit-tests:
     name: Unit Test Report
-    needs: unit-tests
+    needs: [prepare, unit-tests]
     if: always() && needs.unit-tests.result != 'skipped' && needs.unit-tests.result != 'cancelled'
     uses: ./.github/workflows/test-reporting.yml
     with:
       report-artifact: ${{ needs.unit-tests.outputs.report-artifact }}
       report-path: unit.json
+      source-ref: ${{ needs.prepare.outputs.source-sha }}
       report-name: Unit Tests
       blocking: true
 
   report-widget-tests:
     name: Widget Test Report
-    needs: widget-tests
+    needs: [prepare, widget-tests]
     if: always() && needs.widget-tests.result != 'skipped' && needs.widget-tests.result != 'cancelled'
     uses: ./.github/workflows/test-reporting.yml
     with:
       report-artifact: ${{ needs.widget-tests.outputs.report-artifact }}
       report-path: widget.json
+      source-ref: ${{ needs.prepare.outputs.source-sha }}
       report-name: Widget Tests
       blocking: true
 
   report-integration-tests:
     name: Integration Test Report
-    needs: integration-tests
+    needs: [prepare, integration-tests]
     if: always() && needs.integration-tests.result != 'skipped' && needs.integration-tests.result != 'cancelled'
     uses: ./.github/workflows/test-reporting.yml
     with:
       report-artifact: ${{ needs.integration-tests.outputs.report-artifact }}
       report-path: integration.json
+      source-ref: ${{ needs.prepare.outputs.source-sha }}
       report-name: Integration Tests
       blocking: true
 
