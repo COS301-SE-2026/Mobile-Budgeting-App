@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:budgetit/shared/widgets/balance_card.dart';
-import 'package:budgetit/shared/widgets/bill_item.dart';
-import 'package:budgetit/shared/widgets/insight_widget.dart';
-import 'package:budgetit/shared/widgets/monthly_trend_widget.dart';
-import 'package:budgetit/shared/widgets/quick_stats_widgets.dart';
-import 'package:budgetit/shared/widgets/transaction_tile.dart';
 import 'package:budgetit/views/dashboard/dashboard.dart';
 
 import 'package:budgetit/utils/theme_provider.dart';

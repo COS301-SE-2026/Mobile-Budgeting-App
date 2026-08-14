@@ -520,7 +520,9 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
             children: [
               Text(
                 "MONTHLY BUDGET OVERVIEW",
-                style: context.colours.b1.copyWith(color: cardTextColor),
+.                style: context.colours.b1.copyWith(
+                  color: cardTextColor,
+                ),
               ),
               const SizedBox(height: 18),
               Text(
@@ -795,11 +797,30 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
             final colours = context.colours;
 
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return AlertDialog(
-                backgroundColor: context.colours.background,
-                content: Center(
-                  heightFactor: 2,
-                  child: CircularProgressIndicator(color: context.colours.secondary),
+              return Dialog(
+                backgroundColor: Colors.transparent,
+                insetPadding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 28,
+                ),
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 420),
+                  padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
+                  decoration: BoxDecoration(
+                    color: colours.background,
+                    border: Border.all(color: Colors.black, width: 4),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black,
+                        offset: Offset(6, 6),
+                        blurRadius: 0,
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    heightFactor: 2,
+                    child: CircularProgressIndicator(color: colours.secondary),
+                  ),
                 ),
               );
             }
@@ -933,213 +954,218 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
 
             return StatefulBuilder(
               builder: (context, setDialogState) {
-                return AlertDialog(
-                  backgroundColor: context.colours.background,
-                  shape: RoundedRectangleBorder(
-              
-                    side: BorderSide(color: Colors.black, width: 4),
-                  ),
-                  title: Text(
-                    'Create New Budget',
-                    style: TextStyle(
-                      color: context.colours.textPrimary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      DropdownButtonFormField<_BudgetCategoryOption>(
-                        initialValue: selectedCategory,
-                        dropdownColor: context.colours.background,
-                        style: TextStyle(color: context.colours.textPrimary),
-                        decoration: InputDecoration(
-                          labelText: 'Budget category',
-                          labelStyle: TextStyle(color: context.colours.textPrimary),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: context.colours.secondary),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: context.colours.secondary,
-                              width: 2,
-                            ),
+                return dialogShell(
+                  SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Create New Budget',
+                          style: colours.h2.copyWith(
+                            color: colours.textPrimary,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        items: categoryOptions.map((category) {
-                          return DropdownMenuItem<_BudgetCategoryOption>(
-                            value: category,
-                            child: Row(
-                              children: [
-                                Icon(
-                                  category.icon,
-                                  color: context.colours.textPrimary,
-                                  size: 20,
-                                ),
-                                const SizedBox(width: 10),
-                                Text(category.label),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          if (value == null) return;
-
-                          setDialogState(() {
-                            selectedCategory = value;
-                          });
-                        },
-                      ),
-
-                      const SizedBox(height: 14),
-
-                      TextField(
-                        controller: limitController,
-                        keyboardType: TextInputType.number,
-                        style: TextStyle(color: context.colours.textPrimary),
-                        decoration: InputDecoration(
-                          labelText: 'Budget limit',
-                          labelStyle: TextStyle(color: context.colours.textPrimary),
-                          hintText: 'e.g. 500',
-                          hintStyle: TextStyle(
-                            color: context.colours.textPrimary.withValues(alpha: 0.6),
+                        const SizedBox(height: 18),
+                        DropdownButtonFormField<_BudgetCategoryOption>(
+                          initialValue: selectedCategory,
+                          isExpanded: true,
+                          dropdownColor: colours.background,
+                          style: colours.b1.copyWith(
+                            color: colours.textPrimary,
                           ),
-                          prefixText: 'R ',
-                          prefixStyle: TextStyle(color: context.colours.textPrimary),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: context.colours.secondary),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: context.colours.secondary,
-                              width: 2,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(dialogContext).pop();
-                      },
-                      child: Text(
-                        'Cancel',
-                        style: TextStyle(color: context.colours.textPrimary),
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: () async {
-                        final double? limit = double.tryParse(
-                          limitController.text.trim(),
-                        );
-
-                        if (limit == null || limit <= 0) {
-                          ScaffoldMessenger.of(context)
-                            ..hideCurrentSnackBar()
-                            ..showSnackBar(
-                              SnackBar(
-                                behavior: SnackBarBehavior.floating,
-                                backgroundColor: context.colours.error,
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 18,
-                                  vertical: 16,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                                content: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.error_outline,
-                                      color: context.colours.whiteAccents,
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Text(
-                                        'Please enter a valid budget limit.',
-                                        style: TextStyle(
-                                          color: context.colours.whiteAccents,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          return;
-                        }
-                        Navigator.of(dialogContext).pop();
-
-                        await widget.database.budgetDao.insertBudgetTemplate(
-                          categoryId: selectedCategory.categoryId,
-                          amount: Decimal.parse(limit.toString()),
-                          periodType: PeriodType.monthly,
-                        );
-
-                        if (!dialogContext.mounted) return;
-
-                        Navigator.of(dialogContext).pop();
-
-                        if (!mounted) return;
-
-                        _refreshBudgets();
-
-                        ScaffoldMessenger.of(this.context)
-                          ..hideCurrentSnackBar()
-                          ..showSnackBar(
-                            SnackBar(
-                              behavior: SnackBarBehavior.floating,
-                              backgroundColor: context.colours.secondary,
-                              elevation: 8,
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 18,
-                                vertical: 16,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              duration: const Duration(seconds: 3),
-                              content: Row(
+                          decoration: inputDecoration('Budget category'),
+                          items: categoryOptions.map((category) {
+                            return DropdownMenuItem<_BudgetCategoryOption>(
+                              value: category,
+                              child: Row(
                                 children: [
-                                  Container(
-                                    width: 34,
-                                    height: 34,
-                                    decoration: BoxDecoration(
-                                      color: context.colours.background,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Icon(
-                                      selectedCategory.icon,
-                                      color: context.colours.secondary,
-                                      size: 20,
-                                    ),
+                                  Icon(
+                                    category.icon,
+                                    color: colours.textPrimary,
+                                    size: 20,
                                   ),
-                                  const SizedBox(width: 12),
+                                  const SizedBox(width: 10),
                                   Expanded(
                                     child: Text(
-                                      '${selectedCategory.label} budget created successfully',
-                                      style: TextStyle(
-                                        color: context.colours.background,
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 13,
+                                      category.label,
+                                      style: colours.b1.copyWith(
+                                        color: colours.textPrimary,
                                       ),
                                     ),
                                   ),
                                 ],
                               ),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            if (value == null) return;
+
+                            setDialogState(() {
+                              selectedCategory = value;
+                            });
+                          },
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        TextField(
+                          controller: limitController,
+                          keyboardType: TextInputType.number,
+                          style: colours.b1.copyWith(
+                            color: colours.textPrimary,
+                          ),
+                          decoration:
+                              inputDecoration(
+                                'Budget limit',
+                                hint: 'e.g. 500',
+                              ).copyWith(
+                                prefixText: 'R ',
+                                prefixStyle: colours.b1.copyWith(
+                                  color: colours.textPrimary,
+                                ),
+                              ),
+                        ),
+                        const SizedBox(height: 18),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(dialogContext).pop();
+                              },
+                              child: Text(
+                                'Cancel',
+                                style: colours.b1.copyWith(
+                                  color: colours.textPrimary,
+                                ),
+                              ),
                             ),
-                          );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: context.colours.secondary,
-                        foregroundColor: context.colours.background,
-                      ),
-                      child: const Text('Create'),
+                            const SizedBox(width: 8),
+                            ElevatedButton(
+                              onPressed: () async {
+                                final double? limit = double.tryParse(
+                                  limitController.text.trim(),
+                                );
+
+                                if (limit == null || limit <= 0) {
+                                  ScaffoldMessenger.of(context)
+                                    ..hideCurrentSnackBar()
+                                    ..showSnackBar(
+                                      SnackBar(
+                                        behavior: SnackBarBehavior.floating,
+                                        backgroundColor: colours.error,
+                                        margin: const EdgeInsets.symmetric(
+                                          horizontal: 18,
+                                          vertical: 16,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                        ),
+                                        content: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.error_outline,
+                                              color: colours.whiteAccents,
+                                            ),
+                                            const SizedBox(width: 12),
+                                            Expanded(
+                                              child: Text(
+                                                'Please enter a valid budget limit.',
+                                                style: TextStyle(
+                                                  color: colours.whiteAccents,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  return;
+                                }
+
+                                await widget.database.budgetDao
+                                    .insertBudgetTemplate(
+                                      categoryId: selectedCategory.categoryId,
+                                      amount: Decimal.parse(limit.toString()),
+                                      periodType: PeriodType.monthly,
+                                    );
+
+                                if (!mounted) return;
+                                if (!dialogContext.mounted) return;
+
+                                Navigator.of(dialogContext).pop();
+
+                                _refreshBudgets();
+
+                                ScaffoldMessenger.of(this.context)
+                                  ..hideCurrentSnackBar()
+                                  ..showSnackBar(
+                                    SnackBar(
+                                      behavior: SnackBarBehavior.floating,
+                                      backgroundColor: colours.secondary,
+                                      elevation: 8,
+                                      margin: const EdgeInsets.symmetric(
+                                        horizontal: 18,
+                                        vertical: 16,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                      duration: const Duration(seconds: 3),
+                                      content: Row(
+                                        children: [
+                                          Container(
+                                            width: 34,
+                                            height: 34,
+                                            decoration: BoxDecoration(
+                                              color: colours.background,
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            child: Icon(
+                                              selectedCategory.icon,
+                                              color: colours.secondary,
+                                              size: 20,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Text(
+                                              '${selectedCategory.label} budget created successfully',
+                                              style: TextStyle(
+                                                color: colours.background,
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: colours.secondary,
+                                foregroundColor: colours.background,
+                              ),
+                              child: Text(
+                                'Create',
+                                style: colours.b1.copyWith(
+                                  color: colours.background,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 );
               },
             );
