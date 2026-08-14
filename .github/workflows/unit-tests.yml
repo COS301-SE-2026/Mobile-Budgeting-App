@@ -61,7 +61,7 @@ jobs:
         run: |
           mkdir -p test-results
           set +e
-          flutter test --machine --coverage --concurrency=4 test/unit/ \
+          flutter test --machine --no-pub --coverage --concurrency=4 test/unit/ \
             > test-results/unit.json \
             2> >(tee test-results/unit.log >&2)
           status=$?

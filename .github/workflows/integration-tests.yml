@@ -57,7 +57,7 @@ jobs:
         run: |
           mkdir -p test-results
           set +e
-          flutter test --machine test/integration/ \
+          flutter test --machine --no-pub test/integration/ \
             > test-results/integration.json \
             2> >(tee test-results/integration.log >&2)
           status=$?
