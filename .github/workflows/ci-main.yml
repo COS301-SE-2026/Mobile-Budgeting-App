@@ -32,6 +32,8 @@ permissions:
   checks: write
   contents: read
   security-events: write
+  pages: write
+  id-token: write
 
 jobs:
   changes:
