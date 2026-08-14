@@ -66,7 +66,6 @@ class _BudgetCategoryOption {
 }
 
 class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
-
   String _formatCurrency(double amount) {
     return 'R${amount.toStringAsFixed(2)}';
   }
@@ -297,34 +296,31 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "BUDGET MANAGER",
-                  style: context.colours.h2,
-                ),
+                Text("BUDGET MANAGER", style: context.colours.h2),
                 const SizedBox(height: 14),
                 _summaryCard(),
 
                 const SizedBox(height: 14),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                IconButton(
-            tooltip: 'Export financial report',
-            icon: Icon(
-              Icons.file_download_outlined,
-              color: context.colours.textPrimary,
-            ),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const FinancialReportScreen(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      tooltip: 'Export financial report',
+                      icon: Icon(
+                        Icons.file_download_outlined,
+                        color: context.colours.textPrimary,
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const FinancialReportScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
-              );
-            },
-          ),
-                ],
-            ),
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -371,8 +367,8 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     if (budgets.isEmpty) {
                       final cardColor =
                           Theme.of(context).brightness == Brightness.light
-                              ? context.colours.background
-                              : context.colours.primary;
+                          ? context.colours.background
+                          : context.colours.primary;
 
                       return Container(
                         width: double.infinity,
@@ -447,7 +443,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     onPressed: () {
                       _showCreateBudgetDialog(context);
                     },
-                   //making the colour change in light mode 
+                    //making the colour change in light mode
                     label: Text(
                       "CREATE NEW BUDGET",
                       style: context.colours.b3.copyWith(
@@ -459,14 +455,11 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                       backgroundColor: context.colours.background,
                       foregroundColor: context.colours.secondary,
                       shape: RoundedRectangleBorder(
-                       // borderRadius: BorderRadius.circular(10),
-                       side: BorderSide(color: Colors.black, width: 4),
-
+                        // borderRadius: BorderRadius.circular(10),
+                        side: BorderSide(color: Colors.black, width: 4),
                       ),
                     ),
-
                   ),
-                  
                 ),
 
                 const SizedBox(height: 18),
@@ -475,7 +468,10 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                   child: Text(
                     "Plan your financial future with precision. All data is stored locally for your privacy.",
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: context.colours.textPrimary, fontSize: 11),
+                    style: TextStyle(
+                      color: context.colours.textPrimary,
+                      fontSize: 11,
+                    ),
                   ),
                 ),
               ],
@@ -490,14 +486,9 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
     return FutureBuilder<_BudgetSummary>(
       future: _budgetSummaryFuture,
       builder: (context, snapshot) {
-        final cardColor = Theme.of(context).brightness == Brightness.light
-            ? context.colours.secondary
-            : context.colours.blendedprimary;
-        final cardTextColor = Theme.of(context).brightness == Brightness.light
-            ? context.colours.background
-            : context.colours.secondary;
+        final cardColor = Theme.of(context).brightness == Brightness.light ? context.colours.secondary : context.colours.blendedprimary;
+        final cardTextColor = Theme.of(context).brightness == Brightness.light ? context.colours.background : context.colours.secondary;
         final summary = snapshot.data;
-
         final totalSpent = summary?.totalSpent ?? 0;
         final totalTarget = summary?.totalTarget ?? 0;
 
@@ -507,22 +498,14 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
           decoration: BoxDecoration(
             color: cardColor,
             border: Border.all(color: Colors.black, width: 4),
-            boxShadow: [
-              BoxShadow(
-                
-                offset: const Offset(6, 6),
-                blurRadius: 0,
-              ),
-            ],
+            boxShadow: [BoxShadow(offset: const Offset(6, 6), blurRadius: 0)],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 "MONTHLY BUDGET OVERVIEW",
-.                style: context.colours.b1.copyWith(
-                  color: cardTextColor,
-                ),
+                style: context.colours.b1.copyWith(color: cardTextColor),
               ),
               const SizedBox(height: 18),
               Text(
@@ -534,9 +517,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
               const SizedBox(height: 18),
               Text(
                 "Budget target: ${_formatCurrency(totalTarget)}",
-                style: context.colours.b1.copyWith(
-                  color: cardTextColor,
-                ),
+                style: context.colours.b1.copyWith(color: cardTextColor),
               ),
             ],
           ),
@@ -558,147 +539,144 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
   }) {
     //i used AAI to figure out how these theme colours can be made when modes changes
     final double progress = spent / limit;
-    final cardColor = Theme.of(context).brightness == Brightness.light
-        ? context.colours.secondary
-        : context.colours.blendedprimary;
-    final cardTextColor = Theme.of(context).brightness == Brightness.light
-        ? context.colours.background
-        : context.colours.secondary;
-    final progressTrackColor = Theme.of(context).brightness == Brightness.light
-        ? context.colours.background
-        : context.colours.secondary;
+    final cardColor = Theme.of(context).brightness == Brightness.light ? context.colours.secondary : context.colours.blendedprimary;
+    final cardTextColor = Theme.of(context).brightness == Brightness.light ? context.colours.background : context.colours.secondary;
+    final progressTrackColor = Theme.of(context).brightness == Brightness.light ? context.colours.background : context.colours.secondary;
 
-    return InkWell( 
+    return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(10),
-      child: Stack (
-      children: [ 
-     
-        Positioned.fill(
-          child: Transform.translate(offset: Offset(6, 6), child: Container(color: Colors.black,),)
-        ),
-        
-       
-        
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Transform.translate(
+              offset: Offset(6, 6),
+              child: Container(color: Colors.black),
+            ),
+          ),
 
-        Container(
-        padding: const EdgeInsets.all(14),
+          Container(
+            padding: const EdgeInsets.all(14),
 
-        decoration: BoxDecoration(
-          color : cardColor,
-          border : Border.all(color:Colors.black,width:4),
-        ),
-        child: Column(
-          children: [
-            if (isOverLimit)
-              Align(
-                alignment: Alignment.centerRight,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: context.colours.error,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                  child: Text(
-                    "OVER LIMIT",
-                    style: TextStyle(
-                      color: context.colours.whiteAccents,
-                      fontSize: 8,
-                      fontWeight: FontWeight.bold,
+            decoration: BoxDecoration(
+              color: cardColor,
+              border: Border.all(color: Colors.black, width: 4),
+            ),
+            child: Column(
+              children: [
+                if (isOverLimit)
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: context.colours.error,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                      child: Text(
+                        "OVER LIMIT",
+                        style: TextStyle(
+                          color: context.colours.whiteAccents,
+                          fontSize: 8,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-
-            Row(
-              children: [
-                Container(
-                  width: 34,
-                  height: 34,
-                  decoration: BoxDecoration(
-                    color: context.colours.secondary,
-                    border: Border.all(color: Colors.black, width: 2),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: context.colours.background,
-                    size: 20,
-                  ),
-                ),
-
-                const SizedBox(width: 12),
-
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: context.colours.budgetheader.copyWith(
-                          color: cardTextColor,
-                        ),
-                      ),
-                      Text(
-                        subtitle,
-                        style: context.colours.b5.copyWith(
-                          color: cardTextColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
 
                 Row(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      "R${spent.toInt()} / R${limit.toInt()}",
-                      style: context.colours.b4.copyWith(
-                        color: cardTextColor,
+                    Container(
+                      width: 34,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        color: context.colours.secondary,
+                        border: Border.all(color: Colors.black, width: 2),
+                      ),
+                      child: Icon(
+                        icon,
+                        color: context.colours.background,
+                        size: 20,
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    InkWell(
-                      onTap: () {
-                        onDelete();
-                      },
-                     customBorder: Border.all(color: Colors.black, width: 4),
-                      child: Padding(
-                        padding: const EdgeInsets.all(4),
-                        child: Icon(
-                          Icons.delete_outline,
-                          color: context.colours.error,
-                          size: 20,
-                        ),
+
+                    const SizedBox(width: 12),
+
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: context.colours.budgetheader.copyWith(
+                              color: cardTextColor,
+                            ),
+                          ),
+                          Text(
+                            subtitle,
+                            style: context.colours.b5.copyWith(
+                              color: cardTextColor,
+                            ),
+                          ),
+                        ],
                       ),
+                    ),
+
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "R${spent.toInt()} / R${limit.toInt()}",
+                          style: context.colours.b4.copyWith(
+                            color: cardTextColor,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        InkWell(
+                          onTap: () {
+                            onDelete();
+                          },
+                          customBorder: Border.all(
+                            color: Colors.black,
+                            width: 4,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(4),
+                            child: Icon(
+                              Icons.delete_outline,
+                              color: context.colours.error,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
+
+                const SizedBox(height: 12),
+
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: progressTrackColor, width: 1.5),
+                  ),
+                  child: ClipRRect(
+                    child: LinearProgressIndicator(
+                      value: progress > 1 ? 1 : progress,
+                      minHeight: 6,
+                      backgroundColor: progressTrackColor,
+                      valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+                    ),
+                  ),
+                ),
               ],
             ),
-
-            const SizedBox(height: 12),
-
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: progressTrackColor, width: 1.5),
-              ),
-              child: ClipRRect(
-                child: LinearProgressIndicator (
-                  value: progress>1 ? 1 : progress,
-                  minHeight: 6,
-                  backgroundColor: progressTrackColor,
-                  valueColor: AlwaysStoppedAnimation<Color>(progressColor),
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
-    ] ), 
     );
   }
 
