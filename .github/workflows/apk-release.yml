@@ -34,6 +34,7 @@ jobs:
       contents: read
       pull-requests: read
       id-token: write
+      pages: write
 
     with:
       channel: production

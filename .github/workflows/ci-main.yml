@@ -342,6 +342,8 @@ jobs:
       actions: read
       contents: write
       pull-requests: read
+      id-token: write
+      pages: write
     with:
       channel: candidate
       artifact-name: ${{ needs.apk-build.outputs.artifact-name }}
@@ -370,6 +372,8 @@ jobs:
       actions: read
       contents: write
       pull-requests: read
+      id-token: write
+      pages: write
     with:
       channel: candidate
       artifact-name: ${{ needs.pages-build.outputs.release-artifact-name }}
