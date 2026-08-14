@@ -42,15 +42,19 @@ jobs:
 
   secret-scan:
     name: Secret Scan
+    needs: changes
     if: >-
       ${{
-        github.event_name == 'pull_request' &&
-        github.event.pull_request.base.ref == 'main' &&
-        github.event.pull_request.draft == false &&
-        github.event.pull_request.head.repo.full_name == github.repository &&
+        needs.changes.outputs.force_full == 'true' ||
         (
-          contains(github.event.pull_request.labels.*.name, 'release-candidate') ||
-          contains(github.event.pull_request.labels.*.name, 'release-landing-candidate')
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.base.ref == 'main' &&
+          github.event.pull_request.draft == false &&
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          (
+            contains(github.event.pull_request.labels.*.name, 'release-candidate') ||
+            contains(github.event.pull_request.labels.*.name, 'release-landing-candidate')
+          )
         )
       }}
     uses: ./.github/workflows/secret-scan.yml
@@ -62,6 +66,7 @@ jobs:
     needs: changes
     if: >-
       ${{
+        needs.changes.outputs.force_full == 'true' ||
         needs.changes.outputs.should_osv_scan == 'true' ||
         (
           github.event_name == 'pull_request' &&
@@ -95,6 +100,7 @@ jobs:
     needs: changes
     if: >-
       ${{
+        needs.changes.outputs.force_full == 'true' ||
         needs.changes.outputs.should_prepare_generated_dart == 'true' ||
         (
           github.event_name == 'pull_request' &&
@@ -127,6 +133,7 @@ jobs:
     needs: [changes, prepare]
     if: >-
       ${{
+        needs.changes.outputs.force_full == 'true' ||
         needs.changes.outputs.should_lint == 'true' ||
         (
           github.event_name == 'pull_request' &&
@@ -150,6 +157,7 @@ jobs:
     needs: [changes, prepare]
     if: >-
       ${{
+        needs.changes.outputs.force_full == 'true' ||
         needs.changes.outputs.should_unit_tests == 'true' ||
         (
           github.event_name == 'pull_request' &&
@@ -170,6 +178,7 @@ jobs:
     needs: [changes, prepare]
     if: >-
       ${{
+        needs.changes.outputs.force_full == 'true' ||
         needs.changes.outputs.should_widget_tests == 'true' ||
         (
           github.event_name == 'pull_request' &&
@@ -190,6 +199,7 @@ jobs:
     needs: [changes, prepare]
     if: >-
       ${{
+        needs.changes.outputs.force_full == 'true' ||
         needs.changes.outputs.should_integration_tests == 'true' ||
         (
           github.event_name == 'pull_request' &&
@@ -266,6 +276,7 @@ jobs:
     needs: [changes, prepare]
     if: >-
       ${{
+        needs.changes.outputs.force_full == 'true' ||
         needs.changes.outputs.should_apk_build == 'true' ||
         (
           github.event_name == 'pull_request' &&
@@ -286,6 +297,7 @@ jobs:
     needs: [changes, prepare]
     if: >-
       ${{
+        needs.changes.outputs.force_full == 'true' ||
         needs.changes.outputs.should_pages_build == 'true' ||
         (
           github.event_name == 'pull_request' &&

@@ -9,6 +9,9 @@ on:
         default: false
         type: boolean
     outputs:
+      force_full:
+        description: True when the caller requested all checks
+        value: ${{ jobs.detect.outputs.force_full }}
       flutter_app_changed:
         description: True if non-generated Flutter app files changed
         value: ${{ jobs.detect.outputs.flutter_app_changed }}
@@ -71,6 +74,7 @@ jobs:
     permissions:
       contents: read
     outputs:
+      force_full: ${{ inputs.force_full }}
       flutter_app_changed: ${{ steps.filter.outputs.flutter_app }}
       flutter_landing_changed: ${{ steps.filter.outputs.flutter_landing }}
       flutter_generated_changed: ${{ steps.filter.outputs.flutter_generated }}
