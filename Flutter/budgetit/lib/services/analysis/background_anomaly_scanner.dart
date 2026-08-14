@@ -32,10 +32,7 @@ class BackgroundAnomalyScanner extends ChangeNotifier {
     BackgroundAnomalyScanner(this._db)
         : _historyService = TransactionHistoryService(_db),
           _anomalyService = AnomalyDetectionService()
-          {
-
-          }
-         // _predictionService = PredictiveSpendingService();
+;         // _predictionService = PredictiveSpendingService();
 
     Future<void> scan() async {
         if (_scanning) return;
