@@ -76,6 +76,8 @@ jobs:
     permissions:
       actions: read
       contents: write
+      pages: write
+      id-token: write
     steps:
       - name: Download APK
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
@@ -136,6 +138,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     permissions:
+      pages: write
+      id-token: write
       actions: read
       contents: read
       pull-requests: read
