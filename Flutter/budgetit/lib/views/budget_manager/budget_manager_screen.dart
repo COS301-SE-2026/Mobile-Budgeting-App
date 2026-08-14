@@ -287,8 +287,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     backgroundColor: context.colours.background,
-     
+      backgroundColor: context.colours.background,
 
       // body: SafeArea(
       body: SafeArea(
@@ -330,13 +329,8 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    
-                    Text(
-                      "BUDGET CATEGORIES",
-                      style: context.colours.h2,
-                    ),
+                    Text("BUDGET CATEGORIES", style: context.colours.h2),
 
-                    
                     Text(
                       _currentMonthYearLabel(),
                       style: TextStyle(
@@ -526,9 +520,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
             children: [
               Text(
                 "MONTHLY BUDGET OVERVIEW",
-                style: context.colours.b1.copyWith(
-                  color: cardTextColor,
-                ),
+                style: context.colours.b1.copyWith(color: cardTextColor),
               ),
               const SizedBox(height: 18),
               Text(
@@ -800,6 +792,8 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
         return FutureBuilder<List<_BudgetCategoryOption>>(
           future: _categoryOptionsFuture,
           builder: (context, snapshot) {
+            final colours = context.colours;
+
             if (snapshot.connectionState == ConnectionState.waiting) {
               return AlertDialog(
                 backgroundColor: context.colours.background,
@@ -813,30 +807,125 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
             final categoryOptions = snapshot.data ?? [];
 
             if (categoryOptions.isEmpty) {
-              return AlertDialog(
-                backgroundColor: context.colours.background,
-                title: Text(
-                  'Create New Budget',
-                  style: TextStyle(
-                    color: context.colours.textPrimary,
-                    fontWeight: FontWeight.bold,
+              return Dialog(
+                backgroundColor: Colors.transparent,
+                insetPadding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 28,
+                ),
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 420),
+                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+                  decoration: BoxDecoration(
+                    color: colours.background,
+                    border: Border.all(color: Colors.black, width: 4),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black,
+                        offset: Offset(6, 6),
+                        blurRadius: 0,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Create New Budget',
+                        style: colours.h2.copyWith(
+                          color: colours.textPrimary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      Text(
+                        'No expense categories found. Please seed or create categories first.',
+                        style: colours.b1.copyWith(color: colours.textPrimary),
+                      ),
+                      const SizedBox(height: 18),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.of(dialogContext).pop();
+                          },
+                          child: Text(
+                            'Close',
+                            style: colours.b1.copyWith(
+                              color: colours.textPrimary,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                content: Text(
-                  'No expense categories found. Please seed or create categories first.',
-                  style: TextStyle(color: context.colours.textPrimary),
+              );
+            }
+
+            InputDecoration inputDecoration(String label, {String? hint}) {
+              return InputDecoration(
+                labelText: label,
+                labelStyle: colours.b1.copyWith(color: colours.textPrimary),
+                hintText: hint,
+                hintStyle: colours.h2.copyWith(
+                  color: colours.textPrimary.withValues(alpha: 0.55),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
                 ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(dialogContext).pop();
-                    },
-                    child: Text(
-                      'Close',
-                      style: TextStyle(color: context.colours.textPrimary),
-                    ),
+                filled: true,
+                fillColor: colours.background,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.zero,
+                  borderSide: BorderSide(color: colours.secondary),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.zero,
+                  borderSide: BorderSide(color: colours.secondary),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.zero,
+                  borderSide: BorderSide(color: colours.secondary, width: 2),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.zero,
+                  borderSide: BorderSide(color: colours.error, width: 4),
+                ),
+                focusedErrorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.zero,
+                  borderSide: BorderSide(color: colours.error, width: 4),
+                ),
+              );
+            }
+
+            Widget dialogShell(Widget child) {
+              return Dialog(
+                backgroundColor: Colors.transparent,
+                insetPadding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 28,
+                ),
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 420),
+                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+                  decoration: BoxDecoration(
+                    color: colours.background,
+                    border: Border.all(color: Colors.black, width: 4),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black,
+                        offset: Offset(6, 6),
+                        blurRadius: 0,
+                      ),
+                    ],
                   ),
-                ],
+                  child: child,
+                ),
               );
             }
 
