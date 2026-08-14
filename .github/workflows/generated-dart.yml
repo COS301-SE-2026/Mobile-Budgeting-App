@@ -45,9 +45,40 @@ jobs:
       - name: Set up Flutter
         uses: ./.github/actions/flutter-ci-setup
 
+      - name: Restore Dart build cache
+        id: dart-build-cache
+        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684
+        with:
+          path: |
+            Flutter/budgetit/.dart_tool/build
+            Flutter/budgetit/lib/**/*.g.dart
+            Flutter/budgetit/lib/**/*.freezed.dart
+            Flutter/budgetit/lib/**/*.mocks.dart
+            Flutter/budgetit/test/**/*.g.dart
+            Flutter/budgetit/test/**/*.freezed.dart
+            Flutter/budgetit/test/**/*.mocks.dart
+         
+          key: dart-build-runner-flutter-3.41.9-${{ github.head_ref || github.ref_name }}-${{ github.run_id }}
+          restore-keys: |
+            dart-build-runner-flutter-3.41.9-${{ github.head_ref || github.ref_name }}-
+
       - name: Generate Dart
         working-directory: Flutter/budgetit
         run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Save Dart build cache
+        if: success() && steps.dart-build-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684
+        with:
+          path: |
+            Flutter/budgetit/.dart_tool/build
+            Flutter/budgetit/lib/**/*.g.dart
+            Flutter/budgetit/lib/**/*.freezed.dart
+            Flutter/budgetit/lib/**/*.mocks.dart
+            Flutter/budgetit/test/**/*.g.dart
+            Flutter/budgetit/test/**/*.freezed.dart
+            Flutter/budgetit/test/**/*.mocks.dart
+          key: ${{ steps.dart-build-cache.outputs.cache-primary-key }}
 
       - name: Upload generated Dart
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
