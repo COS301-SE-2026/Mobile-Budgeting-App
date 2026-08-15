@@ -9,6 +9,9 @@ import 'statement_parser_service.dart';
 import 'classification_service.dart';
 import 'duplicate_detector.dart';
 import 'package:budgetit/database/schema.dart';
+import '../../database/daos/schema_cache_dao.dart';
+import 'schema_discovery_service.dart';
+import 'stub_schema_classifier.dart';
 
 class ImportOrchestrator {
     final AppDatabase _db;
@@ -24,7 +27,12 @@ class ImportOrchestrator {
     :   _db = db,
         _taDao = taDao,
         _categoryDao = categoryDao,
-        _parser = StatementParserService();
+        _parser = StatementParserService(
+          schemaDiscovery: SchemaDiscoveryService(
+            classifier: StubSchemaClassifier(),
+            cache: SchemaCacheDao(db),
+          ),
+        );
 
 
     Future<List<ParsedTransaction>> preparePreview(String filePath) async {
