@@ -1,5 +1,6 @@
 | External Action | Version | Resolved Commit SHA |
 |---|---:|---|
+| `actions/cache` | `v4.2.3` | `5a3ec84eff668545956fd18022155c47e93e2684` |
 | `actions/checkout` | `v7.0.1` | `3d3c42e5aac5ba805825da76410c181273ba90b1` |
 | `actions/download-artifact` | `v8.0.1` | `3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` |
 | `actions/upload-artifact` | `v7.0.1` | `043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` |
