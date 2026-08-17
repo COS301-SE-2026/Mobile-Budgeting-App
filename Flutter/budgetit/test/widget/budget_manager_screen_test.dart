@@ -22,3 +22,37 @@ Widget wrapBudgetManager(AppDatabase db) {
     ),
   );
 }
+
+void main() {
+  group('BudgetManagerScreen', () {
+    late MockDb mock;
+
+    setUp(() {
+      mock = MockDb();
+
+      when(mock.budgetDao.getAllBudgetTemplates()).thenAnswer(
+        (_) async => [],
+      );
+
+      when(mock.categoryDao.getCategoriesByType(CategoryType.expense))
+          .thenAnswer(
+        (_) async => [],
+      );
+    });
+
+    testWidgets('shows empty state when no budgets exist', (tester) async {
+      await tester.pumpWidget(wrapBudgetManager(mock.db));
+      await tester.pumpAndSettle();
+
+      expect(find.text('BUDGET MANAGER'), findsOneWidget);
+      expect(find.text('MONTHLY BUDGET OVERVIEW'), findsOneWidget);
+      expect(find.text('BUDGET CATEGORIES'), findsOneWidget);
+      expect(find.text('CREATE NEW BUDGET'), findsOneWidget);
+
+      expect(
+        find.text('No budgets created yet. Tap the button below to create one.'),
+        findsOneWidget,
+      );
+    });
+  });
+}
