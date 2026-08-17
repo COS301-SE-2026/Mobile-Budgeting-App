@@ -25,7 +25,7 @@ void main() async {
   final shouldReseed = kDebugMode && !skipReseed;
   final db = await AppDatabase.create(reset: shouldReseed);
   if (shouldReseed) await DatabaseSeeder(db).seed();
-  if (kDebugMode) {
+  if (kDebugMode && !kIsWeb) {
     unawaited(db.startDriftViewer(enabled: true));
   }
 
