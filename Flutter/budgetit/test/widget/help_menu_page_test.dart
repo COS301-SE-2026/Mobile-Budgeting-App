@@ -30,8 +30,9 @@ void main() {
     });
 
     testWidgets('shows all help dropdown titles', (tester) async {
+      //building and displaying help menu screen inside this test:
       await tester.pumpWidget(wrapHelpMenu());
-
+      // tester will load widgets/etc
       expect(find.text('HOW TO ADD NEW TRANSACTION'), findsOneWidget);
       expect(find.text('HOW TO ADD TRANSACTION TO A BUDGET'), findsOneWidget);
       expect(find.text('HOW TO VIEW GRAPHICAL REPORTS'), findsOneWidget);
@@ -39,7 +40,7 @@ void main() {
 
     testWidgets('expands add transaction help steps', (tester) async {
       await tester.pumpWidget(wrapHelpMenu());
-
+      //pump widget puts a widget on fake test screen
       await tester.tap(find.text('HOW TO ADD NEW TRANSACTION'));
       await tester.pumpAndSettle();
 
