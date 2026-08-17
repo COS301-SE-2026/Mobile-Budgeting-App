@@ -12,6 +12,7 @@ import 'auth/providers/auth_provider.dart';
 import 'database/app_database.dart';
 import 'database/database_seeder.dart';
 import 'models/recurring/recurring_transaction_catch_up_result.dart';
+import 'services/analysis/background_anomaly_scanner.dart';
 import 'services/recurring/recurring_transaction_catch_up_service.dart';
 import 'views/dashboard/dashboard.dart';
 import 'shared/widgets/login_password_screen.dart';
@@ -77,14 +78,12 @@ class BudgetApp extends StatelessWidget {
       theme: ThemeData(
         brightness: Brightness.light,
         extensions: [MyColours.lightTheme],
-        extensions: [MyColours.lightTheme],
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         extensions: [MyColours.darkTheme],
       ),
       initialRoute: '/',
-      routes: {'/transaction_manager': (context) => const TransactionManager()},
       routes: {'/transaction_manager': (context) => const TransactionManager()},
       home: const AuthWrapper(),
     );
@@ -112,7 +111,6 @@ class AuthWrapper extends StatelessWidget {
         return const LoginRegisterScreen();
       case AuthStatus.skipped:
       case AuthStatus.loggedIn:
-        return const HomePage();
         return const HomePage();
     }
   }

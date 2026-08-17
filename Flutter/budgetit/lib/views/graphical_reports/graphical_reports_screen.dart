@@ -26,9 +26,8 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
   ReportingPeriod _selectedPeriod = ReportingPeriod.monthly;
   late int _selectedYear;
 
-  late final Future<GraphicalReportData> Function(ReportingPeriod period)
-    _loadReport;
-late Future<GraphicalReportData> _reportFuture;
+  late final GraphicalReportService _reportService;
+  late Future<GraphicalReportData> _reportFuture;
 
   @override
   void initState() {
@@ -39,6 +38,10 @@ late Future<GraphicalReportData> _reportFuture;
   }
 
   Future<GraphicalReportData> _generateSelectedReport() {
+    if (widget.reportBuilder != null) {
+      return widget.reportBuilder!(_selectedPeriod);
+    }
+
     final today = DateTime.now();
 
     return _reportService.generateReport(
