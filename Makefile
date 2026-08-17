@@ -25,6 +25,12 @@ flutter-bsg:
 flutter-run-android:
 	cd $(FLUTTER_DIR) && fvm flutter run -d android
 
+flutter-pages-build:
+	cd $(FLUTTER_DIR) && fvm flutter build web --target=lib/landing_page/main.dart
+
+flutter-pages-run:
+	cd $(FLUTTER_DIR) && flutter run -d chrome --target=lib/landing_page/main.dart
+
 flutter-test:
 	cd $(FLUTTER_DIR) && fvm flutter test test/
 
@@ -41,7 +47,8 @@ flutter-test-coverage:
 	cd $(FLUTTER_DIR) && fvm flutter test --coverage test/unit/ test/widget/ test/integration/
 
 flutter-build-apk:
-	cd $(FLUTTER_DIR) && fvm flutter build apk --release
+	cd $(FLUTTER_DIR) && fvm flutter build apk --release --no-tree-shake-icons
+
 
 flutter-build-appbundle:
 	cd $(FLUTTER_DIR) && fvm flutter build appbundle --release

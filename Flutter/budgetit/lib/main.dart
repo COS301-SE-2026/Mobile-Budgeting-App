@@ -11,6 +11,8 @@ import 'auth/data/cognito_auth_service.dart';
 import 'auth/providers/auth_provider.dart';
 import 'database/app_database.dart';
 import 'database/database_seeder.dart';
+import 'models/recurring/recurring_transaction_catch_up_result.dart';
+import 'services/recurring/recurring_transaction_catch_up_service.dart';
 import 'views/dashboard/dashboard.dart';
 import 'shared/widgets/login_password_screen.dart';
 import 'utils/theme_provider.dart';
@@ -36,11 +38,19 @@ void main() async {
           create: (_) => db,
           dispose: (_, db) => db.close(),
         ),
+        Provider<RecurringTransactionCatchUpService>(
+          create: (context) =>
+              RecurringTransactionCatchUpService(context.read<AppDatabase>()),
+        ),
         ChangeNotifierProvider(
           //USED DEEPSEEK TO FIX CONTEXT ERRORS
           create: (_) => AppAuthProvider(authService: CognitoAuthService()),
         ),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(
+          create: (context) =>
+              BackgroundAnomalyScanner(context.read<AppDatabase>()),
+        ),
       ],
       child: const BudgetApp(),
     ),
@@ -67,12 +77,14 @@ class BudgetApp extends StatelessWidget {
       theme: ThemeData(
         brightness: Brightness.light,
         extensions: [MyColours.lightTheme],
+        extensions: [MyColours.lightTheme],
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         extensions: [MyColours.darkTheme],
       ),
       initialRoute: '/',
+      routes: {'/transaction_manager': (context) => const TransactionManager()},
       routes: {'/transaction_manager': (context) => const TransactionManager()},
       home: const AuthWrapper(),
     );
@@ -84,6 +96,7 @@ class AuthWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>();
     context.watch<ThemeProvider>();
     final auth = context.watch<AppAuthProvider>();
 
@@ -100,6 +113,7 @@ class AuthWrapper extends StatelessWidget {
       case AuthStatus.skipped:
       case AuthStatus.loggedIn:
         return const HomePage();
+        return const HomePage();
     }
   }
 }
@@ -113,6 +127,43 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(_runRecurringTransactionCatchUp());
+    });
+  }
+
+  Future<void> _runRecurringTransactionCatchUp() async {
+    final result = await context
+        .read<RecurringTransactionCatchUpService>()
+        .catchUpDueRecurringTransactions(trigger: CatchUpTrigger.startup);
+
+    debugPrint('[Recurring catch-up] $result');
+    for (final template in result.templates) {
+      debugPrint('[Recurring catch-up] $template');
+      for (final occurrence in template.occurrences) {
+        debugPrint('[Recurring catch-up] $occurrence');
+        final failure = occurrence.failure;
+        if (failure != null) {
+          debugPrintStack(
+            label: '[Recurring catch-up] ${failure.type}: ${failure.message}',
+            stackTrace: failure.stackTrace,
+          );
+        }
+      }
+    }
+
+    final runFailure = result.runFailure;
+    if (runFailure != null) {
+      debugPrintStack(
+        label: '[Recurring catch-up] ${runFailure.type}: ${runFailure.message}',
+        stackTrace: runFailure.stackTrace,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

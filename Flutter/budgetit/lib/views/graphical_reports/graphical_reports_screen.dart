@@ -8,9 +8,15 @@ import '../../services/graphical_report_service.dart';
 import '../../utils/app_colour.dart';
 
 class GraphicalReportsScreen extends StatefulWidget {
-  const GraphicalReportsScreen({super.key, required this.database});
+  const GraphicalReportsScreen({
+    super.key,
+    required this.database,
+    this.reportBuilder,
+  });
 
   final AppDatabase database;
+  final Future<GraphicalReportData> Function(ReportingPeriod period)?
+      reportBuilder;
 
   @override
   State<GraphicalReportsScreen> createState() => _GraphicalReportsScreenState();
@@ -20,8 +26,9 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
   ReportingPeriod _selectedPeriod = ReportingPeriod.monthly;
   late int _selectedYear;
 
-  late final GraphicalReportService _reportService;
-  late Future<GraphicalReportData> _reportFuture;
+  late final Future<GraphicalReportData> Function(ReportingPeriod period)
+    _loadReport;
+late Future<GraphicalReportData> _reportFuture;
 
   @override
   void initState() {
