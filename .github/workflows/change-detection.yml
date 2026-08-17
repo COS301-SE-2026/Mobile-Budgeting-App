@@ -73,6 +73,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      pull-requests: read
     outputs:
       force_full: ${{ inputs.force_full }}
       flutter_app_changed: ${{ steps.filter.outputs.flutter_app }}

@@ -10,34 +10,26 @@ concurrency:
   group: apk-production-release
   cancel-in-progress: false
 
-permissions:
-  actions: read
-  contents: read
-  pull-requests: read
-  security-events: write
-  pages: write
-  id-token: write
+permissions: {}
 
 jobs:
   secret-scan:
     name: Secret Scan
     uses: ./.github/workflows/secret-scan.yml
+    permissions:
+      contents: read
+      security-events: write
     secrets:
       GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
 
   deploy-apk-production:
     name: Deploy APK
     needs: secret-scan
-    uses: ./.github/workflows/apk-deploy.yml
+    uses: ./.github/workflows/apk-deploy-production.yml
     permissions:
-      actions: read
       contents: read
       pull-requests: read
-      id-token: write
-      pages: write
-
     with:
-      channel: production
       source-sha: ${{ github.sha }}
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
