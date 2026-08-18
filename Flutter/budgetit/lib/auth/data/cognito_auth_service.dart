@@ -186,4 +186,20 @@ class CognitoAuthService implements AuthService {
       return null;
     }
   }
+
+  @override
+  Future<String> getJWT() async {
+    try {
+      final session = await Amplify.Auth.fetchAuthSession(
+        options: CognitoSessionOptions(getAWSCredentials: true),
+      );
+      if (session.isSignedIn) {
+        final cognitoSession = session as CognitoAuthSession;
+        return cognitoSession.userPoolTokens?.idToken ?? '';
+      }
+      return '';
+    } on AuthException {
+      return '';
+    }
+  }
 }
