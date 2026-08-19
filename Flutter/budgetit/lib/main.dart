@@ -12,6 +12,7 @@ import 'auth/providers/auth_provider.dart';
 import 'database/app_database.dart';
 import 'database/database_seeder.dart';
 import 'models/recurring/recurring_transaction_catch_up_result.dart';
+import 'services/analysis/background_anomaly_scanner.dart';
 import 'services/recurring/recurring_transaction_catch_up_service.dart';
 import 'views/dashboard/dashboard.dart';
 import 'shared/widgets/login_password_screen.dart';
@@ -19,7 +20,6 @@ import 'utils/theme_provider.dart';
 import 'shared/widgets/main_appbar.dart';
 import 'utils/app_colour.dart';
 import 'views/budget_manager/budget_manager_screen.dart';
-import 'package:budgetit/services/analysis/background_anomaly_scanner.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,7 +28,7 @@ void main() async {
   final shouldReseed = kDebugMode && !skipReseed;
   final db = await AppDatabase.create(reset: shouldReseed);
   if (shouldReseed) await DatabaseSeeder(db).seed();
-  if (kDebugMode) {
+  if (kDebugMode && !kIsWeb) {
     unawaited(db.startDriftViewer(enabled: true));
   }
 
@@ -95,6 +95,7 @@ class AuthWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>();
     context.watch<ThemeProvider>();
     final auth = context.watch<AppAuthProvider>();
 
@@ -167,6 +168,9 @@ class _HomePageState extends State<HomePage> {
     context.watch<ThemeProvider>();
 
     final db = context.read<AppDatabase>();
+    final selectedNavIconColor = Theme.of(context).brightness == Brightness.dark
+        ? context.colours.background
+        : context.colours.cardText;
 
     return Scaffold(
       appBar: const MainAppbar(),
@@ -180,20 +184,23 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: context.colours.background,
           indicatorColor: context.colours.secondary,
           onDestinationSelected: _onDestinationSelected,
-          destinations: const [
+          destinations: [
             NavigationDestination(
               icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home),
+              selectedIcon: Icon(Icons.home, color: selectedNavIconColor),
               label: '',
             ),
             NavigationDestination(
               icon: Icon(Icons.attach_money),
-              selectedIcon: Icon(Icons.attach_money),
+              selectedIcon: Icon(
+                Icons.attach_money,
+                color: selectedNavIconColor,
+              ),
               label: '',
             ),
             NavigationDestination(
               icon: Icon(Icons.pie_chart_outline),
-              selectedIcon: Icon(Icons.pie_chart),
+              selectedIcon: Icon(Icons.pie_chart, color: selectedNavIconColor),
               label: '',
             ),
           ],

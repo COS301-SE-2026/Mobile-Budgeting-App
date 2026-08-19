@@ -53,6 +53,9 @@ class _InsightWidgetState extends State<InsightWidget>
   @override
   Widget build(BuildContext context) {
     final colours = context.colours;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final headingColor = isDark ? colours.textPrimary : colours.secondary;
+
     if (widget.insights.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -71,7 +74,7 @@ class _InsightWidgetState extends State<InsightWidget>
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: colours.textPrimary,
+                color: headingColor,
               ),
             ),
             if (widget.insights.length > 1)
@@ -83,7 +86,7 @@ class _InsightWidgetState extends State<InsightWidget>
                     style: TextStyle(
                       fontSize: 12,
 
-                      color: colours.textPrimary.withValues(alpha: 0.6),
+                      color: headingColor.withValues(alpha: 0.7),
                     ),
                   ),
                   const SizedBox(width: 6),
@@ -126,26 +129,20 @@ class _InsightCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colours = context.colours;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark ? colours.blendedprimary: colours.secondary;
+    final cardTextColor = isDark ? colours.secondary: colours.background;
+    final mutedCardText = cardTextColor.withValues(alpha: 0.75);
+    final isAlert = insight.severity == InsightSeverity.alert;
+    final signalColor = isAlert ? colours.error:cardTextColor;
 
     return Container(
       padding: const EdgeInsets.all(16),
 
       decoration: BoxDecoration(
-        color: colours.background,
-
-        borderRadius: BorderRadius.circular(16),
-
-        border: Border(left: BorderSide(color: insight.accentColor, width: 3)),
-
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.25),
-
-            blurRadius: 10,
-
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: cardColor,
+        border: Border.all(color: Colors.black, width: 4),
+        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(6, 6))],
       ),
 
       child: Row(
@@ -157,20 +154,15 @@ class _InsightCard extends StatelessWidget {
             height: 36,
 
             decoration: BoxDecoration(
-              color: insight.accentColor.withValues(alpha: 0.15),
-
-              borderRadius: BorderRadius.circular(10),
+              color: signalColor.withValues(alpha: isAlert ? 0.22 : 0.14),
+              border: Border.all(color: signalColor),
             ),
-
-            child: Icon(insight.icon, size: 18, color: insight.accentColor),
+            child: Icon(insight.icon, size: 18, color: signalColor),
           ),
-
           const SizedBox(width: 12),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-
               children: [
                 Row(
                   children: [
@@ -182,8 +174,7 @@ class _InsightCard extends StatelessWidget {
                           fontSize: 14,
 
                           fontWeight: FontWeight.w600,
-
-                          color: colours.textPrimary,
+                          color: cardTextColor,
                         ),
                       ),
                     ),
@@ -199,16 +190,13 @@ class _InsightCard extends StatelessWidget {
 
                   style: TextStyle(
                     fontSize: 12,
-
-                    color: colours.cardText.withValues(alpha: 0.6),
-
+                    color: mutedCardText,
                     height: 1.5,
                   ),
                 ),
-
-                if(insight.transactionDescription != null) ...[
+                if (insight.transactionDescription != null) ...[
                   const SizedBox(height: 16),
-                  Divider( color: insight.accentColor.withValues(alpha: 0.4)),
+                  Divider(color: cardTextColor.withValues(alpha: 0.35)),
                   const SizedBox(height: 12),
                   Text(
                     'Anomolous Transaction',
@@ -216,7 +204,7 @@ class _InsightCard extends StatelessWidget {
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.2,
-                      color: colours.textMuted,
+                      color: mutedCardText,
                     ),
                   ),
 
@@ -225,17 +213,18 @@ class _InsightCard extends StatelessWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: insight.accentColor.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: insight.accentColor.withValues(alpha: 0.25)),
+                      color: cardTextColor.withValues(alpha: 0.08),
+                      border: Border.all(
+                        color: cardTextColor.withValues(alpha: 0.35),
+                      ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children:[
+                      children: [
                         Text(
                           insight.transactionDescription!,
                           style: TextStyle(
-                            color: colours.textPrimary,
+                            color: cardTextColor,
                             fontWeight: FontWeight.w600,
                             fontSize: 13,
                             
@@ -259,7 +248,7 @@ class _InsightCard extends StatelessWidget {
                             Text(
                               'R${insight.transactionAmount!.toStringAsFixed(2)}',
                               style: TextStyle(
-                                color: insight.accentColor,
+                                color: cardTextColor,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13,
                               ),
@@ -267,7 +256,7 @@ class _InsightCard extends StatelessWidget {
                             Text(
                               '${insight.transactionDate!.day}/${insight.transactionDate!.month}/${insight.transactionDate!.year}',
                               style: TextStyle(
-                                color: colours.textMuted,
+                                color: mutedCardText,
                                 fontSize: 11,
                               ),
                             ),
@@ -294,24 +283,26 @@ class _SeverityBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colours = context.colours;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final dashboardTextColor = isDark ? colours.secondary:colours.background;
 
     final (label, bg, fg) = switch (severity) {
       InsightSeverity.tip => (
         'Tip',
-        colours.informational.withValues(alpha: 0.15),
-        colours.informational,
+        dashboardTextColor.withValues(alpha: 0.15),
+        dashboardTextColor,
       ),
 
       InsightSeverity.warning => (
         'Warning',
-        colours.secondary.withValues(alpha: 0.2),
-        colours.textPrimary,
+        dashboardTextColor.withValues(alpha: 0.2),
+        dashboardTextColor,
       ),
 
       InsightSeverity.alert => (
         'Alert',
-        const Color(0x44B00020),
-        Colors.redAccent,
+        colours.error.withValues(alpha: 0.22),
+        dashboardTextColor,
       ),
     };
 
@@ -350,6 +341,11 @@ class _NavButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colours = context.colours;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final buttonColor = isDark
+        ? colours.secondary.withValues(alpha: 0.15)
+        : colours.secondary;
+    final iconColor = isDark ? colours.textPrimary : colours.background;
 
     return GestureDetector(
       onTap: onTap,
@@ -359,12 +355,12 @@ class _NavButton extends StatelessWidget {
         height: 28,
 
         decoration: BoxDecoration(
-          color: colours.informational.withValues(alpha: 0.15),
+          color: buttonColor,
 
           borderRadius: BorderRadius.circular(8),
         ),
 
-        child: Icon(icon, size: 18, color: colours.textPrimary),
+        child: Icon(icon, size: 18, color: iconColor),
       ),
     );
   }

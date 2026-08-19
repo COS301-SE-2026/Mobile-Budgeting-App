@@ -27,7 +27,7 @@ class MyBox extends StatefulWidget {
     super.key,
     this.transactionId,
     this.text = '',
-    this.icon = null,
+    this.icon,
     this.amount = 0,
     this.category = 'nothing',
     this.categories = const [],
