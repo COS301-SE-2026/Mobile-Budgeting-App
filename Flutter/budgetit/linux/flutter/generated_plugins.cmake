@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   amplify_db_common
   flutter_secure_storage_linux
+  powersync_flutter_libs
   sqlite3_flutter_libs
   url_launcher_linux
 )

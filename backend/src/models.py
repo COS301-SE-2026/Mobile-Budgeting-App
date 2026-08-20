@@ -3,6 +3,7 @@ import enum
 import uuid
 from datetime import datetime
 from decimal import Decimal
+from database import Base
 
 from sqlalchemy import (
     Boolean,
@@ -15,9 +16,6 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-
-class Base(DeclarativeBase):
-    pass
 
 
 class CategoryType(str, enum.Enum):
@@ -61,11 +59,7 @@ def _uuid() -> str:
 
 
 class Category(Base):
-    """Category definitions used for tracking income and expenses.
-
-    Supports soft deletion via `deleted_at` and marks built-in categories
-    via `is_default`.
-    """
+ 
 
     __tablename__ = "categories"
 
@@ -82,10 +76,7 @@ class Category(Base):
 
 
 class CategoryClosure(Base):
-    """Closure table storing ancestor/descendant relationships between
-    categories, enabling efficient subtree/ancestor queries.
-    """
-
+   
     __tablename__ = "category_closure"
 
     ancestor_id: Mapped[str] = mapped_column(ForeignKey("categories.id"), primary_key=True)
@@ -94,11 +85,7 @@ class CategoryClosure(Base):
 
 
 class Transaction(Base):
-    """Individual income and expense transactions.
-
-    Linked to categories via `TransactionCategoryMap`, and optionally to a
-    recurring template or an import batch.
-    """
+  
 
     __tablename__ = "transactions"
 
@@ -121,9 +108,7 @@ class Transaction(Base):
 
 
 class TransactionCategoryMap(Base):
-    """Maps a transaction to a single category, with metadata about how the
-    assignment was made (manual, AI-suggested, or from an import).
-    """
+    
 
     __tablename__ = "transaction_category_map"
 
@@ -140,12 +125,7 @@ class TransactionCategoryMap(Base):
 
 
 class BudgetTemplate(Base):
-    """A recurring budget amount for a category over a time period.
-
-    `BudgetPeriod` rows are generated from a template and track actual
-    budgeted amounts for each period.
-    """
-
+ 
     __tablename__ = "budget_templates"
 
     id: Mapped[str] = mapped_column(String, primary_key=True, default=_uuid)
@@ -160,10 +140,7 @@ class BudgetTemplate(Base):
 
 
 class BudgetPeriod(Base):
-    """A specific budget period generated from a `BudgetTemplate`.
-
-    Can be manually overridden via `is_overridden`.
-    """
+   
 
     __tablename__ = "budget_periods"
 
@@ -179,12 +156,7 @@ class BudgetPeriod(Base):
 
 
 class RecurringTransaction(Base):
-    """Recurring transaction templates.
-
-    Generates child rows in `Transaction` when they occur, on an interval
-    of `unit` (daily/weekly/monthly/yearly) repeated every
-    `interval_amount` periods.
-    """
+   
 
     __tablename__ = "recurring_transactions"
 
@@ -209,9 +181,7 @@ class RecurringTransaction(Base):
 
 
 class AppSetting(Base):
-    """Key-value settings for the application (e.g. default currency,
-    theme mode, onboarding status).
-    """
+   
 
     __tablename__ = "app_settings"
 
@@ -221,9 +191,7 @@ class AppSetting(Base):
 
 
 class Import(Base):
-    """A single PDF/CSV statement import batch that transactions can be
-    traced back to via `Transaction.import_id`.
-    """
+   
 
     __tablename__ = "imports"
 

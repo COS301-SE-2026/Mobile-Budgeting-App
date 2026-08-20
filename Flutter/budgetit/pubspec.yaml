@@ -33,6 +33,9 @@ dependencies:
   popover: ^0.4.0
   flutter:
     sdk: flutter
+  powersync: ^1.14.0
+  http: ^1.2.0 
+  dio: ^5.7.0
   drift: ^2.21.0
   drift_flutter: ^0.2.8
   path_provider: ^2.1.6

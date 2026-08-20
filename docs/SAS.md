@@ -57,7 +57,7 @@
        - The system must follow a **modular structure** so that different components can be tested, maintained, and improved independently.
 
        ## Architectural Diagram
-       ![Architectural Diagram](assets/diagrams/Architecture/SAS.drawio.png.png)
+       ![Architectural diagram showing the mobile budgeting app architecture with local SQLite database, Drift data access layer, AWS Amplify authentication and S3 storage, plus state management and statement import subsystems](assets/diagrams/Architecture/SAS.drawio.png.png)
        - ## Mapping Quality Requirements to Architectural Decisions
 
 - # Technology Requirements
