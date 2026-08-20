@@ -6,6 +6,7 @@ import 'package:drift_flutter/drift_flutter.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'schema.dart';
+import 'daos/embedding_cache_dao.dart';
 import 'daos/category_dao.dart';
 import 'daos/transaction_dao.dart';
 import 'daos/budget_dao.dart';
@@ -25,6 +26,7 @@ part 'app_database.g.dart';
     BudgetTemplates,
     BudgetPeriods,
     AppSettings,
+    EmbeddingCacheEntries,
   ],
 )
 /// The root database connection for the Budgetit application.
@@ -59,7 +61,7 @@ class AppDatabase extends _$AppDatabase {
   /// Increment this and add migration steps in [migration] when the schema
   /// changes. Currently at 2 after adding RecurringTransactions.
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   /// Migration strategy for the database.
   ///
@@ -69,7 +71,9 @@ class AppDatabase extends _$AppDatabase {
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) async => m.createAll(),
     onUpgrade: (m, from, to) async {
-      if (from == to) return;
+       if (from < 3) {
+    await m.createTable(embeddingCacheEntries);
+  }
       // TODO: add proper migration steps when schemaVersion > 1.
     },
   );
@@ -99,6 +103,9 @@ class AppDatabase extends _$AppDatabase {
 
   /// Accessor for category operations.
   late final CategoryDao categoryDao = CategoryDao(this);
+
+/// Accessor for locally cached AI embeddings.
+late final EmbeddingCacheDao embeddingCacheDao = EmbeddingCacheDao(this);
 
   /// Accessor for transaction operations.
   late final TransactionDao transactionDao = TransactionDao(this);
