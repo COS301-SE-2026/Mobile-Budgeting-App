@@ -12,6 +12,7 @@ import 'package:budgetit/database/schema.dart';
 import '../../database/daos/schema_cache_dao.dart';
 import 'schema_discovery_service.dart';
 import 'stub_schema_classifier.dart';
+import 'llm_schema_classifier.dart';
 
 class ImportOrchestrator {
     final AppDatabase _db;
@@ -29,7 +30,7 @@ class ImportOrchestrator {
         _categoryDao = categoryDao,
         _parser = StatementParserService(
           schemaDiscovery: SchemaDiscoveryService(
-            classifier: StubSchemaClassifier(),
+            classifier: LlmSchemaClassifier(),
             cache: SchemaCacheDao(db),
           ),
         );
