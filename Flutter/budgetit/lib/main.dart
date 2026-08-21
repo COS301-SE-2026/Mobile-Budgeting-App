@@ -20,9 +20,15 @@ import 'shared/widgets/main_appbar.dart';
 import 'utils/app_colour.dart';
 import 'views/budget_manager/budget_manager_screen.dart';
 import 'package:budgetit/services/analysis/background_anomaly_scanner.dart';
+import 'package:flutter_gemma/flutter_gemma.dart';
+//import 'package:flutter_gemma_litertlm/flutter_gemma_litertlm.dart';
+import 'package:pdfrx/pdfrx.dart';
+import 'package:flutter_gemma_mediapipe/flutter_gemma_mediapipe.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  pdfrxFlutterInitialize();
   await _configureAmplify();
   const skipReseed = bool.fromEnvironment('SKIP_RESEED', defaultValue: false);
   final shouldReseed = kDebugMode && !skipReseed;
@@ -31,6 +37,12 @@ void main() async {
   if (kDebugMode) {
     unawaited(db.startDriftViewer(enabled: true));
   }
+
+  const hfToken = String.fromEnvironment('HUGGINGFACE_TOKEN');
+  FlutterGemma.initialize(
+    inferenceEngines: const [MediaPipeEngine()],
+    huggingFaceToken: hfToken.isNotEmpty ? hfToken : null,
+  );
 
   runApp(
     MultiProvider(
