@@ -7,6 +7,12 @@ class StubSchemaClassifier implements SchemaClassifier {
   Future<StatementSchema> classify(List<CandidateRow> sampleRows) async {
     final markers = sampleRows.map((r) => r.signMarker?.toUpperCase()).where((m) => m != null).toSet();
 
+    if (markers.contains('CREDIT') || markers.contains('DEBIT')) {
+      return const StatementSchema(
+        signConvention: SignConvention.separateDebitCredit,
+      );
+    }
+
     if (markers.contains('CR') && !markers.contains('-')) {
       return const StatementSchema(
         signConvention: SignConvention.crSuffixMeansIncome,
