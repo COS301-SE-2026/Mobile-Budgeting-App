@@ -1,3 +1,4 @@
+import datetime
 from email.header import Header
 import os
 
@@ -8,8 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy import delete as sa_delete
 
-from database import get_db
-from models import Budget, Expense
+from database import get_db, engine, Base
+from models import Budget, User, Transaction, Category, Account, BudgetCategory, BudgetAccount
 from schemas import UploadPayload, CrudOp
 import jwt
 from jwt import PyJWKClient
@@ -55,7 +56,7 @@ async def get_current_user(authorization: str = Header(...)) -> str:
             token,
             signing_key.key,
             algorithms=["RS256"],
-            audience="<your-cognito-app-client-id>",
+            audience="", #TODO ask kio for our  cognito app client id
         )
         return payload["sub"]  
     except jwt.PyJWTError:
@@ -71,12 +72,23 @@ async def apply_put(db: AsyncSession, model,  entry: CrudOp, id: str, table: str
     values = {**entry.data, "id": entry.id}
     if table in tables:
         values["user_id"] = id
-    statment = pg_insert(model).values(**values).on_conflict_do_update(
+    statement = pg_insert(model).values(**values).on_conflict_do_update(
         index_elements=["id"],
         set = {i:j for i,j in values.items() if i != "id"}
     )
     await db.execute(statement)
 
+async def apply_delete(db: AsyncSession, model, entry: CrudOp, id: str, table: str):
+    row = await db.get(model, entry.id)
+    if row is None or getattr(row, "deleted_at", None) is None:
+        return
+    if table in tables:
+        if getattr(row, "user_id", None) != id:
+            raise forbidden(table, entry.id, "delete")
+        await setattr(row, "deleted_at", datetime.now())
+    
+
+        
 
 @app.post("/powersync/upload", tags=["PowerSync"], summary="Upload CRUD queue to PowerSync", responses={200: {"description": "Upload successful"}, 400: {"description": "Problem with syntax "}, 401: {"description": "Unauthorized"}, 500: {"description": "Internal server error"}})
 async def upload(payload: UploadPayload, db: AsyncSession = Depends(get_db), jwt: str = Depends(get_current_user)):
