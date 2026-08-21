@@ -67,6 +67,15 @@ def forbidden(table: str, id: str, action: str) -> HTTPException:
         detail=f"User is not authorized to {action} {table} with id {id}",
     )
 
+async def apply_put(db: AsyncSession, model,  entry: CrudOp, id: str, table: str,):
+    values = {**entry.data, "id": entry.id}
+    if table in tables:
+        values["user_id"] = id
+    statment = pg_insert(model).values(**values).on_conflict_do_update(
+        index_elements=["id"],
+        set = {i:j for i,j in values.items() if i != "id"}
+    )
+    await db.execute(statement)
 
 
 @app.post("/powersync/upload", tags=["PowerSync"], summary="Upload CRUD queue to PowerSync", responses={200: {"description": "Upload successful"}, 400: {"description": "Problem with syntax "}, 401: {"description": "Unauthorized"}, 500: {"description": "Internal server error"}})
