@@ -11,7 +11,7 @@ from sqlalchemy import delete as sa_delete
 
 from database import get_db, engine, Base
 from models import Budget, User, Transaction, Category, Account, BudgetCategory, BudgetAccount
-from schemas import UploadPayload, CrudOp
+from schema import UploadPayload, CrudOp
 import jwt
 from jwt import PyJWKClient
 
@@ -56,7 +56,7 @@ async def get_current_user(authorization: str = Header(...)) -> str:
             token,
             signing_key.key,
             algorithms=["RS256"],
-            audience="", #TODO ask kio for our  cognito app client id
+            audience="", #TODO ask kio for our cognito app client id 
         )
         return payload["sub"]  
     except jwt.PyJWTError:
@@ -102,9 +102,23 @@ async def apply_patch(db: AsyncSession, model, entry: CrudOp, id: str, table: st
         
 
 @app.post("/powersync/upload", tags=["PowerSync"], summary="Upload CRUD queue to PowerSync", responses={200: {"description": "Upload successful"}, 400: {"description": "Problem with syntax "}, 401: {"description": "Unauthorized"}, 500: {"description": "Internal server error"}})
-async def upload(payload: UploadPayload, db: AsyncSession = Depends(get_db), jwt: str = Depends(get_current_user)):
-    try:
-        pass
+async def upload(payload: UploadPayload, db: AsyncSession = Depends(get_db), jwt: str = Depends(get_current_user)):     
+    try:           
+        for entry in payload.operations:
+            model = tables.get(entry.table)
+            if model is not None:
+                if entry.op == "put":
+                    await apply_put(db,model, entry, jwt, entry.table)
+                elif entry.op == "patch":
+                    await apply_patch(db,model, entry, jwt, entry.table)
+                elif entry.op == "delete":
+                    await apply_delete(db,model, entry, jwt, entry.table)
+        await db.commit()
+    except HTTPException:
+        await db.rollback()
+        raise
     except Exception as e:
-        pass
+        await db.rollback()
+        raise HTTPException(status_code=500, detail=str(e)) 
 
+    
