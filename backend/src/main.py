@@ -78,16 +78,27 @@ async def apply_put(db: AsyncSession, model,  entry: CrudOp, id: str, table: str
     )
     await db.execute(statement)
 
-async def apply_delete(db: AsyncSession, model, entry: CrudOp, id: str, table: str):
+async def apply_delete(db: AsyncSession, model, entry: CrudOp, id: str, table: str): #will not be used unless we are doing a cleanup of db 
     row = await db.get(model, entry.id)
     if row is None or getattr(row, "deleted_at", None) is None:
         return
     if table in tables:
         if getattr(row, "user_id", None) != id:
             raise forbidden(table, entry.id, "delete")
-        await setattr(row, "deleted_at", datetime.now())
-    
+        await db.execute(sa_delete(model).where(model.id == entry.id))
 
+
+async def apply_patch(db: AsyncSession, model, entry: CrudOp, id: str, table: str):
+    row = await db.get(model, entry.id)
+    if table in tables and getattr(row, "user_id", None) != id:
+        raise forbidden(table, entry.id, "patch")
+    
+    if row is None:
+        await apply_put(db, model, entry, id, table)
+    else:
+        for k,v in entry.data.items():
+            if k != "user_id":
+                setattr(row,k,v)
         
 
 @app.post("/powersync/upload", tags=["PowerSync"], summary="Upload CRUD queue to PowerSync", responses={200: {"description": "Upload successful"}, 400: {"description": "Problem with syntax "}, 401: {"description": "Unauthorized"}, 500: {"description": "Internal server error"}})
