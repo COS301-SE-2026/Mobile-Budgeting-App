@@ -240,7 +240,7 @@ class _TransactionManagerState extends State<TransactionManager> {
                   ),
                 )
               else
-               + ...grouped.entries.map((entry) {
+               ...grouped.entries.map((entry) {
                   final date = entry.key;
                   final txns = entry.value;
                   return Column(

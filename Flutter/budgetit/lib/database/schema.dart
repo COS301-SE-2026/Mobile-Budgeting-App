@@ -84,6 +84,7 @@ class Categories extends Table {
 /// This enables efficient queries for ancestors, descendants, and subtree
 /// traversal in a tree structure.
 class CategoryClosure extends Table {
+  TextColumn get id => text()();
   /// Ancestor category ID.
   TextColumn get ancestorId => text().references(Categories, #id)();
 
@@ -151,6 +152,7 @@ class Transactions extends Table {
 /// Each transaction can be assigned one category, with metadata about
 /// how the assignment was made.
 class TransactionCategoryMap extends Table {
+  TextColumn get id +> text()();
   /// The transaction this category is assigned to.
   TextColumn get transactionId => text().references(Transactions, #id)();
 
