@@ -152,7 +152,7 @@ class Transactions extends Table {
 /// Each transaction can be assigned one category, with metadata about
 /// how the assignment was made.
 class TransactionCategoryMap extends Table {
-  TextColumn get id +> text()();
+  TextColumn get id => text()();
   /// The transaction this category is assigned to.
   TextColumn get transactionId => text().references(Transactions, #id)();
 

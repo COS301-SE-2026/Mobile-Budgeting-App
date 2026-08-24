@@ -1,3 +1,11 @@
+CREATE TABLE category_closure (
+    id TEXT PRIMARY KEY,
+    ancestor_id TEXT NOT NULL REFERENCES categories(id),
+    descendant_id TEXT NOT NULL REFERENCES categories(id),
+    depth INTEGER NOT NULL,
+    UNIQUE (ancestor_id, descendant_id)
+);
+
 CREATE TABLE categories (
   id uuid PRIMARY KEY,
   user_id text NOT NULL,
@@ -78,12 +86,14 @@ CREATE UNIQUE INDEX ux_recurring_occurrence_active
 
 
 CREATE TABLE transaction_category_map (
-  transaction_id uuid PRIMARY KEY REFERENCES transactions(id),
-  category_id uuid NOT NULL REFERENCES categories(id),
-  assigned_at timestamptz NOT NULL,
-  updated_at timestamptz NOT NULL,
-  deleted_at timestamptz,
-  assignment_source text NOT NULL CHECK (assignment_source IN ('manual', 'ai', 'import'))
+    id TEXT PRIMARY KEY,
+    transaction_id TEXT NOT NULL REFERENCES transactions(id),
+    category_id TEXT NOT NULL REFERENCES categories(id),
+    assigned_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL,
+    deleted_at TIMESTAMPTZ,
+    assignment_source TEXT NOT NULL,
+    UNIQUE (transaction_id)
 );
 
 CREATE TABLE budget_templates (
@@ -116,3 +126,4 @@ CREATE TABLE budget_periods (
 CREATE UNIQUE INDEX ux_budget_period_active
   ON budget_periods (template_id, period_key)
   WHERE deleted_at IS NULL;
+
