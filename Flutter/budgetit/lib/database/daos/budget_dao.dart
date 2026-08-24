@@ -61,7 +61,7 @@ class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
     await into(budgetTemplates).insert(
       BudgetTemplatesCompanion.insert(
         id: id,
-        categoryId: categoryId,
+        categoryId: Value(categoryId),
         amount: amount,
         periodType: periodType,
         currency: Value(currency),

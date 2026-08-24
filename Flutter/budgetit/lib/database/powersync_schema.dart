@@ -1,0 +1,97 @@
+import 'package:powersync/powersync.dart';
+
+final powerSyncSchema = Schema([
+  Table('categories', [
+    Column.text('name'),
+    Column.text('type'),
+    Column.text('icon'),
+    Column.text('color'),
+    Column.integer('is_default'),
+    Column.text('created_at'),
+    Column.text('updated_at'),
+    Column.text('deleted_at'),
+    Column.text('user_id'),
+  ]),
+
+  Table('category_closure', [
+    Column.text('ancestor_id'),
+    Column.text('descendant_id'),
+    Column.integer('depth'),
+  ]),
+
+  Table('transactions', [
+    Column.text('amount'),
+    Column.text('type'),
+    Column.text('short_description'),
+    Column.text('long_description'),
+    Column.text('transaction_date'),
+    Column.text('created_at'),
+    Column.text('updated_at'),
+    Column.text('deleted_at'),
+    Column.text('source'),
+    Column.text('currency'),
+    Column.text('recurring_id'),
+    Column.text('user_id'),
+    Column.text('import_id'),
+  ]),
+
+  Table('transaction_category_map', [
+    Column.text('transaction_id'),
+    Column.text('category_id'),
+    Column.text('assigned_at'),
+    Column.text('updated_at'),
+    Column.text('deleted_at'),
+    Column.text('assignment_source'),
+  ]),
+
+  Table('budget_templates', [
+    Column.text('category_id'),
+    Column.text('amount'),
+    Column.text('period_type'),
+    Column.text('currency'),
+    Column.text('created_at'),
+    Column.text('updated_at'),
+    Column.text('deleted_at'),
+    Column.text('user_id'),
+  ]),
+
+  Table('budget_periods', [
+    Column.text('template_id'),
+    Column.text('start_date'),
+    Column.text('end_date'),
+    Column.text('budgeted_amount'),
+    Column.integer('is_overridden'),
+    Column.text('created_at'),
+    Column.text('updated_at'),
+    Column.text('deleted_at'),
+  ]),
+
+  Table('recurring_transactions', [
+    Column.text('amount'),
+    Column.text('type'),
+    Column.text('short_description'),
+    Column.text('long_description'),
+    Column.text('next_transaction_date'),
+    Column.text('created_at'),
+    Column.text('updated_at'),
+    Column.text('deleted_at'),
+    Column.text('currency'),
+    Column.text('unit'),
+    Column.integer('interval_amount'),
+    Column.text('start_date'),
+    Column.text('category_id'),
+    Column.text('user_id'),
+    Column.text('recurring_occurrence_date'),
+  ]),
+
+  Table('imports', [
+    Column.text('user_id'),
+    Column.text('file_sha256'),
+    Column.text('original_file_name'),
+    Column.text('file_type'),
+    Column.text('account_identifier'),
+    Column.text('created_at'),
+    Column.text('updated_at'),
+    Column.text('deleted_at'),
+  ]),
+]);

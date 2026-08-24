@@ -101,6 +101,15 @@ class $CategoriesTable extends Categories
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+    'user_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -112,6 +121,7 @@ class $CategoriesTable extends Categories
     createdAt,
     updatedAt,
     deletedAt,
+    userId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -180,6 +190,12 @@ class $CategoriesTable extends Categories
         deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
       );
     }
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
+    }
     return context;
   }
 
@@ -227,6 +243,10 @@ class $CategoriesTable extends Categories
         DriftSqlType.dateTime,
         data['${effectivePrefix}deleted_at'],
       ),
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}user_id'],
+      ),
     );
   }
 
@@ -266,6 +286,7 @@ class Category extends DataClass implements Insertable<Category> {
 
   /// When the category was soft-deleted (null if active).
   final DateTime? deletedAt;
+  final String? userId;
   const Category({
     required this.id,
     required this.name,
@@ -276,6 +297,7 @@ class Category extends DataClass implements Insertable<Category> {
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
+    this.userId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -299,6 +321,9 @@ class Category extends DataClass implements Insertable<Category> {
     if (!nullToAbsent || deletedAt != null) {
       map['deleted_at'] = Variable<DateTime>(deletedAt);
     }
+    if (!nullToAbsent || userId != null) {
+      map['user_id'] = Variable<String>(userId);
+    }
     return map;
   }
 
@@ -317,6 +342,9 @@ class Category extends DataClass implements Insertable<Category> {
       deletedAt: deletedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(deletedAt),
+      userId: userId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(userId),
     );
   }
 
@@ -337,6 +365,7 @@ class Category extends DataClass implements Insertable<Category> {
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      userId: serializer.fromJson<String?>(json['userId']),
     );
   }
   @override
@@ -354,6 +383,7 @@ class Category extends DataClass implements Insertable<Category> {
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'userId': serializer.toJson<String?>(userId),
     };
   }
 
@@ -367,6 +397,7 @@ class Category extends DataClass implements Insertable<Category> {
     DateTime? createdAt,
     DateTime? updatedAt,
     Value<DateTime?> deletedAt = const Value.absent(),
+    Value<String?> userId = const Value.absent(),
   }) => Category(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -377,6 +408,7 @@ class Category extends DataClass implements Insertable<Category> {
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    userId: userId.present ? userId.value : this.userId,
   );
   Category copyWithCompanion(CategoriesCompanion data) {
     return Category(
@@ -389,6 +421,7 @@ class Category extends DataClass implements Insertable<Category> {
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      userId: data.userId.present ? data.userId.value : this.userId,
     );
   }
 
@@ -403,7 +436,8 @@ class Category extends DataClass implements Insertable<Category> {
           ..write('isDefault: $isDefault, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('userId: $userId')
           ..write(')'))
         .toString();
   }
@@ -419,6 +453,7 @@ class Category extends DataClass implements Insertable<Category> {
     createdAt,
     updatedAt,
     deletedAt,
+    userId,
   );
   @override
   bool operator ==(Object other) =>
@@ -432,7 +467,8 @@ class Category extends DataClass implements Insertable<Category> {
           other.isDefault == this.isDefault &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
-          other.deletedAt == this.deletedAt);
+          other.deletedAt == this.deletedAt &&
+          other.userId == this.userId);
 }
 
 class CategoriesCompanion extends UpdateCompanion<Category> {
@@ -445,6 +481,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
+  final Value<String?> userId;
   final Value<int> rowid;
   const CategoriesCompanion({
     this.id = const Value.absent(),
@@ -456,6 +493,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
+    this.userId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   CategoriesCompanion.insert({
@@ -468,6 +506,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     required DateTime createdAt,
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
+    this.userId = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        name = Value(name),
@@ -485,6 +524,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
+    Expression<String>? userId,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -497,6 +537,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
+      if (userId != null) 'user_id': userId,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -511,6 +552,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<DateTime?>? deletedAt,
+    Value<String?>? userId,
     Value<int>? rowid,
   }) {
     return CategoriesCompanion(
@@ -523,6 +565,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
+      userId: userId ?? this.userId,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -559,6 +602,9 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     if (deletedAt.present) {
       map['deleted_at'] = Variable<DateTime>(deletedAt.value);
     }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -577,6 +623,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
+          ..write('userId: $userId, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -589,6 +636,15 @@ class $CategoryClosureTable extends CategoryClosure
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $CategoryClosureTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
   static const VerificationMeta _ancestorIdMeta = const VerificationMeta(
     'ancestorId',
   );
@@ -627,7 +683,7 @@ class $CategoryClosureTable extends CategoryClosure
     requiredDuringInsert: true,
   );
   @override
-  List<GeneratedColumn> get $columns => [ancestorId, descendantId, depth];
+  List<GeneratedColumn> get $columns => [id, ancestorId, descendantId, depth];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -640,6 +696,11 @@ class $CategoryClosureTable extends CategoryClosure
   }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
     if (data.containsKey('ancestor_id')) {
       context.handle(
         _ancestorIdMeta,
@@ -676,6 +737,10 @@ class $CategoryClosureTable extends CategoryClosure
   CategoryClosureData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return CategoryClosureData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
       ancestorId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}ancestor_id'],
@@ -699,6 +764,8 @@ class $CategoryClosureTable extends CategoryClosure
 
 class CategoryClosureData extends DataClass
     implements Insertable<CategoryClosureData> {
+  final String id;
+
   /// Ancestor category ID.
   final String ancestorId;
 
@@ -708,6 +775,7 @@ class CategoryClosureData extends DataClass
   /// Distance from ancestor to descendant (0 = self, 1 = direct child, etc.).
   final int depth;
   const CategoryClosureData({
+    required this.id,
     required this.ancestorId,
     required this.descendantId,
     required this.depth,
@@ -715,6 +783,7 @@ class CategoryClosureData extends DataClass
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
     map['ancestor_id'] = Variable<String>(ancestorId);
     map['descendant_id'] = Variable<String>(descendantId);
     map['depth'] = Variable<int>(depth);
@@ -723,6 +792,7 @@ class CategoryClosureData extends DataClass
 
   CategoryClosureCompanion toCompanion(bool nullToAbsent) {
     return CategoryClosureCompanion(
+      id: Value(id),
       ancestorId: Value(ancestorId),
       descendantId: Value(descendantId),
       depth: Value(depth),
@@ -735,6 +805,7 @@ class CategoryClosureData extends DataClass
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return CategoryClosureData(
+      id: serializer.fromJson<String>(json['id']),
       ancestorId: serializer.fromJson<String>(json['ancestorId']),
       descendantId: serializer.fromJson<String>(json['descendantId']),
       depth: serializer.fromJson<int>(json['depth']),
@@ -744,6 +815,7 @@ class CategoryClosureData extends DataClass
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
       'ancestorId': serializer.toJson<String>(ancestorId),
       'descendantId': serializer.toJson<String>(descendantId),
       'depth': serializer.toJson<int>(depth),
@@ -751,16 +823,19 @@ class CategoryClosureData extends DataClass
   }
 
   CategoryClosureData copyWith({
+    String? id,
     String? ancestorId,
     String? descendantId,
     int? depth,
   }) => CategoryClosureData(
+    id: id ?? this.id,
     ancestorId: ancestorId ?? this.ancestorId,
     descendantId: descendantId ?? this.descendantId,
     depth: depth ?? this.depth,
   );
   CategoryClosureData copyWithCompanion(CategoryClosureCompanion data) {
     return CategoryClosureData(
+      id: data.id.present ? data.id.value : this.id,
       ancestorId: data.ancestorId.present
           ? data.ancestorId.value
           : this.ancestorId,
@@ -774,6 +849,7 @@ class CategoryClosureData extends DataClass
   @override
   String toString() {
     return (StringBuffer('CategoryClosureData(')
+          ..write('id: $id, ')
           ..write('ancestorId: $ancestorId, ')
           ..write('descendantId: $descendantId, ')
           ..write('depth: $depth')
@@ -782,42 +858,49 @@ class CategoryClosureData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(ancestorId, descendantId, depth);
+  int get hashCode => Object.hash(id, ancestorId, descendantId, depth);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is CategoryClosureData &&
+          other.id == this.id &&
           other.ancestorId == this.ancestorId &&
           other.descendantId == this.descendantId &&
           other.depth == this.depth);
 }
 
 class CategoryClosureCompanion extends UpdateCompanion<CategoryClosureData> {
+  final Value<String> id;
   final Value<String> ancestorId;
   final Value<String> descendantId;
   final Value<int> depth;
   final Value<int> rowid;
   const CategoryClosureCompanion({
+    this.id = const Value.absent(),
     this.ancestorId = const Value.absent(),
     this.descendantId = const Value.absent(),
     this.depth = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   CategoryClosureCompanion.insert({
+    required String id,
     required String ancestorId,
     required String descendantId,
     required int depth,
     this.rowid = const Value.absent(),
-  }) : ancestorId = Value(ancestorId),
+  }) : id = Value(id),
+       ancestorId = Value(ancestorId),
        descendantId = Value(descendantId),
        depth = Value(depth);
   static Insertable<CategoryClosureData> custom({
+    Expression<String>? id,
     Expression<String>? ancestorId,
     Expression<String>? descendantId,
     Expression<int>? depth,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
+      if (id != null) 'id': id,
       if (ancestorId != null) 'ancestor_id': ancestorId,
       if (descendantId != null) 'descendant_id': descendantId,
       if (depth != null) 'depth': depth,
@@ -826,12 +909,14 @@ class CategoryClosureCompanion extends UpdateCompanion<CategoryClosureData> {
   }
 
   CategoryClosureCompanion copyWith({
+    Value<String>? id,
     Value<String>? ancestorId,
     Value<String>? descendantId,
     Value<int>? depth,
     Value<int>? rowid,
   }) {
     return CategoryClosureCompanion(
+      id: id ?? this.id,
       ancestorId: ancestorId ?? this.ancestorId,
       descendantId: descendantId ?? this.descendantId,
       depth: depth ?? this.depth,
@@ -842,6 +927,9 @@ class CategoryClosureCompanion extends UpdateCompanion<CategoryClosureData> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
     if (ancestorId.present) {
       map['ancestor_id'] = Variable<String>(ancestorId.value);
     }
@@ -860,6 +948,7 @@ class CategoryClosureCompanion extends UpdateCompanion<CategoryClosureData> {
   @override
   String toString() {
     return (StringBuffer('CategoryClosureCompanion(')
+          ..write('id: $id, ')
           ..write('ancestorId: $ancestorId, ')
           ..write('descendantId: $descendantId, ')
           ..write('depth: $depth, ')
@@ -1027,6 +1116,26 @@ class $RecurringTransactionsTable extends RecurringTransactions
       'REFERENCES categories (id)',
     ),
   );
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+    'user_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _recurringOccurrenceDateMeta =
+      const VerificationMeta('recurringOccurrenceDate');
+  @override
+  late final GeneratedColumn<DateTime> recurringOccurrenceDate =
+      GeneratedColumn<DateTime>(
+        'recurring_occurrence_date',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1043,6 +1152,8 @@ class $RecurringTransactionsTable extends RecurringTransactions
     intervalAmount,
     startDate,
     categoryId,
+    userId,
+    recurringOccurrenceDate,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1145,6 +1256,21 @@ class $RecurringTransactionsTable extends RecurringTransactions
         categoryId.isAcceptableOrUnknown(data['category_id']!, _categoryIdMeta),
       );
     }
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
+    }
+    if (data.containsKey('recurring_occurrence_date')) {
+      context.handle(
+        _recurringOccurrenceDateMeta,
+        recurringOccurrenceDate.isAcceptableOrUnknown(
+          data['recurring_occurrence_date']!,
+          _recurringOccurrenceDateMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1216,6 +1342,14 @@ class $RecurringTransactionsTable extends RecurringTransactions
         DriftSqlType.string,
         data['${effectivePrefix}category_id'],
       ),
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}user_id'],
+      ),
+      recurringOccurrenceDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}recurring_occurrence_date'],
+      ),
     );
   }
 
@@ -1274,6 +1408,8 @@ class RecurringTransaction extends DataClass
 
   /// (Nullable) category for recurring transactions , inherited by generated children.
   final String? categoryId;
+  final String? userId;
+  final DateTime? recurringOccurrenceDate;
   const RecurringTransaction({
     required this.id,
     required this.amount,
@@ -1289,6 +1425,8 @@ class RecurringTransaction extends DataClass
     required this.intervalAmount,
     required this.startDate,
     this.categoryId,
+    this.userId,
+    this.recurringOccurrenceDate,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1325,6 +1463,14 @@ class RecurringTransaction extends DataClass
     if (!nullToAbsent || categoryId != null) {
       map['category_id'] = Variable<String>(categoryId);
     }
+    if (!nullToAbsent || userId != null) {
+      map['user_id'] = Variable<String>(userId);
+    }
+    if (!nullToAbsent || recurringOccurrenceDate != null) {
+      map['recurring_occurrence_date'] = Variable<DateTime>(
+        recurringOccurrenceDate,
+      );
+    }
     return map;
   }
 
@@ -1350,6 +1496,12 @@ class RecurringTransaction extends DataClass
       categoryId: categoryId == null && nullToAbsent
           ? const Value.absent()
           : Value(categoryId),
+      userId: userId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(userId),
+      recurringOccurrenceDate: recurringOccurrenceDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(recurringOccurrenceDate),
     );
   }
 
@@ -1379,6 +1531,10 @@ class RecurringTransaction extends DataClass
       intervalAmount: serializer.fromJson<int>(json['intervalAmount']),
       startDate: serializer.fromJson<DateTime>(json['startDate']),
       categoryId: serializer.fromJson<String?>(json['categoryId']),
+      userId: serializer.fromJson<String?>(json['userId']),
+      recurringOccurrenceDate: serializer.fromJson<DateTime?>(
+        json['recurringOccurrenceDate'],
+      ),
     );
   }
   @override
@@ -1403,6 +1559,10 @@ class RecurringTransaction extends DataClass
       'intervalAmount': serializer.toJson<int>(intervalAmount),
       'startDate': serializer.toJson<DateTime>(startDate),
       'categoryId': serializer.toJson<String?>(categoryId),
+      'userId': serializer.toJson<String?>(userId),
+      'recurringOccurrenceDate': serializer.toJson<DateTime?>(
+        recurringOccurrenceDate,
+      ),
     };
   }
 
@@ -1421,6 +1581,8 @@ class RecurringTransaction extends DataClass
     int? intervalAmount,
     DateTime? startDate,
     Value<String?> categoryId = const Value.absent(),
+    Value<String?> userId = const Value.absent(),
+    Value<DateTime?> recurringOccurrenceDate = const Value.absent(),
   }) => RecurringTransaction(
     id: id ?? this.id,
     amount: amount ?? this.amount,
@@ -1438,6 +1600,10 @@ class RecurringTransaction extends DataClass
     intervalAmount: intervalAmount ?? this.intervalAmount,
     startDate: startDate ?? this.startDate,
     categoryId: categoryId.present ? categoryId.value : this.categoryId,
+    userId: userId.present ? userId.value : this.userId,
+    recurringOccurrenceDate: recurringOccurrenceDate.present
+        ? recurringOccurrenceDate.value
+        : this.recurringOccurrenceDate,
   );
   RecurringTransaction copyWithCompanion(RecurringTransactionsCompanion data) {
     return RecurringTransaction(
@@ -1465,6 +1631,10 @@ class RecurringTransaction extends DataClass
       categoryId: data.categoryId.present
           ? data.categoryId.value
           : this.categoryId,
+      userId: data.userId.present ? data.userId.value : this.userId,
+      recurringOccurrenceDate: data.recurringOccurrenceDate.present
+          ? data.recurringOccurrenceDate.value
+          : this.recurringOccurrenceDate,
     );
   }
 
@@ -1484,7 +1654,9 @@ class RecurringTransaction extends DataClass
           ..write('unit: $unit, ')
           ..write('intervalAmount: $intervalAmount, ')
           ..write('startDate: $startDate, ')
-          ..write('categoryId: $categoryId')
+          ..write('categoryId: $categoryId, ')
+          ..write('userId: $userId, ')
+          ..write('recurringOccurrenceDate: $recurringOccurrenceDate')
           ..write(')'))
         .toString();
   }
@@ -1505,6 +1677,8 @@ class RecurringTransaction extends DataClass
     intervalAmount,
     startDate,
     categoryId,
+    userId,
+    recurringOccurrenceDate,
   );
   @override
   bool operator ==(Object other) =>
@@ -1523,7 +1697,9 @@ class RecurringTransaction extends DataClass
           other.unit == this.unit &&
           other.intervalAmount == this.intervalAmount &&
           other.startDate == this.startDate &&
-          other.categoryId == this.categoryId);
+          other.categoryId == this.categoryId &&
+          other.userId == this.userId &&
+          other.recurringOccurrenceDate == this.recurringOccurrenceDate);
 }
 
 class RecurringTransactionsCompanion
@@ -1542,6 +1718,8 @@ class RecurringTransactionsCompanion
   final Value<int> intervalAmount;
   final Value<DateTime> startDate;
   final Value<String?> categoryId;
+  final Value<String?> userId;
+  final Value<DateTime?> recurringOccurrenceDate;
   final Value<int> rowid;
   const RecurringTransactionsCompanion({
     this.id = const Value.absent(),
@@ -1558,6 +1736,8 @@ class RecurringTransactionsCompanion
     this.intervalAmount = const Value.absent(),
     this.startDate = const Value.absent(),
     this.categoryId = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.recurringOccurrenceDate = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   RecurringTransactionsCompanion.insert({
@@ -1575,6 +1755,8 @@ class RecurringTransactionsCompanion
     required int intervalAmount,
     required DateTime startDate,
     this.categoryId = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.recurringOccurrenceDate = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        amount = Value(amount),
@@ -1601,6 +1783,8 @@ class RecurringTransactionsCompanion
     Expression<int>? intervalAmount,
     Expression<DateTime>? startDate,
     Expression<String>? categoryId,
+    Expression<String>? userId,
+    Expression<DateTime>? recurringOccurrenceDate,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1619,6 +1803,9 @@ class RecurringTransactionsCompanion
       if (intervalAmount != null) 'interval_amount': intervalAmount,
       if (startDate != null) 'start_date': startDate,
       if (categoryId != null) 'category_id': categoryId,
+      if (userId != null) 'user_id': userId,
+      if (recurringOccurrenceDate != null)
+        'recurring_occurrence_date': recurringOccurrenceDate,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1638,6 +1825,8 @@ class RecurringTransactionsCompanion
     Value<int>? intervalAmount,
     Value<DateTime>? startDate,
     Value<String?>? categoryId,
+    Value<String?>? userId,
+    Value<DateTime?>? recurringOccurrenceDate,
     Value<int>? rowid,
   }) {
     return RecurringTransactionsCompanion(
@@ -1655,6 +1844,9 @@ class RecurringTransactionsCompanion
       intervalAmount: intervalAmount ?? this.intervalAmount,
       startDate: startDate ?? this.startDate,
       categoryId: categoryId ?? this.categoryId,
+      userId: userId ?? this.userId,
+      recurringOccurrenceDate:
+          recurringOccurrenceDate ?? this.recurringOccurrenceDate,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1712,6 +1904,14 @@ class RecurringTransactionsCompanion
     if (categoryId.present) {
       map['category_id'] = Variable<String>(categoryId.value);
     }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (recurringOccurrenceDate.present) {
+      map['recurring_occurrence_date'] = Variable<DateTime>(
+        recurringOccurrenceDate.value,
+      );
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1735,6 +1935,590 @@ class RecurringTransactionsCompanion
           ..write('intervalAmount: $intervalAmount, ')
           ..write('startDate: $startDate, ')
           ..write('categoryId: $categoryId, ')
+          ..write('userId: $userId, ')
+          ..write('recurringOccurrenceDate: $recurringOccurrenceDate, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ImportsTable extends Imports with TableInfo<$ImportsTable, Import> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ImportsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _useridMeta = const VerificationMeta('userid');
+  @override
+  late final GeneratedColumn<String> userid = GeneratedColumn<String>(
+    'userid',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _fileSha256Meta = const VerificationMeta(
+    'fileSha256',
+  );
+  @override
+  late final GeneratedColumn<String> fileSha256 = GeneratedColumn<String>(
+    'file_sha256',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _originalFileNameMeta = const VerificationMeta(
+    'originalFileName',
+  );
+  @override
+  late final GeneratedColumn<String> originalFileName = GeneratedColumn<String>(
+    'original_file_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<ImportFileType, String> fileType =
+      GeneratedColumn<String>(
+        'file_type',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<ImportFileType>($ImportsTable.$converterfileType);
+  static const VerificationMeta _accountIdentifierMeta = const VerificationMeta(
+    'accountIdentifier',
+  );
+  @override
+  late final GeneratedColumn<String> accountIdentifier =
+      GeneratedColumn<String>(
+        'account_identifier',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    userid,
+    fileSha256,
+    originalFileName,
+    fileType,
+    accountIdentifier,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'imports';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Import> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('userid')) {
+      context.handle(
+        _useridMeta,
+        userid.isAcceptableOrUnknown(data['userid']!, _useridMeta),
+      );
+    }
+    if (data.containsKey('file_sha256')) {
+      context.handle(
+        _fileSha256Meta,
+        fileSha256.isAcceptableOrUnknown(data['file_sha256']!, _fileSha256Meta),
+      );
+    } else if (isInserting) {
+      context.missing(_fileSha256Meta);
+    }
+    if (data.containsKey('original_file_name')) {
+      context.handle(
+        _originalFileNameMeta,
+        originalFileName.isAcceptableOrUnknown(
+          data['original_file_name']!,
+          _originalFileNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_originalFileNameMeta);
+    }
+    if (data.containsKey('account_identifier')) {
+      context.handle(
+        _accountIdentifierMeta,
+        accountIdentifier.isAcceptableOrUnknown(
+          data['account_identifier']!,
+          _accountIdentifierMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Import map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Import(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      userid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}userid'],
+      ),
+      fileSha256: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}file_sha256'],
+      )!,
+      originalFileName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}original_file_name'],
+      )!,
+      fileType: $ImportsTable.$converterfileType.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}file_type'],
+        )!,
+      ),
+      accountIdentifier: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}account_identifier'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
+    );
+  }
+
+  @override
+  $ImportsTable createAlias(String alias) {
+    return $ImportsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<ImportFileType, String, String> $converterfileType =
+      const EnumNameConverter<ImportFileType>(ImportFileType.values);
+}
+
+class Import extends DataClass implements Insertable<Import> {
+  final String id;
+  final String? userid;
+  final String fileSha256;
+  final String originalFileName;
+  final ImportFileType fileType;
+  final String? accountIdentifier;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const Import({
+    required this.id,
+    this.userid,
+    required this.fileSha256,
+    required this.originalFileName,
+    required this.fileType,
+    this.accountIdentifier,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    if (!nullToAbsent || userid != null) {
+      map['userid'] = Variable<String>(userid);
+    }
+    map['file_sha256'] = Variable<String>(fileSha256);
+    map['original_file_name'] = Variable<String>(originalFileName);
+    {
+      map['file_type'] = Variable<String>(
+        $ImportsTable.$converterfileType.toSql(fileType),
+      );
+    }
+    if (!nullToAbsent || accountIdentifier != null) {
+      map['account_identifier'] = Variable<String>(accountIdentifier);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  ImportsCompanion toCompanion(bool nullToAbsent) {
+    return ImportsCompanion(
+      id: Value(id),
+      userid: userid == null && nullToAbsent
+          ? const Value.absent()
+          : Value(userid),
+      fileSha256: Value(fileSha256),
+      originalFileName: Value(originalFileName),
+      fileType: Value(fileType),
+      accountIdentifier: accountIdentifier == null && nullToAbsent
+          ? const Value.absent()
+          : Value(accountIdentifier),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory Import.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Import(
+      id: serializer.fromJson<String>(json['id']),
+      userid: serializer.fromJson<String?>(json['userid']),
+      fileSha256: serializer.fromJson<String>(json['fileSha256']),
+      originalFileName: serializer.fromJson<String>(json['originalFileName']),
+      fileType: $ImportsTable.$converterfileType.fromJson(
+        serializer.fromJson<String>(json['fileType']),
+      ),
+      accountIdentifier: serializer.fromJson<String?>(
+        json['accountIdentifier'],
+      ),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'userid': serializer.toJson<String?>(userid),
+      'fileSha256': serializer.toJson<String>(fileSha256),
+      'originalFileName': serializer.toJson<String>(originalFileName),
+      'fileType': serializer.toJson<String>(
+        $ImportsTable.$converterfileType.toJson(fileType),
+      ),
+      'accountIdentifier': serializer.toJson<String?>(accountIdentifier),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  Import copyWith({
+    String? id,
+    Value<String?> userid = const Value.absent(),
+    String? fileSha256,
+    String? originalFileName,
+    ImportFileType? fileType,
+    Value<String?> accountIdentifier = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+  }) => Import(
+    id: id ?? this.id,
+    userid: userid.present ? userid.value : this.userid,
+    fileSha256: fileSha256 ?? this.fileSha256,
+    originalFileName: originalFileName ?? this.originalFileName,
+    fileType: fileType ?? this.fileType,
+    accountIdentifier: accountIdentifier.present
+        ? accountIdentifier.value
+        : this.accountIdentifier,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+  );
+  Import copyWithCompanion(ImportsCompanion data) {
+    return Import(
+      id: data.id.present ? data.id.value : this.id,
+      userid: data.userid.present ? data.userid.value : this.userid,
+      fileSha256: data.fileSha256.present
+          ? data.fileSha256.value
+          : this.fileSha256,
+      originalFileName: data.originalFileName.present
+          ? data.originalFileName.value
+          : this.originalFileName,
+      fileType: data.fileType.present ? data.fileType.value : this.fileType,
+      accountIdentifier: data.accountIdentifier.present
+          ? data.accountIdentifier.value
+          : this.accountIdentifier,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Import(')
+          ..write('id: $id, ')
+          ..write('userid: $userid, ')
+          ..write('fileSha256: $fileSha256, ')
+          ..write('originalFileName: $originalFileName, ')
+          ..write('fileType: $fileType, ')
+          ..write('accountIdentifier: $accountIdentifier, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    userid,
+    fileSha256,
+    originalFileName,
+    fileType,
+    accountIdentifier,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Import &&
+          other.id == this.id &&
+          other.userid == this.userid &&
+          other.fileSha256 == this.fileSha256 &&
+          other.originalFileName == this.originalFileName &&
+          other.fileType == this.fileType &&
+          other.accountIdentifier == this.accountIdentifier &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class ImportsCompanion extends UpdateCompanion<Import> {
+  final Value<String> id;
+  final Value<String?> userid;
+  final Value<String> fileSha256;
+  final Value<String> originalFileName;
+  final Value<ImportFileType> fileType;
+  final Value<String?> accountIdentifier;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const ImportsCompanion({
+    this.id = const Value.absent(),
+    this.userid = const Value.absent(),
+    this.fileSha256 = const Value.absent(),
+    this.originalFileName = const Value.absent(),
+    this.fileType = const Value.absent(),
+    this.accountIdentifier = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ImportsCompanion.insert({
+    required String id,
+    this.userid = const Value.absent(),
+    required String fileSha256,
+    required String originalFileName,
+    required ImportFileType fileType,
+    this.accountIdentifier = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       fileSha256 = Value(fileSha256),
+       originalFileName = Value(originalFileName),
+       fileType = Value(fileType),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<Import> custom({
+    Expression<String>? id,
+    Expression<String>? userid,
+    Expression<String>? fileSha256,
+    Expression<String>? originalFileName,
+    Expression<String>? fileType,
+    Expression<String>? accountIdentifier,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (userid != null) 'userid': userid,
+      if (fileSha256 != null) 'file_sha256': fileSha256,
+      if (originalFileName != null) 'original_file_name': originalFileName,
+      if (fileType != null) 'file_type': fileType,
+      if (accountIdentifier != null) 'account_identifier': accountIdentifier,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ImportsCompanion copyWith({
+    Value<String>? id,
+    Value<String?>? userid,
+    Value<String>? fileSha256,
+    Value<String>? originalFileName,
+    Value<ImportFileType>? fileType,
+    Value<String?>? accountIdentifier,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<int>? rowid,
+  }) {
+    return ImportsCompanion(
+      id: id ?? this.id,
+      userid: userid ?? this.userid,
+      fileSha256: fileSha256 ?? this.fileSha256,
+      originalFileName: originalFileName ?? this.originalFileName,
+      fileType: fileType ?? this.fileType,
+      accountIdentifier: accountIdentifier ?? this.accountIdentifier,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (userid.present) {
+      map['userid'] = Variable<String>(userid.value);
+    }
+    if (fileSha256.present) {
+      map['file_sha256'] = Variable<String>(fileSha256.value);
+    }
+    if (originalFileName.present) {
+      map['original_file_name'] = Variable<String>(originalFileName.value);
+    }
+    if (fileType.present) {
+      map['file_type'] = Variable<String>(
+        $ImportsTable.$converterfileType.toSql(fileType.value),
+      );
+    }
+    if (accountIdentifier.present) {
+      map['account_identifier'] = Variable<String>(accountIdentifier.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ImportsCompanion(')
+          ..write('id: $id, ')
+          ..write('userid: $userid, ')
+          ..write('fileSha256: $fileSha256, ')
+          ..write('originalFileName: $originalFileName, ')
+          ..write('fileType: $fileType, ')
+          ..write('accountIdentifier: $accountIdentifier, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1876,6 +2660,29 @@ class $TransactionsTable extends Transactions
       'REFERENCES recurring_transactions (id)',
     ),
   );
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+    'user_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _importIdMeta = const VerificationMeta(
+    'importId',
+  );
+  @override
+  late final GeneratedColumn<String> importId = GeneratedColumn<String>(
+    'import_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES imports (id)',
+    ),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1890,6 +2697,8 @@ class $TransactionsTable extends Transactions
     source,
     currency,
     recurringId,
+    userId,
+    importId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1976,6 +2785,18 @@ class $TransactionsTable extends Transactions
         ),
       );
     }
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
+    }
+    if (data.containsKey('import_id')) {
+      context.handle(
+        _importIdMeta,
+        importId.isAcceptableOrUnknown(data['import_id']!, _importIdMeta),
+      );
+    }
     return context;
   }
 
@@ -2039,6 +2860,14 @@ class $TransactionsTable extends Transactions
         DriftSqlType.string,
         data['${effectivePrefix}recurring_id'],
       ),
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}user_id'],
+      ),
+      importId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}import_id'],
+      ),
     );
   }
 
@@ -2090,6 +2919,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   /// Currency code for the transaction (defaults to 'ZAR').
   final String currency;
   final String? recurringId;
+  final String? userId;
+  final String? importId;
   const Transaction({
     required this.id,
     required this.amount,
@@ -2103,6 +2934,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     required this.source,
     required this.currency,
     this.recurringId,
+    this.userId,
+    this.importId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2137,6 +2970,12 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     if (!nullToAbsent || recurringId != null) {
       map['recurring_id'] = Variable<String>(recurringId);
     }
+    if (!nullToAbsent || userId != null) {
+      map['user_id'] = Variable<String>(userId);
+    }
+    if (!nullToAbsent || importId != null) {
+      map['import_id'] = Variable<String>(importId);
+    }
     return map;
   }
 
@@ -2160,6 +2999,12 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       recurringId: recurringId == null && nullToAbsent
           ? const Value.absent()
           : Value(recurringId),
+      userId: userId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(userId),
+      importId: importId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(importId),
     );
   }
 
@@ -2185,6 +3030,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       ),
       currency: serializer.fromJson<String>(json['currency']),
       recurringId: serializer.fromJson<String?>(json['recurringId']),
+      userId: serializer.fromJson<String?>(json['userId']),
+      importId: serializer.fromJson<String?>(json['importId']),
     );
   }
   @override
@@ -2207,6 +3054,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       ),
       'currency': serializer.toJson<String>(currency),
       'recurringId': serializer.toJson<String?>(recurringId),
+      'userId': serializer.toJson<String?>(userId),
+      'importId': serializer.toJson<String?>(importId),
     };
   }
 
@@ -2223,6 +3072,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     TransactionSource? source,
     String? currency,
     Value<String?> recurringId = const Value.absent(),
+    Value<String?> userId = const Value.absent(),
+    Value<String?> importId = const Value.absent(),
   }) => Transaction(
     id: id ?? this.id,
     amount: amount ?? this.amount,
@@ -2238,6 +3089,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     source: source ?? this.source,
     currency: currency ?? this.currency,
     recurringId: recurringId.present ? recurringId.value : this.recurringId,
+    userId: userId.present ? userId.value : this.userId,
+    importId: importId.present ? importId.value : this.importId,
   );
   Transaction copyWithCompanion(TransactionsCompanion data) {
     return Transaction(
@@ -2261,6 +3114,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       recurringId: data.recurringId.present
           ? data.recurringId.value
           : this.recurringId,
+      userId: data.userId.present ? data.userId.value : this.userId,
+      importId: data.importId.present ? data.importId.value : this.importId,
     );
   }
 
@@ -2278,7 +3133,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           ..write('deletedAt: $deletedAt, ')
           ..write('source: $source, ')
           ..write('currency: $currency, ')
-          ..write('recurringId: $recurringId')
+          ..write('recurringId: $recurringId, ')
+          ..write('userId: $userId, ')
+          ..write('importId: $importId')
           ..write(')'))
         .toString();
   }
@@ -2297,6 +3154,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     source,
     currency,
     recurringId,
+    userId,
+    importId,
   );
   @override
   bool operator ==(Object other) =>
@@ -2313,7 +3172,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           other.deletedAt == this.deletedAt &&
           other.source == this.source &&
           other.currency == this.currency &&
-          other.recurringId == this.recurringId);
+          other.recurringId == this.recurringId &&
+          other.userId == this.userId &&
+          other.importId == this.importId);
 }
 
 class TransactionsCompanion extends UpdateCompanion<Transaction> {
@@ -2329,6 +3190,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   final Value<TransactionSource> source;
   final Value<String> currency;
   final Value<String?> recurringId;
+  final Value<String?> userId;
+  final Value<String?> importId;
   final Value<int> rowid;
   const TransactionsCompanion({
     this.id = const Value.absent(),
@@ -2343,6 +3206,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.source = const Value.absent(),
     this.currency = const Value.absent(),
     this.recurringId = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.importId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   TransactionsCompanion.insert({
@@ -2358,6 +3223,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     required TransactionSource source,
     this.currency = const Value.absent(),
     this.recurringId = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.importId = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        amount = Value(amount),
@@ -2380,6 +3247,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Expression<String>? source,
     Expression<String>? currency,
     Expression<String>? recurringId,
+    Expression<String>? userId,
+    Expression<String>? importId,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2395,6 +3264,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       if (source != null) 'source': source,
       if (currency != null) 'currency': currency,
       if (recurringId != null) 'recurring_id': recurringId,
+      if (userId != null) 'user_id': userId,
+      if (importId != null) 'import_id': importId,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2412,6 +3283,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Value<TransactionSource>? source,
     Value<String>? currency,
     Value<String?>? recurringId,
+    Value<String?>? userId,
+    Value<String?>? importId,
     Value<int>? rowid,
   }) {
     return TransactionsCompanion(
@@ -2427,6 +3300,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       source: source ?? this.source,
       currency: currency ?? this.currency,
       recurringId: recurringId ?? this.recurringId,
+      userId: userId ?? this.userId,
+      importId: importId ?? this.importId,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2476,6 +3351,12 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     if (recurringId.present) {
       map['recurring_id'] = Variable<String>(recurringId.value);
     }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (importId.present) {
+      map['import_id'] = Variable<String>(importId.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2497,6 +3378,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
           ..write('source: $source, ')
           ..write('currency: $currency, ')
           ..write('recurringId: $recurringId, ')
+          ..write('userId: $userId, ')
+          ..write('importId: $importId, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2509,6 +3392,15 @@ class $TransactionCategoryMapTable extends TransactionCategoryMap
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $TransactionCategoryMapTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
   static const VerificationMeta _transactionIdMeta = const VerificationMeta(
     'transactionId',
   );
@@ -2548,6 +3440,28 @@ class $TransactionCategoryMapTable extends TransactionCategoryMap
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   @override
   late final GeneratedColumnWithTypeConverter<AssignmentSource, String>
   assignmentSource =
@@ -2562,9 +3476,12 @@ class $TransactionCategoryMapTable extends TransactionCategoryMap
       );
   @override
   List<GeneratedColumn> get $columns => [
+    id,
     transactionId,
     categoryId,
     assignedAt,
+    updatedAt,
+    deletedAt,
     assignmentSource,
   ];
   @override
@@ -2579,6 +3496,11 @@ class $TransactionCategoryMapTable extends TransactionCategoryMap
   }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
     if (data.containsKey('transaction_id')) {
       context.handle(
         _transactionIdMeta,
@@ -2606,6 +3528,20 @@ class $TransactionCategoryMapTable extends TransactionCategoryMap
     } else if (isInserting) {
       context.missing(_assignedAtMeta);
     }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
     return context;
   }
 
@@ -2618,6 +3554,10 @@ class $TransactionCategoryMapTable extends TransactionCategoryMap
   }) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return TransactionCategoryMapData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
       transactionId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}transaction_id'],
@@ -2630,6 +3570,14 @@ class $TransactionCategoryMapTable extends TransactionCategoryMap
         DriftSqlType.dateTime,
         data['${effectivePrefix}assigned_at'],
       )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
       assignmentSource: $TransactionCategoryMapTable.$converterassignmentSource
           .fromSql(
             attachedDatabase.typeMapping.read(
@@ -2653,6 +3601,8 @@ class $TransactionCategoryMapTable extends TransactionCategoryMap
 
 class TransactionCategoryMapData extends DataClass
     implements Insertable<TransactionCategoryMapData> {
+  final String id;
+
   /// The transaction this category is assigned to.
   final String transactionId;
 
@@ -2661,21 +3611,31 @@ class TransactionCategoryMapData extends DataClass
 
   /// When the assignment was made.
   final DateTime assignedAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
 
   /// How the assignment was determined (manual, AI, import).
   final AssignmentSource assignmentSource;
   const TransactionCategoryMapData({
+    required this.id,
     required this.transactionId,
     required this.categoryId,
     required this.assignedAt,
+    required this.updatedAt,
+    this.deletedAt,
     required this.assignmentSource,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
     map['transaction_id'] = Variable<String>(transactionId);
     map['category_id'] = Variable<String>(categoryId);
     map['assigned_at'] = Variable<DateTime>(assignedAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
     {
       map['assignment_source'] = Variable<String>(
         $TransactionCategoryMapTable.$converterassignmentSource.toSql(
@@ -2688,9 +3648,14 @@ class TransactionCategoryMapData extends DataClass
 
   TransactionCategoryMapCompanion toCompanion(bool nullToAbsent) {
     return TransactionCategoryMapCompanion(
+      id: Value(id),
       transactionId: Value(transactionId),
       categoryId: Value(categoryId),
       assignedAt: Value(assignedAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
       assignmentSource: Value(assignmentSource),
     );
   }
@@ -2701,9 +3666,12 @@ class TransactionCategoryMapData extends DataClass
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return TransactionCategoryMapData(
+      id: serializer.fromJson<String>(json['id']),
       transactionId: serializer.fromJson<String>(json['transactionId']),
       categoryId: serializer.fromJson<String>(json['categoryId']),
       assignedAt: serializer.fromJson<DateTime>(json['assignedAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
       assignmentSource: $TransactionCategoryMapTable.$converterassignmentSource
           .fromJson(serializer.fromJson<String>(json['assignmentSource'])),
     );
@@ -2712,9 +3680,12 @@ class TransactionCategoryMapData extends DataClass
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
       'transactionId': serializer.toJson<String>(transactionId),
       'categoryId': serializer.toJson<String>(categoryId),
       'assignedAt': serializer.toJson<DateTime>(assignedAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
       'assignmentSource': serializer.toJson<String>(
         $TransactionCategoryMapTable.$converterassignmentSource.toJson(
           assignmentSource,
@@ -2724,20 +3695,27 @@ class TransactionCategoryMapData extends DataClass
   }
 
   TransactionCategoryMapData copyWith({
+    String? id,
     String? transactionId,
     String? categoryId,
     DateTime? assignedAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
     AssignmentSource? assignmentSource,
   }) => TransactionCategoryMapData(
+    id: id ?? this.id,
     transactionId: transactionId ?? this.transactionId,
     categoryId: categoryId ?? this.categoryId,
     assignedAt: assignedAt ?? this.assignedAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
     assignmentSource: assignmentSource ?? this.assignmentSource,
   );
   TransactionCategoryMapData copyWithCompanion(
     TransactionCategoryMapCompanion data,
   ) {
     return TransactionCategoryMapData(
+      id: data.id.present ? data.id.value : this.id,
       transactionId: data.transactionId.present
           ? data.transactionId.value
           : this.transactionId,
@@ -2747,6 +3725,8 @@ class TransactionCategoryMapData extends DataClass
       assignedAt: data.assignedAt.present
           ? data.assignedAt.value
           : this.assignedAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
       assignmentSource: data.assignmentSource.present
           ? data.assignmentSource.value
           : this.assignmentSource,
@@ -2756,78 +3736,114 @@ class TransactionCategoryMapData extends DataClass
   @override
   String toString() {
     return (StringBuffer('TransactionCategoryMapData(')
+          ..write('id: $id, ')
           ..write('transactionId: $transactionId, ')
           ..write('categoryId: $categoryId, ')
           ..write('assignedAt: $assignedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('assignmentSource: $assignmentSource')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(transactionId, categoryId, assignedAt, assignmentSource);
+  int get hashCode => Object.hash(
+    id,
+    transactionId,
+    categoryId,
+    assignedAt,
+    updatedAt,
+    deletedAt,
+    assignmentSource,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is TransactionCategoryMapData &&
+          other.id == this.id &&
           other.transactionId == this.transactionId &&
           other.categoryId == this.categoryId &&
           other.assignedAt == this.assignedAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
           other.assignmentSource == this.assignmentSource);
 }
 
 class TransactionCategoryMapCompanion
     extends UpdateCompanion<TransactionCategoryMapData> {
+  final Value<String> id;
   final Value<String> transactionId;
   final Value<String> categoryId;
   final Value<DateTime> assignedAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
   final Value<AssignmentSource> assignmentSource;
   final Value<int> rowid;
   const TransactionCategoryMapCompanion({
+    this.id = const Value.absent(),
     this.transactionId = const Value.absent(),
     this.categoryId = const Value.absent(),
     this.assignedAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
     this.assignmentSource = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   TransactionCategoryMapCompanion.insert({
+    required String id,
     required String transactionId,
     required String categoryId,
     required DateTime assignedAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
     required AssignmentSource assignmentSource,
     this.rowid = const Value.absent(),
-  }) : transactionId = Value(transactionId),
+  }) : id = Value(id),
+       transactionId = Value(transactionId),
        categoryId = Value(categoryId),
        assignedAt = Value(assignedAt),
+       updatedAt = Value(updatedAt),
        assignmentSource = Value(assignmentSource);
   static Insertable<TransactionCategoryMapData> custom({
+    Expression<String>? id,
     Expression<String>? transactionId,
     Expression<String>? categoryId,
     Expression<DateTime>? assignedAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
     Expression<String>? assignmentSource,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
+      if (id != null) 'id': id,
       if (transactionId != null) 'transaction_id': transactionId,
       if (categoryId != null) 'category_id': categoryId,
       if (assignedAt != null) 'assigned_at': assignedAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
       if (assignmentSource != null) 'assignment_source': assignmentSource,
       if (rowid != null) 'rowid': rowid,
     });
   }
 
   TransactionCategoryMapCompanion copyWith({
+    Value<String>? id,
     Value<String>? transactionId,
     Value<String>? categoryId,
     Value<DateTime>? assignedAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
     Value<AssignmentSource>? assignmentSource,
     Value<int>? rowid,
   }) {
     return TransactionCategoryMapCompanion(
+      id: id ?? this.id,
       transactionId: transactionId ?? this.transactionId,
       categoryId: categoryId ?? this.categoryId,
       assignedAt: assignedAt ?? this.assignedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
       assignmentSource: assignmentSource ?? this.assignmentSource,
       rowid: rowid ?? this.rowid,
     );
@@ -2836,6 +3852,9 @@ class TransactionCategoryMapCompanion
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
     if (transactionId.present) {
       map['transaction_id'] = Variable<String>(transactionId.value);
     }
@@ -2844,6 +3863,12 @@ class TransactionCategoryMapCompanion
     }
     if (assignedAt.present) {
       map['assigned_at'] = Variable<DateTime>(assignedAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
     }
     if (assignmentSource.present) {
       map['assignment_source'] = Variable<String>(
@@ -2861,9 +3886,12 @@ class TransactionCategoryMapCompanion
   @override
   String toString() {
     return (StringBuffer('TransactionCategoryMapCompanion(')
+          ..write('id: $id, ')
           ..write('transactionId: $transactionId, ')
           ..write('categoryId: $categoryId, ')
           ..write('assignedAt: $assignedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('assignmentSource: $assignmentSource, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -2893,9 +3921,9 @@ class $BudgetTemplatesTable extends BudgetTemplates
   late final GeneratedColumn<String> categoryId = GeneratedColumn<String>(
     'category_id',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.string,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
       'REFERENCES categories (id)',
     ),
@@ -2963,6 +3991,15 @@ class $BudgetTemplatesTable extends BudgetTemplates
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+    'user_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -2973,6 +4010,7 @@ class $BudgetTemplatesTable extends BudgetTemplates
     createdAt,
     updatedAt,
     deletedAt,
+    userId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2996,8 +4034,6 @@ class $BudgetTemplatesTable extends BudgetTemplates
         _categoryIdMeta,
         categoryId.isAcceptableOrUnknown(data['category_id']!, _categoryIdMeta),
       );
-    } else if (isInserting) {
-      context.missing(_categoryIdMeta);
     }
     if (data.containsKey('currency')) {
       context.handle(
@@ -3027,6 +4063,12 @@ class $BudgetTemplatesTable extends BudgetTemplates
         deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
       );
     }
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
+    }
     return context;
   }
 
@@ -3043,7 +4085,7 @@ class $BudgetTemplatesTable extends BudgetTemplates
       categoryId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}category_id'],
-      )!,
+      ),
       amount: $BudgetTemplatesTable.$converteramount.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
@@ -3072,6 +4114,10 @@ class $BudgetTemplatesTable extends BudgetTemplates
         DriftSqlType.dateTime,
         data['${effectivePrefix}deleted_at'],
       ),
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}user_id'],
+      ),
     );
   }
 
@@ -3090,7 +4136,7 @@ class BudgetTemplate extends DataClass implements Insertable<BudgetTemplate> {
   final String id;
 
   /// The category this budget applies to.
-  final String categoryId;
+  final String? categoryId;
 
   /// The budget amount per period.
   final Decimal amount;
@@ -3109,21 +4155,25 @@ class BudgetTemplate extends DataClass implements Insertable<BudgetTemplate> {
 
   /// When the template was soft-deleted (null if active).
   final DateTime? deletedAt;
+  final String? userId;
   const BudgetTemplate({
     required this.id,
-    required this.categoryId,
+    this.categoryId,
     required this.amount,
     required this.periodType,
     required this.currency,
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
+    this.userId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['category_id'] = Variable<String>(categoryId);
+    if (!nullToAbsent || categoryId != null) {
+      map['category_id'] = Variable<String>(categoryId);
+    }
     {
       map['amount'] = Variable<String>(
         $BudgetTemplatesTable.$converteramount.toSql(amount),
@@ -3140,13 +4190,18 @@ class BudgetTemplate extends DataClass implements Insertable<BudgetTemplate> {
     if (!nullToAbsent || deletedAt != null) {
       map['deleted_at'] = Variable<DateTime>(deletedAt);
     }
+    if (!nullToAbsent || userId != null) {
+      map['user_id'] = Variable<String>(userId);
+    }
     return map;
   }
 
   BudgetTemplatesCompanion toCompanion(bool nullToAbsent) {
     return BudgetTemplatesCompanion(
       id: Value(id),
-      categoryId: Value(categoryId),
+      categoryId: categoryId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(categoryId),
       amount: Value(amount),
       periodType: Value(periodType),
       currency: Value(currency),
@@ -3155,6 +4210,9 @@ class BudgetTemplate extends DataClass implements Insertable<BudgetTemplate> {
       deletedAt: deletedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(deletedAt),
+      userId: userId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(userId),
     );
   }
 
@@ -3165,7 +4223,7 @@ class BudgetTemplate extends DataClass implements Insertable<BudgetTemplate> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return BudgetTemplate(
       id: serializer.fromJson<String>(json['id']),
-      categoryId: serializer.fromJson<String>(json['categoryId']),
+      categoryId: serializer.fromJson<String?>(json['categoryId']),
       amount: serializer.fromJson<Decimal>(json['amount']),
       periodType: $BudgetTemplatesTable.$converterperiodType.fromJson(
         serializer.fromJson<String>(json['periodType']),
@@ -3174,6 +4232,7 @@ class BudgetTemplate extends DataClass implements Insertable<BudgetTemplate> {
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      userId: serializer.fromJson<String?>(json['userId']),
     );
   }
   @override
@@ -3181,7 +4240,7 @@ class BudgetTemplate extends DataClass implements Insertable<BudgetTemplate> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'categoryId': serializer.toJson<String>(categoryId),
+      'categoryId': serializer.toJson<String?>(categoryId),
       'amount': serializer.toJson<Decimal>(amount),
       'periodType': serializer.toJson<String>(
         $BudgetTemplatesTable.$converterperiodType.toJson(periodType),
@@ -3190,27 +4249,30 @@ class BudgetTemplate extends DataClass implements Insertable<BudgetTemplate> {
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'userId': serializer.toJson<String?>(userId),
     };
   }
 
   BudgetTemplate copyWith({
     String? id,
-    String? categoryId,
+    Value<String?> categoryId = const Value.absent(),
     Decimal? amount,
     PeriodType? periodType,
     String? currency,
     DateTime? createdAt,
     DateTime? updatedAt,
     Value<DateTime?> deletedAt = const Value.absent(),
+    Value<String?> userId = const Value.absent(),
   }) => BudgetTemplate(
     id: id ?? this.id,
-    categoryId: categoryId ?? this.categoryId,
+    categoryId: categoryId.present ? categoryId.value : this.categoryId,
     amount: amount ?? this.amount,
     periodType: periodType ?? this.periodType,
     currency: currency ?? this.currency,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    userId: userId.present ? userId.value : this.userId,
   );
   BudgetTemplate copyWithCompanion(BudgetTemplatesCompanion data) {
     return BudgetTemplate(
@@ -3226,6 +4288,7 @@ class BudgetTemplate extends DataClass implements Insertable<BudgetTemplate> {
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      userId: data.userId.present ? data.userId.value : this.userId,
     );
   }
 
@@ -3239,7 +4302,8 @@ class BudgetTemplate extends DataClass implements Insertable<BudgetTemplate> {
           ..write('currency: $currency, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('userId: $userId')
           ..write(')'))
         .toString();
   }
@@ -3254,6 +4318,7 @@ class BudgetTemplate extends DataClass implements Insertable<BudgetTemplate> {
     createdAt,
     updatedAt,
     deletedAt,
+    userId,
   );
   @override
   bool operator ==(Object other) =>
@@ -3266,18 +4331,20 @@ class BudgetTemplate extends DataClass implements Insertable<BudgetTemplate> {
           other.currency == this.currency &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
-          other.deletedAt == this.deletedAt);
+          other.deletedAt == this.deletedAt &&
+          other.userId == this.userId);
 }
 
 class BudgetTemplatesCompanion extends UpdateCompanion<BudgetTemplate> {
   final Value<String> id;
-  final Value<String> categoryId;
+  final Value<String?> categoryId;
   final Value<Decimal> amount;
   final Value<PeriodType> periodType;
   final Value<String> currency;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
+  final Value<String?> userId;
   final Value<int> rowid;
   const BudgetTemplatesCompanion({
     this.id = const Value.absent(),
@@ -3288,20 +4355,21 @@ class BudgetTemplatesCompanion extends UpdateCompanion<BudgetTemplate> {
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
+    this.userId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   BudgetTemplatesCompanion.insert({
     required String id,
-    required String categoryId,
+    this.categoryId = const Value.absent(),
     required Decimal amount,
     required PeriodType periodType,
     this.currency = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
+    this.userId = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
-       categoryId = Value(categoryId),
        amount = Value(amount),
        periodType = Value(periodType),
        createdAt = Value(createdAt),
@@ -3315,6 +4383,7 @@ class BudgetTemplatesCompanion extends UpdateCompanion<BudgetTemplate> {
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
+    Expression<String>? userId,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -3326,19 +4395,21 @@ class BudgetTemplatesCompanion extends UpdateCompanion<BudgetTemplate> {
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
+      if (userId != null) 'user_id': userId,
       if (rowid != null) 'rowid': rowid,
     });
   }
 
   BudgetTemplatesCompanion copyWith({
     Value<String>? id,
-    Value<String>? categoryId,
+    Value<String?>? categoryId,
     Value<Decimal>? amount,
     Value<PeriodType>? periodType,
     Value<String>? currency,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<DateTime?>? deletedAt,
+    Value<String?>? userId,
     Value<int>? rowid,
   }) {
     return BudgetTemplatesCompanion(
@@ -3350,6 +4421,7 @@ class BudgetTemplatesCompanion extends UpdateCompanion<BudgetTemplate> {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
+      userId: userId ?? this.userId,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -3385,6 +4457,9 @@ class BudgetTemplatesCompanion extends UpdateCompanion<BudgetTemplate> {
     if (deletedAt.present) {
       map['deleted_at'] = Variable<DateTime>(deletedAt.value);
     }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -3402,6 +4477,7 @@ class BudgetTemplatesCompanion extends UpdateCompanion<BudgetTemplate> {
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
+          ..write('userId: $userId, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -3504,6 +4580,17 @@ class $BudgetPeriodsTable extends BudgetPeriods
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -3514,6 +4601,7 @@ class $BudgetPeriodsTable extends BudgetPeriods
     isOverridden,
     createdAt,
     updatedAt,
+    deletedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3583,6 +4671,12 @@ class $BudgetPeriodsTable extends BudgetPeriods
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
     return context;
   }
 
@@ -3626,6 +4720,10 @@ class $BudgetPeriodsTable extends BudgetPeriods
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
     );
   }
 
@@ -3662,6 +4760,7 @@ class BudgetPeriod extends DataClass implements Insertable<BudgetPeriod> {
 
   /// When the period was last modified.
   final DateTime updatedAt;
+  final DateTime? deletedAt;
   const BudgetPeriod({
     required this.id,
     required this.templateId,
@@ -3671,6 +4770,7 @@ class BudgetPeriod extends DataClass implements Insertable<BudgetPeriod> {
     required this.isOverridden,
     required this.createdAt,
     required this.updatedAt,
+    this.deletedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -3687,6 +4787,9 @@ class BudgetPeriod extends DataClass implements Insertable<BudgetPeriod> {
     map['is_overridden'] = Variable<bool>(isOverridden);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
     return map;
   }
 
@@ -3700,6 +4803,9 @@ class BudgetPeriod extends DataClass implements Insertable<BudgetPeriod> {
       isOverridden: Value(isOverridden),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
     );
   }
 
@@ -3717,6 +4823,7 @@ class BudgetPeriod extends DataClass implements Insertable<BudgetPeriod> {
       isOverridden: serializer.fromJson<bool>(json['isOverridden']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
     );
   }
   @override
@@ -3731,6 +4838,7 @@ class BudgetPeriod extends DataClass implements Insertable<BudgetPeriod> {
       'isOverridden': serializer.toJson<bool>(isOverridden),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
     };
   }
 
@@ -3743,6 +4851,7 @@ class BudgetPeriod extends DataClass implements Insertable<BudgetPeriod> {
     bool? isOverridden,
     DateTime? createdAt,
     DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
   }) => BudgetPeriod(
     id: id ?? this.id,
     templateId: templateId ?? this.templateId,
@@ -3752,6 +4861,7 @@ class BudgetPeriod extends DataClass implements Insertable<BudgetPeriod> {
     isOverridden: isOverridden ?? this.isOverridden,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
   );
   BudgetPeriod copyWithCompanion(BudgetPeriodsCompanion data) {
     return BudgetPeriod(
@@ -3769,6 +4879,7 @@ class BudgetPeriod extends DataClass implements Insertable<BudgetPeriod> {
           : this.isOverridden,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
     );
   }
 
@@ -3782,7 +4893,8 @@ class BudgetPeriod extends DataClass implements Insertable<BudgetPeriod> {
           ..write('budgetedAmount: $budgetedAmount, ')
           ..write('isOverridden: $isOverridden, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
           ..write(')'))
         .toString();
   }
@@ -3797,6 +4909,7 @@ class BudgetPeriod extends DataClass implements Insertable<BudgetPeriod> {
     isOverridden,
     createdAt,
     updatedAt,
+    deletedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -3809,7 +4922,8 @@ class BudgetPeriod extends DataClass implements Insertable<BudgetPeriod> {
           other.budgetedAmount == this.budgetedAmount &&
           other.isOverridden == this.isOverridden &&
           other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
 }
 
 class BudgetPeriodsCompanion extends UpdateCompanion<BudgetPeriod> {
@@ -3821,6 +4935,7 @@ class BudgetPeriodsCompanion extends UpdateCompanion<BudgetPeriod> {
   final Value<bool> isOverridden;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
   final Value<int> rowid;
   const BudgetPeriodsCompanion({
     this.id = const Value.absent(),
@@ -3831,6 +4946,7 @@ class BudgetPeriodsCompanion extends UpdateCompanion<BudgetPeriod> {
     this.isOverridden = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   BudgetPeriodsCompanion.insert({
@@ -3842,6 +4958,7 @@ class BudgetPeriodsCompanion extends UpdateCompanion<BudgetPeriod> {
     required bool isOverridden,
     required DateTime createdAt,
     required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        templateId = Value(templateId),
@@ -3860,6 +4977,7 @@ class BudgetPeriodsCompanion extends UpdateCompanion<BudgetPeriod> {
     Expression<bool>? isOverridden,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -3871,6 +4989,7 @@ class BudgetPeriodsCompanion extends UpdateCompanion<BudgetPeriod> {
       if (isOverridden != null) 'is_overridden': isOverridden,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -3884,6 +5003,7 @@ class BudgetPeriodsCompanion extends UpdateCompanion<BudgetPeriod> {
     Value<bool>? isOverridden,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
     Value<int>? rowid,
   }) {
     return BudgetPeriodsCompanion(
@@ -3895,6 +5015,7 @@ class BudgetPeriodsCompanion extends UpdateCompanion<BudgetPeriod> {
       isOverridden: isOverridden ?? this.isOverridden,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -3930,6 +5051,9 @@ class BudgetPeriodsCompanion extends UpdateCompanion<BudgetPeriod> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -3947,6 +5071,7 @@ class BudgetPeriodsCompanion extends UpdateCompanion<BudgetPeriod> {
           ..write('isOverridden: $isOverridden, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -4229,6 +5354,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $RecurringTransactionsTable recurringTransactions =
       $RecurringTransactionsTable(this);
+  late final $ImportsTable imports = $ImportsTable(this);
   late final $TransactionsTable transactions = $TransactionsTable(this);
   late final $TransactionCategoryMapTable transactionCategoryMap =
       $TransactionCategoryMapTable(this);
@@ -4245,6 +5371,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     categories,
     categoryClosure,
     recurringTransactions,
+    imports,
     transactions,
     transactionCategoryMap,
     budgetTemplates,
@@ -4264,6 +5391,7 @@ typedef $$CategoriesTableCreateCompanionBuilder =
       required DateTime createdAt,
       required DateTime updatedAt,
       Value<DateTime?> deletedAt,
+      Value<String?> userId,
       Value<int> rowid,
     });
 typedef $$CategoriesTableUpdateCompanionBuilder =
@@ -4277,6 +5405,7 @@ typedef $$CategoriesTableUpdateCompanionBuilder =
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<DateTime?> deletedAt,
+      Value<String?> userId,
       Value<int> rowid,
     });
 
@@ -4407,6 +5536,11 @@ class $$CategoriesTableFilterComposer
 
   ColumnFilters<DateTime> get deletedAt => $composableBuilder(
     column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get userId => $composableBuilder(
+    column: $table.userId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4541,6 +5675,11 @@ class $$CategoriesTableOrderingComposer
     column: $table.deletedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$CategoriesTableAnnotationComposer
@@ -4578,6 +5717,9 @@ class $$CategoriesTableAnnotationComposer
 
   GeneratedColumn<DateTime> get deletedAt =>
       $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
 
   Expression<T> recurringTransactionsRefs<T extends Object>(
     Expression<T> Function($$RecurringTransactionsTableAnnotationComposer a) f,
@@ -4698,6 +5840,7 @@ class $$CategoriesTableTableManager
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<DateTime?> deletedAt = const Value.absent(),
+                Value<String?> userId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => CategoriesCompanion(
                 id: id,
@@ -4709,6 +5852,7 @@ class $$CategoriesTableTableManager
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
+                userId: userId,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -4722,6 +5866,7 @@ class $$CategoriesTableTableManager
                 required DateTime createdAt,
                 required DateTime updatedAt,
                 Value<DateTime?> deletedAt = const Value.absent(),
+                Value<String?> userId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => CategoriesCompanion.insert(
                 id: id,
@@ -4733,6 +5878,7 @@ class $$CategoriesTableTableManager
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
+                userId: userId,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -4850,6 +5996,7 @@ typedef $$CategoriesTableProcessedTableManager =
     >;
 typedef $$CategoryClosureTableCreateCompanionBuilder =
     CategoryClosureCompanion Function({
+      required String id,
       required String ancestorId,
       required String descendantId,
       required int depth,
@@ -4857,6 +6004,7 @@ typedef $$CategoryClosureTableCreateCompanionBuilder =
     });
 typedef $$CategoryClosureTableUpdateCompanionBuilder =
     CategoryClosureCompanion Function({
+      Value<String> id,
       Value<String> ancestorId,
       Value<String> descendantId,
       Value<int> depth,
@@ -4920,6 +6068,11 @@ class $$CategoryClosureTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<int> get depth => $composableBuilder(
     column: $table.depth,
     builder: (column) => ColumnFilters(column),
@@ -4981,6 +6134,11 @@ class $$CategoryClosureTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get depth => $composableBuilder(
     column: $table.depth,
     builder: (column) => ColumnOrderings(column),
@@ -5042,6 +6200,9 @@ class $$CategoryClosureTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
   GeneratedColumn<int> get depth =>
       $composableBuilder(column: $table.depth, builder: (column) => column);
 
@@ -5122,11 +6283,13 @@ class $$CategoryClosureTableTableManager
               $$CategoryClosureTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
+                Value<String> id = const Value.absent(),
                 Value<String> ancestorId = const Value.absent(),
                 Value<String> descendantId = const Value.absent(),
                 Value<int> depth = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => CategoryClosureCompanion(
+                id: id,
                 ancestorId: ancestorId,
                 descendantId: descendantId,
                 depth: depth,
@@ -5134,11 +6297,13 @@ class $$CategoryClosureTableTableManager
               ),
           createCompanionCallback:
               ({
+                required String id,
                 required String ancestorId,
                 required String descendantId,
                 required int depth,
                 Value<int> rowid = const Value.absent(),
               }) => CategoryClosureCompanion.insert(
+                id: id,
                 ancestorId: ancestorId,
                 descendantId: descendantId,
                 depth: depth,
@@ -5244,6 +6409,8 @@ typedef $$RecurringTransactionsTableCreateCompanionBuilder =
       required int intervalAmount,
       required DateTime startDate,
       Value<String?> categoryId,
+      Value<String?> userId,
+      Value<DateTime?> recurringOccurrenceDate,
       Value<int> rowid,
     });
 typedef $$RecurringTransactionsTableUpdateCompanionBuilder =
@@ -5262,6 +6429,8 @@ typedef $$RecurringTransactionsTableUpdateCompanionBuilder =
       Value<int> intervalAmount,
       Value<DateTime> startDate,
       Value<String?> categoryId,
+      Value<String?> userId,
+      Value<DateTime?> recurringOccurrenceDate,
       Value<int> rowid,
     });
 
@@ -5391,6 +6560,16 @@ class $$RecurringTransactionsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get recurringOccurrenceDate => $composableBuilder(
+    column: $table.recurringOccurrenceDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$CategoriesTableFilterComposer get categoryId {
     final $$CategoriesTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -5514,6 +6693,16 @@ class $$RecurringTransactionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get recurringOccurrenceDate => $composableBuilder(
+    column: $table.recurringOccurrenceDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$CategoriesTableOrderingComposer get categoryId {
     final $$CategoriesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -5593,6 +6782,14 @@ class $$RecurringTransactionsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get startDate =>
       $composableBuilder(column: $table.startDate, builder: (column) => column);
+
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get recurringOccurrenceDate => $composableBuilder(
+    column: $table.recurringOccurrenceDate,
+    builder: (column) => column,
+  );
 
   $$CategoriesTableAnnotationComposer get categoryId {
     final $$CategoriesTableAnnotationComposer composer = $composerBuilder(
@@ -5696,6 +6893,8 @@ class $$RecurringTransactionsTableTableManager
                 Value<int> intervalAmount = const Value.absent(),
                 Value<DateTime> startDate = const Value.absent(),
                 Value<String?> categoryId = const Value.absent(),
+                Value<String?> userId = const Value.absent(),
+                Value<DateTime?> recurringOccurrenceDate = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => RecurringTransactionsCompanion(
                 id: id,
@@ -5712,6 +6911,8 @@ class $$RecurringTransactionsTableTableManager
                 intervalAmount: intervalAmount,
                 startDate: startDate,
                 categoryId: categoryId,
+                userId: userId,
+                recurringOccurrenceDate: recurringOccurrenceDate,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -5730,6 +6931,8 @@ class $$RecurringTransactionsTableTableManager
                 required int intervalAmount,
                 required DateTime startDate,
                 Value<String?> categoryId = const Value.absent(),
+                Value<String?> userId = const Value.absent(),
+                Value<DateTime?> recurringOccurrenceDate = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => RecurringTransactionsCompanion.insert(
                 id: id,
@@ -5746,6 +6949,8 @@ class $$RecurringTransactionsTableTableManager
                 intervalAmount: intervalAmount,
                 startDate: startDate,
                 categoryId: categoryId,
+                userId: userId,
+                recurringOccurrenceDate: recurringOccurrenceDate,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -5843,6 +7048,389 @@ typedef $$RecurringTransactionsTableProcessedTableManager =
       RecurringTransaction,
       PrefetchHooks Function({bool categoryId, bool transactionsRefs})
     >;
+typedef $$ImportsTableCreateCompanionBuilder =
+    ImportsCompanion Function({
+      required String id,
+      Value<String?> userid,
+      required String fileSha256,
+      required String originalFileName,
+      required ImportFileType fileType,
+      Value<String?> accountIdentifier,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<int> rowid,
+    });
+typedef $$ImportsTableUpdateCompanionBuilder =
+    ImportsCompanion Function({
+      Value<String> id,
+      Value<String?> userid,
+      Value<String> fileSha256,
+      Value<String> originalFileName,
+      Value<ImportFileType> fileType,
+      Value<String?> accountIdentifier,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<int> rowid,
+    });
+
+final class $$ImportsTableReferences
+    extends BaseReferences<_$AppDatabase, $ImportsTable, Import> {
+  $$ImportsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$TransactionsTable, List<Transaction>>
+  _transactionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.transactions,
+    aliasName: 'imports__id__transactions__import_id',
+  );
+
+  $$TransactionsTableProcessedTableManager get transactionsRefs {
+    final manager = $$TransactionsTableTableManager(
+      $_db,
+      $_db.transactions,
+    ).filter((f) => f.importId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_transactionsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$ImportsTableFilterComposer
+    extends Composer<_$AppDatabase, $ImportsTable> {
+  $$ImportsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get userid => $composableBuilder(
+    column: $table.userid,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get fileSha256 => $composableBuilder(
+    column: $table.fileSha256,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get originalFileName => $composableBuilder(
+    column: $table.originalFileName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<ImportFileType, ImportFileType, String>
+  get fileType => $composableBuilder(
+    column: $table.fileType,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get accountIdentifier => $composableBuilder(
+    column: $table.accountIdentifier,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> transactionsRefs(
+    Expression<bool> Function($$TransactionsTableFilterComposer f) f,
+  ) {
+    final $$TransactionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.transactions,
+      getReferencedColumn: (t) => t.importId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TransactionsTableFilterComposer(
+            $db: $db,
+            $table: $db.transactions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$ImportsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ImportsTable> {
+  $$ImportsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get userid => $composableBuilder(
+    column: $table.userid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get fileSha256 => $composableBuilder(
+    column: $table.fileSha256,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get originalFileName => $composableBuilder(
+    column: $table.originalFileName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get fileType => $composableBuilder(
+    column: $table.fileType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get accountIdentifier => $composableBuilder(
+    column: $table.accountIdentifier,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ImportsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ImportsTable> {
+  $$ImportsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get userid =>
+      $composableBuilder(column: $table.userid, builder: (column) => column);
+
+  GeneratedColumn<String> get fileSha256 => $composableBuilder(
+    column: $table.fileSha256,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get originalFileName => $composableBuilder(
+    column: $table.originalFileName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<ImportFileType, String> get fileType =>
+      $composableBuilder(column: $table.fileType, builder: (column) => column);
+
+  GeneratedColumn<String> get accountIdentifier => $composableBuilder(
+    column: $table.accountIdentifier,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  Expression<T> transactionsRefs<T extends Object>(
+    Expression<T> Function($$TransactionsTableAnnotationComposer a) f,
+  ) {
+    final $$TransactionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.transactions,
+      getReferencedColumn: (t) => t.importId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TransactionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.transactions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$ImportsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ImportsTable,
+          Import,
+          $$ImportsTableFilterComposer,
+          $$ImportsTableOrderingComposer,
+          $$ImportsTableAnnotationComposer,
+          $$ImportsTableCreateCompanionBuilder,
+          $$ImportsTableUpdateCompanionBuilder,
+          (Import, $$ImportsTableReferences),
+          Import,
+          PrefetchHooks Function({bool transactionsRefs})
+        > {
+  $$ImportsTableTableManager(_$AppDatabase db, $ImportsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ImportsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ImportsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ImportsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String?> userid = const Value.absent(),
+                Value<String> fileSha256 = const Value.absent(),
+                Value<String> originalFileName = const Value.absent(),
+                Value<ImportFileType> fileType = const Value.absent(),
+                Value<String?> accountIdentifier = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ImportsCompanion(
+                id: id,
+                userid: userid,
+                fileSha256: fileSha256,
+                originalFileName: originalFileName,
+                fileType: fileType,
+                accountIdentifier: accountIdentifier,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                Value<String?> userid = const Value.absent(),
+                required String fileSha256,
+                required String originalFileName,
+                required ImportFileType fileType,
+                Value<String?> accountIdentifier = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ImportsCompanion.insert(
+                id: id,
+                userid: userid,
+                fileSha256: fileSha256,
+                originalFileName: originalFileName,
+                fileType: fileType,
+                accountIdentifier: accountIdentifier,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$ImportsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({transactionsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (transactionsRefs) db.transactions],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (transactionsRefs)
+                    await $_getPrefetchedData<
+                      Import,
+                      $ImportsTable,
+                      Transaction
+                    >(
+                      currentTable: table,
+                      referencedTable: $$ImportsTableReferences
+                          ._transactionsRefsTable(db),
+                      managerFromTypedResult: (p0) => $$ImportsTableReferences(
+                        db,
+                        table,
+                        p0,
+                      ).transactionsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.importId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$ImportsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ImportsTable,
+      Import,
+      $$ImportsTableFilterComposer,
+      $$ImportsTableOrderingComposer,
+      $$ImportsTableAnnotationComposer,
+      $$ImportsTableCreateCompanionBuilder,
+      $$ImportsTableUpdateCompanionBuilder,
+      (Import, $$ImportsTableReferences),
+      Import,
+      PrefetchHooks Function({bool transactionsRefs})
+    >;
 typedef $$TransactionsTableCreateCompanionBuilder =
     TransactionsCompanion Function({
       required String id,
@@ -5857,6 +7445,8 @@ typedef $$TransactionsTableCreateCompanionBuilder =
       required TransactionSource source,
       Value<String> currency,
       Value<String?> recurringId,
+      Value<String?> userId,
+      Value<String?> importId,
       Value<int> rowid,
     });
 typedef $$TransactionsTableUpdateCompanionBuilder =
@@ -5873,6 +7463,8 @@ typedef $$TransactionsTableUpdateCompanionBuilder =
       Value<TransactionSource> source,
       Value<String> currency,
       Value<String?> recurringId,
+      Value<String?> userId,
+      Value<String?> importId,
       Value<int> rowid,
     });
 
@@ -5892,6 +7484,23 @@ final class $$TransactionsTableReferences
       $_db.recurringTransactions,
     ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_recurringIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $ImportsTable _importIdTable(_$AppDatabase db) =>
+      db.imports.createAlias('transactions__import_id__imports__id');
+
+  $$ImportsTableProcessedTableManager? get importId {
+    final $_column = $_itemColumn<String>('import_id');
+    if ($_column == null) return null;
+    final manager = $$ImportsTableTableManager(
+      $_db,
+      $_db.imports,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_importIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -5991,6 +7600,11 @@ class $$TransactionsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$RecurringTransactionsTableFilterComposer get recurringId {
     final $$RecurringTransactionsTableFilterComposer composer =
         $composerBuilder(
@@ -6012,6 +7626,29 @@ class $$TransactionsTableFilterComposer
                     $removeJoinBuilderFromRootComposer,
               ),
         );
+    return composer;
+  }
+
+  $$ImportsTableFilterComposer get importId {
+    final $$ImportsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.importId,
+      referencedTable: $db.imports,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ImportsTableFilterComposer(
+            $db: $db,
+            $table: $db.imports,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
     return composer;
   }
 
@@ -6106,6 +7743,11 @@ class $$TransactionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$RecurringTransactionsTableOrderingComposer get recurringId {
     final $$RecurringTransactionsTableOrderingComposer composer =
         $composerBuilder(
@@ -6127,6 +7769,29 @@ class $$TransactionsTableOrderingComposer
                     $removeJoinBuilderFromRootComposer,
               ),
         );
+    return composer;
+  }
+
+  $$ImportsTableOrderingComposer get importId {
+    final $$ImportsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.importId,
+      referencedTable: $db.imports,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ImportsTableOrderingComposer(
+            $db: $db,
+            $table: $db.imports,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
     return composer;
   }
 }
@@ -6179,6 +7844,9 @@ class $$TransactionsTableAnnotationComposer
   GeneratedColumn<String> get currency =>
       $composableBuilder(column: $table.currency, builder: (column) => column);
 
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+
   $$RecurringTransactionsTableAnnotationComposer get recurringId {
     final $$RecurringTransactionsTableAnnotationComposer composer =
         $composerBuilder(
@@ -6200,6 +7868,29 @@ class $$TransactionsTableAnnotationComposer
                     $removeJoinBuilderFromRootComposer,
               ),
         );
+    return composer;
+  }
+
+  $$ImportsTableAnnotationComposer get importId {
+    final $$ImportsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.importId,
+      referencedTable: $db.imports,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ImportsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.imports,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
     return composer;
   }
 
@@ -6245,6 +7936,7 @@ class $$TransactionsTableTableManager
           Transaction,
           PrefetchHooks Function({
             bool recurringId,
+            bool importId,
             bool transactionCategoryMapRefs,
           })
         > {
@@ -6273,6 +7965,8 @@ class $$TransactionsTableTableManager
                 Value<TransactionSource> source = const Value.absent(),
                 Value<String> currency = const Value.absent(),
                 Value<String?> recurringId = const Value.absent(),
+                Value<String?> userId = const Value.absent(),
+                Value<String?> importId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TransactionsCompanion(
                 id: id,
@@ -6287,6 +7981,8 @@ class $$TransactionsTableTableManager
                 source: source,
                 currency: currency,
                 recurringId: recurringId,
+                userId: userId,
+                importId: importId,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -6303,6 +7999,8 @@ class $$TransactionsTableTableManager
                 required TransactionSource source,
                 Value<String> currency = const Value.absent(),
                 Value<String?> recurringId = const Value.absent(),
+                Value<String?> userId = const Value.absent(),
+                Value<String?> importId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TransactionsCompanion.insert(
                 id: id,
@@ -6317,6 +8015,8 @@ class $$TransactionsTableTableManager
                 source: source,
                 currency: currency,
                 recurringId: recurringId,
+                userId: userId,
+                importId: importId,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -6328,7 +8028,11 @@ class $$TransactionsTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({recurringId = false, transactionCategoryMapRefs = false}) {
+              ({
+                recurringId = false,
+                importId = false,
+                transactionCategoryMapRefs = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
@@ -6361,6 +8065,21 @@ class $$TransactionsTableTableManager
                                     referencedColumn:
                                         $$TransactionsTableReferences
                                             ._recurringIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (importId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.importId,
+                                    referencedTable:
+                                        $$TransactionsTableReferences
+                                            ._importIdTable(db),
+                                    referencedColumn:
+                                        $$TransactionsTableReferences
+                                            ._importIdTable(db)
                                             .id,
                                   )
                                   as T;
@@ -6413,22 +8132,29 @@ typedef $$TransactionsTableProcessedTableManager =
       Transaction,
       PrefetchHooks Function({
         bool recurringId,
+        bool importId,
         bool transactionCategoryMapRefs,
       })
     >;
 typedef $$TransactionCategoryMapTableCreateCompanionBuilder =
     TransactionCategoryMapCompanion Function({
+      required String id,
       required String transactionId,
       required String categoryId,
       required DateTime assignedAt,
+      required DateTime updatedAt,
+      Value<DateTime?> deletedAt,
       required AssignmentSource assignmentSource,
       Value<int> rowid,
     });
 typedef $$TransactionCategoryMapTableUpdateCompanionBuilder =
     TransactionCategoryMapCompanion Function({
+      Value<String> id,
       Value<String> transactionId,
       Value<String> categoryId,
       Value<DateTime> assignedAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
       Value<AssignmentSource> assignmentSource,
       Value<int> rowid,
     });
@@ -6492,8 +8218,23 @@ class $$TransactionCategoryMapTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<DateTime> get assignedAt => $composableBuilder(
     column: $table.assignedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -6559,8 +8300,23 @@ class $$TransactionCategoryMapTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get assignedAt => $composableBuilder(
     column: $table.assignedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -6625,10 +8381,19 @@ class $$TransactionCategoryMapTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
   GeneratedColumn<DateTime> get assignedAt => $composableBuilder(
     column: $table.assignedAt,
     builder: (column) => column,
   );
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
 
   GeneratedColumnWithTypeConverter<AssignmentSource, String>
   get assignmentSource => $composableBuilder(
@@ -6722,29 +8487,41 @@ class $$TransactionCategoryMapTableTableManager
               ),
           updateCompanionCallback:
               ({
+                Value<String> id = const Value.absent(),
                 Value<String> transactionId = const Value.absent(),
                 Value<String> categoryId = const Value.absent(),
                 Value<DateTime> assignedAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
                 Value<AssignmentSource> assignmentSource = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TransactionCategoryMapCompanion(
+                id: id,
                 transactionId: transactionId,
                 categoryId: categoryId,
                 assignedAt: assignedAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
                 assignmentSource: assignmentSource,
                 rowid: rowid,
               ),
           createCompanionCallback:
               ({
+                required String id,
                 required String transactionId,
                 required String categoryId,
                 required DateTime assignedAt,
+                required DateTime updatedAt,
+                Value<DateTime?> deletedAt = const Value.absent(),
                 required AssignmentSource assignmentSource,
                 Value<int> rowid = const Value.absent(),
               }) => TransactionCategoryMapCompanion.insert(
+                id: id,
                 transactionId: transactionId,
                 categoryId: categoryId,
                 assignedAt: assignedAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
                 assignmentSource: assignmentSource,
                 rowid: rowid,
               ),
@@ -6835,25 +8612,27 @@ typedef $$TransactionCategoryMapTableProcessedTableManager =
 typedef $$BudgetTemplatesTableCreateCompanionBuilder =
     BudgetTemplatesCompanion Function({
       required String id,
-      required String categoryId,
+      Value<String?> categoryId,
       required Decimal amount,
       required PeriodType periodType,
       Value<String> currency,
       required DateTime createdAt,
       required DateTime updatedAt,
       Value<DateTime?> deletedAt,
+      Value<String?> userId,
       Value<int> rowid,
     });
 typedef $$BudgetTemplatesTableUpdateCompanionBuilder =
     BudgetTemplatesCompanion Function({
       Value<String> id,
-      Value<String> categoryId,
+      Value<String?> categoryId,
       Value<Decimal> amount,
       Value<PeriodType> periodType,
       Value<String> currency,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<DateTime?> deletedAt,
+      Value<String?> userId,
       Value<int> rowid,
     });
 
@@ -6869,9 +8648,9 @@ final class $$BudgetTemplatesTableReferences
   static $CategoriesTable _categoryIdTable(_$AppDatabase db) => db.categories
       .createAlias('budget_templates__category_id__categories__id');
 
-  $$CategoriesTableProcessedTableManager get categoryId {
-    final $_column = $_itemColumn<String>('category_id')!;
-
+  $$CategoriesTableProcessedTableManager? get categoryId {
+    final $_column = $_itemColumn<String>('category_id');
+    if ($_column == null) return null;
     final manager = $$CategoriesTableTableManager(
       $_db,
       $_db.categories,
@@ -6945,6 +8724,11 @@ class $$BudgetTemplatesTableFilterComposer
 
   ColumnFilters<DateTime> get deletedAt => $composableBuilder(
     column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get userId => $composableBuilder(
+    column: $table.userId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7041,6 +8825,11 @@ class $$BudgetTemplatesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$CategoriesTableOrderingComposer get categoryId {
     final $$CategoriesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -7097,6 +8886,9 @@ class $$BudgetTemplatesTableAnnotationComposer
 
   GeneratedColumn<DateTime> get deletedAt =>
       $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
 
   $$CategoriesTableAnnotationComposer get categoryId {
     final $$CategoriesTableAnnotationComposer composer = $composerBuilder(
@@ -7178,13 +8970,14 @@ class $$BudgetTemplatesTableTableManager
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
-                Value<String> categoryId = const Value.absent(),
+                Value<String?> categoryId = const Value.absent(),
                 Value<Decimal> amount = const Value.absent(),
                 Value<PeriodType> periodType = const Value.absent(),
                 Value<String> currency = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<DateTime?> deletedAt = const Value.absent(),
+                Value<String?> userId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => BudgetTemplatesCompanion(
                 id: id,
@@ -7195,18 +8988,20 @@ class $$BudgetTemplatesTableTableManager
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
+                userId: userId,
                 rowid: rowid,
               ),
           createCompanionCallback:
               ({
                 required String id,
-                required String categoryId,
+                Value<String?> categoryId = const Value.absent(),
                 required Decimal amount,
                 required PeriodType periodType,
                 Value<String> currency = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
                 Value<DateTime?> deletedAt = const Value.absent(),
+                Value<String?> userId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => BudgetTemplatesCompanion.insert(
                 id: id,
@@ -7217,6 +9012,7 @@ class $$BudgetTemplatesTableTableManager
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
+                userId: userId,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -7323,6 +9119,7 @@ typedef $$BudgetPeriodsTableCreateCompanionBuilder =
       required bool isOverridden,
       required DateTime createdAt,
       required DateTime updatedAt,
+      Value<DateTime?> deletedAt,
       Value<int> rowid,
     });
 typedef $$BudgetPeriodsTableUpdateCompanionBuilder =
@@ -7335,6 +9132,7 @@ typedef $$BudgetPeriodsTableUpdateCompanionBuilder =
       Value<bool> isOverridden,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
       Value<int> rowid,
     });
 
@@ -7410,6 +9208,11 @@ class $$BudgetPeriodsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$BudgetTemplatesTableFilterComposer get templateId {
     final $$BudgetTemplatesTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -7478,6 +9281,11 @@ class $$BudgetPeriodsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$BudgetTemplatesTableOrderingComposer get templateId {
     final $$BudgetTemplatesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -7536,6 +9344,9 @@ class $$BudgetPeriodsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
 
   $$BudgetTemplatesTableAnnotationComposer get templateId {
     final $$BudgetTemplatesTableAnnotationComposer composer = $composerBuilder(
@@ -7597,6 +9408,7 @@ class $$BudgetPeriodsTableTableManager
                 Value<bool> isOverridden = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => BudgetPeriodsCompanion(
                 id: id,
@@ -7607,6 +9419,7 @@ class $$BudgetPeriodsTableTableManager
                 isOverridden: isOverridden,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                deletedAt: deletedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -7619,6 +9432,7 @@ class $$BudgetPeriodsTableTableManager
                 required bool isOverridden,
                 required DateTime createdAt,
                 required DateTime updatedAt,
+                Value<DateTime?> deletedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => BudgetPeriodsCompanion.insert(
                 id: id,
@@ -7629,6 +9443,7 @@ class $$BudgetPeriodsTableTableManager
                 isOverridden: isOverridden,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                deletedAt: deletedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -7870,6 +9685,8 @@ class $AppDatabaseManager {
       $$CategoryClosureTableTableManager(_db, _db.categoryClosure);
   $$RecurringTransactionsTableTableManager get recurringTransactions =>
       $$RecurringTransactionsTableTableManager(_db, _db.recurringTransactions);
+  $$ImportsTableTableManager get imports =>
+      $$ImportsTableTableManager(_db, _db.imports);
   $$TransactionsTableTableManager get transactions =>
       $$TransactionsTableTableManager(_db, _db.transactions);
   $$TransactionCategoryMapTableTableManager get transactionCategoryMap =>
