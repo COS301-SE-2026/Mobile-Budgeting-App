@@ -13,6 +13,7 @@ from sqlalchemy import (
     Integer,
     Numeric,
     String,
+    UniqueConstraint,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -78,9 +79,11 @@ class Category(Base):
 class CategoryClosure(Base):
    
     __tablename__ = "category_closure"
+    __table_args__ = (UniqueConstraint("ancestor_id", "descendant_id"),)
 
-    ancestor_id: Mapped[str] = mapped_column(ForeignKey("categories.id"), primary_key=True)
-    descendant_id: Mapped[str] = mapped_column(ForeignKey("categories.id"), primary_key=True)
+    id: Mapped[str] = mapped_column(String, primary_key=True, default=_uuid)
+    ancestor_id: Mapped[str] = mapped_column(ForeignKey("categories.id"))
+    descendant_id: Mapped[str] = mapped_column(ForeignKey("categories.id"))
     depth: Mapped[int] = mapped_column(Integer)
 
 
@@ -111,9 +114,11 @@ class TransactionCategoryMap(Base):
     
 
     __tablename__ = "transaction_category_map"
+    __table_args__ = (UniqueConstraint("transaction_id"),)
 
+    id: Mapped[str] = mapped_column(String, primary_key=True, default=_uuid)
     transaction_id: Mapped[str] = mapped_column(
-        ForeignKey("transactions.id"), primary_key=True
+        ForeignKey("transactions.id")
     )
     category_id: Mapped[str] = mapped_column(ForeignKey("categories.id"))
     assigned_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
