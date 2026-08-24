@@ -83,6 +83,7 @@ class CategoryDao extends DatabaseAccessor<AppDatabase>
       await into(categories).insert(companion);
       await into(categoryClosure).insert(
         CategoryClosureCompanion.insert(
+          id: _uuid.v4(),
           ancestorId: id,
           descendantId: id,
           depth: 0,
