@@ -33,7 +33,8 @@ dependencies:
   popover: ^0.4.0
   flutter:
     sdk: flutter
-  powersync: ^1.14.0
+  drift_sqlite_async: ^0.2.6   
+  powersync: ^1.14.0     
   http: ^1.2.0 
   dio: ^5.7.0
   drift: ^2.21.0

@@ -1,0 +1,15 @@
+replication:
+  connections:
+    - type: postgresql
+      uri: postgres://myuser:mypassword@db:5432/mydatabase
+      sslmode: disable
+
+storage:
+  type: postgresql
+  uri: postgres://myuser:mypassword@db:5432/mydatabase
+
+port: 8080
+
+client_auth:
+  jwks_uri:  #TODO kio
+  audience: [""] #TODO kio
