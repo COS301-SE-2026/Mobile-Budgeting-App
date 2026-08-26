@@ -29,7 +29,7 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   fl_chart: ^0.68.0
-  file_picker: ^11.0.2
+  file_picker: 12.0.0
   popover: ^0.4.0
   flutter:
     sdk: flutter
@@ -63,8 +63,10 @@ dependencies:
   provider: ^6.1.2
   jiffy: ^6.4.5
   pdf: ^3.12.0
-  share_plus: ^12.0.2
+  share_plus: 13.3.0
   open_filex: ^4.7.0
+  flutter_onnxruntime: ^1.8.4
+  bert_tokenizer: ^1.2.0
 
 
 dependency_overrides:
@@ -102,6 +104,7 @@ flutter:
     - assets/images/phone_mockup.jpg
     - assets/images/flow.jpg
     - assets/images/logo.png
+    - assets/models/bge-small-en-v1.5/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 
