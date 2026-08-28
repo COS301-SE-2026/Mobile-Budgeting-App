@@ -1,4 +1,6 @@
+import '../../../database/schema.dart';
 import 'category_score.dart';
+import 'embedding_cache_service.dart';
 import 'embedding_text_builder.dart';
 import 'text_embedder.dart';
 import 'vector_similarity.dart';
@@ -30,14 +32,19 @@ final class TransactionClassificationResult {
 
 final class TransactionClassificationService {
   final TextEmbedder embedder;
+  final EmbeddingCacheService? embeddingCache;
 
-  TransactionClassificationService({required this.embedder});
+  TransactionClassificationService({
+    required this.embedder,
+    this.embeddingCache,
+  });
 
   Future<void> initialize() {
     return embedder.initialize();
   }
 
   Future<TransactionClassificationResult> classify({
+    String? transactionId,
     required String shortDescription,
     String? longDescription,
     required List<ClassificationCategory> categories,
@@ -54,14 +61,28 @@ final class TransactionClassificationService {
       );
     }
 
-    final transactionVector = await embedder.embed(transactionText);
+    final transactionVector =
+        embeddingCache != null && transactionId?.trim().isNotEmpty == true
+        ? await embeddingCache!.getOrCreate(
+            sourceType: EmbeddingSourceType.transaction,
+            sourceId: transactionId!,
+            text: transactionText,
+          )
+        : await embedder.embed(transactionText);
 
-    final categoryTexts = [
-      for (final category in categories)
-        buildCategoryEmbeddingText(category.name),
-    ];
-
-    final categoryVectors = await embedder.embedBatch(categoryTexts);
+    final categoryVectors = embeddingCache == null
+        ? await embedder.embedBatch([
+            for (final category in categories)
+              buildCategoryEmbeddingText(category.name),
+          ])
+        : await Future.wait([
+            for (final category in categories)
+              embeddingCache!.getOrCreate(
+                sourceType: EmbeddingSourceType.category,
+                sourceId: category.id,
+                text: buildCategoryEmbeddingText(category.name),
+              ),
+          ]);
 
     if (categoryVectors.length != categories.length) {
       throw StateError(
