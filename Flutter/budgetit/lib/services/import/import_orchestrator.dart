@@ -113,6 +113,10 @@ class ImportOrchestrator {
     return 'import-preview:${sha256.convert(utf8.encode(sourceText))}';
   }
 
+  Future<List<Category>> getAvailableCategories() {
+    return _categoryDao.getAllCategories();
+  }
+
   Future<ImportResult> commitImport(
     List<ParsedTransaction> transactions, {
     bool forceAll = false,
