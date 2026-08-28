@@ -118,28 +118,28 @@ final class BgeOnnxEmbedder implements TextEmbedder {
       final inputs = <String, OrtValue>{};
 
       if (session.inputNames.contains('input_ids')) {
-        final value = await OrtValue.fromList(encoded.inputIds, [
-          1,
-          _maximumSequenceLength,
-        ]);
+        final value = await OrtValue.fromList(
+          Int64List.fromList(encoded.inputIds),
+          [1, _maximumSequenceLength],
+        );
         createdInputs.add(value);
         inputs['input_ids'] = value;
       }
 
       if (session.inputNames.contains('attention_mask')) {
-        final value = await OrtValue.fromList(encoded.inputMask, [
-          1,
-          _maximumSequenceLength,
-        ]);
+        final value = await OrtValue.fromList(
+          Int64List.fromList(encoded.inputMask),
+          [1, _maximumSequenceLength],
+        );
         createdInputs.add(value);
         inputs['attention_mask'] = value;
       }
 
       if (session.inputNames.contains('token_type_ids')) {
-        final value = await OrtValue.fromList(encoded.segmentIds, [
-          1,
-          _maximumSequenceLength,
-        ]);
+        final value = await OrtValue.fromList(
+          Int64List.fromList(encoded.segmentIds),
+          [1, _maximumSequenceLength],
+        );
         createdInputs.add(value);
         inputs['token_type_ids'] = value;
       }
