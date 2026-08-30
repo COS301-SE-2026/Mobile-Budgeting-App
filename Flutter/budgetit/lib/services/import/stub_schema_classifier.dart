@@ -5,11 +5,18 @@ import 'schema_discovery_service.dart';
 class StubSchemaClassifier implements SchemaClassifier {
   @override
   Future<StatementSchema> classify(List<CandidateRow> sampleRows) async {
-    final markers = sampleRows.map((r) => r.signMarker?.toUpperCase()).where((m) => m != null).toSet();
+    final deterministic = classifyDeterministic(sampleRows);
+    if(deterministic != null) return deterministic;
+  /*  final markers = sampleRows.map((r) => r.signMarker?.toUpperCase()).where((m) => m != null).toSet();
 
     if (markers.contains('CREDIT') || markers.contains('DEBIT')) {
       return const StatementSchema(
         signConvention: SignConvention.separateDebitCredit,
+      );
+    }
+    if (markers.contains('DEBIT') && !markers.contains('CREDIT')) {
+      return const StatementSchema(
+        signConvention: SignConvention.explicitDebitMeansExpense,
       );
     }
 
@@ -23,7 +30,7 @@ class StubSchemaClassifier implements SchemaClassifier {
       return const StatementSchema(
         signConvention: SignConvention.minusPrefixMeansExpense,
       );
-    }
+    }*/ //yah neh
 
     return const StatementSchema(signConvention: SignConvention.keywordBased);
   }
