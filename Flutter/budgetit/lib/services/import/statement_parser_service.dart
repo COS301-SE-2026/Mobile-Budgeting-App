@@ -44,18 +44,18 @@ class StatementParserService {
     : _schemaDiscovery = schemaDiscovery ?? SchemaDiscoveryService(classifier: StubSchemaClassifier());
 
 
-    Future<List<ParsedTransaction>> parse (String path) async {
+    Future<List<ParsedTransaction>> parse (String path, {SchemaConfirmationCallback? onNeedsSchemaConfirmation}) async {
         final lower=path.toLowerCase();
         if (lower.endsWith('.csv')) {
-            return _parseCsv(path);
+            return _parseCsv(path, onNeedsSchemaConfirmation: onNeedsSchemaConfirmation);
         }
         if (lower.endsWith('.pdf')) {
-            return _parsePdf(path);
+            return _parsePdf(path, onNeedsSchemaConfirmation: onNeedsSchemaConfirmation);
         }
         throw  UnsupportedError('Unsupported file format. Use CSV or PDF.');
     }
 
-    Future<List<ParsedTransaction>> _parseCsv(String path) async {
+    Future<List<ParsedTransaction>> _parseCsv(String path, {SchemaConfirmationCallback? onNeedsSchemaConfirmation}) async {
         final content = await File(path).readAsString();
         final rows = const CsvToListConverter(eol: '\n').convert(content);
         if (rows.length < 2) throw FormatException('CSV has no data rows.');
@@ -145,7 +145,24 @@ class StatementParserService {
               ))
             .toList();
 
-        final schema = await _schemaDiscovery.discover(sourceType: 'csv', sampleRows: rowCandidates);
+        //final schema = await _schemaDiscovery.discover(sourceType: 'csv', sampleRows: rowCandidates);
+        final peeked = await _schemaDiscovery.peekCached(sourceType: 'csv', sampleRows: rowCandidates);
+        final filteredCandidates = peeked == null ? candidates
+        : candidates.where((c) => !_matchesSkipPatterns(c.rawRow.join(','), peeked.skipLinePatterns)).toList();
+        final filteredRowCandidates = peeked == null ? rowCandidates
+        : filteredCandidates.map((c) => CandidateRow(
+            date: c.date,
+            absAmount: c.absAmount,
+            description: c.description,
+            signMarker: c.resolvedMarker,
+            rawSource: c.rawRow.join(','),
+          )).toList();
+
+        final schema = await _schemaDiscovery.discover(
+          sourceType: 'csv',
+          sampleRows: filteredRowCandidates,
+          onNeedsConfirmation: onNeedsSchemaConfirmation,
+        );
 
         return _finalizeCsv(candidates, (c) {
           final asRow = CandidateRow(
@@ -302,7 +319,7 @@ class StatementParserService {
     return (signedAmount: value, explicitMarker: explicitMarker);
   }
 
-    Future<List<ParsedTransaction>> _parsePdf(String path) async {
+    Future<List<ParsedTransaction>> _parsePdf(String path, { SchemaConfirmationCallback? onNeedsSchemaConfirmation}) async {
         try {
             final text = await _extractPdfText(path);
 
@@ -315,7 +332,12 @@ class StatementParserService {
             print('--- END RAW PDF LINES ---');
 
 
-            return await parsePdfLines(text.split('\n'));
+            return await parsePdfLines(
+              text.split('\n'),
+              onNeedsSchemaConfirmation : onNeedsSchemaConfirmation,
+              );
+        } on ImportCancelledException {
+          rethrow;
         } catch (e) {
             throw FormatException('Could not extract text from PDf: $e');
         }
@@ -339,17 +361,38 @@ class StatementParserService {
       'statement date', 'beginning balance', 'ending balance', 'registration number',
       'authorised financial', 'division of', 'proprietary limited', 'reserve bank',
       'terms and conditions', 'ncrcp', 'is a registered', 'period',
+      'card no', 'e-stamp', 'general enquries', 'kindly contact', 'expedite any adjustments',
+      'differ from your records', 'statement number', 'account number', 'PO BOX',
     ];
 
-    static final RegExp _datePattern = RegExp( r'(\d{4}[\/\-]\d{2}[\/\-]\d{2}|\d{1,2}[\/\-]\d{2}[\/\-]\d{2,4}|\d{2}[\/\-]\d{2}|\d{1,2}\s+[A-Za-z]{3}(?:\s+\d{4})?)');
+    //static final RegExp _datePattern = RegExp( r'(\d{4}[\/\-]\d{2}[\/\-]\d{2}|\d{1,2}[\/\-]\d{2}[\/\-]\d{2,4}|\d{2}[\/\-]\d{2}|\d{1,2}\s+[A-Za-z]{3}(?:\s+\d{4})?)');
+   // static final RegExp _datePattern = RegExp( r'(\d{4}[\/\-]\d{2}[\/\-]\d{2}|\d{1,2}[\/\-]\d{2}[\/\-]\d{2,4}|(?<!\d)\d{2}[\/\-]\d{2}(?!\d)|\d{1,2}\s+[A-Za-z]{3}(?:\s+\d{4})?)');
+    static final RegExp _datePattern = RegExp(
+      r'(\d{4}[\/\-]\d{2}[\/\-]\d{2}'
+      r'|\d{1,2}[\/\-]\d{2}[\/\-]\d{2,4}'
+      r'|(?<!\d)\d{2}[\/\-]\d{2}(?!\d)'
+      r'|(?<![\d.,])(?:0[1-9]|1[0-2])\s(?:0[1-9]|[12]\d|3[01])(?!\d)'
+      r'|(?<!\d)\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*(?:\s+\d{4})?)',
+      caseSensitive: false,
+    );
     static final RegExp _amountPattern = RegExp(
       r'\$?R?\s?([\-]?(?:\d+(?:[,\s]\d{3})*[.,]\d{2}|\b\d{1,6}\b))(-)?\s*(Cr|Dr)?',
       caseSensitive: false,
     );
+    //static final RegExp _periodRangePattern = RegExp( r'^\s*\d{1,2}\s+[A-Za-z]{3}\s+\d{4}\s+to\s+\d{1,2}\s+[A-Za-z]{3}\s+\d{4}\s*$', caseSensitive: false);
+        static final RegExp _periodRangePattern = RegExp( r'^\s*(?:statement\s+from\s+)?\d{1,2}\s+[A-Za-z]{3,9}\s+\d{4}\s+to\s+\d{1,2}\s+[A-Za-z]{3,9}\s+\d{4}\s*$', caseSensitive: false);
 
     List<CandidateRow> _extractPdfCandidates(List<String> lines) {
       final candidates = <CandidateRow>[];
       final pendingLines = <String>[];
+      DateTime? pendingDate;
+      String? pendingDescription;
+      String? lastGoodDescription;
+
+      void resetPendingWrap() {
+        pendingDate = null;
+        pendingDescription = null;
+      }
 
       for (final rawLine in lines) {
         final trimmed = rawLine.trim();
@@ -357,6 +400,12 @@ class StatementParserService {
       final lower = trimmed.toLowerCase();
       if (_skipKeywords.any((k) => lower.contains(k))) {
         pendingLines.clear();
+        resetPendingWrap();
+        continue;
+      }
+      if(_periodRangePattern.hasMatch(trimmed)){
+        pendingLines.clear();
+        resetPendingWrap();
         continue;
       }
       final dateMatch = _datePattern.firstMatch(trimmed);
@@ -364,14 +413,21 @@ class StatementParserService {
       //final amountMatch = _amountPattern.firstMatch(trimmed);
       //final amountMatch = dateMatch != null ? _amountPattern.firstMatch(trimmed.substring(dateMatch.end))
       //: _amountPattern.firstMatch(trimmed);
-      final searchText = dateMatch != null ? trimmed.substring(dateMatch.end) : trimmed;
+      final beforeDateText = dateMatch != null ? trimmed.substring(0, dateMatch.start) : '';
+      final afterDateText = dateMatch != null ? trimmed.substring(dateMatch.end) : trimmed;
+      final beforeAmountMatch = (dateMatch != null && !trimmed.contains('=')) ? _selectAmountMatch(beforeDateText) : null;
+      final usingBeforeAmount = beforeAmountMatch != null;
+
+      //final searchText = dateMatch != null ? trimmed.substring(dateMatch.end) : trimmed;
+      final searchText = usingBeforeAmount ? beforeDateText : afterDateText;
       final allAmountMatches = _amountPattern.allMatches(searchText).toList();
       /*final amountMatch = allAmountMatches.isEmpty ? null
       : (allAmountMatches.length >= 2 ? allAmountMatches[allAmountMatches.length - 2]  
       : allAmountMatches.last);*/
-      final amountMatch = _selectAmountMatch(searchText);
-      if (dateMatch == null || amountMatch == null) {
-        if(dateMatch == null && amountMatch != null){
+      //final amountMatch = trimmed.contains('=') ? null : _selectAmountMatch(searchText);
+      final amountMatch = usingBeforeAmount ? beforeAmountMatch : (trimmed.contains('=') ? null : _selectAmountMatch(afterDateText));
+      if (dateMatch == null && amountMatch != null && pendingDate != null ) {
+        /*if(dateMatch == null && amountMatch != null){
           final remainder = trimmed.replaceFirst(amountMatch.group(0)!, '').trim();
           if(remainder.isEmpty){
             continue;
@@ -382,23 +438,140 @@ class StatementParserService {
           pendingLines.add(trimmed);
           if (pendingLines.length > 3) pendingLines.removeAt(0);
         }
-        continue;
-      }
+        continue;*/
 
       try {
-        final date = parseDate(dateMatch.group(0)!);
+        //final date = parseDate(dateMatch.group(0)!);
         final numGroup = amountMatch.group(1)!;
         final isNegative = numGroup.trim().startsWith('-');
         final trailingMinus = amountMatch.group(2) != null;
         final rawAmountStr = numGroup.replaceAll(RegExp(r'[\s,\-]'), '');
         final absAmount = _parseMatchedAmount(numGroup).abs();
         if (absAmount == Decimal.zero) {
+          //throw const FormatException('zero amount');
           continue;
         }
 
         final crDrSuffix = amountMatch.group(3)?.toUpperCase();
         //final marker = isNegative ? '-' : crDrSuffix;
 
+       // final beforeDate = trimmed.substring(0, dateMatch.start).trim();
+        //final afterDate = trimmed.substring(dateMatch.end).trim();
+        final amountStr = amountMatch.group(0)!;
+
+
+        final amountPos = searchText.lastIndexOf(amountStr);
+
+        final description = amountPos >= 0 ? searchText.substring(0, amountPos).trim()
+        : searchText.trim();
+        final afterAmount = amountPos >= 0 ? searchText.substring(amountPos + amountStr.length)
+        : '';        
+
+          
+        
+      //  final amountPos = searchText.lastIndexOf(amountStr);
+      //  final tailDescription = amountPos >= 0 ? searchText.substring(0, amountPos).trim()
+      //  : searchText.trim();
+        
+
+
+            //String? positionalMarker;
+            //final hasLeadingPlaceHolderDash = RegExp(r'(?:^|\s)-\s*$').hasMatch(description);
+
+            //if(hasLeadingPlaceHolderDash && amountPos >= 0){
+          // final afterAmount = amountPos > 0 ? searchText.substring(amountPos + amountStr.length)
+          //  : '';
+              //positionalMarker = _detectPositionalColumnMarker(afterAmount);
+            //}
+
+            final marker = _resolveSignMarker(
+              description: description,
+              afterAmountText: afterAmount,
+              isNegative: isNegative,
+              trailingMinus: trailingMinus,
+              crDrSuffix: crDrSuffix,
+
+            );
+
+            final combinedDescription = [
+              if ((pendingDescription ?? '').isNotEmpty) pendingDescription,
+              if(description.isNotEmpty) description,
+            ].join(' ').replaceAll(RegExp(r'\s+'), ' ').trim();
+
+
+
+          //final marker  = positionalMarker ?? ((isNegative || trailingMinus) ? '-' : crDrSuffix);
+
+        //final descriptionParts = <String>[
+          //...pendingLines,
+          //if (beforeDate.isNotEmpty) beforeDate,
+          //if (description.isNotEmpty) description,
+        //];
+        //final joinedDescription = descriptionParts.join(' ').replaceAll(RegExp(r'\s+'), ' ').trim();
+        //final finalDescription = joinedDescription.isEmpty ? 'Uncategorised transaction' : joinedDescription;
+        //pendingLines.clear();
+
+        candidates.add(CandidateRow(
+          date: pendingDate!,
+          absAmount: absAmount,
+          description: combinedDescription.isEmpty ? 'Uncategorised transaction' : combinedDescription,
+          signMarker: marker,
+          rawSource: trimmed,
+        ));
+
+        pendingLines.clear();
+        resetPendingWrap();
+        continue;
+      } catch (_) {
+
+        //continue;
+      }
+    }
+
+    if (dateMatch == null || amountMatch == null) {
+      if (dateMatch == null && amountMatch != null) {
+        final remainder = trimmed.replaceFirst(amountMatch.group(0)!, '').trim();
+        if (remainder.isEmpty) continue;
+      }
+      final isLikelyHeaderFragment = !trimmed.contains(' ') && trimmed.length < 15 && !trimmed.contains(RegExp(r'\d'));
+
+      if (dateMatch != null) {
+        try {
+          final date = parseDate(dateMatch.group(0)!);
+          final beforeDate = trimmed.substring(0, dateMatch.start).trim();
+          final afterDate = trimmed.substring(dateMatch.end).trim();
+          if (beforeDate.isEmpty && afterDate.isEmpty){
+            resetPendingWrap();
+          } else {
+          pendingDate = date;
+          pendingDescription = [beforeDate, afterDate].where((s) => s.isNotEmpty).join(' ');
+          }
+        } catch (_) {
+          resetPendingWrap();
+        }
+      } else if (pendingDate != null && !isLikelyHeaderFragment) {
+        pendingDescription = [
+          if ((pendingDescription ?? '').isNotEmpty) pendingDescription,
+          trimmed,
+        ].join(' ');
+      }
+
+      if (!isLikelyHeaderFragment) {
+        pendingLines.add(trimmed);
+        if (pendingLines.length > 3) pendingLines.removeAt(0);
+      }
+      continue;
+    }
+
+      try {
+        final date = parseDate(dateMatch.group(0)!);
+        final numGroup = amountMatch.group(1)!;
+        final isNegative = numGroup.trim().startsWith('-');
+        final trailingMinus = amountMatch.group(2) != null;
+        final absAmount = _parseMatchedAmount(numGroup).abs();
+        if (absAmount == Decimal.zero) continue;
+
+        final crDrSuffix = amountMatch.group(3)?.toUpperCase();
         final beforeDate = trimmed.substring(0, dateMatch.start).trim();
         final afterDate = trimmed.substring(dateMatch.end).trim();
         final amountStr = amountMatch.group(0)!;
@@ -406,24 +579,17 @@ class StatementParserService {
         final description = amountPos >= 0
             ? afterDate.substring(0, amountPos).trim()
             : afterDate.trim();
+        final afterAmount = amountPos >= 0
+            ? afterDate.substring(amountPos + amountStr.length)
+            : '';
 
-
-
-            String? positionalMarker;
-            final hasLeadingPlaceHolderDash = RegExp(r'(?:^|\s)-\s*$').hasMatch(description);
-
-            if(hasLeadingPlaceHolderDash && amountPos >= 0){
-              final afterAmount = afterDate.substring(amountPos + amountStr.length);
-              positionalMarker = _detectPositionalColumnMarker(afterAmount);
-            }
-
-
-            final marker  = positionalMarker ?? ((isNegative || trailingMinus) ? '-' : crDrSuffix);
-
-
-            
-
-
+        final marker = _resolveSignMarker(
+          description: description,
+          afterAmountText: afterAmount,
+          isNegative: isNegative,
+          trailingMinus: trailingMinus,
+          crDrSuffix: crDrSuffix,
+        );
 
         final descriptionParts = <String>[
           ...pendingLines,
@@ -431,8 +597,12 @@ class StatementParserService {
           if (description.isNotEmpty) description,
         ];
         final joinedDescription = descriptionParts.join(' ').replaceAll(RegExp(r'\s+'), ' ').trim();
-        final finalDescription = joinedDescription.isEmpty ? 'Uncategorised transaction' : joinedDescription;
+        final finalDescription = joinedDescription.isNotEmpty ? joinedDescription : (lastGoodDescription != null ? '$lastGoodDescription (Fee)' : 'Bank Fee');
+        if (joinedDescription.isNotEmpty) {
+          lastGoodDescription = joinedDescription;
+        }
         pendingLines.clear();
+        resetPendingWrap();
 
         candidates.add(CandidateRow(
           date: date,
@@ -443,12 +613,34 @@ class StatementParserService {
         ));
       } catch (_) {
         pendingLines.clear();
+        resetPendingWrap();
         continue;
       }
+
     }
 
     return candidates;
   }
+
+  String? _resolveSignMarker({
+    required String description,
+    required String afterAmountText,
+    required bool isNegative,
+    required bool trailingMinus,
+    String? crDrSuffix,
+  }) {
+    final hasLeadingPlaceHolderDash = RegExp(r'(?:^|\s)-\s*$').hasMatch(description);
+    if (hasLeadingPlaceHolderDash) {
+      final positionalMarker = _detectPositionalColumnMarker(afterAmountText);
+      if (positionalMarker != null) return positionalMarker;
+      return 'DEBIT';
+    }
+    if (isNegative || trailingMinus) return '-';
+    return crDrSuffix;
+  }
+
+
+
 
 
 Match? _selectAmountMatch(String text) {
@@ -456,8 +648,9 @@ Match? _selectAmountMatch(String text) {
     final before = m.start > 0 ? text[m.start - 1] : '';
     final after = m.end < text.length ? text[m.end] : '';
     if (before == '*' || after == '*') continue;
-    final tail = text.substring(m.end).replaceAll(RegExp(r'\b(Cr|Dr)\b', caseSensitive: false), '');
+    final tail = text.substring(m.end).replaceAll(RegExp(r'(Cr|Dr)', caseSensitive: false), '');
     if (RegExp(r'[A-Za-z]').hasMatch(tail)) continue;
+    if(tail.trimLeft().startsWith('[%]')) continue;
     return m;
   }
   return null;
@@ -496,7 +689,7 @@ Match? _selectAmountMatch(String text) {
 
 
     @visibleForTesting
-    Future<List<ParsedTransaction>> parsePdfLines(List<String> lines) async {
+    Future<List<ParsedTransaction>> parsePdfLines(List<String> lines, {SchemaConfirmationCallback? onNeedsSchemaConfirmation}) async {
        // for(final line in lines){
             //print ('PDF LINE: $line');
         //}
@@ -510,15 +703,20 @@ Match? _selectAmountMatch(String text) {
         if (candidates.isEmpty) {
           return [];
         }
+
+        final peeked = await _schemaDiscovery.peekCached(sourceType: 'pdf', sampleRows: candidates);
+        final filteredCandidates = peeked == null ? candidates
+        : candidates.where((c) => !_matchesSkipPatterns(c.rawSource, peeked.skipLinePatterns)).toList();
         final schema = await _schemaDiscovery.discover(
           sourceType: 'pdf',
-          sampleRows: candidates,
+          sampleRows: filteredCandidates,
+          onNeedsConfirmation: onNeedsSchemaConfirmation,
         );
 
 
         final results = <ParsedTransaction>[];
 
-        for(final c in candidates){
+        for(final c in filteredCandidates){
           final isIncome = resolveIsIncome(c, schema);
           results.add(ParsedTransaction(
             date: c.date,
@@ -647,6 +845,16 @@ Match? _selectAmountMatch(String text) {
           }
         }
 
+        final monthDaySpace = RegExp(r'^(\d{2})\s(\d{2})$');
+        final matchMDSpace = monthDaySpace.firstMatch(cleaned);
+        if (matchMDSpace != null) {
+          final month = int.parse(matchMDSpace.group(1)!);
+          final day = int.parse(matchMDSpace.group(2)!);
+          if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+            return DateTime(DateTime.now().year, month, day);
+          }
+        }
+
         final formats = [
                   RegExp(r'^(\d{4})-(\d{2})-(\d{2})$'),   // yyyy-mm-dd
                   RegExp(r'^(\d{2})/(\d{2})/(\d{4})$'),   // dd/mm/yyyy
@@ -674,16 +882,17 @@ Match? _selectAmountMatch(String text) {
 
 
 
-        final RegExp mmdd = RegExp(r'^(\d{1,2})[\/\-](\d{2})$'); //to account for bank statements where date format has no year, based on example statement used in testing.
+        final RegExp mmdd = RegExp(r'^(\d{1,2})[\/\-](\d{2})$');
         final matchMMDD = mmdd.firstMatch(cleaned);
         if(matchMMDD != null){
-            return DateTime(
-                DateTime.now().year,
-                int.parse(matchMMDD.group(1)!),
-                int.parse(matchMMDD.group(2)!),
-            );
+          final month = int.parse(matchMMDD.group(1)!);
+          final day = int.parse(matchMMDD.group(2)!);
+          if (month < 1 || month > 12 || day < 1 || day > 31) {
+              throw FormatException('Unrecognized date format: $cleaned');
+          }
+        return DateTime(DateTime.now().year, month, day);
         }
-        throw FormatException('Unrecognized date format: $cleaned'); //forgot to move this neh
+        throw FormatException('Unrecognized date format: $cleaned');
 }
 
 @visibleForTesting
@@ -700,6 +909,12 @@ Decimal parseAmount(String raw) {
     final value = Decimal.parse(cleaned);
     return negative ? -value : value;
 }
+
+  bool _matchesSkipPatterns(String text, List<String> patterns) {
+    if (patterns.isEmpty) return false;
+    final lower = text.toLowerCase();
+    return patterns.any((p) => p.trim().isNotEmpty && lower.contains(p.toLowerCase()));
+  }
 
  String _hash(DateTime date, Decimal amount, String description) {
     final key = '${date.toIso8601String()}|${amount.toString()}|${description.toLowerCase().trim()}';
