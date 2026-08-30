@@ -14,6 +14,8 @@ flutter-get:
 flutter-run:
 	cd $(FLUTTER_DIR) && fvm flutter run
 
+flutter-run-config:
+	cd $(FLUTTER_DIR) && fvm flutter pub get && fvm dart run build_runner build --delete-conflicting-outputs && fvm flutter run --dart-define-from-file=config.json
 
 
 
@@ -99,6 +101,7 @@ help:
 	@echo "    make flutter-devices          List connected devices"
 	@echo "    make flutter-clean            Clean and reinstall dependencies"
 	@echo "    make flutter-analyze          Run static analysis"
+	@echo "    make flutter-run-config       Full dev run (pub get + build_runner + config.json)"
 	@echo ""
 	@echo "  Testing"
 	@echo "    make flutter-test             Run all tests"
@@ -116,7 +119,7 @@ help:
 	@echo "    make flutter-update           Update to latest stable Flutter"
 	@echo ""
 
-.PHONY: flutter-get flutter-run flutter-run-android flutter-test \
+.PHONY: flutter-get flutter-run flutter-run-android flutter-run-config flutter-test \
         flutter-test-unit flutter-test-widget flutter-test-integration flutter-test-coverage \
         flutter-build-apk flutter-build-appbundle \
         flutter-clean flutter-analyze flutter-doctor flutter-devices \
