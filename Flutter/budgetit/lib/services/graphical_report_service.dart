@@ -9,9 +9,10 @@ class GraphicalReportService {
   final AppDatabase database;
 
   Future<GraphicalReportData> generateReport(
-    ReportingPeriod reportingPeriod,
-  ) async {
-    final now = DateTime.now();
+    ReportingPeriod reportingPeriod, {
+    DateTime? anchorDate,
+  }) async {
+    final now = anchorDate ?? DateTime.now();
 
     final startDate = _periodStart(
       reportingPeriod,

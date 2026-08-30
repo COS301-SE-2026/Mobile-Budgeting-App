@@ -336,10 +336,12 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
                           ),
                         ],
                         validator: (v) {
-                          if (v == null || v.isEmpty)
+                          if (v == null || v.isEmpty) {
                             return 'Amount is required';
-                          if (double.tryParse(v) == null)
+                          }
+                          if (double.tryParse(v) == null) {
                             return 'Enter a valid number';
+                          }
                           return null;
                         },
                       ),
@@ -420,7 +422,7 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
           _fieldLabel('Category', colours, cardTextColor),
           const SizedBox(height: 6),
           DropdownButtonFormField<Category>(
-            value: _selectedDaoCategory,
+            initialValue: _selectedDaoCategory,
             isExpanded: true,
             dropdownColor: cardColor,
             style: colours.h2.copyWith(

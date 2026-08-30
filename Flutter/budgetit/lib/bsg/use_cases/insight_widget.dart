@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:budgetit/shared/widgets/insight_widget.dart';
 import 'package:budgetit/utils/app_colour.dart';
-import 'package:widgetbook/widgetbook.dart';
 import 'package:widgetbook_annotation/widgetbook_annotation.dart' as widgetbook;
 
 @widgetbook.UseCase(name: 'Insights', type:InsightWidget, path: '[Widgets]'  )

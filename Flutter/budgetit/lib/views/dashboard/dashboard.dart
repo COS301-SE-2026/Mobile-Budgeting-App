@@ -7,7 +7,6 @@ import '../../models/financial_health_score.dart';
 import '../../services/financial_health_score_service.dart';
 import '../../shared/widgets/monthly_trend_widget.dart';
 import '../../shared/widgets/spending_chart.dart';
-import '../../shared/widgets/transaction_tile.dart';
 import '../../database/app_database.dart';
 import '../../database/schema.dart';
 import 'package:budgetit/shared/widgets/predictive_spending_screen.dart';
@@ -201,12 +200,6 @@ class _DashboardState extends State<Dashboard> {
     return '${transaction.transactionDate.day}/${transaction.transactionDate.month}/${transaction.transactionDate.year}';
   }
 
-  IconData _transactionIcon(Transaction transaction) {
-    return transaction.type == TransactionType.income
-        ? Icons.payments
-        : Icons.shopping_cart;
-  }
-
   List<MonthData> _emptyMonthlyTrends() {
     final start = DateTime(selectedDate.year, selectedDate.month - 2);
     return List.generate(3, (i) {
@@ -321,7 +314,7 @@ class _DashboardState extends State<Dashboard> {
         monthlySpending = _sumTransactions(monthTxns, TransactionType.expense);
         spendingCategories = categories;
         dashboardMonths = trends;
-        recentTransactions = allTxns.take(3).toList();
+        recentTransactions = allTxns.take(4).toList();
         financialHealthScore = healthScore;
         isLoading = false;
       });
@@ -413,10 +406,7 @@ class _DashboardState extends State<Dashboard> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 22),
-        Divider(
-          color: cardTextColor.withValues(alpha: 0.35),
-          thickness: 1.5,
-        ),
+        Divider(color: cardTextColor.withValues(alpha: 0.35), thickness: 1.5),
         const SizedBox(height: 14),
         Text(
           'FINANCIAL HEALTH',
@@ -484,26 +474,38 @@ class _DashboardState extends State<Dashboard> {
             ),
           ],
         ),
-        const SizedBox(height: 12),
-        TextButton.icon(
-          onPressed: () => _showFinancialHealthDialog(health, colours),
-          icon: Icon(
-            Icons.insights_outlined,
-            color: cardTextColor,
-            size: 18,
-          ),
-          label: Text(
-            'VIEW HEALTH ANALYSIS',
-            style: colours.h2.copyWith(
+        const SizedBox(height: 16),
+        GestureDetector(
+          onTap: () => _showFinancialHealthDialog(health, colours),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
               color: cardTextColor,
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.8,
+              border: Border.all(color: Colors.black, width: 3),
+              boxShadow: const [
+                BoxShadow(color: Colors.black, offset: Offset(4, 4)),
+              ],
             ),
-          ),
-          style: TextButton.styleFrom(
-            padding: EdgeInsets.zero,
-            alignment: Alignment.centerLeft,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.insights_outlined, color: cardColor, size: 18),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    'VIEW HEALTH ANALYSIS',
+                    textAlign: TextAlign.center,
+                    style: colours.h2.copyWith(
+                      color: cardColor,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -594,6 +596,62 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
+  Widget _dashboardTransactionTile(Transaction transaction) {
+    final isIncome = transaction.type == TransactionType.income;
+    final moneyColor = isIncome
+        ? context.colours.greenAccents
+        : context.colours.error;
+    final prefix = isIncome ? '+ ' : '- ';
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: context.colours.primary,
+        border: Border.all(color: Colors.black, width: 4),
+        boxShadow: [BoxShadow(color: Colors.black, offset: const Offset(4, 4))],
+      ),
+      child: Row(
+        children: [
+          Icon(
+            isIncome
+                ? Icons.arrow_circle_up_outlined
+                : Icons.arrow_circle_down_outlined,
+            color: moneyColor,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  transaction.shortDescription,
+                  style: context.colours.budgetheader.copyWith(
+                    color: context.colours.cardText,
+                  ),
+                ),
+                Text(
+                  _transactionSubtitle(transaction),
+                  style: context.colours.b5.copyWith(
+                    color: context.colours.cardText,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            '$prefix${_formatCurrency(_amountAsDouble(transaction))}',
+            style: context.colours.b4.copyWith(
+              color: moneyColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>();
@@ -603,8 +661,12 @@ class _DashboardState extends State<Dashboard> {
         : colours.secondary;
     final dashboardCardTextColor =
         Theme.of(context).brightness == Brightness.dark
-        ? colours.secondary
-        : colours.background;
+         ? colours.secondary : colours.background;
+    final selectedCalendarDateColor =
+        Theme.of(context).brightness == Brightness.dark ? colours.secondary : colours.secondary;
+    final selectedCalendarDateTextColor =
+        Theme.of(context).brightness == Brightness.dark
+      ? colours.secondary: colours.cardText;
 
     return Scaffold(
       backgroundColor: colours.background,
@@ -637,8 +699,8 @@ class _DashboardState extends State<Dashboard> {
                             return Theme(
                               data: Theme.of(context).copyWith(
                                 colorScheme: ColorScheme.light(
-                                  primary: colours.secondary,
-                                  onPrimary: colours.background,
+                                  primary: selectedCalendarDateColor,
+                                  onPrimary: selectedCalendarDateTextColor,
                                   surface: colours.background,
                                   onSurface: colours.textPrimary,
                                 ),
@@ -646,20 +708,38 @@ class _DashboardState extends State<Dashboard> {
                                   backgroundColor: colours.background,
                                   headerBackgroundColor: colours.secondary,
                                   headerForegroundColor: colours.background,
-                                  // i did use AI, 
                                   dayBackgroundColor:
                                       WidgetStateProperty.resolveWith((states) {
-                                    if (states.contains(WidgetState.selected)) {
-                                      return colours.secondary;
-                                    }
-                                    return colours.background.withValues(alpha: 0);
-                                  }),
+                                        if (states.contains(
+                                        WidgetState.selected,
+                                        )) {
+                                        return selectedCalendarDateColor;
+                                        }
+                                        return colours.background.withValues(
+                                          alpha: 0,
+                                        );
+                                      }),
                                   dayForegroundColor:
                                       WidgetStateProperty.resolveWith((states) {
+                                        if (states.contains(
+                                          WidgetState.selected,
+                                        )) {
+                                          return selectedCalendarDateTextColor;
+                                        }
+                                        return colours.textPrimary;
+                                      }),
+                                  dayShape: WidgetStateProperty.resolveWith((
+                                    states,
+                                  ) {
                                     if (states.contains(WidgetState.selected)) {
-                                      return colours.background;
+                                      return const CircleBorder(
+                                        side: BorderSide(
+                                          color: Colors.black,
+                                          width: 2,
+                                        ),
+                                      );
                                     }
-                                    return colours.textPrimary;
+                                    return null;
                                   }),
 
                                   ///i used ai to fix this part
@@ -736,58 +816,60 @@ class _DashboardState extends State<Dashboard> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const PredictiveSpendingScreen(),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const PredictiveSpendingScreen(),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          height: MediaQuery.sizeOf(context).height * 0.08,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black, width: 4),
+                            color: dashboardCardColor,
                           ),
-                        );
-                      },
-                      child: Container(
-                        height: MediaQuery.sizeOf(context).height * 0.08,
-                        width: MediaQuery.sizeOf(context).width * 0.35,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black, width: 4),
-                          color: dashboardCardColor,
-                        ),
-                        child: Center(
-                          child: Text(
-                            "INSIGHTS",
-                            style: colours.h2.copyWith(
-                              color: dashboardCardTextColor,
-                              fontSize: 15,
+                          child: Center(
+                            child: Text(
+                              "INSIGHTS",
+                              style: colours.h2.copyWith(
+                                color: dashboardCardTextColor,
+                                fontSize: 15,
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => GraphicalReportsScreen(database: db),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  GraphicalReportsScreen(database: db),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          height: MediaQuery.sizeOf(context).height * 0.08,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black, width: 4),
+                            color: dashboardCardColor,
                           ),
-                        );
-                      },
-                      child: Container(
-                        height: MediaQuery.sizeOf(context).height * 0.08,
-                        width: MediaQuery.sizeOf(context).width * 0.35,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black, width: 4),
-                          color: dashboardCardColor,
-                        ),
-                        child: Center(
-                          child: Text(
-                            "REPORTS",
-                            style: colours.h2.copyWith(
-                              color: dashboardCardTextColor,
-                              fontSize: 15,
+                          child: Center(
+                            child: Text(
+                              "REPORTS",
+                              style: colours.h2.copyWith(
+                                color: dashboardCardTextColor,
+                                fontSize: 15,
+                              ),
                             ),
                           ),
                         ),
@@ -814,17 +896,7 @@ class _DashboardState extends State<Dashboard> {
                   ),
                 )
               else
-                ...recentTransactions.map((t) {
-                  final isExpense = t.type == TransactionType.expense;
-                  final prefix = isExpense ? '- ' : '+ ';
-                  return TransactionTile(
-                    icon: _transactionIcon(t),
-                    title: t.shortDescription,
-                    subtitle: _transactionSubtitle(t),
-                    amount: '$prefix${_formatCurrency(_amountAsDouble(t))}',
-                    isExpense: isExpense,
-                  );
-                }),
+                ...recentTransactions.map(_dashboardTransactionTile),
             ],
           ),
         ),
