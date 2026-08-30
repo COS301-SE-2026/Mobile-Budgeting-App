@@ -36,13 +36,25 @@ class LlmSchemaClassifier implements SchemaClassifier {
     );
   }
 
+  static Future<void> ensureModelDownloaded() async {
+    final installed = await FlutterGemma.isModelInstalled(_modelFileName);
+    if (installed) return;
+    await FlutterGemma.installModel(
+      modelType: ModelType.gemmaIt,
+      fileType: ModelFileType.task,
+    ).fromNetwork(_modelUrl).install();
+  }
+
   @override
   Future<StatementSchema> classify(List<CandidateRow> sampleRows) async {
     if (sampleRows.isEmpty) {
       return const StatementSchema(signConvention: SignConvention.keywordBased);
     }
 
-    final markers = sampleRows
+    final deterministic = classifyDeterministic(sampleRows);
+    if (deterministic != null) return deterministic;    
+
+   /* final markers = sampleRows
         .map((r) => r.signMarker?.toUpperCase())
         .whereType<String>()
         .toSet();
@@ -50,12 +62,15 @@ class LlmSchemaClassifier implements SchemaClassifier {
     if (markers.contains('DEBIT') || markers.contains('CREDIT')) {
       return const StatementSchema(signConvention: SignConvention.separateDebitCredit);
     }
+    if (markers.contains('DEBIT') && !markers.contains('CREDIT')) {
+      return const StatementSchema(signConvention: SignConvention.explicitDebitMeansExpense);
+    }
     if (markers.contains('CR') && !markers.contains('-')) {
       return const StatementSchema(signConvention: SignConvention.crSuffixMeansIncome);
     }
     if (markers.contains('-') && !markers.contains('CR')) {
       return const StatementSchema(signConvention: SignConvention.minusPrefixMeansExpense);
-    }
+    }*/ //yah neh
 
     InferenceModel? model;
 
@@ -255,6 +270,7 @@ String _buildPrompt(List<CandidateRow> rows) {
     'keyword': SignConvention.keywordBased,
     'debitcredit': SignConvention.separateDebitCredit,
     'creditdebit': SignConvention.separateDebitCredit,
+    'debitonly' : SignConvention.explicitDebitMeansExpense,
   };
 
   SignConvention _parseSignConvention(String value) {

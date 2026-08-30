@@ -6,6 +6,8 @@ import '../../../database/daos/category_dao.dart';
 import '../../../models/import/parsed_transaction.dart';
 import '../../../services/import/import_orchestrator.dart';
 import 'import_preview_screen.dart';
+import 'schema_confirmation_dialog.dart';
+import '../../../services/import/schema_discovery_service.dart';
 
 
 class ImportScreen extends StatefulWidget {
@@ -55,6 +57,14 @@ class _ImportScreenState extends State<ImportScreen> {
                 db:widget.db,
                 taDao: TransactionDao(widget.db),
                 categoryDao: CategoryDao(widget.db),
+                onNeedsSchemaConfirmation: (proposed, sampleRows) async {
+                    if (!mounted) return proposed;
+                    return showSchemaConfirmationDialog(
+                        context,
+                        proposed: proposed,
+                        sampleRows: sampleRows,
+                    );
+                },                
             );
 
             final preview = await orchestrator.preparePreview(path);
@@ -81,6 +91,8 @@ class _ImportScreenState extends State<ImportScreen> {
                     ),
                 ),
             );
+        } on ImportCancelledException{
+
         } catch (e) {
             setState(() => _error = e.toString());
         } finally {
