@@ -3,7 +3,7 @@ enum SignConvention {
   minusPrefixMeansExpense,
   separateDebitCredit,
   signedAmount,
-
+  explicitDebitMeansExpense,
   keywordBased,
 }
 

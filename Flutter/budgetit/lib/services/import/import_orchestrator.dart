@@ -19,15 +19,18 @@ class ImportOrchestrator {
     final TransactionDao _taDao;
     final CategoryDao _categoryDao;
     final StatementParserService _parser;
+    final SchemaConfirmationCallback? _onNeedsSchemaConfirmation;
 
     ImportOrchestrator ({
         required AppDatabase db,
         required TransactionDao taDao,
         required CategoryDao categoryDao,
+        SchemaConfirmationCallback? onNeedsSchemaConfirmation,
     })  
     :   _db = db,
         _taDao = taDao,
         _categoryDao = categoryDao,
+        _onNeedsSchemaConfirmation = onNeedsSchemaConfirmation,
         _parser = StatementParserService(
           schemaDiscovery: SchemaDiscoveryService(
             classifier: LlmSchemaClassifier(),
@@ -37,7 +40,7 @@ class ImportOrchestrator {
 
 
     Future<List<ParsedTransaction>> preparePreview(String filePath) async {
-    final parsed = await _parser.parse(filePath);
+    final parsed = await _parser.parse(filePath, onNeedsSchemaConfirmation: _onNeedsSchemaConfirmation);
     if (parsed.isEmpty) return [];
 
 
@@ -65,7 +68,10 @@ Future<ImportResult> commitImport(
         int failed = 0;
         final errors = <String, String> {};
 
-        for (final ta in transactions) {
+          for (final ta in transactions) {
+            if (ta.excludedByUser) {
+              continue;
+            }
             if (ta.isDuplicate && !forceAll){
                 duplicatesSkipped++;
                 continue;
