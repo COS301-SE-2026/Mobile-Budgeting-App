@@ -24,6 +24,7 @@ import 'package:flutter_gemma/flutter_gemma.dart';
 //import 'package:flutter_gemma_litertlm/flutter_gemma_litertlm.dart';
 import 'package:pdfrx/pdfrx.dart';
 import 'package:flutter_gemma_mediapipe/flutter_gemma_mediapipe.dart';
+import 'services/import/llm_schema_classifier.dart';
 
 
 void main() async {
@@ -142,6 +143,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(_runRecurringTransactionCatchUp());
+      unawaited(LlmSchemaClassifier.ensureModelDownloaded());
     });
   }
 
