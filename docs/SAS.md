@@ -102,7 +102,8 @@ The Observer pattern will be used to automatically update parts of the system wh
 
 ### 2.4 Architectural Diagram
 
-![[Architecture_diagram.png]]
+
+![Architecture Diagram](Architecture_diagram.png)
 
 ---
 
