@@ -4,22 +4,109 @@
 
 ## Table of Contents
 
-- [1 Introduction](#1-introduction)
-- [2 Requirements Overview](#2-requirements-overview)
-- [3 User Stories / User Characteristics](#3-user-stories--user-characteristics)
-- [4 Use Cases](#4-use-cases)
-- [5 Functional Requirements](#5-functional-requirements)
-- [6 Quality Requirements](#6-quality-requirements)
+- 1. Introduction
+    
+    - 1.1 Business Need
+        
+    - 1.2 Project Scope
+        
+- 2. Requirements Overview
+    
+    - 2.1 Client Requirements
+        
+    - 2.2 Technical Requirements
+        
+    - 2.3 Non-Technical Requirements
+        
+- 3. User Stories / User Characteristics
+    
+    - 3.1 User Types
+        
+        - Guest User
+            
+        - Registered User
+            
+    - 3.2 User Stories
+        
+        - Transaction Management
+            
+        - Budget Management
+            
+        - Bank Statement Import
+            
+        - Dashboard and Reporting
+            
+        - Security and Authentication
+            
+        - AI and Insights
+            
+        - Optional Online Features
+            
+- 4. Use Cases
+    
+    - UC-01: Manage Transactions Manually
+        
+    - UC-02: Manage Budget Categories and Alerts
+        
+    - UC-03: Import Bank Statement
+        
+    - UC-04: View Dashboard and Search Transactions
+        
+    - UC-05: Track Recurring Transactions
+        
+    - UC-06: View Graphical Spending Reports
+        
+    - UC-07: Export Financial Report
+        
+    - UC-08: Capture Transaction via Receipt Picture
+        
+    - UC-09: Anomaly Detection and Predictive Spending
+        
+    - UC-10: Personal Financial Health Score
+        
+    - UC-11: Authenticate Online with AWS Cognito
+        
+    - UC-12: Synchronise Data Across Devices
+        
+    - UC-13: Manage Friends List
+        
+    - UC-14: Share and Track Goals with Friends
+        
+    - UC-15: Transaction Auto-Classification
+        
+    - Use Case Diagrams
+        
+- 5. Functional Requirements
+    
+    - R1: Transaction Management
+        
+    - R2: Budget Management
+        
+    - R3: Bank Statement Import & Classification
+        
+    - R4: Dashboard & Reporting
+        
+    - R5: Anomaly Detection and Prediction
+        
+    - R6: Online Authentication
+        
+    - R7: Cross-Device Synchronisation
+        
+    - R8: Friends List Management
+        
+    - R9: Goal Sharing
+        
+- 6. Domain Model
 
 ---
 
 ## 1 Introduction
 
-### Business Need
+### 1.1 Business Need
 
 South Africa's personal finance landscape presents a growing challenge: unreliable mobile connectivity, growing privacy concerns, and a market saturated by cloud-dependent applications. Existing tools mostly require account registration, store sensitive financial records on external servers, and become inaccessible when offline — making them impractical for users in low-connectivity environments or those uncomfortable with their data being visible to third parties.
 
-### Project Scope
+### 1.2 Project Scope
 
 The Mobile Budgeting App is a cross-platform mobile application targeting Android primarily, with potential iOS support. Its scope is structured in three tiers.
 
@@ -32,8 +119,7 @@ The Mobile Budgeting App is a cross-platform mobile application targeting Androi
 
 **AI features (on-device)** form the project's "wow factors":
 - Automatic transaction categorisation using an on-device ML model
-- Anomaly detection for unusual spending and predictive monthly spending forecasts
-- Personal financial health scoring with plain-language insights
+- Schema Discovery for Transaction Imports
 
 **Optional online features** are scoped as post-MVP enhancements:
 - Secure user authentication via AWS Cognito
@@ -125,27 +211,27 @@ A Registered User has created an account via AWS Cognito and may optionally enab
 
 #### Dashboard and Reporting
 
-| ID | User Story | Priority |
-|---|---|---|
-| US-10 | As a user, I want to see a summary of my income, expenses, and budget status so that I understand my financial position at a glance. | High |
-| US-11 | As a user, I want to view charts showing my spending distribution across categories so that I can identify patterns visually. | Medium |
-| US-12 | As a user, I want to export my transaction history and budget summary to CSV or PDF so that I can archive or share my records. | Low |
+| ID    | User Story                                                                                                                           | Priority |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------ | -------- |
+| US-10 | As a user, I want to see a summary of my income, expenses, and budget status so that I understand my financial position at a glance. | High     |
+| US-11 | As a user, I want to view charts showing my spending distribution across categories so that I can identify patterns visually.        | Medium   |
+| US-12 | As a user, I want to export my transaction history and budget summary to CSV or PDF so that I can archive or share my records.       | Low      |
 
 #### Security and Authentication
 
-| ID | User Story | Priority |
-|---|---|---|
-| US-13 | As a user, I want my financial data stored in an encrypted local database so that it is protected if my device is lost or stolen. | High |
-| US-14 | As a user, I want to unlock the app with my PIN or biometrics so that access is quick and secure. | High |
+| ID    | User Story                                                                                                                        | Priority |
+| ----- | --------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| US-13 | As a user, I want my financial data stored in an encrypted local database so that it is protected if my device is lost or stolen. | High     |
+| US-14 | As a user, I want to unlock the app with my PIN or biometrics so that access is quick and secure.                                 | High     |
 
 #### AI and Insights
 
-| ID | User Story | Priority |
-|---|---|---|
-| US-15 | As a user, I want the app to automatically categorise my imported transactions using ML so that I spend less time on manual entry. | High |
-| US-16 | As a user, I want to be notified of unusual spending spikes so that I can investigate potential errors or unexpected charges. | High |
-| US-17 | As a user, I want to see a predicted spending total for the rest of the month so that I can plan ahead. | Medium |
-| US-18 | As a user, I want an AI-generated financial health score so that I can understand my overall financial wellbeing at a glance. | Medium |
+| ID    | User Story                                                                                                                         | Priority |
+| ----- | ---------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| US-15 | As a user, I want the app to automatically categorise my imported transactions using ML so that I spend less time on manual entry. | High     |
+| US-16 | As a user, I want to be notified of unusual spending spikes so that I can investigate potential errors or unexpected charges.      | High     |
+| US-17 | As a user, I want to see a predicted spending total for the rest of the month so that I can plan ahead.                            | Medium   |
+| US-18 | As a user, I want a financial health score so that I can understand my overall financial wellbeing at a glance.                    | Medium   |
 
 #### Optional Online Features
 
@@ -186,11 +272,11 @@ A Registered User has created an account via AWS Cognito and may optionally enab
 
 ---
 
-### UC-03: Import Bank Statement and Auto-Classify
+### UC-03: Import Bank Statement 
 
 **Actor:** User (Guest or Registered)  
 **Preconditions:** The app is unlocked. A bank statement in CSV or PDF format is saved on the device.  
-**Postconditions:** Extracted transactions are saved locally, auto-categorised, and the dashboard is updated.
+**Postconditions:** Extracted transactions are saved locally, and the dashboard is updated.
 
 **TUCBW:** The user selects "Import Statement" from the menu.  
 **TUCEW:** All valid transactions from the statement are saved to the local database.
@@ -251,33 +337,21 @@ The system generates the file entirely on-device without transmitting data exter
 
 ---
 
-### UC-08: Capture Receipt via Camera 
+### UC-08: Capture Transaction via Receipt picture 
 
 **Actor:** User (Guest or Registered)  
-**Preconditions:** The device has a camera. The user is viewing a transaction detail screen.  
-**Postconditions:** A receipt image is stored locally and linked to the transaction.
+**Preconditions:** The device has a camera. The user takes a picture of their receipt.  
+**Postconditions:** The user's receipt is automatically converted into a transaction.
 
-**TUCBW:** The user selects "Attach Receipt" on a transaction detail screen.  
-**TUCEW:** The captured image is stored locally and linked to the transaction record.
+**TUCBW:** The user takes a picture of a receipt and submits.  
+**TUCEW:** The captured image is converted into a transaction and stored.
 
-The system requests camera permission only when this feature is first used. The captured image is stored locally and accessible from the transaction detail screen. Deleting the transaction offers the option to also delete the linked receipt image.
+The system requests camera permission only when this feature is first used. 
 
 ---
 
-### UC-9: AI Spending Analysis and Auto-Categorisation 
 
-**Actor:** User (Guest or Registered)  
-**Preconditions:** The on-device ML model is loaded. At least one uncategorised transaction exists.  
-**Postconditions:** All transactions are categorised and category-level overspend insights are stored and surfaced on the dashboard.
-
-**TUCBW:** The user imports a bank statement or adds a transaction, triggering the analysis pipeline.  
-**TUCEW:** All new transactions are categorised and plain-language insights are surfaced on the dashboard.
-
-
-
----
-
-### UC-10: Anomaly Detection and Predictive Spending 
+### UC-9: Anomaly Detection and Predictive Spending 
 
 **Actor:** User (Guest or Registered)  
 **Preconditions:** At least one full month of transaction history exists in the local database.  
@@ -290,7 +364,7 @@ The system requests camera permission only when this feature is first used. The 
 
 ---
 
-### UC-11: Personal Financial Health Score 
+### UC-10: Personal Financial Health Score 
 
 **Actor:** User (Guest or Registered)  
 **Preconditions:** At least one month of transaction data exists and at least one budget category is defined.  
@@ -302,7 +376,7 @@ The system requests camera permission only when this feature is first used. The 
 
 ---
 
-### UC-12: Authenticate Online with AWS Cognito 
+### UC-11: Authenticate Online with AWS Cognito 
 
 **Actor:** Registered User  
 **Preconditions:** The device has internet connectivity. The user has not yet logged in.  
@@ -315,7 +389,7 @@ Registration and login are handled via the AWS Cognito SDK. On successful authen
 
 ---
 
-### UC-13: Synchronise Data Across Devices 
+### UC-12: Synchronise Data Across Devices 
 
 **Actor:** Registered User  
 **Preconditions:** The user is logged in on at least two devices. Network connectivity is available.  
@@ -328,7 +402,7 @@ Changes made while offline are queued locally. When connectivity is restored, th
 
 ---
 
-### UC-14: Manage Friends List 
+### UC-13: Manage Friends List 
 
 **Actor:** Registered User  
 **Preconditions:** The user is logged in and has network connectivity.  
@@ -341,7 +415,7 @@ Users search for others by email or username. No financial data is exposed throu
 
 ---
 
-### UC-15: Share and Track Goals with Friends 
+### UC-14: Share and Track Goals with Friends 
 
 **Actor:** Registered User  
 **Preconditions:** The user is logged in, has network connectivity, and has at least one friend.  
@@ -354,14 +428,71 @@ The user defines a shared goal with a name, target amount, and optional end date
 
 ---
 
+### UC-15: Transaction Auto-Classification  
+
+**Actor:** User (Guest or Registered)  
+**Preconditions:** The app is unlocked. A transaction is added.
+**Postconditions:** The added transaction is automatically categorised
+
+**TUCBW:** The user adds Transactions in "Transaction Manager". 
+**TUCEW:** All transactions are auto-categorized and saved in the "Budgets" table.
+
+
+---
+
 ### Use Case Diagrams
 
-![Alt text](assets/diagrams/UC1.drawio.png)
-![Alt text](assets/diagrams/UC2.drawio.png)
-![Alt text](assets/diagrams/UC3.drawio.png)
+UC1:
+![Alt text](assets/diagrams/UC/UC1.drawio.png)
+
+UC2:
+![Alt text](assets/diagrams/UC/UC2.drawio.png)
+
+UC3:
+![Alt text](assets/diagrams/UC/UC3.drawio.png)
 
 
+UC4:
+![Alt text](UC4.drawio.png)
 
+UC5:
+![Alt text](UC5.drawio.png)
+
+UC5:
+![Alt text](assets/diagrams/UC/UC5.drawio.png)
+
+UC6:
+![Alt text](assets/diagrams/UC/UC6.drawio.png)
+
+UC7:
+![Alt text](assets/diagrams/UC/UC7.drawio.png)
+
+UC8:
+![Alt text](assets/diagrams/UC/UC8.drawio.png)
+
+UC9:
+![Alt text](assets/diagrams/UC/UC9.drawio.png)
+
+UC10:
+![Alt text](assets/diagrams/UC/UC10.drawio.png)
+
+UC11:
+![Alt text](assets/diagrams/UC/UC11.drawio.png)
+
+UC12:
+![Alt text](assets/diagrams/UC/UC12.drawio.png)
+
+UC13:
+![Alt text](assets/diagrams/UC/UC13.drawio.png)
+
+UC14:
+![Alt text](assets/diagrams/UC/UC14.drawio.png)
+
+UC15:
+![Alt text](assets/diagrams/UC/UC15.drawio.png)
+
+
+---
 ## 5 Functional Requirements
 
 Requirements are assigned to the six subsystems as followed: 
@@ -398,17 +529,11 @@ Requirements are assigned to the six subsystems as followed:
   - R4.1.1: The system shall display a dashboard showing income totals, expense totals and budget summaries.
   - R4.1.2: The system shall present financial summaries using charts and visual analytics.
 
-#### R5: On-Device AI
+#### R5: Anomaly Detection and Prediction
 
-- **R5.1: Spending Analysis**
-  - R5.1.1: The system shall use an on-device ML model (TensorFlow Lite or ONNX Runtime) to automatically categorise transactions.
-  - R5.1.2: The system shall detect spending categories where a User consistently overspends.
-- **R5.2: Anomaly Detection & Prediction**
-  - R5.2.1: The system shall detect unusual financial activity and sudden spending spikes.
-  - R5.2.2: The system shall predict future spending trends from historical transaction data.
-- **R5.3: Financial Health Score**
-  - R5.3.1: The system shall generate an AI-driven financial health score based on spending behaviour and income stability.
-  - R5.3.2: The system shall provide plain-language insights about financial habits, entirely on-device with no data leaving the phone.
+  - R5.1.1: The system shall detect unusual financial activity and sudden spending spikes.
+  - R5.1.2: The system shall predict future spending trends from historical transaction data.
+ 
 
 #### R6: Online Authentication 
 
@@ -439,81 +564,6 @@ Requirements are assigned to the six subsystems as followed:
 - R9.5: The system shall keep all shared goal data encrypted in transit and at rest on remote servers.
 
 ---
----
+## 6 Domain Model
 
-## 6 Quality Requirements
-
-### Performance
-
-| ID | Requirement | Quantified Measure |
-|---|---|---|
-| QR-P1 | The app shall reach the dashboard from a cold start. | ≤ 2 seconds on a Snapdragon 665-class device with 4 GB RAM |
-| QR-P2 | The dashboard shall load all current-month summaries and charts on navigation. | ≤ 1 second |
-| QR-P3 | Transaction search results shall update as the user types. | ≤ 300 ms per query |
-
----
-
-### Security
-
-| ID | Requirement | Quantified Measure |
-|---|---|---|
-| QR-S1 | All financial data stored on the device shall be encrypted at rest. | AES-256 via SQLCipher; verified by attempting direct file access without the key |
-| QR-S2 | All data transmitted between the device and remote services shall be encrypted in transit. | TLS 1.2 minimum; verified by network interception tests |
-| QR-S3 | The application shall transmit zero financial data to external servers without explicit user consent. | 0 unauthorised outbound financial data requests; verified by network monitoring tests |
-| QR-S4 | Repeated failed authentication attempts shall result in a lockout. | App locks after 5 consecutive failures; 30-second timeout per lockout cycle |
-
----
-
-### Reliability
-
-| ID | Requirement | Quantified Measure |
-|---|---|---|
-| QR-R1 | All core features shall be available without internet connectivity. | 100% offline availability; verified by full test suite execution in flight mode |
-| QR-R2 | Local data shall remain fully intact following an unexpected app termination. | Zero data loss on forced-kill tests across 10 consecutive test runs |
-| QR-R3 | If synchronisation fails, local data shall remain unchanged. | Zero data loss or corruption on sync failure; verified by simulated network drop tests |
-| QR-R4 | The duplicate detection mechanism shall prevent re-importing previously imported transactions. | Duplicate detection accuracy ≥ 99% on a standardised 500-row test dataset |
-
----
-
-### Scalability
-
-| ID | Requirement | Quantified Measure |
-|---|---|---|
-| QR-SC1 | The local database shall support large transaction histories without performance degradation. | Up to 10,000 transactions with dashboard load remaining ≤ 1 second |
-| QR-SC2 | The system shall support a sufficient number of user-defined categories. | Up to 50 custom categories without UI or query performance degradation |
-| QR-SC3 | The AI analysis pipeline shall operate over an extended transaction history. | Up to 24 months of historical data; analysis completion ≤ 10 seconds |
-
----
-
-### Maintainability
-
-| ID | Requirement | Quantified Measure |
-|---|---|---|
-| QR-M1 | The system shall follow a modular architecture where each subsystem can be developed, tested, and updated independently. | Verified by component isolation tests and architecture documentation review |
-| QR-M2 | Core modules (transaction management, budget logic, statement parsing) shall maintain minimum unit test coverage. | ≥ 80% unit test coverage per module, enforced by CI/CD pipeline |
-| QR-M3 | All code changes shall be validated by the automated pipeline before merging to the main branch. | 0 merges to main without a passing GitHub Actions build and test run |
-| QR-M4 | The on-device ML model shall be replaceable without requiring changes to the application business logic. | Model swap verified via the Adapter pattern interface; no changes required in layers above the AI/Processing Layer |
-
----
-
-### Usability
-
-| ID | Requirement | Quantified Measure |
-|---|---|---|
-| QR-U1 | The application shall support both light and dark themes. | User-selectable via settings; theme preference persisted across sessions |
-| QR-U2 | A first-time user shall be able to complete onboarding and add their first transaction without external assistance. | Onboarding completion within 3 minutes in usability testing with five representative users |
-| QR-U3 | The application shall render smoothly on devices of varying hardware capability. | No dropped frames (< 60 fps) on Snapdragon 665-class hardware during standard navigation |
-
----
-
-## Architecture
-
-The system employs a three-tier architecture with microservices within the logic layer. This approach provides a clear separation of concerns, enabling robust parallel development. The use of microservices increases reliability through decentralised control and independent deployment, allowing core features to operate regardless of external or online dependencies.
-
-Alongside the API Gateway used for microservices, an Auth service (AWS Cognito) provides secure authentication — a feature paramount in a security-first application. DAOs offer a flexible and efficient interface with the local SQLite database, integrating cleanly with the Flutter GUI.
-
-Within the data layer, a deployed PostgreSQL database provides reliable and powerful storage backed by AWS hosting, while the local SQLite database delivers efficient on-device storage suited to mid-range devices without impacting performance. An S3 Bucket Store supports the Sync service by storing dumps of the local database, avoiding the need to sync the full database on every sync operation and thereby preventing redundancy and performance degradation.
-
-> **Note:** This architecture is a preliminary design and is subject to change in accordance with our agile philosophy.
-
-
+![[domain_model.png|700]]
