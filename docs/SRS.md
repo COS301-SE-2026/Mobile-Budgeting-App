@@ -578,4 +578,4 @@ Requirements are assigned to the six subsystems as followed:
 ---
 ## 6 Domain Model
 
-![[domain_model.png|700]]
+![Domain Model](domain_model.png)
