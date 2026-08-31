@@ -453,10 +453,7 @@ UC3:
 
 
 UC4:
-![Alt text](UC4.drawio.png)
-
-UC5:
-![Alt text](UC5.drawio.png)
+![Alt text](assets/diagrams/UC/UC4.drawio.png)
 
 UC5:
 ![Alt text](assets/diagrams/UC/UC5.drawio.png)
