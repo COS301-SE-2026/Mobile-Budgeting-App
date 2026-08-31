@@ -443,49 +443,64 @@ The user defines a shared goal with a name, target amount, and optional end date
 ### Use Case Diagrams
 
 UC1:
+
 ![Alt text](assets/diagrams/UC/UC1.drawio.png)
 
 UC2:
+
 ![Alt text](assets/diagrams/UC/UC2.drawio.png)
 
 UC3:
+
 ![Alt text](assets/diagrams/UC/UC3.drawio.png)
 
 
 UC4:
+
 ![Alt text](assets/diagrams/UC/UC4.drawio.png)
 
 UC5:
+
 ![Alt text](assets/diagrams/UC/UC5.drawio.png)
 
 UC6:
+
 ![Alt text](assets/diagrams/UC/UC6.drawio.png)
 
 UC7:
+
 ![Alt text](assets/diagrams/UC/UC7.drawio.png)
 
 UC8:
+
 ![Alt text](assets/diagrams/UC/UC8.drawio.png)
 
 UC9:
+
 ![Alt text](assets/diagrams/UC/UC9.drawio.png)
 
 UC10:
+
 ![Alt text](assets/diagrams/UC/UC10.drawio.png)
 
 UC11:
+
 ![Alt text](assets/diagrams/UC/UC11.drawio.png)
 
 UC12:
+
 ![Alt text](assets/diagrams/UC/UC12.drawio.png)
 
 UC13:
+
 ![Alt text](assets/diagrams/UC/UC13.drawio.png)
 
 UC14:
+
 ![Alt text](assets/diagrams/UC/UC14.drawio.png)
 
 UC15:
+
 ![Alt text](assets/diagrams/UC/UC15.drawio.png)
 
 
