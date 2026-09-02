@@ -128,15 +128,15 @@ class _Fake$AppSettingsTable_15 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
-class _FakeGeneratedDatabase_16 extends _i1.SmartFake
-    implements _i2.GeneratedDatabase {
-  _FakeGeneratedDatabase_16(Object parent, Invocation parentInvocation)
+class _FakeDriftDatabaseOptions_16 extends _i1.SmartFake
+    implements _i2.DriftDatabaseOptions {
+  _FakeDriftDatabaseOptions_16(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeDriftDatabaseOptions_17 extends _i1.SmartFake
-    implements _i2.DriftDatabaseOptions {
-  _FakeDriftDatabaseOptions_17(Object parent, Invocation parentInvocation)
+class _FakeGeneratedDatabase_17 extends _i1.SmartFake
+    implements _i2.GeneratedDatabase {
+  _FakeGeneratedDatabase_17(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -464,26 +464,26 @@ class MockAppDatabase extends _i1.Mock implements _i8.AppDatabase {
           as List<_i2.DatabaseSchemaEntity>);
 
   @override
-  _i2.GeneratedDatabase get attachedDatabase =>
-      (super.noSuchMethod(
-            Invocation.getter(#attachedDatabase),
-            returnValue: _FakeGeneratedDatabase_16(
-              this,
-              Invocation.getter(#attachedDatabase),
-            ),
-          )
-          as _i2.GeneratedDatabase);
-
-  @override
   _i2.DriftDatabaseOptions get options =>
       (super.noSuchMethod(
             Invocation.getter(#options),
-            returnValue: _FakeDriftDatabaseOptions_17(
+            returnValue: _FakeDriftDatabaseOptions_16(
               this,
               Invocation.getter(#options),
             ),
           )
           as _i2.DriftDatabaseOptions);
+
+  @override
+  _i2.GeneratedDatabase get attachedDatabase =>
+      (super.noSuchMethod(
+            Invocation.getter(#attachedDatabase),
+            returnValue: _FakeGeneratedDatabase_17(
+              this,
+              Invocation.getter(#attachedDatabase),
+            ),
+          )
+          as _i2.GeneratedDatabase);
 
   @override
   _i2.StreamQueryUpdateRules get streamUpdateRules =>
@@ -1019,29 +1019,6 @@ class MockAppDatabase extends _i1.Mock implements _i8.AppDatabase {
           as _i2.GenerationContext);
 
   @override
-  _i2.GenerationContext $writeUpdateInsertable(
-    _i2.TableInfo<_i2.Table, dynamic>? table,
-    _i2.Insertable<dynamic>? insertable, {
-    int? startIndex,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #$writeUpdateInsertable,
-              [table, insertable],
-              {#startIndex: startIndex},
-            ),
-            returnValue: _FakeGenerationContext_32(
-              this,
-              Invocation.method(
-                #$writeUpdateInsertable,
-                [table, insertable],
-                {#startIndex: startIndex},
-              ),
-            ),
-          )
-          as _i2.GenerationContext);
-
-  @override
   String $expandVar(int? start, int? amount) =>
       (super.noSuchMethod(
             Invocation.method(#$expandVar, [start, amount]),
@@ -1087,7 +1064,7 @@ class MockTransactionDao extends _i1.Mock implements _i4.TransactionDao {
   _i2.DriftDatabaseOptions get options =>
       (super.noSuchMethod(
             Invocation.getter(#options),
-            returnValue: _FakeDriftDatabaseOptions_17(
+            returnValue: _FakeDriftDatabaseOptions_16(
               this,
               Invocation.getter(#options),
             ),
@@ -1855,29 +1832,6 @@ class MockTransactionDao extends _i1.Mock implements _i4.TransactionDao {
           as _i2.GenerationContext);
 
   @override
-  _i2.GenerationContext $writeUpdateInsertable(
-    _i2.TableInfo<_i2.Table, dynamic>? table,
-    _i2.Insertable<dynamic>? insertable, {
-    int? startIndex,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #$writeUpdateInsertable,
-              [table, insertable],
-              {#startIndex: startIndex},
-            ),
-            returnValue: _FakeGenerationContext_32(
-              this,
-              Invocation.method(
-                #$writeUpdateInsertable,
-                [table, insertable],
-                {#startIndex: startIndex},
-              ),
-            ),
-          )
-          as _i2.GenerationContext);
-
-  @override
   String $expandVar(int? start, int? amount) =>
       (super.noSuchMethod(
             Invocation.method(#$expandVar, [start, amount]),
@@ -1932,7 +1886,7 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
   _i2.DriftDatabaseOptions get options =>
       (super.noSuchMethod(
             Invocation.getter(#options),
-            returnValue: _FakeDriftDatabaseOptions_17(
+            returnValue: _FakeDriftDatabaseOptions_16(
               this,
               Invocation.getter(#options),
             ),
@@ -2652,29 +2606,6 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
               this,
               Invocation.method(
                 #$writeInsertable,
-                [table, insertable],
-                {#startIndex: startIndex},
-              ),
-            ),
-          )
-          as _i2.GenerationContext);
-
-  @override
-  _i2.GenerationContext $writeUpdateInsertable(
-    _i2.TableInfo<_i2.Table, dynamic>? table,
-    _i2.Insertable<dynamic>? insertable, {
-    int? startIndex,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #$writeUpdateInsertable,
-              [table, insertable],
-              {#startIndex: startIndex},
-            ),
-            returnValue: _FakeGenerationContext_32(
-              this,
-              Invocation.method(
-                #$writeUpdateInsertable,
                 [table, insertable],
                 {#startIndex: startIndex},
               ),

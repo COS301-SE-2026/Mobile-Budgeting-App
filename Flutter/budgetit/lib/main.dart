@@ -1,4 +1,8 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+import 'package:powersync/powersync.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:budgetit/views/transaction_manager/transaction.manager.dart';
@@ -11,8 +15,10 @@ import 'auth/data/cognito_auth_service.dart';
 import 'auth/providers/auth_provider.dart';
 import 'database/app_database.dart';
 import 'database/database_seeder.dart';
+import 'database/powersync_schema.dart';
 import 'models/recurring/recurring_transaction_catch_up_result.dart';
 import 'services/recurring/recurring_transaction_catch_up_service.dart';
+import 'synch/backendconnector.dart';
 import 'views/dashboard/dashboard.dart';
 import 'shared/widgets/login_password_screen.dart';
 import 'utils/theme_provider.dart';
@@ -26,7 +32,14 @@ void main() async {
   await _configureAmplify();
   const skipReseed = bool.fromEnvironment('SKIP_RESEED', defaultValue: false);
   final shouldReseed = kDebugMode && !skipReseed;
-  final db = await AppDatabase.create(reset: shouldReseed);
+
+  final powerSyncDb = await _openPowerSyncDatabase(reset: shouldReseed);
+  final db = AppDatabase(powerSyncDb);
+
+  // Initialise the local schema before seeding, so the tables exist when the
+  // seeder writes to them. Syncing is started separately once the user signs in.
+  await powerSyncDb.initialize();
+
   if (shouldReseed) await DatabaseSeeder(db).seed();
   if (kDebugMode) {
     unawaited(db.startDriftViewer(enabled: true));
@@ -45,7 +58,7 @@ void main() async {
         ),
         ChangeNotifierProvider(
           //USED DEEPSEEK TO FIX CONTEXT ERRORS
-          create: (_) => AppAuthProvider(authService: CognitoAuthService()),
+          create: (_) => _createAuthProvider(powerSyncDb),
         ),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(
@@ -56,6 +69,45 @@ void main() async {
       child: const BudgetApp(),
     ),
   );
+}
+
+Future<PowerSyncDatabase> _openPowerSyncDatabase({required bool reset}) async {
+  final directory = await getApplicationDocumentsDirectory();
+  final file = File(p.join(directory.path, 'budgetit.db'));
+  if (reset && await file.exists()) {
+    await file.delete();
+  }
+  return PowerSyncDatabase(
+    schema: powerSyncSchema,
+    path: file.path,
+  );
+}
+
+/// Creates the auth provider and keeps PowerSync in sync with the auth state.
+///
+/// PowerSync only connects once the user is signed in, and disconnects on
+/// sign-out — so it doesn't repeatedly fail to fetch a JWT while the user is
+/// a guest (which is what produced the recurring "JWT is null" errors).
+AppAuthProvider _createAuthProvider(PowerSyncDatabase powerSyncDb) {
+  final authProvider = AppAuthProvider(authService: CognitoAuthService());
+
+  AuthStatus? lastSyncedStatus;
+  void syncWithAuthStatus() {
+    final status = authProvider.status;
+    if (status == lastSyncedStatus) return;
+    lastSyncedStatus = status;
+    if (status == AuthStatus.loggedIn) {
+      unawaited(powerSyncDb.connect(connector: PSyncConnector()));
+    } else {
+      unawaited(powerSyncDb.disconnect());
+    }
+  }
+
+  authProvider.addListener(syncWithAuthStatus);
+  // Handle the current status in case the session check already resolved
+  // before this listener was attached.
+  syncWithAuthStatus();
+  return authProvider;
 }
 
 Future<void> _configureAmplify() async {

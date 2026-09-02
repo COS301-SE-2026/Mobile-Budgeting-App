@@ -5748,6 +5748,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     budgetPeriods,
     appSettings,
   ];
+  @override
+  DriftDatabaseOptions get options =>
+      const DriftDatabaseOptions(storeDateTimeAsText: true);
 }
 
 typedef $$CategoriesTableCreateCompanionBuilder =

@@ -1281,37 +1281,6 @@ class MockCategoryDao extends _i1.Mock implements _i5.CategoryDao {
           as _i3.GenerationContext);
 
   @override
-  _i3.GenerationContext $writeUpdateInsertable(
-    _i3.TableInfo<_i3.Table, dynamic>? table,
-    _i3.Insertable<dynamic>? insertable, {
-    int? startIndex,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #$writeUpdateInsertable,
-              [table, insertable],
-              {#startIndex: startIndex},
-            ),
-            returnValue: _FakeGenerationContext_24(
-              this,
-              Invocation.method(
-                #$writeUpdateInsertable,
-                [table, insertable],
-                {#startIndex: startIndex},
-              ),
-            ),
-            returnValueForMissingStub: _FakeGenerationContext_24(
-              this,
-              Invocation.method(
-                #$writeUpdateInsertable,
-                [table, insertable],
-                {#startIndex: startIndex},
-              ),
-            ),
-          )
-          as _i3.GenerationContext);
-
-  @override
   String $expandVar(int? start, int? amount) =>
       (super.noSuchMethod(
             Invocation.method(#$expandVar, [start, amount]),
@@ -2376,37 +2345,6 @@ class MockTransactionDao extends _i1.Mock implements _i7.TransactionDao {
           as _i3.GenerationContext);
 
   @override
-  _i3.GenerationContext $writeUpdateInsertable(
-    _i3.TableInfo<_i3.Table, dynamic>? table,
-    _i3.Insertable<dynamic>? insertable, {
-    int? startIndex,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #$writeUpdateInsertable,
-              [table, insertable],
-              {#startIndex: startIndex},
-            ),
-            returnValue: _FakeGenerationContext_24(
-              this,
-              Invocation.method(
-                #$writeUpdateInsertable,
-                [table, insertable],
-                {#startIndex: startIndex},
-              ),
-            ),
-            returnValueForMissingStub: _FakeGenerationContext_24(
-              this,
-              Invocation.method(
-                #$writeUpdateInsertable,
-                [table, insertable],
-                {#startIndex: startIndex},
-              ),
-            ),
-          )
-          as _i3.GenerationContext);
-
-  @override
   String $expandVar(int? start, int? amount) =>
       (super.noSuchMethod(
             Invocation.method(#$expandVar, [start, amount]),
@@ -3437,37 +3375,6 @@ class MockRecurringTransactionDao extends _i1.Mock
               this,
               Invocation.method(
                 #$writeInsertable,
-                [table, insertable],
-                {#startIndex: startIndex},
-              ),
-            ),
-          )
-          as _i3.GenerationContext);
-
-  @override
-  _i3.GenerationContext $writeUpdateInsertable(
-    _i3.TableInfo<_i3.Table, dynamic>? table,
-    _i3.Insertable<dynamic>? insertable, {
-    int? startIndex,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #$writeUpdateInsertable,
-              [table, insertable],
-              {#startIndex: startIndex},
-            ),
-            returnValue: _FakeGenerationContext_24(
-              this,
-              Invocation.method(
-                #$writeUpdateInsertable,
-                [table, insertable],
-                {#startIndex: startIndex},
-              ),
-            ),
-            returnValueForMissingStub: _FakeGenerationContext_24(
-              this,
-              Invocation.method(
-                #$writeUpdateInsertable,
                 [table, insertable],
                 {#startIndex: startIndex},
               ),
@@ -4521,37 +4428,6 @@ class MockBudgetDao extends _i1.Mock implements _i9.BudgetDao {
           as _i3.GenerationContext);
 
   @override
-  _i3.GenerationContext $writeUpdateInsertable(
-    _i3.TableInfo<_i3.Table, dynamic>? table,
-    _i3.Insertable<dynamic>? insertable, {
-    int? startIndex,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #$writeUpdateInsertable,
-              [table, insertable],
-              {#startIndex: startIndex},
-            ),
-            returnValue: _FakeGenerationContext_24(
-              this,
-              Invocation.method(
-                #$writeUpdateInsertable,
-                [table, insertable],
-                {#startIndex: startIndex},
-              ),
-            ),
-            returnValueForMissingStub: _FakeGenerationContext_24(
-              this,
-              Invocation.method(
-                #$writeUpdateInsertable,
-                [table, insertable],
-                {#startIndex: startIndex},
-              ),
-            ),
-          )
-          as _i3.GenerationContext);
-
-  @override
   String $expandVar(int? start, int? amount) =>
       (super.noSuchMethod(
             Invocation.method(#$expandVar, [start, amount]),
@@ -5390,37 +5266,6 @@ class MockSettingsDao extends _i1.Mock implements _i10.SettingsDao {
           as _i3.GenerationContext);
 
   @override
-  _i3.GenerationContext $writeUpdateInsertable(
-    _i3.TableInfo<_i3.Table, dynamic>? table,
-    _i3.Insertable<dynamic>? insertable, {
-    int? startIndex,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #$writeUpdateInsertable,
-              [table, insertable],
-              {#startIndex: startIndex},
-            ),
-            returnValue: _FakeGenerationContext_24(
-              this,
-              Invocation.method(
-                #$writeUpdateInsertable,
-                [table, insertable],
-                {#startIndex: startIndex},
-              ),
-            ),
-            returnValueForMissingStub: _FakeGenerationContext_24(
-              this,
-              Invocation.method(
-                #$writeUpdateInsertable,
-                [table, insertable],
-                {#startIndex: startIndex},
-              ),
-            ),
-          )
-          as _i3.GenerationContext);
-
-  @override
   String $expandVar(int? start, int? amount) =>
       (super.noSuchMethod(
             Invocation.method(#$expandVar, [start, amount]),
@@ -5714,21 +5559,6 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
           as List<_i3.DatabaseSchemaEntity>);
 
   @override
-  _i3.GeneratedDatabase get attachedDatabase =>
-      (super.noSuchMethod(
-            Invocation.getter(#attachedDatabase),
-            returnValue: _FakeGeneratedDatabase_42(
-              this,
-              Invocation.getter(#attachedDatabase),
-            ),
-            returnValueForMissingStub: _FakeGeneratedDatabase_42(
-              this,
-              Invocation.getter(#attachedDatabase),
-            ),
-          )
-          as _i3.GeneratedDatabase);
-
-  @override
   _i3.DriftDatabaseOptions get options =>
       (super.noSuchMethod(
             Invocation.getter(#options),
@@ -5742,6 +5572,21 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
             ),
           )
           as _i3.DriftDatabaseOptions);
+
+  @override
+  _i3.GeneratedDatabase get attachedDatabase =>
+      (super.noSuchMethod(
+            Invocation.getter(#attachedDatabase),
+            returnValue: _FakeGeneratedDatabase_42(
+              this,
+              Invocation.getter(#attachedDatabase),
+            ),
+            returnValueForMissingStub: _FakeGeneratedDatabase_42(
+              this,
+              Invocation.getter(#attachedDatabase),
+            ),
+          )
+          as _i3.GeneratedDatabase);
 
   @override
   _i3.StreamQueryUpdateRules get streamUpdateRules =>
@@ -6443,37 +6288,6 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
               this,
               Invocation.method(
                 #$writeInsertable,
-                [table, insertable],
-                {#startIndex: startIndex},
-              ),
-            ),
-          )
-          as _i3.GenerationContext);
-
-  @override
-  _i3.GenerationContext $writeUpdateInsertable(
-    _i3.TableInfo<_i3.Table, dynamic>? table,
-    _i3.Insertable<dynamic>? insertable, {
-    int? startIndex,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #$writeUpdateInsertable,
-              [table, insertable],
-              {#startIndex: startIndex},
-            ),
-            returnValue: _FakeGenerationContext_24(
-              this,
-              Invocation.method(
-                #$writeUpdateInsertable,
-                [table, insertable],
-                {#startIndex: startIndex},
-              ),
-            ),
-            returnValueForMissingStub: _FakeGenerationContext_24(
-              this,
-              Invocation.method(
-                #$writeUpdateInsertable,
                 [table, insertable],
                 {#startIndex: startIndex},
               ),
