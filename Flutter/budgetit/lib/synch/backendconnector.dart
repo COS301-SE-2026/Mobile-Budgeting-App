@@ -1,5 +1,6 @@
 import  'package:powersync/powersync.dart';
 import 'package:budgetit/auth/data/cognito_auth_service.dart';
+import 'package:budgetit/config/app_config.dart';
 import 'package:dio/dio.dart';
 
 
@@ -15,7 +16,7 @@ class PSyncConnector extends PowerSyncBackendConnector{
             throw Exception("JWT is null");
         }
         return PowerSyncCredentials(
-            endpoint:'' , //TODO set UP powersync container in docker
+            endpoint: AppConfig.powerSyncUrl,
             expiresAt: DateTime.now().add(const Duration(hours: 1)),
             token: JWT, 
         );
@@ -26,7 +27,7 @@ class PSyncConnector extends PowerSyncBackendConnector{
       CognitoAuthService authService = CognitoAuthService();
       final token = await authService.getJWT();
       final response = await dio.post(
-        "", //TODO put fastapi endpoint here
+        AppConfig.uploadEndpoint,
         data: payload,
         options: Options(
           headers: {
@@ -42,14 +43,18 @@ class PSyncConnector extends PowerSyncBackendConnector{
     @override
     Future<void> uploadData(PowerSyncDatabase database) async {
       final transaction = await database.getNextCrudTransaction();
-      if(transaction == null) return;
-      for (final operation in transaction.crud) {
-        final payload = {
-          'table': operation.table,
-          'operation': operation.toJson(),
-        };
-        await sendToFastAPI(payload);
-      }
-      
+      if (transaction == null) return;
+
+      final payload = {
+        'operations': transaction.crud.map((op) => {
+          'id': op.id,
+          'op': op.op.toString().split('.').last,
+          'table': op.table,
+          'data': op.opData,
+        }).toList(),
+      };
+
+      await sendToFastAPI(payload);
+      await transaction.complete();
     }
 } 

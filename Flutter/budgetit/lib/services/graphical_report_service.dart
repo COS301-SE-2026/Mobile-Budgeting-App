@@ -143,10 +143,10 @@ Future<List<CategorySpendingData>> _buildCategorySpending(
     final results = <BudgetComparisonData>[];
 
     for (final template in templates) {
-      final category =
-          await database.categoryDao.getCategoryById(
-        template.categoryId,
-      );
+      final categoryId = template.categoryId;
+      if (categoryId == null) continue;
+
+      final category = await database.categoryDao.getCategoryById(categoryId);
 
       if (category == null) continue;
 
