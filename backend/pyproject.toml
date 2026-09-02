@@ -3,8 +3,9 @@ name = "budgetit-backend"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
+    "asyncpg>=0.29",
     "fastapi>=0.138",
-    "jwt>=1.4.0",
+    "pyjwt[crypto]>=2.9.0",
     "python-dotenv>=1.0",
     "sqlalchemy>=2.0.52",
     "typing>=3.10.0.0",

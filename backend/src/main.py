@@ -67,11 +67,20 @@ async def on_startup():
         await conn.run_sync(Base.metadata.create_all)
 
 
-COGNITO_JWKS_URL = "https://cognito-idp.<region>.amazonaws.com/<user_pool_id>/.well-known/jwks.json"
+load_dotenv()
+ 
+COGNITO_REGION = os.getenv("COGNITO_REGION")
+COGNITO_USER_POOL_ID = os.getenv("COGNITO_USER_POOL_ID")
+COGNITO_APP_CLIENT_ID = os.getenv("COGNITO_APP_CLIENT_ID")
+ 
+COGNITO_JWKS_URL = (
+    f"https://cognito-idp.{COGNITO_REGION}.amazonaws.com/"
+    f"{COGNITO_USER_POOL_ID}/.well-known/jwks.json"
+)
 jwks_client = PyJWKClient(COGNITO_JWKS_URL)
-
-
-async def get_current_user(authorization: Annotated[str, Header(...)]) -> str:
+ 
+ 
+async def get_current_user(authorization: str = Header(...)) -> str:
     token = authorization.replace("Bearer ", "")
     try:
         signing_key = jwks_client.get_signing_key_from_jwt(token)
@@ -79,11 +88,12 @@ async def get_current_user(authorization: Annotated[str, Header(...)]) -> str:
             token,
             signing_key.key,
             algorithms=["RS256"],
-            audience="",
+            audience=COGNITO_APP_CLIENT_ID,
         )
         return payload["sub"]
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
+
 
 
 def forbidden(table: str, entry_id: str, action: str) -> HTTPException:
@@ -101,7 +111,7 @@ async def join_owner_id(db: AsyncSession, table: str, parent_ref_id: str) -> str
 
 async def check_join_ownership_for_write(
     db: AsyncSession, entry: CrudOp, user_id: str, table: str
-) -> None:
+):
     parent_model, ref_column = JOIN_OWNED_TABLES[table]
     parent_ref_id = entry.data.get(ref_column)
     if parent_ref_id is None:
@@ -122,14 +132,19 @@ async def check_join_ownership_for_write(
     if getattr(parent, "user_id", None) != user_id:
         raise forbidden(table, entry.id, "write")
 
+    return parent
+
 
 async def apply_put(db: AsyncSession, model, entry: CrudOp, user_id: str, table: str):
-    if table in JOIN_OWNED_TABLES:
-        await check_join_ownership_for_write(db, entry, user_id, table)
-
     values = {**entry.data, "id": entry.id}
+
     if table in OWNED_TABLES:
         values["user_id"] = user_id
+    elif table in JOIN_OWNED_TABLES:
+        parent = await check_join_ownership_for_write(db, entry, user_id, table)
+        values["user_id"] = getattr(parent, "user_id", None)
+        if table == "category_closure":
+            values["is_default"] = getattr(parent, "is_default", False)
 
     statement = pg_insert(model).values(**values).on_conflict_do_update(
         index_elements=["id"],
@@ -156,7 +171,7 @@ async def apply_patch(db: AsyncSession, model, entry: CrudOp, user_id: str, tabl
             raise forbidden(table, entry.id, "patch")
 
     for key, value in entry.data.items():
-        if key != "user_id":
+        if key not in ("user_id", "is_default"):
             setattr(row, key, value)
 
 
