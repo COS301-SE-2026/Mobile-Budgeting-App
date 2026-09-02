@@ -23,7 +23,7 @@ jobs:
     runs-on:
       - self-hosted
       - linux
-      - flutter-3.41.9
+      - flutter-3.47.1
     continue-on-error: ${{ !inputs.blocking }}
     permissions:
       actions: read

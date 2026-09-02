@@ -22,7 +22,7 @@ jobs:
     runs-on:
       - self-hosted
       - linux
-      - flutter-3.41.9
+      - flutter-3.47.1
     permissions:
       contents: read
     outputs:
@@ -58,9 +58,9 @@ jobs:
             Flutter/budgetit/test/**/*.freezed.dart
             Flutter/budgetit/test/**/*.mocks.dart
          
-          key: dart-build-runner-flutter-3.41.9-${{ github.head_ref || github.ref_name }}-${{ github.run_id }}
+          key: dart-build-runner-flutter-3.47.1-${{ github.head_ref || github.ref_name }}-${{ github.run_id }}
           restore-keys: |
-            dart-build-runner-flutter-3.41.9-${{ github.head_ref || github.ref_name }}-
+            dart-build-runner-flutter-3.47.1-${{ github.head_ref || github.ref_name }}-
 
       - name: Generate Dart
         working-directory: Flutter/budgetit

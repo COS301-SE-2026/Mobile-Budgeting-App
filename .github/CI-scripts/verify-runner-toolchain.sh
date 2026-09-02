@@ -4,15 +4,23 @@ set -Eeuo pipefail
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 source "${script_dir}/ci-common.sh"
 
-readonly FLUTTER_VERSION='3.41.9'
+readonly FLUTTER_VERSION='3.47.1'
+readonly FLUTTER_LEGACY_VERSION='3.41.9'
+readonly FLUTTER_LEGACY_HOME='/opt/flutter-3.41.9'
 readonly JAVA_MAJOR='17'
 readonly GRADLE_VERSION='8.14'
+readonly AGP_VERSION='8.12.1'
+readonly KOTLIN_VERSION='2.2.0'
 readonly COMPILE_SDK='36'
+readonly CMAKE_VERSION='3.22.1'
+readonly AGP_NDK_VERSION='27.0.12077973'
 readonly NDK_VERSION='28.2.13676358'
 
 readonly FLUTTER_VERSION_RE='.*"frameworkVersion"[[:space:]]*:[[:space:]]*"\([^"]*\)".*'
 readonly JAVA_VERSION_RE='^.*version "\([0-9][0-9._-]*\)".*$'
 readonly GRADLE_VERSION_RE='^Gradle \([0-9][0-9.]*\).*$'
+readonly AGP_VERSION_RE='.*id("com.android.application")[[:space:]]*version[[:space:]]*"\([^"]*\)".*'
+readonly KOTLIN_VERSION_RE='.*id("org.jetbrains.kotlin.android")[[:space:]]*version[[:space:]]*"\([^"]*\)".*'
 
 show_diagnostics=false
 errors=()
@@ -105,15 +113,26 @@ check_commands() {
   fi
 }
 
-check_flutter() {
+check_flutter_binary() {
+  local name=$1
+  local executable=$2
+  local expected=$3
   local output=''
   local version=''
 
-  if output=$(flutter --version --machine 2>&1); then
+  if output=$("$executable" --version --machine 2>&1); then
     version=$(printf '%s\n' "$output" | ci_first_match_in_text "$FLUTTER_VERSION_RE")
   fi
 
-  check_version 'Flutter' "$version" "$FLUTTER_VERSION"
+  check_version "$name" "$version" "$expected"
+}
+
+check_flutter() {
+  check_flutter_binary 'Flutter' "$(command -v flutter)" "$FLUTTER_VERSION"
+  check_flutter_binary \
+    'Legacy Flutter' \
+    "${FLUTTER_LEGACY_HOME}/bin/flutter" \
+    "$FLUTTER_LEGACY_VERSION"
 }
 
 check_dart() {
@@ -174,6 +193,9 @@ check_android_sdk() {
 
   check_directory 'SDK root' "$sdk_root"
   check_directory "Android SDK ${COMPILE_SDK}" "${sdk_root}/platforms/android-${COMPILE_SDK}"
+  check_directory "Android CMake ${CMAKE_VERSION}" "${sdk_root}/cmake/${CMAKE_VERSION}"
+  check_file 'Android Ninja' "${sdk_root}/cmake/${CMAKE_VERSION}/bin/ninja"
+  check_directory "Android NDK ${AGP_NDK_VERSION}" "${sdk_root}/ndk/${AGP_NDK_VERSION}"
   check_directory "Android NDK ${NDK_VERSION}" "${sdk_root}/ndk/${NDK_VERSION}"
 }
 
@@ -182,12 +204,31 @@ check_android_project() {
 
   local repo_root
   local android_dir
+  local settings_file
+  local agp_version=''
+  local kotlin_version=''
   repo_root=$(cd -- "${script_dir}/../.." && pwd)
   android_dir="${repo_root}/Flutter/budgetit/android"
+
+  if [ -f "${android_dir}/settings.gradle.kts" ]; then
+    settings_file="${android_dir}/settings.gradle.kts"
+  elif [ -f "${android_dir}/settings.gradle" ]; then
+    settings_file="${android_dir}/settings.gradle"
+  else
+    settings_file=''
+  fi
 
   check_file 'settings Gradle file' \
     "${android_dir}/settings.gradle.kts" \
     "${android_dir}/settings.gradle"
+
+  if [ -n "$settings_file" ]; then
+    agp_version=$(ci_first_match_in_text "$AGP_VERSION_RE" < "$settings_file")
+    kotlin_version=$(ci_first_match_in_text "$KOTLIN_VERSION_RE" < "$settings_file")
+  fi
+
+  check_version 'Android Gradle Plugin' "$agp_version" "$AGP_VERSION"
+  check_version 'Kotlin Gradle Plugin' "$kotlin_version" "$KOTLIN_VERSION"
 
   check_file 'app Gradle file' \
     "${android_dir}/app/build.gradle.kts" \
