@@ -28,26 +28,21 @@ bucket_definitions:
         WHERE user_id = bucket.user_id
           AND deleted_at IS NULL
 
-      - SELECT bp.* FROM budget_periods bp
-        JOIN budget_templates bt ON bt.id = bp.template_id
-        WHERE bt.user_id = bucket.user_id
-          AND bp.deleted_at IS NULL
-          AND bt.deleted_at IS NULL
+      - SELECT * FROM budget_periods
+        WHERE user_id = bucket.user_id
+          AND deleted_at IS NULL
 
-      - SELECT tcm.* FROM transaction_category_map tcm
-        JOIN transactions t ON t.id = tcm.transaction_id
-        WHERE t.user_id = bucket.user_id
-          AND tcm.deleted_at IS NULL
-          AND t.deleted_at IS NULL
+      - SELECT * FROM transaction_category_map
+        WHERE user_id = bucket.user_id
+          AND deleted_at IS NULL
 
-      - SELECT cc.* FROM category_closure cc
-        JOIN categories c ON c.id = cc.descendant_id
-        WHERE c.user_id = bucket.user_id
-          AND c.deleted_at IS NULL
+      - SELECT * FROM category_closure
+        WHERE user_id = bucket.user_id
+          AND is_default = false
+          AND deleted_at IS NULL
 
   global_category_closure:
     data:
-      - SELECT cc.* FROM category_closure cc
-        JOIN categories c ON c.id = cc.descendant_id
-        WHERE c.is_default = true
-          AND c.deleted_at IS NULL
+      - SELECT * FROM category_closure
+        WHERE is_default = true
+          AND deleted_at IS NULL
