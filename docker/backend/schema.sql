@@ -1,11 +1,3 @@
-CREATE TABLE category_closure (
-    id TEXT PRIMARY KEY,
-    ancestor_id TEXT NOT NULL REFERENCES categories(id),
-    descendant_id TEXT NOT NULL REFERENCES categories(id),
-    depth INTEGER NOT NULL,
-    UNIQUE (ancestor_id, descendant_id)
-);
-
 CREATE TABLE categories (
   id uuid PRIMARY KEY,
   user_id text NOT NULL,
@@ -85,17 +77,6 @@ CREATE UNIQUE INDEX ux_recurring_occurrence_active
     AND deleted_at IS NULL;
 
 
-CREATE TABLE transaction_category_map (
-    id TEXT PRIMARY KEY,
-    transaction_id TEXT NOT NULL REFERENCES transactions(id),
-    category_id TEXT NOT NULL REFERENCES categories(id),
-    assigned_at TIMESTAMPTZ NOT NULL,
-    updated_at TIMESTAMPTZ NOT NULL,
-    deleted_at TIMESTAMPTZ,
-    assignment_source TEXT NOT NULL,
-    UNIQUE (transaction_id)
-);
-
 CREATE TABLE budget_templates (
   id uuid PRIMARY KEY,
   user_id text NOT NULL,
@@ -114,6 +95,7 @@ CREATE UNIQUE INDEX ux_budget_templates_one_active_category
 CREATE TABLE budget_periods (
   id uuid PRIMARY KEY,
   template_id uuid NOT NULL REFERENCES budget_templates(id),
+  user_id text NOT NULL,
   period_key text NOT NULL,
   start_date timestamptz NOT NULL,
   end_date timestamptz NOT NULL,
@@ -127,3 +109,26 @@ CREATE UNIQUE INDEX ux_budget_period_active
   ON budget_periods (template_id, period_key)
   WHERE deleted_at IS NULL;
 
+CREATE TABLE category_closure (
+    id uuid PRIMARY KEY,
+    ancestor_id uuid NOT NULL REFERENCES categories(id),
+    descendant_id uuid NOT NULL REFERENCES categories(id),
+    user_id text NOT NULL,
+    is_default boolean NOT NULL,
+    depth INTEGER NOT NULL,
+    UNIQUE (ancestor_id, descendant_id)
+);
+
+CREATE TABLE transaction_category_map (
+    id uuid PRIMARY KEY,
+    transaction_id uuid NOT NULL REFERENCES transactions(id),
+    category_id uuid NOT NULL REFERENCES categories(id),
+    user_id text NOT NULL,
+    assigned_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL,
+    deleted_at TIMESTAMPTZ,
+    assignment_source TEXT NOT NULL,
+    UNIQUE (transaction_id)
+);
+
+CREATE PUBLICATION powersync FOR TABLE public.categories, public.transactions, public.budget_templates, public.recurring_transactions, public.imports, public.budget_periods, public.transaction_category_map, public.category_closure;
