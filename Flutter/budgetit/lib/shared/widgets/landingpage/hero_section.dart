@@ -101,7 +101,7 @@ class HeroSection extends StatefulWidget {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      "Nerf your expenses with a budgeting app\nthat works anywhere.",
+                      "Make every rand count with our budgeting app\nthat works anywhere.",
                       style: TextStyle(
                         color: context.colours.whiteAccents,
                         fontSize: 18,
