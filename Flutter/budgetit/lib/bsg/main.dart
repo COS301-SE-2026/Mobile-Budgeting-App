@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:widgetbook_annotation/widgetbook_annotation.dart' as widgetbook;
-import 'package:widgetbook/widgetbook.dart';
-import 'main.directories.g.dart';
 import 'package:budgetit/utils/app_colour.dart';
+import 'package:widgetbook/widgetbook.dart';
+import 'package:widgetbook_annotation/widgetbook_annotation.dart' as widgetbook;
+
+import 'main.directories.g.dart';
 
 void main() {
   runApp(const WidgetbookApp());
@@ -15,18 +16,26 @@ class WidgetbookApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Widgetbook.material(
-      initialRoute: 'Flutter/budgetit/lib/BrandStyleGuide/intro.dart',
       directories: directories,
       addons: [
-        
         MaterialThemeAddon(
-
           themes: [
-            WidgetbookTheme(name: 'Light', data: ThemeData(brightness: Brightness.light, extensions: [MyColours.lightTheme])),
-             WidgetbookTheme(name: 'Dark', data: ThemeData(brightness: Brightness.dark, extensions: [MyColours.darkTheme])),
+            WidgetbookTheme(
+              name: 'Light',
+              data: ThemeData(
+                brightness: Brightness.light,
+                extensions: [MyColours.lightTheme],
+              ),
+            ),
+            WidgetbookTheme(
+              name: 'Dark',
+              data: ThemeData(
+                brightness: Brightness.dark,
+                extensions: [MyColours.darkTheme],
+              ),
+            ),
           ],
         ),
-      
       ],
     );
   }

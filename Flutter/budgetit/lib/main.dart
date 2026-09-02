@@ -171,27 +171,35 @@ class _HomePageState extends State<HomePage> {
     final selectedNavIconColor = Theme.of(context).brightness == Brightness.dark
         ? context.colours.background
         : context.colours.cardText;
+    final unselectedNavIconColor = context.colours.cardText;
 
     return Scaffold(
       appBar: const MainAppbar(),
       body: _buildPages(db)[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(10)),
+          border: const Border(top: BorderSide(color: Colors.black, width: 4)),
         ),
         child: NavigationBar(
           selectedIndex: _selectedIndex,
-          backgroundColor: context.colours.background,
+          elevation: 0,
+          surfaceTintColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          backgroundColor: context.colours.blendedprimary,
           indicatorColor: context.colours.secondary,
+          indicatorShape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero,
+            side: const BorderSide(color: Colors.black, width: 3),
+          ),
           onDestinationSelected: _onDestinationSelected,
           destinations: [
             NavigationDestination(
-              icon: Icon(Icons.home_outlined),
+              icon: Icon(Icons.home_outlined, color: unselectedNavIconColor),
               selectedIcon: Icon(Icons.home, color: selectedNavIconColor),
               label: '',
             ),
             NavigationDestination(
-              icon: Icon(Icons.attach_money),
+              icon: Icon(Icons.attach_money, color: unselectedNavIconColor),
               selectedIcon: Icon(
                 Icons.attach_money,
                 color: selectedNavIconColor,
@@ -199,7 +207,10 @@ class _HomePageState extends State<HomePage> {
               label: '',
             ),
             NavigationDestination(
-              icon: Icon(Icons.pie_chart_outline),
+              icon: Icon(
+                Icons.pie_chart_outline,
+                color: unselectedNavIconColor,
+              ),
               selectedIcon: Icon(Icons.pie_chart, color: selectedNavIconColor),
               label: '',
             ),
@@ -211,7 +222,7 @@ class _HomePageState extends State<HomePage> {
 
   List<Widget> _buildPages(AppDatabase db) {
     return [
-      const Dashboard(),
+      Dashboard(onViewTransactions: () => _onDestinationSelected(1)),
       const TransactionManager(),
       BudgetManagerScreen(database: db),
     ];
