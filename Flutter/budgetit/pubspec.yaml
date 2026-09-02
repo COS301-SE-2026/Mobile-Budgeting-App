@@ -107,6 +107,11 @@ flutter:
     - assets/images/phone_mockup.jpg
     - assets/images/flow.jpg
     - assets/images/logo.png
+    - assets/images/Budgets.jpg
+    - assets/images/insights.jpg
+    - assets/images/Imports.jpeg
+    - assets/images/budgetit_logo.jpg
+    - assets/images/dashboard.jpg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 
