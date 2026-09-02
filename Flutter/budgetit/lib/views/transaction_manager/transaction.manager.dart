@@ -268,7 +268,8 @@ class _TransactionManagerState extends State<TransactionManager> {
                                 : Icons.arrow_circle_down_outlined,
                             category:
                                 _transactionCategoryNames[t.id] ??
-                                (t.type == TransactionType.income ? 'Income'
+                                (t.type == TransactionType.income
+                                    ? 'Income'
                                     : 'Expense'),
                             categories: const [],
                             transactionType: t.type,

@@ -9,26 +9,38 @@ import 'statement_parser_service.dart';
 import 'classification_service.dart';
 import 'duplicate_detector.dart';
 import 'package:budgetit/database/schema.dart';
+import '../../database/daos/schema_cache_dao.dart';
+import 'schema_discovery_service.dart';
+import 'stub_schema_classifier.dart';
+import 'llm_schema_classifier.dart';
 
 class ImportOrchestrator {
     final AppDatabase _db;
     final TransactionDao _taDao;
     final CategoryDao _categoryDao;
     final StatementParserService _parser;
+    final SchemaConfirmationCallback? _onNeedsSchemaConfirmation;
 
     ImportOrchestrator ({
         required AppDatabase db,
         required TransactionDao taDao,
         required CategoryDao categoryDao,
+        SchemaConfirmationCallback? onNeedsSchemaConfirmation,
     })  
     :   _db = db,
         _taDao = taDao,
         _categoryDao = categoryDao,
-        _parser = StatementParserService();
+        _onNeedsSchemaConfirmation = onNeedsSchemaConfirmation,
+        _parser = StatementParserService(
+          schemaDiscovery: SchemaDiscoveryService(
+            classifier: LlmSchemaClassifier(),
+            cache: SchemaCacheDao(db),
+          ),
+        );
 
 
     Future<List<ParsedTransaction>> preparePreview(String filePath) async {
-    final parsed = await _parser.parse(filePath);
+    final parsed = await _parser.parse(filePath, onNeedsSchemaConfirmation: _onNeedsSchemaConfirmation);
     if (parsed.isEmpty) return [];
 
 
@@ -56,7 +68,10 @@ Future<ImportResult> commitImport(
         int failed = 0;
         final errors = <String, String> {};
 
-        for (final ta in transactions) {
+          for (final ta in transactions) {
+            if (ta.excludedByUser) {
+              continue;
+            }
             if (ta.isDuplicate && !forceAll){
                 duplicatesSkipped++;
                 continue;

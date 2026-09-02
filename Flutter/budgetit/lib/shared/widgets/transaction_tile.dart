@@ -65,8 +65,8 @@ class TransactionTile extends StatelessWidget {
               "TRANSACTION",
 
               style: colours.h2.copyWith(
-                color: cardTextColor,
-                fontSize: 11,
+                color: colours.cardText,
+                fontSize: 13,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1.2,
               ),
@@ -109,9 +109,9 @@ class TransactionTile extends StatelessWidget {
                       title,
 
                       style: colours.h2.copyWith(
-                        fontSize: 17,
+                        fontSize: 21,
                         fontWeight: FontWeight.bold,
-                        color: cardTextColor,
+                        color: colours.cardText,
                       ),
                     ),
 
@@ -121,11 +121,11 @@ class TransactionTile extends StatelessWidget {
                       subtitle,
 
                       style: colours.h2.copyWith(
-                        color: cardTextColor.withValues(alpha: 0.7),
+                        color: colours.cardText,
 
-                        fontSize: 13,
+                        fontSize: 16,
 
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
@@ -140,11 +140,13 @@ class TransactionTile extends StatelessWidget {
                     amount,
 
                     style: colours.h2.copyWith(
-                      fontSize: 17,
+                      fontSize: 19,
 
                       fontWeight: FontWeight.bold,
 
-                      color: isExpense ? Colors.redAccent : colours.informational,
+                      color: isExpense
+                          ? Colors.redAccent
+                          : colours.informational,
                     ),
                   ),
 
@@ -154,7 +156,7 @@ class TransactionTile extends StatelessWidget {
                     isExpense ? "expense" : "income",
 
                     style: colours.h2.copyWith(
-                      fontSize: 11,
+                      fontSize: 14,
 
                       color: isExpense
                           ? Colors.redAccent.withValues(alpha: 0.85)
