@@ -91,11 +91,20 @@ class CategoryClosure extends Table {
   /// Descendant category ID.
   TextColumn get descendantId => text().references(Categories, #id)();
 
+  TextColumn get userId => text().nullable()();
+
+  BoolColumn get isDefault => boolean()();
+
   /// Distance from ancestor to descendant (0 = self, 1 = direct child, etc.).
   IntColumn get depth => integer()();
 
   @override
-  Set<Column> get primaryKey => {ancestorId, descendantId};
+  Set<Column> get primaryKey => {id};
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+        {ancestorId, descendantId},
+      ];
 }
 
 /// Stores individual income and expense transactions.
@@ -139,6 +148,9 @@ class Transactions extends Table {
   TextColumn get recurringId =>
       text().references(RecurringTransactions, #id).nullable()();
 
+  /// The occurrence date this transaction was generated for (recurring transactions only).
+  DateTimeColumn get recurringOccurrenceDate => dateTime().nullable()();
+
   TextColumn get userId => text().nullable()();
 
   TextColumn get importId => text().references(Imports, #id).nullable()();
@@ -159,6 +171,8 @@ class TransactionCategoryMap extends Table {
   /// The assigned category.
   TextColumn get categoryId => text().references(Categories, #id)();
 
+  TextColumn get userId => text().nullable()();
+
   /// When the assignment was made.
   DateTimeColumn get assignedAt => dateTime()();
 
@@ -170,7 +184,12 @@ class TransactionCategoryMap extends Table {
   TextColumn get assignmentSource => textEnum<AssignmentSource>()();
 
   @override
-  Set<Column> get primaryKey => {transactionId};
+  Set<Column> get primaryKey => {id};
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+        {transactionId},
+      ];
 }
 
 /// Defines a recurring budget amount for a category over a time period.
@@ -217,6 +236,10 @@ class BudgetPeriods extends Table {
 
   /// The template this period belongs to.
   TextColumn get templateId => text().references(BudgetTemplates, #id)();
+
+  TextColumn get userId => text().nullable()();
+
+  TextColumn get periodKey => text()();
 
   /// Start of the budgeting period.
   DateTimeColumn get startDate => dateTime()();
@@ -318,11 +341,12 @@ class AppSettings extends Table {
 enum ImportFileType {pdf,csv}
 class Imports extends Table{
   TextColumn get id => text()();
-  TextColumn get userid => text().nullable()();
+  TextColumn get userId => text().nullable()();
   TextColumn get fileSha256 => text()();
-  TextColumn get originalFileName => text()();
+  TextColumn get originalFilename => text()();
   TextColumn get fileType => textEnum<ImportFileType>()();
   TextColumn get accountIdentifier => text().nullable()();
+  DateTimeColumn get importedAt => dateTime()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
   DateTimeColumn get deletedAt => dateTime().nullable()();

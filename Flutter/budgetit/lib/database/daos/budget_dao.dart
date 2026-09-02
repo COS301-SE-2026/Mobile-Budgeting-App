@@ -205,6 +205,8 @@ class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
       BudgetPeriodsCompanion.insert(
         id: id,
         templateId: templateId,
+        periodKey:
+            '${startDate.year}-${startDate.month.toString().padLeft(2, '0')}',
         startDate: startDate,
         endDate: endDate,
         budgetedAmount: budgetedAmount,

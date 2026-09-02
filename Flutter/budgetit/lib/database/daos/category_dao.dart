@@ -86,6 +86,7 @@ class CategoryDao extends DatabaseAccessor<AppDatabase>
           id: _uuid.v4(),
           ancestorId: id,
           descendantId: id,
+          isDefault: isDefault,
           depth: 0,
         ),
       );

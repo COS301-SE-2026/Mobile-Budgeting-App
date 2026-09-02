@@ -16,6 +16,8 @@ final powerSyncSchema = Schema([
   Table('category_closure', [
     Column.text('ancestor_id'),
     Column.text('descendant_id'),
+    Column.text('user_id'),
+    Column.integer('is_default'),
     Column.integer('depth'),
   ]),
 
@@ -31,6 +33,7 @@ final powerSyncSchema = Schema([
     Column.text('source'),
     Column.text('currency'),
     Column.text('recurring_id'),
+    Column.text('recurring_occurrence_date'),
     Column.text('user_id'),
     Column.text('import_id'),
   ]),
@@ -38,6 +41,7 @@ final powerSyncSchema = Schema([
   Table('transaction_category_map', [
     Column.text('transaction_id'),
     Column.text('category_id'),
+    Column.text('user_id'),
     Column.text('assigned_at'),
     Column.text('updated_at'),
     Column.text('deleted_at'),
@@ -57,6 +61,8 @@ final powerSyncSchema = Schema([
 
   Table('budget_periods', [
     Column.text('template_id'),
+    Column.text('user_id'),
+    Column.text('period_key'),
     Column.text('start_date'),
     Column.text('end_date'),
     Column.text('budgeted_amount'),
@@ -87,9 +93,10 @@ final powerSyncSchema = Schema([
   Table('imports', [
     Column.text('user_id'),
     Column.text('file_sha256'),
-    Column.text('original_file_name'),
+    Column.text('original_filename'),
     Column.text('file_type'),
     Column.text('account_identifier'),
+    Column.text('imported_at'),
     Column.text('created_at'),
     Column.text('updated_at'),
     Column.text('deleted_at'),
