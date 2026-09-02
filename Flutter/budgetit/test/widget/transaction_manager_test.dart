@@ -141,13 +141,13 @@ void main() {
       expect(find.text('Expenses'), findsOneWidget);
     });
 
-    testWidgets('shows Recent Transactions heading', (tester) async {
+    testWidgets('shows Transactions heading', (tester) async {
       _usePhoneSize(tester);
 
       await tester.pumpWidget(_screen(const TransactionManager()));
       await tester.pumpAndSettle();
 
-      expect(find.text('RECENT TRANSACTIONS'), findsOneWidget);
+      expect(find.text('TRANSACTIONS'), findsOneWidget);
     });
 
     testWidgets('shows transaction list content', (tester) async {
