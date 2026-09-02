@@ -63,7 +63,7 @@ CREATE TABLE transactions (
   source text NOT NULL CHECK (source IN ('manual', 'import', 'recurring')),
   currency text NOT NULL,
   recurring_id uuid REFERENCES recurring_transactions(id),
-  recurring_occurrence_date date,
+  recurring_occurrence_date timestamptz,
   import_id uuid REFERENCES imports(id)
 );
 CREATE INDEX ix_transactions_user_date

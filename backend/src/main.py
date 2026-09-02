@@ -1,4 +1,5 @@
 import os
+from datetime import datetime, timezone
 from typing import Annotated
 
 from dotenv import load_dotenv
@@ -6,6 +7,7 @@ from fastapi import FastAPI, Depends, HTTPException, Header
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy import delete as sa_delete
+from sqlalchemy import Date, DateTime
 
 from database import get_db, engine, Base, init_db
 from models import (
@@ -126,13 +128,52 @@ async def check_join_ownership_for_write(
             detail=f"{table} references nonexistent {ref_column}={parent_ref_id}",
         )
 
-    if getattr(parent, "is_default", False):
-        raise forbidden(table, entry.id, "write to default-linked")
-
     if getattr(parent, "user_id", None) != user_id:
         raise forbidden(table, entry.id, "write")
 
     return parent
+
+
+
+_MICROS_EPOCH_THRESHOLD = 100_000_000_000_000  
+
+
+def _column_types(model):
+    return {column.name: column.type for column in model.__table__.columns}
+
+
+def _coerce_datetime_column(value, column_type):
+    if isinstance(value, bool):
+        return value
+
+    if isinstance(value, str):
+        # drift (storeDateTimeValuesAsText) sends datetimes as ISO-8601 text,
+        # e.g. "2026-09-02T16:06:56.021464Z". asyncpg needs a real datetime.
+        if isinstance(column_type, (DateTime, Date)):
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+            return parsed.date() if isinstance(column_type, Date) else parsed
+        return value
+
+    if not isinstance(value, (int, float)):
+        return value
+
+    epoch = float(value)
+    if abs(epoch) >= _MICROS_EPOCH_THRESHOLD:
+        epoch /= 1_000_000
+
+    if isinstance(column_type, DateTime):
+        return datetime.fromtimestamp(epoch, tz=timezone.utc)
+    if isinstance(column_type, Date):
+        return datetime.fromtimestamp(epoch, tz=timezone.utc).date()
+    return value
+
+
+def _coerce_row_values(model, values):
+    column_types = _column_types(model)
+    return {
+        key: _coerce_datetime_column(value, column_types.get(key))
+        for key, value in values.items()
+    }
 
 
 async def apply_put(db: AsyncSession, model, entry: CrudOp, user_id: str, table: str):
@@ -145,6 +186,8 @@ async def apply_put(db: AsyncSession, model, entry: CrudOp, user_id: str, table:
         values["user_id"] = getattr(parent, "user_id", None)
         if table == "category_closure":
             values["is_default"] = getattr(parent, "is_default", False)
+
+    values = _coerce_row_values(model, values)
 
     statement = pg_insert(model).values(**values).on_conflict_do_update(
         index_elements=["id"],
@@ -170,9 +213,10 @@ async def apply_patch(db: AsyncSession, model, entry: CrudOp, user_id: str, tabl
         if owner != user_id:
             raise forbidden(table, entry.id, "patch")
 
+    column_types = _column_types(model)
     for key, value in entry.data.items():
         if key not in ("user_id", "is_default"):
-            setattr(row, key, value)
+            setattr(row, key, _coerce_datetime_column(value, column_types.get(key)))
 
 
 async def apply_delete(db: AsyncSession, model, entry: CrudOp, user_id: str, table: str):

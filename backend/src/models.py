@@ -1,13 +1,12 @@
 
 import enum
 import uuid
-from datetime import date, datetime
+from datetime import datetime
 from decimal import Decimal
 from database import Base
 
 from sqlalchemy import (
     Boolean,
-    Date,
     DateTime,
     Enum as SAEnum,
     ForeignKey,
@@ -110,7 +109,9 @@ class Transaction(Base):
     recurring_id: Mapped[str | None] = mapped_column(
         ForeignKey("recurring_transactions.id"), nullable=True
     )
-    recurring_occurrence_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    recurring_occurrence_date: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     user_id: Mapped[str] = mapped_column(String)
     import_id: Mapped[str | None] = mapped_column(ForeignKey("imports.id"), nullable=True)
 

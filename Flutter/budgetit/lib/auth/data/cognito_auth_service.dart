@@ -190,14 +190,8 @@ class CognitoAuthService implements AuthService {
   Future<String?> getJWT() async {
     try {
       final session = await Amplify.Auth.fetchAuthSession();
-      if (session.isSignedIn) {
-        try {
-          final cognitoSession = session as dynamic;
-          final tokens = cognitoSession.userPoolTokens;
-          return (tokens as dynamic)?.idToken;
-        } catch (_) {
-          return null;
-        }
+      if (session.isSignedIn && session is CognitoAuthSession) {
+        return session.userPoolTokensResult.valueOrNull?.idToken.raw;
       }
       return null;
     } on AuthException {
