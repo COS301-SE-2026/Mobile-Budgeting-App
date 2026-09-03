@@ -162,7 +162,6 @@ class AuthWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>();
-    context.watch<ThemeProvider>();
     final auth = context.watch<AppAuthProvider>();
 
     switch (auth.status) {

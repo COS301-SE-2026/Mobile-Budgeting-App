@@ -391,6 +391,8 @@ class StatementSchemaCache extends Table {
 
   @override
   Set<Column> get primaryKey => {fingerprint};
+}
+
 enum ImportFileType {pdf,csv}
 class Imports extends Table{
   TextColumn get id => text()();
