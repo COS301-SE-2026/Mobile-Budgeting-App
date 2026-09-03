@@ -90,6 +90,20 @@ class _MyBoxState extends State<MyBox> {
     );
   }
 
+  
+  String _formatAmount(double amount) {
+    final fixed = amount.abs().toStringAsFixed(2);
+    final parts = fixed.split('.');
+    final whole = parts.first;
+    final buffer = StringBuffer();
+    for (var i = 0; i < whole.length; i++) {
+      final remaining = whole.length - i;
+      buffer.write(whole[i]);
+      if (remaining > 1 && remaining % 3 == 1) buffer.write(',');
+    }
+    return '${buffer.toString()}.${parts.last}';
+  }
+
   @override
   Widget build(BuildContext context) {
     final colours = context.colours;
@@ -160,8 +174,8 @@ class _MyBoxState extends State<MyBox> {
                 ),
                 Text(
                   _isExpense
-                      ? '- R${_amount.toStringAsFixed(2)}'
-                      : 'R${_amount.toStringAsFixed(2)}',
+                      ? '- R${_formatAmount(_amount)}'
+                      : 'R${_formatAmount(_amount)}',
                   style: colours.b4.copyWith(
                     color: _isExpense ? colours.error : incomeColor,
                   ),

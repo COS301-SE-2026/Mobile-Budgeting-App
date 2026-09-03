@@ -156,6 +156,19 @@ class _TransactionManagerState extends State<TransactionManager> {
     return net;
   }
 
+  String _formatAmount(double amount) {
+    final fixed = amount.abs().toStringAsFixed(2);
+    final parts = fixed.split('.');
+    final whole = parts.first;
+    final buffer = StringBuffer();
+    for (var i = 0; i < whole.length; i++) {
+      final remaining = whole.length - i;
+      buffer.write(whole[i]);
+      if (remaining > 1 && remaining % 3 == 1) buffer.write(',');
+    }
+    return '${buffer.toString()}.${parts.last}';
+  }
+
   void _handleEdit(String id, String name, double amount) {
     final dao = context.read<AppDatabase>().transactionDao;
     dao
@@ -310,7 +323,7 @@ class _TransactionManagerState extends State<TransactionManager> {
                             ),
                             const SizedBox(width: 12),
                             Text(
-                              '${net < 0 ? '-' : ''}R${net.abs().toStringAsFixed(2)}',
+                              '${net < 0 ? '-' : ''}R${_formatAmount(net)}',
                               style: colours.b1.copyWith(
                                 color: net < 0
                                     ? colours.warning
