@@ -4220,6 +4220,508 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
   }
 }
 
+class $EmbeddingCacheEntriesTable extends EmbeddingCacheEntries
+    with TableInfo<$EmbeddingCacheEntriesTable, EmbeddingCacheEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $EmbeddingCacheEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<EmbeddingSourceType, String>
+  sourceType =
+      GeneratedColumn<String>(
+        'source_type',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<EmbeddingSourceType>(
+        $EmbeddingCacheEntriesTable.$convertersourceType,
+      );
+  static const VerificationMeta _sourceIdMeta = const VerificationMeta(
+    'sourceId',
+  );
+  @override
+  late final GeneratedColumn<String> sourceId = GeneratedColumn<String>(
+    'source_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _modelVersionMeta = const VerificationMeta(
+    'modelVersion',
+  );
+  @override
+  late final GeneratedColumn<String> modelVersion = GeneratedColumn<String>(
+    'model_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _inputHashMeta = const VerificationMeta(
+    'inputHash',
+  );
+  @override
+  late final GeneratedColumn<String> inputHash = GeneratedColumn<String>(
+    'input_hash',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _embeddingMeta = const VerificationMeta(
+    'embedding',
+  );
+  @override
+  late final GeneratedColumn<Uint8List> embedding = GeneratedColumn<Uint8List>(
+    'embedding',
+    aliasedName,
+    false,
+    type: DriftSqlType.blob,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    sourceType,
+    sourceId,
+    modelVersion,
+    inputHash,
+    embedding,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'embedding_cache_entries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<EmbeddingCacheEntry> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('source_id')) {
+      context.handle(
+        _sourceIdMeta,
+        sourceId.isAcceptableOrUnknown(data['source_id']!, _sourceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceIdMeta);
+    }
+    if (data.containsKey('model_version')) {
+      context.handle(
+        _modelVersionMeta,
+        modelVersion.isAcceptableOrUnknown(
+          data['model_version']!,
+          _modelVersionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_modelVersionMeta);
+    }
+    if (data.containsKey('input_hash')) {
+      context.handle(
+        _inputHashMeta,
+        inputHash.isAcceptableOrUnknown(data['input_hash']!, _inputHashMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_inputHashMeta);
+    }
+    if (data.containsKey('embedding')) {
+      context.handle(
+        _embeddingMeta,
+        embedding.isAcceptableOrUnknown(data['embedding']!, _embeddingMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_embeddingMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {sourceType, sourceId, modelVersion, inputHash},
+  ];
+  @override
+  EmbeddingCacheEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return EmbeddingCacheEntry(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      sourceType: $EmbeddingCacheEntriesTable.$convertersourceType.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}source_type'],
+        )!,
+      ),
+      sourceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_id'],
+      )!,
+      modelVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}model_version'],
+      )!,
+      inputHash: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}input_hash'],
+      )!,
+      embedding: attachedDatabase.typeMapping.read(
+        DriftSqlType.blob,
+        data['${effectivePrefix}embedding'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $EmbeddingCacheEntriesTable createAlias(String alias) {
+    return $EmbeddingCacheEntriesTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<EmbeddingSourceType, String, String>
+  $convertersourceType = const EnumNameConverter<EmbeddingSourceType>(
+    EmbeddingSourceType.values,
+  );
+}
+
+class EmbeddingCacheEntry extends DataClass
+    implements Insertable<EmbeddingCacheEntry> {
+  /// Unique identifier for this cache entry.
+  final String id;
+
+  /// Whether the embedding belongs to a transaction or category.
+  final EmbeddingSourceType sourceType;
+
+  /// ID of the source transaction or category.
+  final String sourceId;
+
+  /// Version of the model that generated this vector.
+  final String modelVersion;
+
+  /// Hash of the exact text supplied to the model.
+  final String inputHash;
+
+  /// Serialized Float32 embedding.
+  final Uint8List embedding;
+
+  /// When this cache entry was generated.
+  final DateTime createdAt;
+  const EmbeddingCacheEntry({
+    required this.id,
+    required this.sourceType,
+    required this.sourceId,
+    required this.modelVersion,
+    required this.inputHash,
+    required this.embedding,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    {
+      map['source_type'] = Variable<String>(
+        $EmbeddingCacheEntriesTable.$convertersourceType.toSql(sourceType),
+      );
+    }
+    map['source_id'] = Variable<String>(sourceId);
+    map['model_version'] = Variable<String>(modelVersion);
+    map['input_hash'] = Variable<String>(inputHash);
+    map['embedding'] = Variable<Uint8List>(embedding);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  EmbeddingCacheEntriesCompanion toCompanion(bool nullToAbsent) {
+    return EmbeddingCacheEntriesCompanion(
+      id: Value(id),
+      sourceType: Value(sourceType),
+      sourceId: Value(sourceId),
+      modelVersion: Value(modelVersion),
+      inputHash: Value(inputHash),
+      embedding: Value(embedding),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory EmbeddingCacheEntry.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return EmbeddingCacheEntry(
+      id: serializer.fromJson<String>(json['id']),
+      sourceType: $EmbeddingCacheEntriesTable.$convertersourceType.fromJson(
+        serializer.fromJson<String>(json['sourceType']),
+      ),
+      sourceId: serializer.fromJson<String>(json['sourceId']),
+      modelVersion: serializer.fromJson<String>(json['modelVersion']),
+      inputHash: serializer.fromJson<String>(json['inputHash']),
+      embedding: serializer.fromJson<Uint8List>(json['embedding']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'sourceType': serializer.toJson<String>(
+        $EmbeddingCacheEntriesTable.$convertersourceType.toJson(sourceType),
+      ),
+      'sourceId': serializer.toJson<String>(sourceId),
+      'modelVersion': serializer.toJson<String>(modelVersion),
+      'inputHash': serializer.toJson<String>(inputHash),
+      'embedding': serializer.toJson<Uint8List>(embedding),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  EmbeddingCacheEntry copyWith({
+    String? id,
+    EmbeddingSourceType? sourceType,
+    String? sourceId,
+    String? modelVersion,
+    String? inputHash,
+    Uint8List? embedding,
+    DateTime? createdAt,
+  }) => EmbeddingCacheEntry(
+    id: id ?? this.id,
+    sourceType: sourceType ?? this.sourceType,
+    sourceId: sourceId ?? this.sourceId,
+    modelVersion: modelVersion ?? this.modelVersion,
+    inputHash: inputHash ?? this.inputHash,
+    embedding: embedding ?? this.embedding,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  EmbeddingCacheEntry copyWithCompanion(EmbeddingCacheEntriesCompanion data) {
+    return EmbeddingCacheEntry(
+      id: data.id.present ? data.id.value : this.id,
+      sourceType: data.sourceType.present
+          ? data.sourceType.value
+          : this.sourceType,
+      sourceId: data.sourceId.present ? data.sourceId.value : this.sourceId,
+      modelVersion: data.modelVersion.present
+          ? data.modelVersion.value
+          : this.modelVersion,
+      inputHash: data.inputHash.present ? data.inputHash.value : this.inputHash,
+      embedding: data.embedding.present ? data.embedding.value : this.embedding,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EmbeddingCacheEntry(')
+          ..write('id: $id, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('sourceId: $sourceId, ')
+          ..write('modelVersion: $modelVersion, ')
+          ..write('inputHash: $inputHash, ')
+          ..write('embedding: $embedding, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    sourceType,
+    sourceId,
+    modelVersion,
+    inputHash,
+    $driftBlobEquality.hash(embedding),
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is EmbeddingCacheEntry &&
+          other.id == this.id &&
+          other.sourceType == this.sourceType &&
+          other.sourceId == this.sourceId &&
+          other.modelVersion == this.modelVersion &&
+          other.inputHash == this.inputHash &&
+          $driftBlobEquality.equals(other.embedding, this.embedding) &&
+          other.createdAt == this.createdAt);
+}
+
+class EmbeddingCacheEntriesCompanion
+    extends UpdateCompanion<EmbeddingCacheEntry> {
+  final Value<String> id;
+  final Value<EmbeddingSourceType> sourceType;
+  final Value<String> sourceId;
+  final Value<String> modelVersion;
+  final Value<String> inputHash;
+  final Value<Uint8List> embedding;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const EmbeddingCacheEntriesCompanion({
+    this.id = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.sourceId = const Value.absent(),
+    this.modelVersion = const Value.absent(),
+    this.inputHash = const Value.absent(),
+    this.embedding = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  EmbeddingCacheEntriesCompanion.insert({
+    required String id,
+    required EmbeddingSourceType sourceType,
+    required String sourceId,
+    required String modelVersion,
+    required String inputHash,
+    required Uint8List embedding,
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       sourceType = Value(sourceType),
+       sourceId = Value(sourceId),
+       modelVersion = Value(modelVersion),
+       inputHash = Value(inputHash),
+       embedding = Value(embedding),
+       createdAt = Value(createdAt);
+  static Insertable<EmbeddingCacheEntry> custom({
+    Expression<String>? id,
+    Expression<String>? sourceType,
+    Expression<String>? sourceId,
+    Expression<String>? modelVersion,
+    Expression<String>? inputHash,
+    Expression<Uint8List>? embedding,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (sourceType != null) 'source_type': sourceType,
+      if (sourceId != null) 'source_id': sourceId,
+      if (modelVersion != null) 'model_version': modelVersion,
+      if (inputHash != null) 'input_hash': inputHash,
+      if (embedding != null) 'embedding': embedding,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  EmbeddingCacheEntriesCompanion copyWith({
+    Value<String>? id,
+    Value<EmbeddingSourceType>? sourceType,
+    Value<String>? sourceId,
+    Value<String>? modelVersion,
+    Value<String>? inputHash,
+    Value<Uint8List>? embedding,
+    Value<DateTime>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return EmbeddingCacheEntriesCompanion(
+      id: id ?? this.id,
+      sourceType: sourceType ?? this.sourceType,
+      sourceId: sourceId ?? this.sourceId,
+      modelVersion: modelVersion ?? this.modelVersion,
+      inputHash: inputHash ?? this.inputHash,
+      embedding: embedding ?? this.embedding,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (sourceType.present) {
+      map['source_type'] = Variable<String>(
+        $EmbeddingCacheEntriesTable.$convertersourceType.toSql(
+          sourceType.value,
+        ),
+      );
+    }
+    if (sourceId.present) {
+      map['source_id'] = Variable<String>(sourceId.value);
+    }
+    if (modelVersion.present) {
+      map['model_version'] = Variable<String>(modelVersion.value);
+    }
+    if (inputHash.present) {
+      map['input_hash'] = Variable<String>(inputHash.value);
+    }
+    if (embedding.present) {
+      map['embedding'] = Variable<Uint8List>(embedding.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EmbeddingCacheEntriesCompanion(')
+          ..write('id: $id, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('sourceId: $sourceId, ')
+          ..write('modelVersion: $modelVersion, ')
+          ..write('inputHash: $inputHash, ')
+          ..write('embedding: $embedding, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -4237,6 +4739,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $BudgetPeriodsTable budgetPeriods = $BudgetPeriodsTable(this);
   late final $AppSettingsTable appSettings = $AppSettingsTable(this);
+  late final $EmbeddingCacheEntriesTable embeddingCacheEntries =
+      $EmbeddingCacheEntriesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4250,6 +4754,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     budgetTemplates,
     budgetPeriods,
     appSettings,
+    embeddingCacheEntries,
   ];
 }
 
@@ -7860,6 +8365,273 @@ typedef $$AppSettingsTableProcessedTableManager =
       AppSetting,
       PrefetchHooks Function()
     >;
+typedef $$EmbeddingCacheEntriesTableCreateCompanionBuilder =
+    EmbeddingCacheEntriesCompanion Function({
+      required String id,
+      required EmbeddingSourceType sourceType,
+      required String sourceId,
+      required String modelVersion,
+      required String inputHash,
+      required Uint8List embedding,
+      required DateTime createdAt,
+      Value<int> rowid,
+    });
+typedef $$EmbeddingCacheEntriesTableUpdateCompanionBuilder =
+    EmbeddingCacheEntriesCompanion Function({
+      Value<String> id,
+      Value<EmbeddingSourceType> sourceType,
+      Value<String> sourceId,
+      Value<String> modelVersion,
+      Value<String> inputHash,
+      Value<Uint8List> embedding,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+
+class $$EmbeddingCacheEntriesTableFilterComposer
+    extends Composer<_$AppDatabase, $EmbeddingCacheEntriesTable> {
+  $$EmbeddingCacheEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<
+    EmbeddingSourceType,
+    EmbeddingSourceType,
+    String
+  >
+  get sourceType => $composableBuilder(
+    column: $table.sourceType,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get sourceId => $composableBuilder(
+    column: $table.sourceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get modelVersion => $composableBuilder(
+    column: $table.modelVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get inputHash => $composableBuilder(
+    column: $table.inputHash,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<Uint8List> get embedding => $composableBuilder(
+    column: $table.embedding,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$EmbeddingCacheEntriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $EmbeddingCacheEntriesTable> {
+  $$EmbeddingCacheEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceType => $composableBuilder(
+    column: $table.sourceType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceId => $composableBuilder(
+    column: $table.sourceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get modelVersion => $composableBuilder(
+    column: $table.modelVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get inputHash => $composableBuilder(
+    column: $table.inputHash,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<Uint8List> get embedding => $composableBuilder(
+    column: $table.embedding,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$EmbeddingCacheEntriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $EmbeddingCacheEntriesTable> {
+  $$EmbeddingCacheEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<EmbeddingSourceType, String>
+  get sourceType => $composableBuilder(
+    column: $table.sourceType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get sourceId =>
+      $composableBuilder(column: $table.sourceId, builder: (column) => column);
+
+  GeneratedColumn<String> get modelVersion => $composableBuilder(
+    column: $table.modelVersion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get inputHash =>
+      $composableBuilder(column: $table.inputHash, builder: (column) => column);
+
+  GeneratedColumn<Uint8List> get embedding =>
+      $composableBuilder(column: $table.embedding, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$EmbeddingCacheEntriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $EmbeddingCacheEntriesTable,
+          EmbeddingCacheEntry,
+          $$EmbeddingCacheEntriesTableFilterComposer,
+          $$EmbeddingCacheEntriesTableOrderingComposer,
+          $$EmbeddingCacheEntriesTableAnnotationComposer,
+          $$EmbeddingCacheEntriesTableCreateCompanionBuilder,
+          $$EmbeddingCacheEntriesTableUpdateCompanionBuilder,
+          (
+            EmbeddingCacheEntry,
+            BaseReferences<
+              _$AppDatabase,
+              $EmbeddingCacheEntriesTable,
+              EmbeddingCacheEntry
+            >,
+          ),
+          EmbeddingCacheEntry,
+          PrefetchHooks Function()
+        > {
+  $$EmbeddingCacheEntriesTableTableManager(
+    _$AppDatabase db,
+    $EmbeddingCacheEntriesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$EmbeddingCacheEntriesTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$EmbeddingCacheEntriesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$EmbeddingCacheEntriesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<EmbeddingSourceType> sourceType = const Value.absent(),
+                Value<String> sourceId = const Value.absent(),
+                Value<String> modelVersion = const Value.absent(),
+                Value<String> inputHash = const Value.absent(),
+                Value<Uint8List> embedding = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => EmbeddingCacheEntriesCompanion(
+                id: id,
+                sourceType: sourceType,
+                sourceId: sourceId,
+                modelVersion: modelVersion,
+                inputHash: inputHash,
+                embedding: embedding,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required EmbeddingSourceType sourceType,
+                required String sourceId,
+                required String modelVersion,
+                required String inputHash,
+                required Uint8List embedding,
+                required DateTime createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => EmbeddingCacheEntriesCompanion.insert(
+                id: id,
+                sourceType: sourceType,
+                sourceId: sourceId,
+                modelVersion: modelVersion,
+                inputHash: inputHash,
+                embedding: embedding,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$EmbeddingCacheEntriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $EmbeddingCacheEntriesTable,
+      EmbeddingCacheEntry,
+      $$EmbeddingCacheEntriesTableFilterComposer,
+      $$EmbeddingCacheEntriesTableOrderingComposer,
+      $$EmbeddingCacheEntriesTableAnnotationComposer,
+      $$EmbeddingCacheEntriesTableCreateCompanionBuilder,
+      $$EmbeddingCacheEntriesTableUpdateCompanionBuilder,
+      (
+        EmbeddingCacheEntry,
+        BaseReferences<
+          _$AppDatabase,
+          $EmbeddingCacheEntriesTable,
+          EmbeddingCacheEntry
+        >,
+      ),
+      EmbeddingCacheEntry,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -7883,4 +8655,6 @@ class $AppDatabaseManager {
       $$BudgetPeriodsTableTableManager(_db, _db.budgetPeriods);
   $$AppSettingsTableTableManager get appSettings =>
       $$AppSettingsTableTableManager(_db, _db.appSettings);
+  $$EmbeddingCacheEntriesTableTableManager get embeddingCacheEntries =>
+      $$EmbeddingCacheEntriesTableTableManager(_db, _db.embeddingCacheEntries);
 }
