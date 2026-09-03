@@ -1,0 +1,44 @@
+name: Flutter CI Setup
+description: Check Flutter and fetch Dart dependencies. Does not install SDKs.
+inputs:
+  app-directory:
+    description: Flutter project directory
+    required: false
+    default: Flutter/budgetit
+  expected-flutter-version:
+    description: Flutter framework version
+    required: false
+    default: "3.47.1"
+
+runs:
+  using: composite
+  steps:
+    - name: Check Flutter
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        readonly EXPECTED_FLUTTER_VERSION='${{ inputs.expected-flutter-version }}'
+        readonly FLUTTER_VERSION_REGEX='.*"frameworkVersion"[[:space:]]*:[[:space:]]*"\([^"]*\)".*'
+
+        source "${GITHUB_ACTION_PATH}/../../CI-scripts/ci-common.sh"
+
+        ci_require_cmd flutter dart sed
+
+        flutter --version
+        flutter_version=$(flutter --version --machine 2>/dev/null | ci_first_match_in_text "$FLUTTER_VERSION_REGEX")
+
+        if [ -z "$flutter_version" ]; then
+          echo 'Could not read the Flutter version.'
+          exit 1
+        fi
+
+        if [ "$flutter_version" != "$EXPECTED_FLUTTER_VERSION" ]; then
+          echo "Expected Flutter $EXPECTED_FLUTTER_VERSION, found $flutter_version."
+          exit 1
+        fi
+
+    - name: Fetch dependencies
+      shell: bash
+      working-directory: ${{ inputs.app-directory }}
+      run: flutter pub get --enforce-lockfile

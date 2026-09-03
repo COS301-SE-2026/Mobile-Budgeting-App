@@ -1,0 +1,33 @@
+name: OSV Scan
+
+on:
+  workflow_call:
+    inputs:
+      blocking:
+        description: Fail the workflow when OSV finds vulnerabilities
+        required: false
+        default: true
+        type: boolean
+      source-ref:
+        description: Source ref to scan; defaults to the event ref
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  osv-scan:
+    name: OSV Scan
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@9a498708959aeaef5ef730655706c5a1df1edbc2
+    with:
+      upload-sarif: true
+      fail-on-vuln: ${{ inputs.blocking }}
+      ref: ${{ inputs.source-ref }}
+      scan-args: |-
+        -r
+        --skip-git
+        ./Flutter/budgetit
+        ./backend
