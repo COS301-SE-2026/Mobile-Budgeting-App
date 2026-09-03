@@ -16,12 +16,16 @@ Future<AppDatabase> _seededDb() async {
 
 
 Widget _wrap(AppDatabase db, {VoidCallback? onAdded}) {
-  return MaterialApp(
-    home: Provider<AppDatabase>.value(
-      value: db,
-      child: Scaffold(
+  return Provider<AppDatabase>.value(
+    value: db,
+    child: MaterialApp(
+      home: Scaffold(
         body: Builder(
-          builder: (context) => ElevatedButton( onPressed: () => showDialog<void>( context: context, builder: (_) => AddTransactionDialog(onAdded: onAdded)),
+          builder: (context) => ElevatedButton(
+            onPressed: () => showDialog<void>(
+              context: context,
+              builder: (_) => AddTransactionDialog(onAdded: onAdded),
+            ),
             child: const Text('Open'),
           ),
         ),
