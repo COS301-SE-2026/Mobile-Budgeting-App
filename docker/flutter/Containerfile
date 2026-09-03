@@ -44,7 +44,11 @@ ENV PATH="${PATH}:/opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/pla
 RUN yes | sdkmanager --licenses && \
     sdkmanager \
         "platform-tools" \
+        "platforms;android-34" \
+        "platforms;android-35" \
         "platforms;android-${ANDROID_API_LEVEL}" \
+        "build-tools;34.0.0" \
+        "build-tools;35.0.0" \
         "build-tools;${ANDROID_BUILD_TOOLS}" \
         "ndk;${ANDROID_LEGACY_NDK_VERSION}" \
         "ndk;${ANDROID_NDK_VERSION}" \

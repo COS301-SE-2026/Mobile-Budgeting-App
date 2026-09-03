@@ -11,7 +11,12 @@ readonly JAVA_MAJOR='17'
 readonly GRADLE_VERSION='8.14'
 readonly AGP_VERSION='8.12.1'
 readonly KOTLIN_VERSION='2.2.20'
+readonly DEPENDENCY_SDK='34'
+readonly LEGACY_COMPILE_SDK='35'
 readonly COMPILE_SDK='36'
+readonly DEPENDENCY_BUILD_TOOLS='34.0.0'
+readonly LEGACY_BUILD_TOOLS='35.0.0'
+readonly BUILD_TOOLS='36.0.0'
 readonly CMAKE_VERSION='3.22.1'
 readonly AGP_NDK_VERSION='27.0.12077973'
 readonly NDK_VERSION='28.2.13676358'
@@ -192,7 +197,12 @@ check_android_sdk() {
   fi
 
   check_directory 'SDK root' "$sdk_root"
+  check_directory "Android SDK ${DEPENDENCY_SDK}" "${sdk_root}/platforms/android-${DEPENDENCY_SDK}"
+  check_directory "Android SDK ${LEGACY_COMPILE_SDK}" "${sdk_root}/platforms/android-${LEGACY_COMPILE_SDK}"
   check_directory "Android SDK ${COMPILE_SDK}" "${sdk_root}/platforms/android-${COMPILE_SDK}"
+  check_directory "Android Build Tools ${DEPENDENCY_BUILD_TOOLS}" "${sdk_root}/build-tools/${DEPENDENCY_BUILD_TOOLS}"
+  check_directory "Android Build Tools ${LEGACY_BUILD_TOOLS}" "${sdk_root}/build-tools/${LEGACY_BUILD_TOOLS}"
+  check_directory "Android Build Tools ${BUILD_TOOLS}" "${sdk_root}/build-tools/${BUILD_TOOLS}"
   check_directory "Android CMake ${CMAKE_VERSION}" "${sdk_root}/cmake/${CMAKE_VERSION}"
   check_file 'Android Ninja' "${sdk_root}/cmake/${CMAKE_VERSION}/bin/ninja"
   check_directory "Android NDK ${AGP_NDK_VERSION}" "${sdk_root}/ndk/${AGP_NDK_VERSION}"
