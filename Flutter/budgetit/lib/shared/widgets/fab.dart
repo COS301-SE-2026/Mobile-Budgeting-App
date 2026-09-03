@@ -32,22 +32,23 @@ class _FABState extends State<FAB> {
     // Capture context before async gap — FAB stays mounted while sheet is open.
     final outerContext = context;
 
-    showModalBottomSheet<void>(
+    showDialog<void>(
       context: outerContext,
-      backgroundColor: context.colours.secondary,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (sheetContext) => FABMenu(
-        onAddTransaction: () {
-          Navigator.of(sheetContext).pop();
-          showDialog<void>(
-            context: outerContext,
-            builder: (_) =>
-                AddTransactionDialog(onAdded: widget.onTransactionAdded),
-          );
-        },
-        onImportStatement: _navigateToImport,
+      barrierColor: Colors.black.withValues(alpha: 0.35),
+      builder: (dialogContext) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+        child: FABMenu(
+          onAddTransaction: () {
+            Navigator.of(dialogContext).pop();
+            showDialog<void>(
+              context: outerContext,
+              builder: (_) =>
+                  AddTransactionDialog(onAdded: widget.onTransactionAdded),
+            );
+          },
+          onImportStatement: _navigateToImport,
+        ),
       ),
     );
   }
@@ -68,7 +69,9 @@ class _FABState extends State<FAB> {
                     color: Colors.black,
                   )],
           border: Border.all(color: Colors.black, width: 4.0),
-          color: _pressed ? context.colours.informational : context.colours.secondary,
+          color: _pressed
+              ? context.colours.informational
+              : context.colours.secondary,
           shape: BoxShape.rectangle,
         ),
         child: Align(

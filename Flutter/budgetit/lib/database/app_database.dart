@@ -13,6 +13,7 @@ import 'daos/budget_dao.dart';
 import 'daos/recurring_transaction_dao.dart';
 import 'daos/settings_dao.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'daos/schema_cache_dao.dart';
 
 part 'app_database.g.dart';
 
@@ -27,6 +28,7 @@ part 'app_database.g.dart';
     BudgetPeriods,
     AppSettings,
     EmbeddingCacheEntries,
+    StatementSchemaCache,
   ],
 )
 /// The root database connection for the Budgetit application.
@@ -74,6 +76,10 @@ class AppDatabase extends _$AppDatabase {
        if (from < 3) {
     await m.createTable(embeddingCacheEntries);
   }
+      if (from == to) return;
+      if(from < 3) {
+        await m.createTable(statementSchemaCache);
+      }
       // TODO: add proper migration steps when schemaVersion > 1.
     },
   );
@@ -119,4 +125,6 @@ late final EmbeddingCacheDao embeddingCacheDao = EmbeddingCacheDao(this);
 
   /// Accessor for application settings.
   late final SettingsDao settingsDao = SettingsDao(this);
+
+  late final SchemaCacheDao schemaCacheDao = SchemaCacheDao(this);
 }
