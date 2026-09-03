@@ -32,8 +32,9 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>();
     return AppBar(
-      backgroundColor: context.colours.background,
+      backgroundColor: context.colours.blendedprimary,
       elevation: 0,
+      shape: const Border(bottom: BorderSide(color: Colors.black, width: 4)),
       leading: IconButton(
         tooltip: 'Help menu',
         icon: Container(
@@ -60,46 +61,44 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
           "Budget IT",
           softWrap: false,
           overflow: TextOverflow.visible,
-          style: context.colours.title.copyWith(fontSize: 14),
+          style: context.colours.title.copyWith(
+            fontSize: 14,
+            color: context.colours.cardText,
+          ),
         ),
       ),
       actions: [
         IconButton(
           tooltip: theme.isDark ? 'Light mode' : 'Dark mode',
           alignment: Alignment(0, 0),
-          
-          icon: 
-          Container(
+
+          icon: Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: context.colours.yellow,
               border: Border.all(color: Colors.black, width: 4),
             ),
-          child: Icon(
-            theme.isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
-            color: Colors.black,
-            
+            child: Icon(
+              theme.isDark
+                  ? Icons.light_mode_outlined
+                  : Icons.dark_mode_outlined,
+              color: Colors.black,
+            ),
           ),
-        ),
           onPressed: () => context.read<ThemeProvider>().toggle(),
         ),
         IconButton(
-         alignment: Alignment(0, 0),
-          
-          icon: 
-          Container(
+          alignment: Alignment(0, 0),
+
+          icon: Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: context.colours.greenAccents,
               border: Border.all(color: Colors.black, width: 4),
             ),
-          child: Icon(
-            Icons.person_outline,
-            color: Colors.black,
-            
-          ),
+            child: Icon(Icons.person_outline, color: Colors.black),
           ),
           onPressed: () {
             Navigator.push(
@@ -110,19 +109,14 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
         ),
 
         IconButton(
-          icon: 
-          Container(
+          icon: Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: context.colours.error,
               border: Border.all(color: Colors.black, width: 4),
             ),
-          child: Icon(
-            Icons.settings_outlined,
-            color: Colors.black,
-            
-          ),
+            child: Icon(Icons.settings_outlined, color: Colors.black),
           ),
           onPressed: () {
             Navigator.push(

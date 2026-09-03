@@ -1,4 +1,3 @@
-import 'package:budgetit/main.dart';
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:budgetit/views/budget_manager/budget_manager_screen.dart';
 import 'package:flutter/material.dart';
