@@ -114,6 +114,8 @@ class _RecurringTransactionCardState extends State<RecurringTransactionCard> {
                         rt.shortDescription,
                         style: context.colours.budgetheader.copyWith(
                           color: context.colours.cardText,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -121,6 +123,8 @@ class _RecurringTransactionCardState extends State<RecurringTransactionCard> {
                         '$frequency - Next: $nextDate',
                         style: context.colours.b5.copyWith(
                           color: context.colours.cardText,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -132,6 +136,8 @@ class _RecurringTransactionCardState extends State<RecurringTransactionCard> {
                       ? '- R${rt.amount.toStringAsFixed(2)}'
                       : 'R${rt.amount.toStringAsFixed(2)}',
                   style: context.colours.b4.copyWith(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
                     color: isExpense
                         ? (_isPressed
                               ? context.colours.background

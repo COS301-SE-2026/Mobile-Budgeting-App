@@ -451,6 +451,15 @@ class _DashboardState extends State<Dashboard> {
       return const SizedBox.shrink();
     }
 
+    final statusColor = health.isPoor
+        ? colours.error
+        : (health.isGood || health.isExcellent)
+        ? colours.greenAccents
+        : colours.warning;
+    final statusTextColor = health.isPoor
+        ? colours.whiteAccents
+        : colours.primary;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -473,7 +482,7 @@ class _DashboardState extends State<Dashboard> {
             Text(
               health.scoreLabel,
               style: colours.h2.copyWith(
-                color: cardTextColor,
+                color: statusColor,
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
                 height: 1,
@@ -483,13 +492,16 @@ class _DashboardState extends State<Dashboard> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: cardTextColor,
-                borderRadius: BorderRadius.circular(20),
+                color: statusColor,
+                border: Border.all(color: Colors.black, width: 3),
+                boxShadow: const [
+                  BoxShadow(color: Colors.black, offset: Offset(3, 3)),
+                ],
               ),
               child: Text(
                 health.status.toUpperCase(),
                 style: colours.h2.copyWith(
-                  color: cardColor,
+                  color: statusTextColor,
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1,
@@ -806,7 +818,8 @@ class _DashboardState extends State<Dashboard> {
             '$prefix${_formatCurrency(_amountAsDouble(transaction))}',
             style: context.colours.b4.copyWith(
               color: moneyColor,
-              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
             ),
           ),
         ],
@@ -911,7 +924,11 @@ class _DashboardState extends State<Dashboard> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: cardTextColor,
                           foregroundColor: cardColor,
+                          textStyle: colours.b1.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                           shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.zero,
                             side: BorderSide(color: Colors.black, width: 3),
                           ),
                         ),

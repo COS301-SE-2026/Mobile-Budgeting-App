@@ -823,14 +823,15 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colours.secondary,
                         foregroundColor: colours.background,
-                      ),
-                      child: Text(
-                        'Save',
-                        style: colours.b1.copyWith(
-                          color: colours.background,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          side: const BorderSide(color: Colors.black, width: 3),
+                        ),
+                        textStyle: colours.b1.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                      child: const Text('Save'),
                     ),
                   ],
                 ),
