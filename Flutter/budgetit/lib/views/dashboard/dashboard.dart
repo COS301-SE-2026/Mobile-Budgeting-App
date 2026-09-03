@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:provider/provider.dart';
 import 'package:budgetit/utils/theme_provider.dart';
+import 'package:budgetit/utils/icon_mapper.dart';
 // import '../components/balance_card.dart';
 import '../../models/financial_health_score.dart';
 import '../../services/financial_health_score_service.dart';
@@ -13,7 +14,9 @@ import 'package:budgetit/shared/widgets/predictive_spending_screen.dart';
 import '../graphical_reports/graphical_reports_screen.dart';
 
 class Dashboard extends StatefulWidget {
-  const Dashboard({super.key});
+  const Dashboard({super.key, this.onViewTransactions});
+
+  final VoidCallback? onViewTransactions;
 
   @override
   State<Dashboard> createState() => _DashboardState();
@@ -29,6 +32,7 @@ class _DashboardState extends State<Dashboard> {
   List<MonthData> dashboardMonths = [];
   List<SpendingCategory> spendingCategories = [];
   List<Transaction> recentTransactions = [];
+  Map<String, IconData> _transactionCategoryIcons = {};
   DateTime selectedDate = DateTime.now();
 
   @override
@@ -49,6 +53,13 @@ class _DashboardState extends State<Dashboard> {
       builder: (dialogContext) {
         return AlertDialog(
           backgroundColor: colours.secondary,
+          surfaceTintColor: Colors.transparent,
+          elevation: 8,
+          shadowColor: Colors.black,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero,
+            side: BorderSide(color: Colors.black, width: 4),
+          ),
           title: Text(
             'Financial Health Analysis',
             style: TextStyle(
@@ -121,10 +132,21 @@ class _DashboardState extends State<Dashboard> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
+              style: TextButton.styleFrom(
+                backgroundColor: colours.background,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.zero,
+                  side: BorderSide(color: Colors.black, width: 3),
+                ),
+              ),
               child: Text(
                 'CLOSE',
                 style: TextStyle(
-                  color: colours.background,
+                  color: colours.secondary,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -264,6 +286,30 @@ class _DashboardState extends State<Dashboard> {
     }).toList();
   }
 
+  Future<Map<String, IconData>> _loadTransactionCategoryIcons(
+    List<Transaction> transactions,
+  ) async {
+    final icons = <String, IconData>{};
+    await Future.wait(
+      transactions.map((transaction) async {
+        final mapping = await db.transactionDao.getCategoryForTransaction(
+          transaction.id,
+        );
+        if (mapping == null) return;
+        final category = await db.categoryDao.getCategoryById(
+          mapping.categoryId,
+        );
+        if (category != null) {
+          icons[transaction.id] = category.iconData ?? Icons.category_outlined;
+        }
+      }),
+    );
+    return icons;
+  }
+
+  IconData _categoryIconForTransaction(Transaction transaction) =>
+      _transactionCategoryIcons[transaction.id] ?? Icons.category_outlined;
+
   Future<List<MonthData>> _loadMonthlyTrends() async {
     final start = DateTime(selectedDate.year, selectedDate.month - 2);
     final months = <MonthData>[];
@@ -301,6 +347,9 @@ class _DashboardState extends State<Dashboard> {
         _endOfMonth(selectedDate),
       );
       final allTxns = await db.transactionDao.getAllTransactions();
+      final transactionCategoryIcons = await _loadTransactionCategoryIcons(
+        allTxns,
+      );
       final categories = await _loadSpendingCategories(monthTxns, colours);
       final trends = await _loadMonthlyTrends();
       final healthScore = await FinancialHealthScoreService(
@@ -314,6 +363,7 @@ class _DashboardState extends State<Dashboard> {
         spendingCategories = categories;
         dashboardMonths = trends;
         recentTransactions = allTxns.take(4).toList();
+        _transactionCategoryIcons = transactionCategoryIcons;
         financialHealthScore = healthScore;
         isLoading = false;
       });
@@ -595,6 +645,104 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
+  Widget _buildIncomeExpenseCards(MyColours colours) {
+    final health = financialHealthScore;
+    if (health == null) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Row(
+        children: [
+          Expanded(
+            child: _incomeExpenseCard(
+              colours: colours,
+              title: 'Income',
+              amount: health.totalIncome,
+              icon: Icons.arrow_upward,
+              amountColor: colours.greenAccents,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: _incomeExpenseCard(
+              colours: colours,
+              title: 'Expenses',
+              amount: health.totalExpenses,
+              icon: Icons.arrow_downward,
+              amountColor: colours.error,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _incomeExpenseCard({
+    required MyColours colours,
+    required String title,
+    required double amount,
+    required IconData icon,
+    required Color amountColor,
+  }) {
+    final cardColor = Theme.of(context).brightness == Brightness.dark
+        ? colours.blendedprimary
+        : colours.secondary;
+    final cardTextColor = Theme.of(context).brightness == Brightness.dark
+        ? colours.secondary
+        : colours.background;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: cardColor,
+        border: Border.all(color: Colors.black, width: 4),
+        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(6, 6))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: cardTextColor,
+                  border: Border.all(color: Colors.black, width: 2),
+                ),
+                child: Icon(icon, color: cardColor, size: 18),
+              ),
+              const SizedBox(width: 9),
+              Expanded(
+                child: Text(
+                  title.toUpperCase(),
+                  style: colours.h2.copyWith(
+                    color: cardTextColor,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              _formatCurrency(amount),
+              maxLines: 1,
+              style: colours.h2.copyWith(
+                color: amountColor,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _dashboardTransactionTile(Transaction transaction) {
     final isIncome = transaction.type == TransactionType.income;
     final moneyColor = isIncome
@@ -612,12 +760,18 @@ class _DashboardState extends State<Dashboard> {
       ),
       child: Row(
         children: [
-          Icon(
-            isIncome
-                ? Icons.arrow_circle_up_outlined
-                : Icons.arrow_circle_down_outlined,
-            color: moneyColor,
-            size: 20,
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: context.colours.secondary,
+              border: Border.all(color: Colors.black, width: 2),
+            ),
+            child: Icon(
+              _categoryIconForTransaction(transaction),
+              color: context.colours.background,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -628,13 +782,22 @@ class _DashboardState extends State<Dashboard> {
                   transaction.shortDescription,
                   style: context.colours.budgetheader.copyWith(
                     color: context.colours.cardText,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
+                const SizedBox(height: 5),
                 Text(
                   _transactionSubtitle(transaction),
                   style: context.colours.b5.copyWith(
                     color: context.colours.cardText,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -651,6 +814,124 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
+  Future<void> _showStyledDatePicker() async {
+    final colours = context.colours;
+    var draftDate = selectedDate;
+
+    final picked = await showDialog<DateTime>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          final cardColor = Theme.of(context).brightness == Brightness.dark
+              ? colours.blendedprimary
+              : colours.secondary;
+          final cardTextColor = Theme.of(context).brightness == Brightness.dark
+              ? colours.secondary
+              : colours.background;
+
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 430),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: cardColor,
+                border: Border.all(color: Colors.black, width: 4),
+                boxShadow: const [
+                  BoxShadow(color: Colors.black, offset: Offset(6, 6)),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'SELECT DASHBOARD DATE',
+                    style: colours.h2.copyWith(color: cardTextColor),
+                  ),
+                  const SizedBox(height: 12),
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      colorScheme: ColorScheme.fromSeed(
+                        seedColor: cardTextColor,
+                        primary: cardTextColor,
+                        onPrimary: cardColor,
+                        surface: cardColor,
+                        onSurface: cardTextColor,
+                        brightness: Theme.of(context).brightness,
+                      ),
+                      datePickerTheme: DatePickerThemeData(
+                        backgroundColor: cardColor,
+                        headerBackgroundColor: cardColor,
+                        headerForegroundColor: cardTextColor,
+                        weekdayStyle: colours.b5.copyWith(
+                          color: cardTextColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        dayStyle: colours.b1.copyWith(color: cardTextColor),
+                        yearStyle: colours.b1.copyWith(color: cardTextColor),
+                        dayShape: WidgetStateProperty.resolveWith((states) {
+                          return RoundedRectangleBorder(
+                            borderRadius: BorderRadius.zero,
+                            side: states.contains(WidgetState.selected)
+                                ? const BorderSide(
+                                    color: Colors.black,
+                                    width: 2,
+                                  )
+                                : BorderSide.none,
+                          );
+                        }),
+                        todayBorder: BorderSide(color: cardTextColor, width: 2),
+                      ),
+                    ),
+                    child: CalendarDatePicker(
+                      initialDate: draftDate,
+                      firstDate: DateTime(2024),
+                      lastDate: DateTime(2035, 12, 31),
+                      onDateChanged: (date) =>
+                          setDialogState(() => draftDate = date),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                        child: Text(
+                          'Cancel',
+                          style: colours.b1.copyWith(color: cardTextColor),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: () =>
+                            Navigator.of(dialogContext).pop(draftDate),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: cardTextColor,
+                          foregroundColor: cardColor,
+                          shape: const RoundedRectangleBorder(
+                            side: BorderSide(color: Colors.black, width: 3),
+                          ),
+                        ),
+                        child: const Text('Apply'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+
+    if (picked == null || !mounted) return;
+    setState(() => selectedDate = picked);
+    _loadDashboardData();
+  }
+
   @override
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>();
@@ -660,13 +941,8 @@ class _DashboardState extends State<Dashboard> {
         : colours.secondary;
     final dashboardCardTextColor =
         Theme.of(context).brightness == Brightness.dark
-         ? colours.secondary : colours.background;
-    final selectedCalendarDateColor =
-        Theme.of(context).brightness == Brightness.dark ? colours.secondary : colours.secondary;
-    final selectedCalendarDateTextColor =
-        Theme.of(context).brightness == Brightness.dark
-      ? colours.secondary: colours.cardText;
-
+        ? colours.secondary
+        : colours.background;
     return Scaffold(
       backgroundColor: colours.background,
       body: SafeArea(
@@ -683,89 +959,14 @@ class _DashboardState extends State<Dashboard> {
                   children: [
                     Text("DASHBOARD", style: colours.h2),
                     GestureDetector(
-                      onTap: () async {
-                        final picked = await showDatePicker(
-                          context: context,
-                          initialDate: selectedDate,
-                          firstDate: DateTime(2024),
-                          lastDate: DateTime(2035),
-                          //used ai to help me with changing this color during light mode but its not working even after
-                          builder: (context, child) {
-                            return Theme(
-                              data: Theme.of(context).copyWith(
-                                colorScheme: ColorScheme.light(
-                                  primary: selectedCalendarDateColor,
-                                  onPrimary: selectedCalendarDateTextColor,
-                                  surface: colours.background,
-                                  onSurface: colours.textPrimary,
-                                ),
-                                datePickerTheme: DatePickerThemeData(
-                                  backgroundColor: colours.background,
-                                  headerBackgroundColor: colours.secondary,
-                                  headerForegroundColor: colours.background,
-                                  dayBackgroundColor:
-                                      WidgetStateProperty.resolveWith((states) {
-                                        if (states.contains(
-                                        WidgetState.selected,
-                                        )) {
-                                        return selectedCalendarDateColor;
-                                        }
-                                        return colours.background.withValues(
-                                          alpha: 0,
-                                        );
-                                      }),
-                                  dayForegroundColor:
-                                      WidgetStateProperty.resolveWith((states) {
-                                        if (states.contains(
-                                          WidgetState.selected,
-                                        )) {
-                                          return selectedCalendarDateTextColor;
-                                        }
-                                        return colours.textPrimary;
-                                      }),
-                                  dayShape: WidgetStateProperty.resolveWith((
-                                    states,
-                                  ) {
-                                    if (states.contains(WidgetState.selected)) {
-                                      return const CircleBorder(
-                                        side: BorderSide(
-                                          color: Colors.black,
-                                          width: 2,
-                                        ),
-                                      );
-                                    }
-                                    return null;
-                                  }),
-
-                                  ///i used ai to fix this part
-                                  todayForegroundColor: WidgetStateProperty.all(
-                                    colours.secondary,
-                                  ),
-                                  todayBorder: BorderSide(
-                                    color: colours.secondary,
-                                    width: 2,
-                                  ),
-                                  yearForegroundColor: WidgetStateProperty.all(
-                                    colours.textPrimary,
-                                  ),
-                                ),
-                              ),
-                              child: child!,
-                            );
-                          },
-                        );
-                        if (picked != null) {
-                          setState(() => selectedDate = picked);
-                          _loadDashboardData();
-                        }
-                      },
+                      onTap: _showStyledDatePicker,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 14,
                           vertical: 10,
                         ),
                         decoration: BoxDecoration(
-                          color: colours.bg2,
+                          color: colours.primary,
                           border: Border.all(color: Colors.black, width: 4),
                         ),
                         child: Row(
@@ -807,6 +1008,7 @@ class _DashboardState extends State<Dashboard> {
                   ),
                 ),
               _buildDailySpendingCard(colours),
+              _buildIncomeExpenseCards(colours),
               const SizedBox(height: 10), //here
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -827,10 +1029,18 @@ class _DashboardState extends State<Dashboard> {
                           decoration: BoxDecoration(
                             border: Border.all(color: Colors.black, width: 4),
                             color: dashboardCardColor,
+
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black,
+                                offset: Offset(4, 4),
+                                blurRadius: 0,
+                              ),
+                            ],
                           ),
                           child: Center(
                             child: Text(
-                              "INSIGHTS",
+                              "VIEW INSIGHTS",
                               style: colours.h2.copyWith(
                                 color: dashboardCardTextColor,
                                 fontSize: 15,
@@ -857,10 +1067,17 @@ class _DashboardState extends State<Dashboard> {
                           decoration: BoxDecoration(
                             border: Border.all(color: Colors.black, width: 4),
                             color: dashboardCardColor,
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black,
+                                offset: Offset(4, 4),
+                                blurRadius: 0,
+                              ),
+                            ],
                           ),
                           child: Center(
                             child: Text(
-                              "REPORTS",
+                              "VIEW REPORTS",
                               style: colours.h2.copyWith(
                                 color: dashboardCardTextColor,
                                 fontSize: 15,
@@ -892,6 +1109,46 @@ class _DashboardState extends State<Dashboard> {
                 )
               else
                 ...recentTransactions.map(_dashboardTransactionTile),
+              const SizedBox(height: 18),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 24, 8),
+                child: GestureDetector(
+                  onTap: widget.onViewTransactions,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      color: colours.secondary,
+                      border: Border.all(color: Colors.black, width: 4),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(4, 4),
+                          blurRadius: 0,
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'VIEW MORE TRANSACTIONS',
+                          style: colours.b1.copyWith(
+                            color: colours.background,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Icon(
+                          Icons.arrow_forward,
+                          color: colours.background,
+                          size: 20,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
