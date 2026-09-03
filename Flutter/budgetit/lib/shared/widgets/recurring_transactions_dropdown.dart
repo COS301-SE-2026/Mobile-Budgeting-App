@@ -77,7 +77,7 @@ class _RecurringTransactionsDropdownState
               children: [
                 Container(
                   height: 52,
-                  width: MediaQuery.of(context).size.width * 0.9,
+                  width: double.infinity,
                   decoration: BoxDecoration(
                     shape: BoxShape.rectangle,
                     color: colours.background,
@@ -91,7 +91,7 @@ class _RecurringTransactionsDropdownState
                 ),
                 Container(
                   height: 52,
-                  width: MediaQuery.of(context).size.width * 0.9,
+                  width: double.infinity,
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
                     shape: BoxShape.rectangle,
@@ -102,13 +102,18 @@ class _RecurringTransactionsDropdownState
                     children: [
                       Icon(Icons.autorenew, color: colours.background),
                       const SizedBox(width: 8),
-                      Text(
-                        _recurringTransactions.isEmpty
-                            ? 'RECURRING TRANSACTIONS'
-                            : 'RECURRING TRANSACTIONS',
-                        style: colours.h2.copyWith(color: colours.background),
+                      Expanded(
+                        child: Text(
+                          'RECURRING TRANSACTIONS',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: colours.h2.copyWith(
+                            color: colours.background,
+                            fontSize: 14,
+                          ),
+                        ),
                       ),
-                      const Spacer(),
+                      const SizedBox(width: 6),
                       AnimatedRotation(
                         turns: _expanded ? 0.5 : 0,
                         duration: const Duration(milliseconds: 200),
@@ -144,7 +149,7 @@ class _RecurringTransactionsDropdownState
               children: [
                 Container(
                   height: 48,
-                  width: MediaQuery.of(context).size.width * 0.9,
+                  width: double.infinity,
                   decoration: BoxDecoration(
                     shape: BoxShape.rectangle,
                     color: colours.background,
@@ -158,7 +163,7 @@ class _RecurringTransactionsDropdownState
                 ),
                 Container(
                   height: 48,
-                  width: MediaQuery.of(context).size.width * 0.9,
+                  width: double.infinity,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     shape: BoxShape.rectangle,
@@ -170,12 +175,16 @@ class _RecurringTransactionsDropdownState
                     children: [
                       Icon(Icons.add, color: colours.background),
                       const SizedBox(width: 6),
-                      Text(
-                        'Add Recurring Transaction',
-                        style: TextStyle(
-                          color: colours.background,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
+                      Flexible(
+                        child: Text(
+                          'Add Recurring Transaction',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: colours.background,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                     ],

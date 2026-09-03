@@ -317,8 +317,9 @@ class _AddEditRecurringTransactionDialogState
                   validator: (value) {
                     final description = value?.trim() ?? '';
                     if (description.isEmpty) return 'Description is required';
-                    if (description.length > 100)
+                    if (description.length > 100) {
                       return 'Must be 100 characters or less';
+                    }
                     return null;
                   },
                 ),
@@ -340,8 +341,9 @@ class _AddEditRecurringTransactionDialogState
                     ),
                   ],
                   validator: (value) {
-                    if (value == null || value.isEmpty)
+                    if (value == null || value.isEmpty) {
                       return 'Amount is required';
+                    }
                     final amount = double.tryParse(value);
                     return amount == null || amount <= 0
                         ? 'Enter a valid amount'
