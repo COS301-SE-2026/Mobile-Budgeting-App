@@ -37,3 +37,4 @@ Flutter/budgetit/test/maestro/auth/.env
 
 docker/backend/.env.local
 docker/backend/.env.prod
+
