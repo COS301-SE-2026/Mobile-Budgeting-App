@@ -41,6 +41,20 @@ class _TransactionManagerState extends State<TransactionManager> {
     'Nov',
     'Dec',
   ];
+    static const _fullMonthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
   static const _dayNames = [
     'Monday',
     'Tuesday',
@@ -121,6 +135,27 @@ class _TransactionManagerState extends State<TransactionManager> {
     return sorted;
   }
 
+    Map<DateTime, List<Transaction>> _groupByMonth(List<Transaction> txns) {
+    final map = <DateTime, List<Transaction>>{};
+    for (final t in txns) {
+      final local = t.transactionDate.toLocal();
+      final month = DateTime(local.year, local.month);
+      (map[month] ??= []).add(t);
+    }
+    return Map.fromEntries(
+      map.entries.toList()..sort((a, b) => b.key.compareTo(a.key)),
+    );
+  }
+
+  double _monthNet(List<Transaction> txns) {
+    var net = 0.0;
+    for (final t in txns) {
+      final amount = t.amount.toDouble();
+      net += t.type == TransactionType.income ? amount : -amount;
+    }
+    return net;
+  }
+
   void _handleEdit(String id, String name, double amount) {
     final dao = context.read<AppDatabase>().transactionDao;
     dao
@@ -141,7 +176,7 @@ class _TransactionManagerState extends State<TransactionManager> {
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>();
     final colours = context.colours;
-    final grouped = _groupByDate(_filtered);
+    final byMonth = _groupByMonth(_filtered);
 
     return Scaffold(
       backgroundColor: colours.background,
@@ -227,7 +262,7 @@ class _TransactionManagerState extends State<TransactionManager> {
                   padding: const EdgeInsets.only(top: 48),
                   child: CircularProgressIndicator(color: colours.secondary),
                 )
-              else if (grouped.isEmpty)
+              else if (byMonth.isEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 48),
                   child: Text(
@@ -240,49 +275,108 @@ class _TransactionManagerState extends State<TransactionManager> {
                   ),
                 )
               else
-                ...grouped.entries.map((entry) {
-                  final date = entry.key;
-                  final txns = entry.value;
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0,
-                          vertical: 10,
-                        ),
-                        child: Row(
+                ...byMonth.entries.map((monthEntry) {
+                  final month = monthEntry.key;
+                  final monthTxns = monthEntry.value;
+                  final net = _monthNet(monthTxns);
+                  final byDay = _groupByDate(monthTxns);
+
+                  return Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                    padding: const EdgeInsets.fromLTRB(14, 14, 14, 6),
+                    decoration: BoxDecoration(
+                      color: colours.blendedprimary,
+                      border: Border.all(color: Colors.black, width: 4),
+                      boxShadow: const [
+                        BoxShadow(color: Colors.black, offset: Offset(6, 6)),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                '${_fullMonthNames[month.month - 1]} ${month.year}'
+                                    .toUpperCase(),
+                                style: colours.h2.copyWith(
+                                  color: colours.cardText,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              '${net < 0 ? '-' : ''}R${net.abs().toStringAsFixed(2)}',
+                              style: colours.b1.copyWith(
+                                color: net < 0
+                                    ? colours.warning
+                                    : colours.greenAccents,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      ...txns.map(
-                        (t) => Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: MyBox(
-                            key: ValueKey(t.id),
-                            transactionId: t.id,
-                            text: t.shortDescription,
-                            amount: t.amount.toDouble(),
-                            icon: t.type == TransactionType.income
-                                ? Icons.arrow_circle_up_outlined
-                                : Icons.arrow_circle_down_outlined,
-                            category:
-                                _transactionCategoryNames[t.id] ??
-                                (t.type == TransactionType.income
-                                    ? 'Income'
-                                    : 'Expense'),
-                            categories: const [],
-                            transactionType: t.type,
-                            date:
-                                '${_dayNames[date.weekday - 1]}, ${_monthNames[date.month - 1]} ${date.day}, ${date.year}',
-                            isExpense: t.type == TransactionType.expense,
-                            onEdited: (name, amount, icon, category) =>
-                                _handleEdit(t.id, name, amount),
-                            onDelete: () => _handleDelete(t.id),
-                          ),
+                        const SizedBox(height: 10),
+                        Container(
+                          height: 3,
+                          color: colours.cardText.withValues(alpha: 0.35),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 12),
+                        ...byDay.entries.map((dayEntry) {
+                          final date = dayEntry.key;
+                          final txns = dayEntry.value;
+
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: Text(
+                                  '${_dayNames[date.weekday - 1]}, ${_monthNames[date.month - 1]} ${date.day}',
+                                  style: colours.b2.copyWith(
+                                    color: colours.cardText.withValues(
+                                      alpha: 0.75,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              ...txns.map(
+                                (t) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 10),
+                                  child: MyBox(
+                                    key: ValueKey(t.id),
+                                    transactionId: t.id,
+                                    text: t.shortDescription,
+                                    amount: t.amount.toDouble(),
+                                    icon: t.type == TransactionType.income
+                                        ? Icons.arrow_circle_up_outlined
+                                        : Icons.arrow_circle_down_outlined,
+                                    category:
+                                        _transactionCategoryNames[t.id] ??
+                                        (t.type == TransactionType.income
+                                            ? 'Income'
+                                            : 'Expense'),
+                                    categories: const [],
+                                    transactionType: t.type,
+                                    date:
+                                        '${_dayNames[date.weekday - 1]}, ${_monthNames[date.month - 1]} ${date.day}, ${date.year}',
+                                    isExpense:
+                                        t.type == TransactionType.expense,
+                                    onEdited: (name, amount, icon, category) =>
+                                        _handleEdit(t.id, name, amount),
+                                    onDelete: () => _handleDelete(t.id),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        }),
+                      ],
+                    ),
                   );
                 }),
               const SizedBox(height: 80),
