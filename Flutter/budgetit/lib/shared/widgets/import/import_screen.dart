@@ -6,6 +6,8 @@ import '../../../database/daos/transaction_dao.dart';
 import '../../../database/daos/category_dao.dart';
 import '../../../services/import/import_orchestrator.dart';
 import 'import_preview_screen.dart';
+import 'schema_confirmation_dialog.dart';
+import '../../../services/import/schema_discovery_service.dart';
 
 class ImportScreen extends StatefulWidget {
   final AppDatabase db;
@@ -17,6 +19,7 @@ class ImportScreen extends StatefulWidget {
 class _ImportScreenState extends State<ImportScreen> {
   bool _loading = false;
   String? _error;
+
   Future<void> _pickAndParse() async {
     setState(() {
       _loading = true;
@@ -28,7 +31,7 @@ class _ImportScreenState extends State<ImportScreen> {
         type: FileType.custom,
         allowedExtensions: ['csv', 'pdf'],
         allowMultiple: false,
-      ); //platform aint working for some reason here.
+      );
 
       if (result == null || result.files.isEmpty) {
         if (mounted) {
@@ -44,10 +47,19 @@ class _ImportScreenState extends State<ImportScreen> {
 
       final path = result.files.single.path!;
       print('Debugg: File path selected: $path');
+
       final orchestrator = ImportOrchestrator(
         db: widget.db,
         taDao: TransactionDao(widget.db),
         categoryDao: CategoryDao(widget.db),
+        onNeedsSchemaConfirmation: (proposed, sampleRows) async {
+          if (!mounted) return proposed;
+          return showSchemaConfirmationDialog(
+            context,
+            proposed: proposed,
+            sampleRows: sampleRows,
+          );
+        },
       );
 
       final preview = await orchestrator.preparePreview(path);
@@ -63,6 +75,7 @@ class _ImportScreenState extends State<ImportScreen> {
         });
         return;
       }
+
       await Navigator.push(
         context,
         MaterialPageRoute(
@@ -186,7 +199,6 @@ class _ImportScreenState extends State<ImportScreen> {
             const SizedBox(height: 16),
 
             if (_error != null) ...[
-              //what even is ...[
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
