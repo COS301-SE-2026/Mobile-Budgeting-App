@@ -9,7 +9,7 @@ void main() {
     service = PredictiveSpendingService();
   });
 
-  MonthlySpendingSummary _month(int year, int month, double expenses) {
+  MonthlySpendingSummary month(int year, int month, double expenses) {
     return MonthlySpendingSummary(
       year: year,
       month: month,
@@ -26,7 +26,7 @@ void main() {
 
   group('PredictiveSpendingService', () {
     test('returns null when less than 2 non-empty months', () {
-      final results = service.predict([_month(2026, 5, 1000)]);
+      final results = service.predict([month(2026, 5, 1000)]);
       expect(results, isNull);
     });
 
@@ -71,8 +71,8 @@ void main() {
 
     test('confidence increases with more months of data', () {
       final result2 = service.predict([
-        _month(2026, 4, 1000),
-        _month(2026, 5, 1000),
+        month(2026, 4, 1000),
+        month(2026, 5, 1000),
       ]);
       final result6 = service.predict([
         month(2026, 1, 1000),
