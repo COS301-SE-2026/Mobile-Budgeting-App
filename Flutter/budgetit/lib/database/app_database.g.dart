@@ -6217,6 +6217,401 @@ class EmbeddingCacheEntriesCompanion
   }
 }
 
+class $StatementSchemaCacheTable extends StatementSchemaCache
+    with TableInfo<$StatementSchemaCacheTable, StatementSchemaCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $StatementSchemaCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _fingerprintMeta = const VerificationMeta(
+    'fingerprint',
+  );
+  @override
+  late final GeneratedColumn<String> fingerprint = GeneratedColumn<String>(
+    'fingerprint',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _signConventionMeta = const VerificationMeta(
+    'signConvention',
+  );
+  @override
+  late final GeneratedColumn<String> signConvention = GeneratedColumn<String>(
+    'sign_convention',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _skipLinePatternsMeta = const VerificationMeta(
+    'skipLinePatterns',
+  );
+  @override
+  late final GeneratedColumn<String> skipLinePatterns = GeneratedColumn<String>(
+    'skip_line_patterns',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    fingerprint,
+    signConvention,
+    skipLinePatterns,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'statement_schema_cache';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<StatementSchemaCacheData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('fingerprint')) {
+      context.handle(
+        _fingerprintMeta,
+        fingerprint.isAcceptableOrUnknown(
+          data['fingerprint']!,
+          _fingerprintMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_fingerprintMeta);
+    }
+    if (data.containsKey('sign_convention')) {
+      context.handle(
+        _signConventionMeta,
+        signConvention.isAcceptableOrUnknown(
+          data['sign_convention']!,
+          _signConventionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_signConventionMeta);
+    }
+    if (data.containsKey('skip_line_patterns')) {
+      context.handle(
+        _skipLinePatternsMeta,
+        skipLinePatterns.isAcceptableOrUnknown(
+          data['skip_line_patterns']!,
+          _skipLinePatternsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_skipLinePatternsMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {fingerprint};
+  @override
+  StatementSchemaCacheData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return StatementSchemaCacheData(
+      fingerprint: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}fingerprint'],
+      )!,
+      signConvention: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sign_convention'],
+      )!,
+      skipLinePatterns: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}skip_line_patterns'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $StatementSchemaCacheTable createAlias(String alias) {
+    return $StatementSchemaCacheTable(attachedDatabase, alias);
+  }
+}
+
+class StatementSchemaCacheData extends DataClass
+    implements Insertable<StatementSchemaCacheData> {
+  final String fingerprint;
+  final String signConvention;
+  final String skipLinePatterns;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const StatementSchemaCacheData({
+    required this.fingerprint,
+    required this.signConvention,
+    required this.skipLinePatterns,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['fingerprint'] = Variable<String>(fingerprint);
+    map['sign_convention'] = Variable<String>(signConvention);
+    map['skip_line_patterns'] = Variable<String>(skipLinePatterns);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  StatementSchemaCacheCompanion toCompanion(bool nullToAbsent) {
+    return StatementSchemaCacheCompanion(
+      fingerprint: Value(fingerprint),
+      signConvention: Value(signConvention),
+      skipLinePatterns: Value(skipLinePatterns),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory StatementSchemaCacheData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return StatementSchemaCacheData(
+      fingerprint: serializer.fromJson<String>(json['fingerprint']),
+      signConvention: serializer.fromJson<String>(json['signConvention']),
+      skipLinePatterns: serializer.fromJson<String>(json['skipLinePatterns']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'fingerprint': serializer.toJson<String>(fingerprint),
+      'signConvention': serializer.toJson<String>(signConvention),
+      'skipLinePatterns': serializer.toJson<String>(skipLinePatterns),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  StatementSchemaCacheData copyWith({
+    String? fingerprint,
+    String? signConvention,
+    String? skipLinePatterns,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => StatementSchemaCacheData(
+    fingerprint: fingerprint ?? this.fingerprint,
+    signConvention: signConvention ?? this.signConvention,
+    skipLinePatterns: skipLinePatterns ?? this.skipLinePatterns,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  StatementSchemaCacheData copyWithCompanion(
+    StatementSchemaCacheCompanion data,
+  ) {
+    return StatementSchemaCacheData(
+      fingerprint: data.fingerprint.present
+          ? data.fingerprint.value
+          : this.fingerprint,
+      signConvention: data.signConvention.present
+          ? data.signConvention.value
+          : this.signConvention,
+      skipLinePatterns: data.skipLinePatterns.present
+          ? data.skipLinePatterns.value
+          : this.skipLinePatterns,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StatementSchemaCacheData(')
+          ..write('fingerprint: $fingerprint, ')
+          ..write('signConvention: $signConvention, ')
+          ..write('skipLinePatterns: $skipLinePatterns, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    fingerprint,
+    signConvention,
+    skipLinePatterns,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is StatementSchemaCacheData &&
+          other.fingerprint == this.fingerprint &&
+          other.signConvention == this.signConvention &&
+          other.skipLinePatterns == this.skipLinePatterns &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class StatementSchemaCacheCompanion
+    extends UpdateCompanion<StatementSchemaCacheData> {
+  final Value<String> fingerprint;
+  final Value<String> signConvention;
+  final Value<String> skipLinePatterns;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const StatementSchemaCacheCompanion({
+    this.fingerprint = const Value.absent(),
+    this.signConvention = const Value.absent(),
+    this.skipLinePatterns = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  StatementSchemaCacheCompanion.insert({
+    required String fingerprint,
+    required String signConvention,
+    required String skipLinePatterns,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : fingerprint = Value(fingerprint),
+       signConvention = Value(signConvention),
+       skipLinePatterns = Value(skipLinePatterns),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<StatementSchemaCacheData> custom({
+    Expression<String>? fingerprint,
+    Expression<String>? signConvention,
+    Expression<String>? skipLinePatterns,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (fingerprint != null) 'fingerprint': fingerprint,
+      if (signConvention != null) 'sign_convention': signConvention,
+      if (skipLinePatterns != null) 'skip_line_patterns': skipLinePatterns,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  StatementSchemaCacheCompanion copyWith({
+    Value<String>? fingerprint,
+    Value<String>? signConvention,
+    Value<String>? skipLinePatterns,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return StatementSchemaCacheCompanion(
+      fingerprint: fingerprint ?? this.fingerprint,
+      signConvention: signConvention ?? this.signConvention,
+      skipLinePatterns: skipLinePatterns ?? this.skipLinePatterns,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (fingerprint.present) {
+      map['fingerprint'] = Variable<String>(fingerprint.value);
+    }
+    if (signConvention.present) {
+      map['sign_convention'] = Variable<String>(signConvention.value);
+    }
+    if (skipLinePatterns.present) {
+      map['skip_line_patterns'] = Variable<String>(skipLinePatterns.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StatementSchemaCacheCompanion(')
+          ..write('fingerprint: $fingerprint, ')
+          ..write('signConvention: $signConvention, ')
+          ..write('skipLinePatterns: $skipLinePatterns, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -6237,6 +6632,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $AppSettingsTable appSettings = $AppSettingsTable(this);
   late final $EmbeddingCacheEntriesTable embeddingCacheEntries =
       $EmbeddingCacheEntriesTable(this);
+  late final $StatementSchemaCacheTable statementSchemaCache =
+      $StatementSchemaCacheTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -6252,6 +6649,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     budgetPeriods,
     appSettings,
     embeddingCacheEntries,
+    statementSchemaCache,
   ];
   @override
   DriftDatabaseOptions get options =>
@@ -6298,10 +6696,7 @@ final class $$CategoriesTableReferences
   _recurringTransactionsRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.recurringTransactions,
-        aliasName: $_aliasNameGenerator(
-          db.categories.id,
-          db.recurringTransactions.categoryId,
-        ),
+        aliasName: 'categories__id__recurring_transactions__category_id',
       );
 
   $$RecurringTransactionsTableProcessedTableManager
@@ -6326,10 +6721,7 @@ final class $$CategoriesTableReferences
   _transactionCategoryMapRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.transactionCategoryMap,
-        aliasName: $_aliasNameGenerator(
-          db.categories.id,
-          db.transactionCategoryMap.categoryId,
-        ),
+        aliasName: 'categories__id__transaction_category_map__category_id',
       );
 
   $$TransactionCategoryMapTableProcessedTableManager
@@ -6350,10 +6742,7 @@ final class $$CategoriesTableReferences
   static MultiTypedResultKey<$BudgetTemplatesTable, List<BudgetTemplate>>
   _budgetTemplatesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.budgetTemplates,
-    aliasName: $_aliasNameGenerator(
-      db.categories.id,
-      db.budgetTemplates.categoryId,
-    ),
+    aliasName: 'categories__id__budget_templates__category_id',
   );
 
   $$BudgetTemplatesTableProcessedTableManager get budgetTemplatesRefs {
@@ -6771,7 +7160,7 @@ class $$CategoriesTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$CategoriesTable, Category>(table),
                   $$CategoriesTableReferences(db, table, e),
                 ),
               )
@@ -6915,10 +7304,8 @@ final class $$CategoryClosureTableReferences
     super.$_typedResult,
   );
 
-  static $CategoriesTable _ancestorIdTable(_$AppDatabase db) =>
-      db.categories.createAlias(
-        $_aliasNameGenerator(db.categoryClosure.ancestorId, db.categories.id),
-      );
+  static $CategoriesTable _ancestorIdTable(_$AppDatabase db) => db.categories
+      .createAlias('category_closure__ancestor_id__categories__id');
 
   $$CategoriesTableProcessedTableManager get ancestorId {
     final $_column = $_itemColumn<String>('ancestor_id')!;
@@ -6934,10 +7321,8 @@ final class $$CategoryClosureTableReferences
     );
   }
 
-  static $CategoriesTable _descendantIdTable(_$AppDatabase db) =>
-      db.categories.createAlias(
-        $_aliasNameGenerator(db.categoryClosure.descendantId, db.categories.id),
-      );
+  static $CategoriesTable _descendantIdTable(_$AppDatabase db) => db.categories
+      .createAlias('category_closure__descendant_id__categories__id');
 
   $$CategoriesTableProcessedTableManager get descendantId {
     final $_column = $_itemColumn<String>('descendant_id')!;
@@ -7241,7 +7626,9 @@ class $$CategoryClosureTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$CategoryClosureTable, CategoryClosureData>(
+                    table,
+                  ),
                   $$CategoryClosureTableReferences(db, table, e),
                 ),
               )
@@ -7376,13 +7763,8 @@ final class $$RecurringTransactionsTableReferences
     super.$_typedResult,
   );
 
-  static $CategoriesTable _categoryIdTable(_$AppDatabase db) =>
-      db.categories.createAlias(
-        $_aliasNameGenerator(
-          db.recurringTransactions.categoryId,
-          db.categories.id,
-        ),
-      );
+  static $CategoriesTable _categoryIdTable(_$AppDatabase db) => db.categories
+      .createAlias('recurring_transactions__category_id__categories__id');
 
   $$CategoriesTableProcessedTableManager? get categoryId {
     final $_column = $_itemColumn<String>('category_id');
@@ -7401,10 +7783,7 @@ final class $$RecurringTransactionsTableReferences
   static MultiTypedResultKey<$TransactionsTable, List<Transaction>>
   _transactionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.transactions,
-    aliasName: $_aliasNameGenerator(
-      db.recurringTransactions.id,
-      db.transactions.recurringId,
-    ),
+    aliasName: 'recurring_transactions__id__transactions__recurring_id',
   );
 
   $$TransactionsTableProcessedTableManager get transactionsRefs {
@@ -7893,7 +8272,10 @@ class $$RecurringTransactionsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<
+                    $RecurringTransactionsTable,
+                    RecurringTransaction
+                  >(table),
                   $$RecurringTransactionsTableReferences(db, table, e),
                 ),
               )
@@ -8021,7 +8403,7 @@ final class $$ImportsTableReferences
   static MultiTypedResultKey<$TransactionsTable, List<Transaction>>
   _transactionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.transactions,
-    aliasName: $_aliasNameGenerator(db.imports.id, db.transactions.importId),
+    aliasName: 'imports__id__transactions__import_id',
   );
 
   $$TransactionsTableProcessedTableManager get transactionsRefs {
@@ -8337,7 +8719,7 @@ class $$ImportsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$ImportsTable, Import>(table),
                   $$ImportsTableReferences(db, table, e),
                 ),
               )
@@ -8432,13 +8814,9 @@ final class $$TransactionsTableReferences
     extends BaseReferences<_$AppDatabase, $TransactionsTable, Transaction> {
   $$TransactionsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $RecurringTransactionsTable _recurringIdTable(_$AppDatabase db) =>
-      db.recurringTransactions.createAlias(
-        $_aliasNameGenerator(
-          db.transactions.recurringId,
-          db.recurringTransactions.id,
-        ),
-      );
+  static $RecurringTransactionsTable _recurringIdTable(_$AppDatabase db) => db
+      .recurringTransactions
+      .createAlias('transactions__recurring_id__recurring_transactions__id');
 
   $$RecurringTransactionsTableProcessedTableManager? get recurringId {
     final $_column = $_itemColumn<String>('recurring_id');
@@ -8455,9 +8833,7 @@ final class $$TransactionsTableReferences
   }
 
   static $ImportsTable _importIdTable(_$AppDatabase db) =>
-      db.imports.createAlias(
-        $_aliasNameGenerator(db.transactions.importId, db.imports.id),
-      );
+      db.imports.createAlias('transactions__import_id__imports__id');
 
   $$ImportsTableProcessedTableManager? get importId {
     final $_column = $_itemColumn<String>('import_id');
@@ -8480,10 +8856,7 @@ final class $$TransactionsTableReferences
   _transactionCategoryMapRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.transactionCategoryMap,
-        aliasName: $_aliasNameGenerator(
-          db.transactions.id,
-          db.transactionCategoryMap.transactionId,
-        ),
+        aliasName: 'transactions__id__transaction_category_map__transaction_id',
       );
 
   $$TransactionCategoryMapTableProcessedTableManager
@@ -9010,7 +9383,7 @@ class $$TransactionsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$TransactionsTable, Transaction>(table),
                   $$TransactionsTableReferences(db, table, e),
                 ),
               )
@@ -9164,10 +9537,7 @@ final class $$TransactionCategoryMapTableReferences
 
   static $TransactionsTable _transactionIdTable(_$AppDatabase db) =>
       db.transactions.createAlias(
-        $_aliasNameGenerator(
-          db.transactionCategoryMap.transactionId,
-          db.transactions.id,
-        ),
+        'transaction_category_map__transaction_id__transactions__id',
       );
 
   $$TransactionsTableProcessedTableManager get transactionId {
@@ -9184,13 +9554,8 @@ final class $$TransactionCategoryMapTableReferences
     );
   }
 
-  static $CategoriesTable _categoryIdTable(_$AppDatabase db) =>
-      db.categories.createAlias(
-        $_aliasNameGenerator(
-          db.transactionCategoryMap.categoryId,
-          db.categories.id,
-        ),
-      );
+  static $CategoriesTable _categoryIdTable(_$AppDatabase db) => db.categories
+      .createAlias('transaction_category_map__category_id__categories__id');
 
   $$CategoriesTableProcessedTableManager get categoryId {
     final $_column = $_itemColumn<String>('category_id')!;
@@ -9543,7 +9908,10 @@ class $$TransactionCategoryMapTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<
+                    $TransactionCategoryMapTable,
+                    TransactionCategoryMapData
+                  >(table),
                   $$TransactionCategoryMapTableReferences(db, table, e),
                 ),
               )
@@ -9660,10 +10028,8 @@ final class $$BudgetTemplatesTableReferences
     super.$_typedResult,
   );
 
-  static $CategoriesTable _categoryIdTable(_$AppDatabase db) =>
-      db.categories.createAlias(
-        $_aliasNameGenerator(db.budgetTemplates.categoryId, db.categories.id),
-      );
+  static $CategoriesTable _categoryIdTable(_$AppDatabase db) => db.categories
+      .createAlias('budget_templates__category_id__categories__id');
 
   $$CategoriesTableProcessedTableManager? get categoryId {
     final $_column = $_itemColumn<String>('category_id');
@@ -9682,10 +10048,7 @@ final class $$BudgetTemplatesTableReferences
   static MultiTypedResultKey<$BudgetPeriodsTable, List<BudgetPeriod>>
   _budgetPeriodsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.budgetPeriods,
-    aliasName: $_aliasNameGenerator(
-      db.budgetTemplates.id,
-      db.budgetPeriods.templateId,
-    ),
+    aliasName: 'budget_templates__id__budget_periods__template_id',
   );
 
   $$BudgetPeriodsTableProcessedTableManager get budgetPeriodsRefs {
@@ -10038,7 +10401,7 @@ class $$BudgetTemplatesTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$BudgetTemplatesTable, BudgetTemplate>(table),
                   $$BudgetTemplatesTableReferences(db, table, e),
                 ),
               )
@@ -10168,13 +10531,9 @@ final class $$BudgetPeriodsTableReferences
     super.$_typedResult,
   );
 
-  static $BudgetTemplatesTable _templateIdTable(_$AppDatabase db) =>
-      db.budgetTemplates.createAlias(
-        $_aliasNameGenerator(
-          db.budgetPeriods.templateId,
-          db.budgetTemplates.id,
-        ),
-      );
+  static $BudgetTemplatesTable _templateIdTable(_$AppDatabase db) => db
+      .budgetTemplates
+      .createAlias('budget_periods__template_id__budget_templates__id');
 
   $$BudgetTemplatesTableProcessedTableManager get templateId {
     final $_column = $_itemColumn<String>('template_id')!;
@@ -10511,7 +10870,7 @@ class $$BudgetPeriodsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$BudgetPeriodsTable, BudgetPeriod>(table),
                   $$BudgetPeriodsTableReferences(db, table, e),
                 ),
               )
@@ -10713,7 +11072,16 @@ class $$AppSettingsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$AppSettingsTable, AppSetting>(table),
+                  BaseReferences<_$AppDatabase, $AppSettingsTable, AppSetting>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -10976,7 +11344,18 @@ class $$EmbeddingCacheEntriesTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$EmbeddingCacheEntriesTable, EmbeddingCacheEntry>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $EmbeddingCacheEntriesTable,
+                    EmbeddingCacheEntry
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -11002,6 +11381,240 @@ typedef $$EmbeddingCacheEntriesTableProcessedTableManager =
         >,
       ),
       EmbeddingCacheEntry,
+      PrefetchHooks Function()
+    >;
+typedef $$StatementSchemaCacheTableCreateCompanionBuilder =
+    StatementSchemaCacheCompanion Function({
+      required String fingerprint,
+      required String signConvention,
+      required String skipLinePatterns,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<int> rowid,
+    });
+typedef $$StatementSchemaCacheTableUpdateCompanionBuilder =
+    StatementSchemaCacheCompanion Function({
+      Value<String> fingerprint,
+      Value<String> signConvention,
+      Value<String> skipLinePatterns,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$StatementSchemaCacheTableFilterComposer
+    extends Composer<_$AppDatabase, $StatementSchemaCacheTable> {
+  $$StatementSchemaCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get fingerprint => $composableBuilder(
+    column: $table.fingerprint,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get signConvention => $composableBuilder(
+    column: $table.signConvention,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get skipLinePatterns => $composableBuilder(
+    column: $table.skipLinePatterns,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$StatementSchemaCacheTableOrderingComposer
+    extends Composer<_$AppDatabase, $StatementSchemaCacheTable> {
+  $$StatementSchemaCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get fingerprint => $composableBuilder(
+    column: $table.fingerprint,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get signConvention => $composableBuilder(
+    column: $table.signConvention,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get skipLinePatterns => $composableBuilder(
+    column: $table.skipLinePatterns,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$StatementSchemaCacheTableAnnotationComposer
+    extends Composer<_$AppDatabase, $StatementSchemaCacheTable> {
+  $$StatementSchemaCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get fingerprint => $composableBuilder(
+    column: $table.fingerprint,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get signConvention => $composableBuilder(
+    column: $table.signConvention,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get skipLinePatterns => $composableBuilder(
+    column: $table.skipLinePatterns,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$StatementSchemaCacheTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $StatementSchemaCacheTable,
+          StatementSchemaCacheData,
+          $$StatementSchemaCacheTableFilterComposer,
+          $$StatementSchemaCacheTableOrderingComposer,
+          $$StatementSchemaCacheTableAnnotationComposer,
+          $$StatementSchemaCacheTableCreateCompanionBuilder,
+          $$StatementSchemaCacheTableUpdateCompanionBuilder,
+          (
+            StatementSchemaCacheData,
+            BaseReferences<
+              _$AppDatabase,
+              $StatementSchemaCacheTable,
+              StatementSchemaCacheData
+            >,
+          ),
+          StatementSchemaCacheData,
+          PrefetchHooks Function()
+        > {
+  $$StatementSchemaCacheTableTableManager(
+    _$AppDatabase db,
+    $StatementSchemaCacheTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$StatementSchemaCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$StatementSchemaCacheTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$StatementSchemaCacheTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> fingerprint = const Value.absent(),
+                Value<String> signConvention = const Value.absent(),
+                Value<String> skipLinePatterns = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => StatementSchemaCacheCompanion(
+                fingerprint: fingerprint,
+                signConvention: signConvention,
+                skipLinePatterns: skipLinePatterns,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String fingerprint,
+                required String signConvention,
+                required String skipLinePatterns,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => StatementSchemaCacheCompanion.insert(
+                fingerprint: fingerprint,
+                signConvention: signConvention,
+                skipLinePatterns: skipLinePatterns,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<
+                    $StatementSchemaCacheTable,
+                    StatementSchemaCacheData
+                  >(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $StatementSchemaCacheTable,
+                    StatementSchemaCacheData
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$StatementSchemaCacheTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $StatementSchemaCacheTable,
+      StatementSchemaCacheData,
+      $$StatementSchemaCacheTableFilterComposer,
+      $$StatementSchemaCacheTableOrderingComposer,
+      $$StatementSchemaCacheTableAnnotationComposer,
+      $$StatementSchemaCacheTableCreateCompanionBuilder,
+      $$StatementSchemaCacheTableUpdateCompanionBuilder,
+      (
+        StatementSchemaCacheData,
+        BaseReferences<
+          _$AppDatabase,
+          $StatementSchemaCacheTable,
+          StatementSchemaCacheData
+        >,
+      ),
+      StatementSchemaCacheData,
       PrefetchHooks Function()
     >;
 
@@ -11031,4 +11644,6 @@ class $AppDatabaseManager {
       $$AppSettingsTableTableManager(_db, _db.appSettings);
   $$EmbeddingCacheEntriesTableTableManager get embeddingCacheEntries =>
       $$EmbeddingCacheEntriesTableTableManager(_db, _db.embeddingCacheEntries);
+  $$StatementSchemaCacheTableTableManager get statementSchemaCache =>
+      $$StatementSchemaCacheTableTableManager(_db, _db.statementSchemaCache);
 }

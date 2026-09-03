@@ -317,7 +317,9 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => const FinancialReportScreen(),
+                            builder: (_) => FinancialReportScreen(
+                              database: widget.database,
+                            ),
                           ),
                         );
                       },
