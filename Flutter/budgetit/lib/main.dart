@@ -237,39 +237,73 @@ class _HomePageState extends State<HomePage> {
     final selectedNavIconColor = Theme.of(context).brightness == Brightness.dark
         ? context.colours.background
         : context.colours.cardText;
+    final unselectedNavIconColor = context.colours.cardText;
 
     return Scaffold(
       appBar: const MainAppbar(),
       body: _buildPages(db)[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(10)),
+          border: const Border(top: BorderSide(color: Colors.black, width: 4)),
         ),
-        child: NavigationBar(
-          selectedIndex: _selectedIndex,
-          backgroundColor: context.colours.background,
-          indicatorColor: context.colours.secondary,
-          onDestinationSelected: _onDestinationSelected,
-          destinations: [
-            NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home, color: selectedNavIconColor),
-              label: '',
+        child: SafeArea(
+          top: false,
+          child: NavigationBar(
+            height: 60,
+            selectedIndex: _selectedIndex,
+            elevation: 0,
+            surfaceTintColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            backgroundColor: context.colours.blendedprimary,
+            indicatorColor: context.colours.secondary,
+            labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+            indicatorShape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.zero,
+              side: BorderSide(color: Colors.black, width: 3),
             ),
-            NavigationDestination(
-              icon: Icon(Icons.attach_money),
-              selectedIcon: Icon(
-                Icons.attach_money,
-                color: selectedNavIconColor,
+            onDestinationSelected: _onDestinationSelected,
+            destinations: [
+              NavigationDestination(
+                icon: Icon(
+                  Icons.home_outlined,
+                  color: unselectedNavIconColor,
+                  size: 26,
+                ),
+                selectedIcon: Icon(
+                  Icons.home,
+                  color: selectedNavIconColor,
+                  size: 26,
+                ),
+                label: 'Home',
               ),
-              label: '',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.pie_chart_outline),
-              selectedIcon: Icon(Icons.pie_chart, color: selectedNavIconColor),
-              label: '',
-            ),
-          ],
+              NavigationDestination(
+                icon: Icon(
+                  Icons.attach_money,
+                  color: unselectedNavIconColor,
+                  size: 26,
+                ),
+                selectedIcon: Icon(
+                  Icons.attach_money,
+                  color: selectedNavIconColor,
+                  size: 26,
+                ),
+                label: 'Transactions',
+              ),
+              NavigationDestination(
+                icon: Icon(
+                  Icons.pie_chart_outline,
+                  color: unselectedNavIconColor,
+                  size: 26,
+                ),
+                selectedIcon: Icon(
+                  Icons.pie_chart,
+                  color: selectedNavIconColor,
+                  size: 26,
+                ),
+                label: 'Budgets',
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -277,7 +311,7 @@ class _HomePageState extends State<HomePage> {
 
   List<Widget> _buildPages(AppDatabase db) {
     return [
-      const Dashboard(),
+      Dashboard(onViewTransactions: () => _onDestinationSelected(1)),
       const TransactionManager(),
       BudgetManagerScreen(database: db),
     ];

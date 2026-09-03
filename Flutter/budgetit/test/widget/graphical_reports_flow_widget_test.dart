@@ -49,7 +49,7 @@ GraphicalReportData _reportWithData() {
       ),
     ],
     budgetComparisons: [
-      BudgetComparisonData(categoryName: 'Groceries', spent: 2500, limit: 3000),
+      BudgetComparisonData(categoryName: 'Groceries', spent: 3000, limit: 3000),
       BudgetComparisonData(categoryName: 'Transport', spent: 1500, limit: 2000),
     ],
     spendingTrend: [
@@ -118,7 +118,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Graphical Reports'), findsOneWidget);
-      expect(find.byType(ChoiceChip), findsNWidgets(3));
+      expect(find.byType(DropdownButton<ReportingPeriod>), findsOneWidget);
       expect(
         find.text('No financial data is available for the selected period.'),
         findsOneWidget,
@@ -129,7 +129,7 @@ void main() {
       );
     });
 
-    testWidgets('renders summary cards and chart sections when data exists', (
+    testWidgets('renders chart sections without dashboard summary cards', (
       tester,
     ) async {
       final mock = MockDb();
@@ -139,11 +139,6 @@ void main() {
       );
 
       await tester.pumpAndSettle();
-
-      expect(find.text('Income'), findsWidgets);
-      expect(find.text('Expenses'), findsWidgets);
-      expect(find.text('R12000.00'), findsOneWidget);
-      expect(find.text('R7500.00'), findsOneWidget);
 
       expect(find.text('Income versus Expenses'), findsOneWidget);
       expect(find.text('Spending by Category'), findsOneWidget);
@@ -157,8 +152,13 @@ void main() {
       expect(find.text('Groceries'), findsWidgets);
       expect(find.text('Transport'), findsWidgets);
       expect(find.text('Dining Out'), findsOneWidget);
-      expect(find.text('R2500.00 / R3000.00'), findsOneWidget);
+      expect(find.text('R3000.00 / R3000.00'), findsOneWidget);
       expect(find.text('R1500.00 / R2000.00'), findsOneWidget);
+
+      final reachedLimitText = tester.widget<Text>(
+        find.text('R3000.00 / R3000.00'),
+      );
+      expect(reachedLimitText.style?.color, isNot(MyColours.lightTheme.error));
     });
 
     testWidgets('changing reporting period reloads the report', (tester) async {
@@ -178,18 +178,34 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(requestedPeriods, contains(ReportingPeriod.monthly));
-      expect(find.byType(ChoiceChip), findsNWidgets(3));
+      Future<void> selectPeriod(ReportingPeriod period) async {
+        await tester.tap(find.byType(DropdownButton<ReportingPeriod>));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(period.label).last);
+        await tester.pumpAndSettle();
+      }
 
-      await tester.tap(find.byType(ChoiceChip).at(0));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byType(ChoiceChip).at(1));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byType(ChoiceChip).at(2));
-      await tester.pumpAndSettle();
+      await selectPeriod(ReportingPeriod.weekly);
+      await selectPeriod(ReportingPeriod.monthly);
+      await selectPeriod(ReportingPeriod.yearly);
 
       expect(requestedPeriods.length, greaterThanOrEqualTo(3));
+    });
+
+    testWidgets('date picker does not offer a future date', (tester) async {
+      final mock = MockDb();
+
+      await tester.pumpWidget(
+        _wrap(database: mock.db, reportBuilder: (_) async => _emptyReport()),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.calendar_month_outlined));
+      await tester.pumpAndSettle();
+
+      expect(find.text('GRAPHICAL REPORTS'), findsOneWidget);
+      expect(find.byType(CalendarDatePicker), findsOneWidget);
+      expect(find.text('Apply'), findsOneWidget);
     });
   });
 }

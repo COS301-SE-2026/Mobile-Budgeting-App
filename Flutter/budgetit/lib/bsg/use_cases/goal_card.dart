@@ -13,13 +13,13 @@ Widget addButton(BuildContext context) {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            "GOALLLLLLLLLL",
+            'GOALLLLLLLLLL',
             style: context.colours.h2,
           ),
           
            const SizedBox(height: 28),
           Text(
-            "This card is a neat way to track your goals with regards to your budget! ",
+            'This card is a neat way to track your goals with regards to your budget! ',
             style: context.colours.b1,
             textAlign: TextAlign.center,
           ),

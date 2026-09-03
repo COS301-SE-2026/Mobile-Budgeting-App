@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import '../data/auth_service.dart';
+import 'package:budgetit/auth/data/auth_service.dart';
 
 enum AuthStatus {
   unknown, // app just launched, checking session
@@ -9,6 +9,11 @@ enum AuthStatus {
 }
 
 class AppAuthProvider extends ChangeNotifier {
+
+  AppAuthProvider({required AuthService authService})
+    : _authService = authService {
+    _checkCurrentSession();
+  }
   final AuthService _authService;
 
   AuthStatus _status = AuthStatus.unknown;
@@ -24,11 +29,6 @@ class AppAuthProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get isLoggedIn => _status == AuthStatus.loggedIn;
   bool get needsVerification => _needsVerification;
-
-  AppAuthProvider({required AuthService authService})
-    : _authService = authService {
-    _checkCurrentSession();
-  }
 
   // Called on app launch — checks if user is already logged in
   Future<void> _checkCurrentSession() async {

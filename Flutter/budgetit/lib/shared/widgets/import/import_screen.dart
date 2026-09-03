@@ -144,8 +144,17 @@ class _ImportScreenState extends State<ImportScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: colors.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(16),
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? colours.blendedprimary
+                    : colours.secondary,
+                border: Border.all(color: Colors.black, width: 4),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black,
+                    offset: Offset(6, 6),
+                    blurRadius: 0,
+                  ),
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -188,7 +197,36 @@ class _ImportScreenState extends State<ImportScreen> {
                 _FormatChip(label: 'PDF', icon: Icons.picture_as_pdf_outlined),
               ],
             ),
-            const Spacer(),
+
+            const SizedBox(height: 24),
+
+            FilledButton.icon(
+              onPressed: _loading ? null : _pickAndParse,
+              icon: _loading
+                  ? SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: colours.background,
+                      ),
+                    )
+                  : const Icon(Icons.upload_file_outlined),
+              label: Text(_loading ? ' Reading file..,' : 'Upload a statement'),
+              style: FilledButton.styleFrom(
+                backgroundColor: colours.secondary,
+                foregroundColor: colours.background,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                textStyle: colours.b1.copyWith(fontWeight: FontWeight.bold),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.zero,
+                  side: BorderSide(color: Colors.black, width: 4),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
             if (_error != null) ...[
               Container(
                 padding: const EdgeInsets.all(12),
@@ -251,10 +289,11 @@ class _FormatChip extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
 
     return Chip(
-      avatar: Icon(icon, size: 16, color: colors.primary),
-      label: Text(label),
-      side: BorderSide(color: colors.outlineVariant),
-      backgroundColor: Colors.transparent,
+      avatar: Icon(icon, size: 16, color: colours.cardText),
+      label: Text(label, style: colours.b1.copyWith(color: colours.cardText)),
+      side: const BorderSide(color: Colors.black, width: 3),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      backgroundColor: colours.primary,
     );
   }
 }
