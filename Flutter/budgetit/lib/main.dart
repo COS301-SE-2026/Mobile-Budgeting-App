@@ -180,41 +180,64 @@ class _HomePageState extends State<HomePage> {
         decoration: BoxDecoration(
           border: const Border(top: BorderSide(color: Colors.black, width: 4)),
         ),
-        child: NavigationBar(
-          selectedIndex: _selectedIndex,
-          elevation: 0,
-          surfaceTintColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          backgroundColor: context.colours.blendedprimary,
-          indicatorColor: context.colours.secondary,
-          indicatorShape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.zero,
-            side: const BorderSide(color: Colors.black, width: 3),
+        child: SafeArea(
+          top: false,
+          child: NavigationBar(
+            height: 60,
+            selectedIndex: _selectedIndex,
+            elevation: 0,
+            surfaceTintColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            backgroundColor: context.colours.blendedprimary,
+            indicatorColor: context.colours.secondary,
+            labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+            indicatorShape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.zero,
+              side: BorderSide(color: Colors.black, width: 3),
+            ),
+            onDestinationSelected: _onDestinationSelected,
+            destinations: [
+              NavigationDestination(
+                icon: Icon(
+                  Icons.home_outlined,
+                  color: unselectedNavIconColor,
+                  size: 26,
+                ),
+                selectedIcon: Icon(
+                  Icons.home,
+                  color: selectedNavIconColor,
+                  size: 26,
+                ),
+                label: 'Home',
+              ),
+              NavigationDestination(
+                icon: Icon(
+                  Icons.attach_money,
+                  color: unselectedNavIconColor,
+                  size: 26,
+                ),
+                selectedIcon: Icon(
+                  Icons.attach_money,
+                  color: selectedNavIconColor,
+                  size: 26,
+                ),
+                label: 'Transactions',
+              ),
+              NavigationDestination(
+                icon: Icon(
+                  Icons.pie_chart_outline,
+                  color: unselectedNavIconColor,
+                  size: 26,
+                ),
+                selectedIcon: Icon(
+                  Icons.pie_chart,
+                  color: selectedNavIconColor,
+                  size: 26,
+                ),
+                label: 'Budgets',
+              ),
+            ],
           ),
-          onDestinationSelected: _onDestinationSelected,
-          destinations: [
-            NavigationDestination(
-              icon: Icon(Icons.home_outlined, color: unselectedNavIconColor),
-              selectedIcon: Icon(Icons.home, color: selectedNavIconColor),
-              label: '',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.attach_money, color: unselectedNavIconColor),
-              selectedIcon: Icon(
-                Icons.attach_money,
-                color: selectedNavIconColor,
-              ),
-              label: '',
-            ),
-            NavigationDestination(
-              icon: Icon(
-                Icons.pie_chart_outline,
-                color: unselectedNavIconColor,
-              ),
-              selectedIcon: Icon(Icons.pie_chart, color: selectedNavIconColor),
-              label: '',
-            ),
-          ],
         ),
       ),
     );
