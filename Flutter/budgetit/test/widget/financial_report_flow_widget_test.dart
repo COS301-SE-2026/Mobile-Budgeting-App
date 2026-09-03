@@ -1,16 +1,19 @@
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:budgetit/database/app_database.dart';
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:budgetit/views/financial_reports/financial_report_screen.dart';
 
 void main() {
   Widget buildTestWidget() {
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
     return MaterialApp(
       theme: ThemeData(
         extensions: <ThemeExtension<dynamic>>[MyColours.lightTheme],
       ),
-      home: const FinancialReportScreen(),
+      home: FinancialReportScreen(database: db),
     );
   }
 

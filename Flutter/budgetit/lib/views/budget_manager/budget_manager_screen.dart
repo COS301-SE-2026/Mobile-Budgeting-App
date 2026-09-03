@@ -167,8 +167,11 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
     final items = <_BudgetManagerItem>[];
 
     for (final template in templates) {
+      final categoryId = template.categoryId;
+      if (categoryId == null) continue;
+
       final category = await widget.database.categoryDao.getCategoryById(
-        template.categoryId,
+        categoryId,
       );
 
       if (category == null) continue;

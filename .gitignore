@@ -21,5 +21,16 @@ Flutter/budgetit/linux/
 artifacts/
 backend/.env
 docker/flutter/.env
+
+
+scripts/test/act/artifacts/
+scripts/test/act/cache/
+cache/
+Flutter/budgetit/flutter/
+Flutter/budgetit/ios/
+Flutter/budgetit/linux/
+artifacts/
+backend/.env
+docker/backend/.env
 Flutter\budgetit\lib\bsg\main.directories.g.dart
 Flutter/budgetit/test/maestro/auth/.env
