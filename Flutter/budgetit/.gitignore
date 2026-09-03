@@ -54,3 +54,6 @@ app.*.map.json
 /assets/models/bge-small-en-v1.5/model.onnx
 # FVM Version Cache
 .fvm/
+
+docker/backend/.env.local
+docker/backend/.env.prod

@@ -182,6 +182,18 @@ class _TransactionManagerState extends State<TransactionManager> {
     );
   }
 
+  Map<DateTime, List<Transaction>> _groupByDate(List<Transaction> txns) {
+    final map = <DateTime, List<Transaction>>{};
+    for (final t in txns) {
+      final local = t.transactionDate.toLocal();
+      final date = DateTime(local.year, local.month, local.day);
+      (map[date] ??= []).add(t);
+    }
+    return Map.fromEntries(
+      map.entries.toList()..sort((a, b) => b.key.compareTo(a.key)),
+    );
+  }
+
   double _monthNet(List<Transaction> txns) {
     var net = 0.0;
     for (final t in txns) {
