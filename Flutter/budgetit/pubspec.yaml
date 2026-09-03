@@ -29,11 +29,15 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   fl_chart: ^0.68.0
-  file_picker: ^11.0.2
+  file_picker: 12.0.0
   popover: ^0.4.0
   flutter:
     sdk: flutter
-  drift: ^2.21.0
+  drift_sqlite_async: ^0.2.6   
+  powersync: ^1.14.0     
+  http: ^1.2.0 
+  dio: ^5.7.0
+  drift: 2.31.0
   drift_flutter: ^0.2.8
   path_provider: ^2.1.6
   path: ^1.9.0
@@ -63,8 +67,10 @@ dependencies:
   provider: ^6.1.2
   jiffy: ^6.4.5
   pdf: ^3.12.0
-  share_plus: ^12.0.2
+  share_plus: 13.3.0
   open_filex: ^4.7.0
+  flutter_onnxruntime: ^1.8.4
+  bert_tokenizer: ^1.2.0
 
   #LLM
   flutter_gemma: ^1.5.6
@@ -73,23 +79,18 @@ dependencies:
 
 
 dependency_overrides:
-  sqlite3: ^3.4.0
+  sqlite3: ^2.9.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  drift_dev: ^2.21.0
+  drift_dev: 2.31.0
   build_runner: ^2.15.0
   widgetbook_generator: ^3.11.0
   mockito: ^5.4.5
-  sqlite3: ^3.4.0
+  sqlite3: ^2.9.4
 
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
-  flutter_lints: ^6.0.0
+  very_good_analysis: ^10.2.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -107,11 +108,7 @@ flutter:
     - assets/images/phone_mockup.jpg
     - assets/images/flow.jpg
     - assets/images/logo.png
-    - assets/images/Budgets.jpg
-    - assets/images/insights.jpg
-    - assets/images/Imports.jpeg
-    - assets/images/budgetit_logo.jpg
-    - assets/images/dashboard.jpg
+    - assets/models/bge-small-en-v1.5/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

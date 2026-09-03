@@ -7,7 +7,9 @@
 #include "generated_plugin_registrant.h"
 
 #include <amplify_db_common/amplify_db_common_plugin.h>
+#include <flutter_onnxruntime/flutter_onnxruntime_plugin.h>
 #include <flutter_secure_storage_windows/flutter_secure_storage_windows_plugin.h>
+#include <powersync_flutter_libs/powersync_flutter_libs_plugin.h>
 #include <share_plus/share_plus_windows_plugin_c_api.h>
 #include <sqlite3_flutter_libs/sqlite3_flutter_libs_plugin.h>
 #include <url_launcher_windows/url_launcher_windows.h>
@@ -15,8 +17,12 @@
 void RegisterPlugins(flutter::PluginRegistry* registry) {
   AmplifyDbCommonPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("AmplifyDbCommonPlugin"));
+  FlutterOnnxruntimePluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("FlutterOnnxruntimePlugin"));
   FlutterSecureStorageWindowsPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("FlutterSecureStorageWindowsPlugin"));
+  PowersyncFlutterLibsPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("PowersyncFlutterLibsPlugin"));
   SharePlusWindowsPluginCApiRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("SharePlusWindowsPluginCApi"));
   Sqlite3FlutterLibsPluginRegisterWithRegistrar(

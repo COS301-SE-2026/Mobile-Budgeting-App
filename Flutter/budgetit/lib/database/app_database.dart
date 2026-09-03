@@ -1,11 +1,9 @@
-import 'dart:io';
-
 import 'package:decimal/decimal.dart';
 import 'package:drift/drift.dart';
-import 'package:drift_flutter/drift_flutter.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
+import 'package:drift_sqlite_async/drift_sqlite_async.dart';
+import 'package:powersync/powersync.dart' hide Table;
 import 'schema.dart';
+import 'daos/embedding_cache_dao.dart';
 import 'daos/category_dao.dart';
 import 'daos/transaction_dao.dart';
 import 'daos/budget_dao.dart';
@@ -26,51 +24,26 @@ part 'app_database.g.dart';
     BudgetTemplates,
     BudgetPeriods,
     AppSettings,
+    EmbeddingCacheEntries,
     StatementSchemaCache,
   ],
 )
-/// The root database connection for the Budgetit application.
-///
-/// [AppDatabase] is a Drift database that manages the entire budgeting app schema.
-/// It includes tables for categories, transactions, budget templates, budget
-/// periods, and app settings, along with their respective data access objects.
-///
-/// The database is backed by a SQLite file stored via [drift_flutter].
-///
-/// Usage:
-/// ```dart
-/// final database = AppDatabase();
-/// final tx = await database.transactionDao.insertTransaction(
-///   amount: Decimal.parse('100.00'),
-///   type: TransactionType.expense,
-///   shortDescription: 'Lunch',
-///   transactionDate: DateTime.now(),
-///   source: TransactionSource.manual,
-/// );
-/// await database.close();
-/// ```
 class AppDatabase extends _$AppDatabase {
-  /// Creates a new [AppDatabase] with a SQLite connection named 'budgetit'.
-  AppDatabase() : super(_openConnection());
+  AppDatabase(PowerSyncDatabase powerSyncDb)
+      : super(_openConnection(powerSyncDb));
 
-  /// Creates an [AppDatabase] for testing with the given [QueryExecutor].
   AppDatabase.forTesting(super.e);
 
-  /// The current schema version of the database.
-  ///
-  /// Increment this and add migration steps in [migration] when the schema
-  /// changes. Currently at 2 after adding RecurringTransactions.
   @override
   int get schemaVersion => 3;
 
-  /// Migration strategy for the database.
-  ///
-  /// On creation, all tables are created via [MigrationStrategy.createAll].
-  /// On upgrade, migration steps should be added when [schemaVersion] > 1.
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) async => m.createAll(),
     onUpgrade: (m, from, to) async {
+       if (from < 3) {
+    await m.createTable(embeddingCacheEntries);
+  }
       if (from == to) return;
       if(from < 3) {
         await m.createTable(statementSchemaCache);
@@ -100,23 +73,28 @@ class AppDatabase extends _$AppDatabase {
         driftWorker: Uri.parse('/drift_worker.js'),
       ),
     );
+        onCreate: (m) async {
+          await m.createTable(appSettings);
+        },
+        onUpgrade: (m, from, to) async {},
+      );
+
+  static QueryExecutor _openConnection(PowerSyncDatabase powerSyncDb) {
+    return SqliteAsyncDriftConnection(powerSyncDb);
   }
 
-  /// Accessor for category operations.
   late final CategoryDao categoryDao = CategoryDao(this);
+
+/// Accessor for locally cached AI embeddings.
+late final EmbeddingCacheDao embeddingCacheDao = EmbeddingCacheDao(this);
 
   /// Accessor for transaction operations.
   late final TransactionDao transactionDao = TransactionDao(this);
-
-  /// Accessor for budget template and period operations.
   late final BudgetDao budgetDao = BudgetDao(this);
-
-  /// Accessor for recurring transaction operations.
   late final RecurringTransactionDao recurringTransactionDao =
       RecurringTransactionDao(this);
-
-  /// Accessor for application settings.
   late final SettingsDao settingsDao = SettingsDao(this);
 
   late final SchemaCacheDao schemaCacheDao = SchemaCacheDao(this);
+}
 }
