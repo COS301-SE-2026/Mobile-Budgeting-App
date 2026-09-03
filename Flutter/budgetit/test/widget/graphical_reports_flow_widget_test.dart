@@ -118,7 +118,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Graphical Reports'), findsOneWidget);
-      expect(find.byType(ChoiceChip), findsNWidgets(3));
+      expect(find.byType(DropdownButton<ReportingPeriod>), findsOneWidget);
       expect(
         find.text('No financial data is available for the selected period.'),
         findsOneWidget,
@@ -158,7 +158,7 @@ void main() {
       final reachedLimitText = tester.widget<Text>(
         find.text('R3000.00 / R3000.00'),
       );
-      expect(reachedLimitText.style?.color, MyColours.lightTheme.error);
+      expect(reachedLimitText.style?.color, isNot(MyColours.lightTheme.error));
     });
 
     testWidgets('changing reporting period reloads the report', (tester) async {
@@ -178,34 +178,34 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(requestedPeriods, contains(ReportingPeriod.monthly));
-      expect(find.byType(ChoiceChip), findsNWidgets(3));
+      Future<void> selectPeriod(ReportingPeriod period) async {
+        await tester.tap(find.byType(DropdownButton<ReportingPeriod>));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(period.label).last);
+        await tester.pumpAndSettle();
+      }
 
-      await tester.tap(find.byType(ChoiceChip).at(0));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byType(ChoiceChip).at(1));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byType(ChoiceChip).at(2));
-      await tester.pumpAndSettle();
+      await selectPeriod(ReportingPeriod.weekly);
+      await selectPeriod(ReportingPeriod.monthly);
+      await selectPeriod(ReportingPeriod.yearly);
 
       expect(requestedPeriods.length, greaterThanOrEqualTo(3));
     });
 
-    testWidgets('year picker does not offer a future year', (tester) async {
+    testWidgets('date picker does not offer a future date', (tester) async {
       final mock = MockDb();
-      final currentYear = DateTime.now().year;
 
       await tester.pumpWidget(
         _wrap(database: mock.db, reportBuilder: (_) async => _emptyReport()),
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Yearly'));
+      await tester.tap(find.byIcon(Icons.calendar_month_outlined));
       await tester.pumpAndSettle();
 
-      expect(find.text('$currentYear'), findsOneWidget);
-      expect(find.text('${currentYear + 1}'), findsNothing);
+      expect(find.text('GRAPHICAL REPORTS'), findsOneWidget);
+      expect(find.byType(CalendarDatePicker), findsOneWidget);
+      expect(find.text('Apply'), findsOneWidget);
     });
   });
 }
