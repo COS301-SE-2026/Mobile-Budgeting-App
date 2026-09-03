@@ -9,7 +9,6 @@ import 'daos/transaction_dao.dart';
 import 'daos/budget_dao.dart';
 import 'daos/recurring_transaction_dao.dart';
 import 'daos/settings_dao.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'daos/schema_cache_dao.dart';
 
 part 'app_database.g.dart';
@@ -26,6 +25,7 @@ part 'app_database.g.dart';
     AppSettings,
     EmbeddingCacheEntries,
     StatementSchemaCache,
+    Imports,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -39,45 +39,18 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-    onCreate: (m) async => m.createAll(),
+    onCreate: (m) async {
+      await m.createTable(appSettings);
+      await m.createTable(embeddingCacheEntries);
+      await m.createTable(statementSchemaCache);
+    },
     onUpgrade: (m, from, to) async {
-       if (from < 3) {
-    await m.createTable(embeddingCacheEntries);
-  }
-      if (from == to) return;
-      if(from < 3) {
+      if (from < 3) {
+        await m.createTable(embeddingCacheEntries);
         await m.createTable(statementSchemaCache);
       }
-      // TODO: add proper migration steps when schemaVersion > 1.
     },
   );
-
-  /// Creates the database, deleting the existing file first when [reset] is true.
-  ///
-  /// Only call with [reset] = true in debug mode — never in production.
-  static Future<AppDatabase> create({bool reset = false}) async {
-    if (reset && !kIsWeb) {
-      final dir = await getApplicationDocumentsDirectory();
-      final file = File(p.join(dir.path, 'budgetit.sqlite'));
-      if (await file.exists()) await file.delete();
-    }
-
-    return AppDatabase();
-  }
-
-  static QueryExecutor _openConnection() {
-    return driftDatabase(
-      name: 'budgetit',
-      web: DriftWebOptions(
-        sqlite3Wasm: Uri.parse('/sqlite3.wasm'),
-        driftWorker: Uri.parse('/drift_worker.js'),
-      ),
-    );
-        onCreate: (m) async {
-          await m.createTable(appSettings);
-        },
-        onUpgrade: (m, from, to) async {},
-      );
 
   static QueryExecutor _openConnection(PowerSyncDatabase powerSyncDb) {
     return SqliteAsyncDriftConnection(powerSyncDb);
@@ -96,5 +69,4 @@ late final EmbeddingCacheDao embeddingCacheDao = EmbeddingCacheDao(this);
   late final SettingsDao settingsDao = SettingsDao(this);
 
   late final SchemaCacheDao schemaCacheDao = SchemaCacheDao(this);
-}
 }
