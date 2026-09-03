@@ -1,0 +1,8 @@
+targets:
+  $default:
+    builders:
+      drift_dev:
+        options:
+          # PowerSync persists DateTime columns as ISO-8601 text, so Drift must
+          # read/write them as text too (not as Unix-timestamp integers).
+          store_date_time_values_as_text: true

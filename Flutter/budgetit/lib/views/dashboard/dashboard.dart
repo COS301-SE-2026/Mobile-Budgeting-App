@@ -963,10 +963,6 @@ class _DashboardState extends State<Dashboard> {
         : colours.background;
     return Scaffold(
       backgroundColor: colours.background,
-      floatingActionButton: FloatingActionButton( //this is for test purposes. testing this tests this.
-        onPressed: () => runGemmaSmokeTest(),
-        child: const Icon(Icons.smart_toy),
-      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.only(bottom: 40),

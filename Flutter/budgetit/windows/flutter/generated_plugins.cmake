@@ -5,9 +5,9 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   amplify_db_common
   flutter_gemma
+  flutter_onnxruntime
   flutter_secure_storage_windows
   share_plus
-  sqlite3_flutter_libs
   url_launcher_windows
 )
 

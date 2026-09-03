@@ -57,7 +57,7 @@ class StatementParserService {
 
     Future<List<ParsedTransaction>> _parseCsv(String path, {SchemaConfirmationCallback? onNeedsSchemaConfirmation}) async {
         final content = await File(path).readAsString();
-        final rows = const CsvToListConverter(eol: '\n').convert(content);
+        final rows = const CsvDecoder().convert(content);
         if (rows.length < 2) throw FormatException('CSV has no data rows.');
         
         final headers = rows.first.map((h) => h.toString().toLowerCase().trim()).toList();

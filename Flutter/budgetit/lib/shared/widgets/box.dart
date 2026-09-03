@@ -90,8 +90,28 @@ class _MyBoxState extends State<MyBox> {
     );
   }
 
+  
+  String _formatAmount(double amount) {
+    final fixed = amount.abs().toStringAsFixed(2);
+    final parts = fixed.split('.');
+    final whole = parts.first;
+    final buffer = StringBuffer();
+    for (var i = 0; i < whole.length; i++) {
+      final remaining = whole.length - i;
+      buffer.write(whole[i]);
+      if (remaining > 1 && remaining % 3 == 1) buffer.write(',');
+    }
+    return '${buffer.toString()}.${parts.last}';
+  }
+
   @override
   Widget build(BuildContext context) {
+    final colours = context.colours;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark ? colours.secondary : colours.primary;
+    final cardFg = isDark ? colours.background : colours.cardText;
+    final incomeColor = isDark ? colours.background : colours.greenAccents;
+
     return GestureDetector(
       onTap: _openEditDialog,
 
@@ -120,8 +140,7 @@ class _MyBoxState extends State<MyBox> {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               shape: BoxShape.rectangle,
-              color: context.colours.primary,
-
+              color: cardColor,
               border: Border.all(color: Colors.black, width: 4.0),
             ),
             child: Row(

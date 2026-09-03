@@ -1,0 +1,20 @@
+replication:
+  connections:
+    - type: postgresql
+      uri: !env PS_URI
+      sslmode: disable
+
+storage:
+  type: postgresql
+  uri: !env PS_URI
+  sslmode: disable
+
+port: 8080
+
+sync_config:
+  path: sync-rules.yaml
+
+client_auth:
+  jwks_uri:  !env PS_COGNITO_JWKS_URI
+  audience:
+    - !env PS_COGNITO_APP_CLIENT_ID
