@@ -5,8 +5,9 @@ ARG JAVA_PACKAGE=openjdk-17-jdk-headless
 ARG ANDROID_CMDTOOLS_VERSION=14742923
 ARG ANDROID_API_LEVEL=36
 ARG ANDROID_BUILD_TOOLS=36.0.0
-ARG ANDROID_NDK_VERSION=27.0.11902837
-ARG FLUTTER_VERSION=3.41.9
+ARG ANDROID_LEGACY_NDK_VERSION=27.0.11902837
+ARG ANDROID_NDK_VERSION=28.2.13676358
+ARG FLUTTER_VERSION=3.47.1
 
 ENV DEBIAN_FRONTEND=noninteractive \
     TZ=UTC
@@ -43,8 +44,13 @@ ENV PATH="${PATH}:/opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/pla
 RUN yes | sdkmanager --licenses && \
     sdkmanager \
         "platform-tools" \
+        "platforms;android-34" \
+        "platforms;android-35" \
         "platforms;android-${ANDROID_API_LEVEL}" \
+        "build-tools;34.0.0" \
+        "build-tools;35.0.0" \
         "build-tools;${ANDROID_BUILD_TOOLS}" \
+        "ndk;${ANDROID_LEGACY_NDK_VERSION}" \
         "ndk;${ANDROID_NDK_VERSION}" \
         "cmdline-tools;latest"
 

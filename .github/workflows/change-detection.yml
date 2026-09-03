@@ -1,0 +1,176 @@
+name: Change Detection
+
+on:
+  workflow_call:
+    inputs:
+      force_full:
+        description: Run all checks, ignoring changed paths
+        required: false
+        default: false
+        type: boolean
+    outputs:
+      force_full:
+        description: True when the caller requested all checks
+        value: ${{ jobs.detect.outputs.force_full }}
+      flutter_app_changed:
+        description: True if non-generated Flutter app files changed
+        value: ${{ jobs.detect.outputs.flutter_app_changed }}
+      flutter_landing_changed:
+        description: True if landing page files changed
+        value: ${{ jobs.detect.outputs.flutter_landing_changed }}
+      flutter_generated_changed:
+        description: True if generated Dart files changed
+        value: ${{ jobs.detect.outputs.flutter_generated_changed }}
+      flutter_shared_changed:
+        description: True if shared Flutter files changed
+        value: ${{ jobs.detect.outputs.flutter_shared_changed }}
+      flutter_config_changed:
+        description: True if Flutter dependencies or config changed
+        value: ${{ jobs.detect.outputs.flutter_config_changed }}
+      backend_changed:
+        description: True if backend files changed
+        value: ${{ jobs.detect.outputs.backend_changed }}
+      ci_shared_changed:
+        description: True if CI or build files changed
+        value: ${{ jobs.detect.outputs.ci_shared_changed }}
+      security_global_changed:
+        description: True if security policy files changed
+        value: ${{ jobs.detect.outputs.security_global_changed }}
+      documentation_changed:
+        description: True if docs changed
+        value: ${{ jobs.detect.outputs.documentation_changed }}
+      unknown_changed:
+        description: True if an unknown path changed
+        value: ${{ jobs.detect.outputs.unknown_changed }}
+      should_prepare_generated_dart:
+        description: True if generated Dart should be prepared
+        value: ${{ jobs.detect.outputs.should_prepare_generated_dart }}
+      should_lint:
+        description: True if lint should run
+        value: ${{ jobs.detect.outputs.should_lint }}
+      should_unit_tests:
+        description: True if unit tests should run
+        value: ${{ jobs.detect.outputs.should_unit_tests }}
+      should_widget_tests:
+        description: True if widget tests should run
+        value: ${{ jobs.detect.outputs.should_widget_tests }}
+      should_integration_tests:
+        description: True if integration tests should run
+        value: ${{ jobs.detect.outputs.should_integration_tests }}
+      should_osv_scan:
+        description: True if the OSV scan should run
+        value: ${{ jobs.detect.outputs.should_osv_scan }}
+      should_apk_build:
+        description: True if the APK build should run
+        value: ${{ jobs.detect.outputs.should_apk_build }}
+      should_pages_build:
+        description: True if the Pages build should run
+        value: ${{ jobs.detect.outputs.should_pages_build }}
+
+jobs:
+  detect:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      force_full: ${{ inputs.force_full }}
+      flutter_app_changed: ${{ steps.filter.outputs.flutter_app }}
+      flutter_landing_changed: ${{ steps.filter.outputs.flutter_landing }}
+      flutter_generated_changed: ${{ steps.filter.outputs.flutter_generated }}
+      flutter_shared_changed: ${{ steps.filter.outputs.flutter_shared }}
+      flutter_config_changed: ${{ steps.filter.outputs.flutter_config }}
+      backend_changed: ${{ steps.filter.outputs.backend }}
+      ci_shared_changed: ${{ steps.filter.outputs.ci_shared }}
+      security_global_changed: ${{ steps.filter.outputs.security_global }}
+      documentation_changed: ${{ steps.filter.outputs.documentation }}
+      unknown_changed: ${{ steps.filter.outputs.unknown }}
+      should_prepare_generated_dart: >-
+        ${{
+          inputs.force_full ||
+          steps.filter.outputs.flutter_app == 'true' ||
+          steps.filter.outputs.flutter_landing == 'true' ||
+          steps.filter.outputs.flutter_shared == 'true' ||
+          steps.filter.outputs.flutter_config == 'true' ||
+          steps.filter.outputs.ci_shared == 'true' ||
+          steps.filter.outputs.unknown == 'true'
+        }}
+      should_lint: >-
+        ${{
+          inputs.force_full ||
+          steps.filter.outputs.flutter_app == 'true' ||
+          steps.filter.outputs.flutter_landing == 'true' ||
+          steps.filter.outputs.flutter_shared == 'true' ||
+          steps.filter.outputs.flutter_config == 'true' ||
+          steps.filter.outputs.ci_shared == 'true' ||
+          steps.filter.outputs.unknown == 'true'
+        }}
+      should_unit_tests: >-
+        ${{
+          inputs.force_full ||
+          steps.filter.outputs.flutter_app == 'true' ||
+          steps.filter.outputs.flutter_shared == 'true' ||
+          steps.filter.outputs.flutter_config == 'true' ||
+          steps.filter.outputs.ci_shared == 'true' ||
+          steps.filter.outputs.unknown == 'true'
+        }}
+      should_widget_tests: >-
+        ${{
+          inputs.force_full ||
+          steps.filter.outputs.flutter_app == 'true' ||
+          steps.filter.outputs.flutter_shared == 'true' ||
+          steps.filter.outputs.flutter_config == 'true' ||
+          steps.filter.outputs.ci_shared == 'true' ||
+          steps.filter.outputs.unknown == 'true'
+        }}
+      should_integration_tests: >-
+        ${{
+          inputs.force_full ||
+          steps.filter.outputs.flutter_app == 'true' ||
+          steps.filter.outputs.flutter_shared == 'true' ||
+          steps.filter.outputs.flutter_config == 'true' ||
+          steps.filter.outputs.ci_shared == 'true' ||
+          steps.filter.outputs.unknown == 'true'
+        }}
+      should_osv_scan: >-
+        ${{
+          inputs.force_full ||
+          steps.filter.outputs.flutter_app == 'true' ||
+          steps.filter.outputs.flutter_generated == 'true' ||
+          steps.filter.outputs.flutter_shared == 'true' ||
+          steps.filter.outputs.flutter_config == 'true' ||
+          steps.filter.outputs.backend == 'true' ||
+          steps.filter.outputs.ci_shared == 'true' ||
+          steps.filter.outputs.security_global == 'true' ||
+          steps.filter.outputs.unknown == 'true'
+        }}
+      should_apk_build: >-
+        ${{
+          inputs.force_full ||
+          steps.filter.outputs.flutter_app == 'true' ||
+          steps.filter.outputs.flutter_shared == 'true' ||
+          steps.filter.outputs.flutter_config == 'true' ||
+          steps.filter.outputs.ci_shared == 'true' ||
+          steps.filter.outputs.unknown == 'true'
+        }}
+      should_pages_build: >-
+        ${{
+          inputs.force_full ||
+          steps.filter.outputs.flutter_landing == 'true' ||
+          steps.filter.outputs.flutter_shared == 'true' ||
+          steps.filter.outputs.flutter_config == 'true' ||
+          steps.filter.outputs.ci_shared == 'true' ||
+          steps.filter.outputs.unknown == 'true'
+        }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+
+      - name: Detect Changes
+        id: filter
+        uses: dorny/paths-filter@d1c1ffe0248fe513906c8e24db8ea791d46f8590
+        with:
+          filters: .github/ci-path-filters.yml
+          token: ${{ github.token }}
