@@ -1,6 +1,6 @@
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
-import 'auth_service.dart';
+import 'package:budgetit/auth/data/auth_service.dart';
 
 class CognitoAuthService implements AuthService {
   @override

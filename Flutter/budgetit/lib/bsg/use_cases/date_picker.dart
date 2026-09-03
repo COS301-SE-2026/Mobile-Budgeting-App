@@ -40,9 +40,9 @@ class _BudgetDatePickerPreviewState extends State<BudgetDatePickerPreview> {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: cardColor,
-              border: Border.all(color: Colors.black, width: 4),
+              border: Border.all(width: 4),
               boxShadow: const [
-                BoxShadow(color: Colors.black, offset: Offset(6, 6)),
+                BoxShadow(offset: Offset(6, 6)),
               ],
             ),
             child: Column(
@@ -76,9 +76,8 @@ class _BudgetDatePickerPreviewState extends State<BudgetDatePickerPreview> {
                       yearStyle: colours.b1.copyWith(color: cardTextColor),
                       dayShape: WidgetStateProperty.resolveWith((states) {
                         return RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero,
                           side: states.contains(WidgetState.selected)
-                              ? const BorderSide(color: Colors.black, width: 2)
+                              ? const BorderSide(width: 2)
                               : BorderSide.none,
                         );
                       }),
