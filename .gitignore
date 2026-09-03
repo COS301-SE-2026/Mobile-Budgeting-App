@@ -3,9 +3,13 @@ Flutter/budgetit/build/*
 Flutter/budgetit/macos/*
 Flutter/budgetit/windows/*
 Flutter/budgetit/android/*
+!Flutter/budgetit/android/app/
+Flutter/budgetit/android/app/*
+!Flutter/budgetit/android/app/proguard-rules.pro
 Flutter/budgetit/web/*
 flutter_*.log
 docker/flutter/.env
+.github/gh_runner/.env
 
 
 scripts/test/act/artifacts/

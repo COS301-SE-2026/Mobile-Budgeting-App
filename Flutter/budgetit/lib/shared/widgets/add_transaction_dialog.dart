@@ -9,8 +9,19 @@ import 'package:provider/provider.dart';
 
 class AddTransactionDialog extends StatefulWidget {
   final VoidCallback? onAdded;
+  final TransactionType initialType;
+  final String? initialCategoryId;
+  final bool lockType;
+  final bool lockCategory;
 
-  const AddTransactionDialog({super.key, this.onAdded});
+  const AddTransactionDialog({
+    super.key,
+    this.onAdded,
+    this.initialType = TransactionType.expense,
+    this.initialCategoryId,
+    this.lockType = false,
+    this.lockCategory = false,
+  });
 
   @override
   State<AddTransactionDialog> createState() => _AddTransactionDialogState();
@@ -20,7 +31,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
   final _formKey = GlobalKey<FormState>();
   final _descController = TextEditingController();
   final _amountController = TextEditingController();
-  TransactionType _type = TransactionType.expense;
+  late TransactionType _type;
   DateTime _date = DateTime.now();
   List<Category> _categories = [];
   Category? _selectedCategory;
@@ -45,6 +56,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
   @override
   void initState() {
     super.initState();
+    _type = widget.initialType;
     _loadCategories();
   }
 
@@ -64,15 +76,25 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
         : CategoryType.expense;
     final categories = await db.categoryDao.getCategoriesByType(categoryType);
     categories.sort((a, b) => a.name.compareTo(b.name));
+    final initialCategoryId = widget.initialCategoryId;
+    //ai was used to fix this selectedcategory
+    final selectedCategory = initialCategoryId == null
+        ? (categories.isNotEmpty ? categories.first : null)
+        : categories
+              .where((category) => category.id == initialCategoryId)
+              .cast<Category?>()
+              .firstWhere((category) => category != null, orElse: () => null);
+
     if (!mounted || transactionType != _type) return;
     setState(() {
       _categories = categories;
-      _selectedCategory = categories.isNotEmpty ? categories.first : null;
+      _selectedCategory = selectedCategory;
       _loadingCategories = false;
     });
   }
 
   void _setType(TransactionType type) {
+    if (widget.lockType) return;
     if (_type == type) return;
     setState(() {
       _type = type;
@@ -83,11 +105,62 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
   }
 
   Future<void> _pickDate() async {
+    final colours = context.colours;
+    final selectedCalendarDateColor =
+        Theme.of(context).brightness == Brightness.dark
+        ? colours.secondary: colours.secondary;
+    final selectedCalendarDateTextColor =
+        Theme.of(context).brightness == Brightness.dark
+        ? colours.background:colours.cardText;
+
     final picked = await showDatePicker(
       context: context,
       initialDate: _date,
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: selectedCalendarDateColor,
+              onPrimary: selectedCalendarDateTextColor,
+              surface: colours.background,
+              onSurface: colours.textPrimary,
+            ),
+            //i still need to figure out how to change the color for the current dte to be
+            datePickerTheme: DatePickerThemeData(
+              backgroundColor: colours.background,
+              headerBackgroundColor: colours.secondary,
+              headerForegroundColor: colours.background,
+              dayBackgroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return selectedCalendarDateColor;
+                }
+                return colours.background.withValues(alpha: 0);
+              }),
+              dayForegroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return selectedCalendarDateTextColor;
+                }
+                return colours.textPrimary;
+              }),
+              //still to be fixed to make it visible
+              dayShape: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return const CircleBorder(
+                    side: BorderSide(color: Colors.black, width: 2),
+                  );
+                }
+                return null;
+              }),
+              todayForegroundColor: WidgetStateProperty.all(colours.secondary),
+              todayBorder: BorderSide(color: colours.secondary, width: 2),
+              yearForegroundColor: WidgetStateProperty.all(colours.textPrimary),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
     if (picked != null && mounted) setState(() => _date = picked);
   }
@@ -131,21 +204,20 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
     final cardColor = colours.background;
     final cardTextColor = colours.textPrimary;
     final dateLabel = '${_date.day} ${_months[_date.month - 1]} ${_date.year}';
-
-    return AlertDialog(
-      backgroundColor: colours.background,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(color: Colors.black, width: 4),
-      ),
-      title: Text(
-        'Add Transaction',
-        style: TextStyle(
-          color: colours.textPrimary,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      content: ConstrainedBox(
+//still to be fixed
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 28),
+      child: Container(
         constraints: const BoxConstraints(maxWidth: 420),
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+        decoration: BoxDecoration(
+          color: colours.background,
+          border: Border.all(color: Colors.black, width: 4),
+          boxShadow: const [
+            BoxShadow(color: Colors.black, offset: Offset(6, 6), blurRadius: 0),
+          ],
+        ),
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -153,6 +225,14 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(
+                  'Add Transaction',
+                  style: colours.h2.copyWith(
+                    color: colours.textPrimary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 18),
                 Row(
                   children: [
                     _TypeButton(
@@ -180,7 +260,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
 
                 TextFormField(
                   controller: _descController,
-                  style: TextStyle(color: colours.textPrimary),
+                  style: colours.b1.copyWith(color: colours.textPrimary),
                   decoration:
                       _inputDecoration(
                         'e.g. Grocery run',
@@ -208,9 +288,13 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                         cardTextColor,
                       ).copyWith(
                         labelText: 'Amount',
-                        labelStyle: TextStyle(color: colours.textPrimary),
+                        labelStyle: colours.b1.copyWith(
+                          color: colours.textPrimary,
+                        ),
                         prefixText: 'R ',
-                        prefixStyle: TextStyle(color: colours.textPrimary),
+                        prefixStyle: colours.b1.copyWith(
+                          color: colours.textPrimary,
+                        ),
                       ),
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
@@ -242,7 +326,9 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                           cardTextColor,
                         ).copyWith(
                           labelText: 'Date',
-                          labelStyle: TextStyle(color: colours.textPrimary),
+                          labelStyle: colours.b1.copyWith(
+                            color: colours.textPrimary,
+                          ),
                         ),
                     child: Row(
                       children: [
@@ -254,7 +340,9 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                         const SizedBox(width: 10),
                         Text(
                           dateLabel,
-                          style: TextStyle(color: colours.textPrimary),
+                          style: colours.b1.copyWith(
+                            color: colours.textPrimary,
+                          ),
                         ),
                       ],
                     ),
@@ -267,7 +355,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                   initialValue: _selectedCategory,
                   isExpanded: true,
                   dropdownColor: colours.background,
-                  style: TextStyle(color: colours.textPrimary),
+                  style: colours.b1.copyWith(color: colours.textPrimary),
                   decoration:
                       _inputDecoration(
                         'Category',
@@ -276,7 +364,9 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                         cardTextColor,
                       ).copyWith(
                         labelText: 'Category',
-                        labelStyle: TextStyle(color: colours.textPrimary),
+                        labelStyle: colours.b1.copyWith(
+                          color: colours.textPrimary,
+                        ),
                       ),
                   items: _categories
                       .map(
@@ -290,13 +380,20 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                                 size: 20,
                               ),
                               const SizedBox(width: 10),
-                              Expanded(child: Text(category.name)),
+                              Expanded(
+                                child: Text(
+                                  category.name,
+                                  style: colours.b1.copyWith(
+                                    color: colours.textPrimary,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ),
                       )
                       .toList(),
-                  onChanged: _loadingCategories
+                  onChanged: _loadingCategories || widget.lockCategory
                       ? null
                       : (category) {
                           setState(() => _selectedCategory = category);
@@ -317,37 +414,55 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                         : 'No categories available',
                     style: TextStyle(
                       color: colours.textPrimary.withValues(alpha: 0.6),
+                      fontFamily: 'JetBrainsMono',
+                      fontSize: 14,
                     ),
                   ),
+                ),
+                const SizedBox(height: 18),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: _saving
+                          ? null
+                          : () => Navigator.of(context).pop(),
+                      child: Text(
+                        'Cancel',
+                        style: colours.b1.copyWith(color: colours.textPrimary),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: _saving ? null : _save,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colours.secondary,
+                        foregroundColor: colours.background,
+                      ),
+                      child: _saving
+                          ? SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                color: colours.background,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Text(
+                              'Add',
+                              style: colours.b1.copyWith(
+                                color: colours.background,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: _saving ? null : () => Navigator.of(context).pop(),
-          child: Text('Cancel', style: TextStyle(color: colours.textPrimary)),
-        ),
-        ElevatedButton(
-          onPressed: _saving ? null : _save,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: colours.secondary,
-            foregroundColor: colours.background,
-          ),
-          child: _saving
-              ? SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(
-                    color: colours.background,
-                    strokeWidth: 2,
-                  ),
-                )
-              : const Text('Add'),
-        ),
-      ],
     );
   }
 }

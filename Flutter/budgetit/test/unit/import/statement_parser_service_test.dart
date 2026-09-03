@@ -140,9 +140,9 @@ void main() {
   });
 
   group('_parsePDFLines', () {
-    test('parses line with mm-dd date and dollar amount', () {
+    test('parses line with mm-dd date and dollar amount', () async {
       final lines = ['Deposit Ref Nbr: 10000000 05-15 1,000.00'];
-      final results = parser.testParsePdfLines(lines);
+      final results = await parser.testParsePdfLines(lines);
       expect(results, isNotEmpty);
       expect(results.first.amount, equals(Decimal.parse('1000.00')));
       expect(results.first.isIncome, isFalse);
@@ -150,39 +150,39 @@ void main() {
       expect(results.first.date.day, equals(15));
     });
 
-    test('parse line with yyyy-mm-dd date', () {
+    test('parse line with yyyy-mm-dd date', () async {
       final lines = ['2026-05-15 CHECKERS SOMEWHERE 450.00'];
-      final results = parser.testParsePdfLines(lines);
+      final results = await parser.testParsePdfLines(lines);
       expect(results, isNotEmpty);
       expect(results.first.date, equals(DateTime(2026, 5, 15)));
     });
 
-    test('slips lines containing skip keywords', () {
+    test('slips lines containing skip keywords', () async{
       final lines = [
         'Total Deposits \$1,000.00',
         'Beginning Balance \$5,000.00',
         '05-15 Valid Transavtion 100.00',
       ];
-      final results = parser.testParsePdfLines(lines);
+      final results = await parser.testParsePdfLines(lines);
       expect(results.length, equals(1));
       expect(results.first.amount, equals(Decimal.parse('100.00')));
     });
 
-    test('skips empty lines', () {
+    test('skips empty lines', ()async {
       final lines = ['', '  ', '05-15 Deposit 200.00'];
-      final results = parser.testParsePdfLines(lines);
+      final results = await parser.testParsePdfLines(lines);
       expect(results.length, equals(1));
     });
 
-    test('skip lines with 0 amount', () {
+    test('skip lines with 0 amount', () async {
       final lines = ['05-15 visa purchase 0.00'];
-      final results = parser.testParsePdfLines(lines);
+      final results = await parser.testParsePdfLines(lines);
       expect(results, isEmpty);
     });
 
-    test('accumulates pending lines for description context', () {
+    test('accumulates pending lines for description context', () async {
       final lines = ['ATM withdrawal', '100 somehwere st', '05-15 05-16 20.00'];
-      final results = parser.testParsePdfLines(lines);
+      final results = await parser.testParsePdfLines(lines);
       expect(results, isNotEmpty);
       expect(
         results.first.finalDescription.toLowerCase(),
@@ -190,25 +190,25 @@ void main() {
       );
     });
 
-    test('negative amount mark transaction as expense', () {
+    test('negative amount mark transaction as expense', () async{
       final lines = ['05-15 ATM withdrawal -100.00'];
-      final results = parser.testParsePdfLines(lines);
+      final results = await parser.testParsePdfLines(lines);
       expect(results, isNotEmpty);
       expect(results.first.isIncome, isFalse);
     });
 
-    test('returns empty list for lines with no parsable transaction', () {
+    test('returns empty list for lines with no parsable transaction', () async{
       final lines = [
         'This Text',
         'No dates or amounts',
         'Acount # 1738ayeImLikeHeyWhatsupHello',
       ];
-      final results = parser.testParsePdfLines(lines);
+      final results = await parser.testParsePdfLines(lines);
       expect(results, isEmpty);
     });
-    test('deduplication hash is nonEmpty', () {
+    test('deduplication hash is nonEmpty', () async{
       final lines = ['05-15 Here 100.00'];
-      final results = parser.testParsePdfLines(lines);
+      final results = await parser.testParsePdfLines(lines);
       expect(results, isNotEmpty);
       expect(results.first.deduplicationHash, isNotEmpty);
       expect(results.first.deduplicationHash.length, equals(16));
@@ -476,8 +476,8 @@ class _TestableParser extends StatementParserService {
   Decimal testParseAmount(String raw) => parseAmount(raw);
   int testFindCol(List<String> headers, List<String> candidates) =>
       findCol(headers, candidates);
-  List<_TestParsedLine> testParsePdfLines(List<String> lines) {
-    final results = parsePdfLines(lines);
+  Future<List<_TestParsedLine>> testParsePdfLines(List<String> lines) async {
+    final results = await parsePdfLines(lines);
     return results
         .map(
           (r) => _TestParsedLine(

@@ -24,6 +24,9 @@ enum AssignmentSource { manual, ai, import }
 /// The period type used by budget templates.
 enum PeriodType { daily, weekly, monthly, yearly }
 
+/// The type of record from which an embedding was generated.
+enum EmbeddingSourceType { transaction, category }
+
 /// SQLite does not have a built-in decimal type.
 /// Dart uses custom column types to automatically convert [Decimal] values
 /// to and from SQLite's TEXT type.
@@ -321,6 +324,41 @@ class RecurringTransactions extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// Stores locally generated embeddings for transactions and categories.
+///
+/// Embeddings are derived data and are separated by model version and input
+/// hash so vectors produced by different models are never mixed.
+class EmbeddingCacheEntries extends Table {
+  /// Unique identifier for this cache entry.
+  TextColumn get id => text()();
+
+  /// Whether the embedding belongs to a transaction or category.
+  TextColumn get sourceType => textEnum<EmbeddingSourceType>()();
+
+  /// ID of the source transaction or category.
+  TextColumn get sourceId => text()();
+
+  /// Version of the model that generated this vector.
+  TextColumn get modelVersion => text()();
+
+  /// Hash of the exact text supplied to the model.
+  TextColumn get inputHash => text()();
+
+  /// Serialized Float32 embedding.
+  BlobColumn get embedding => blob()();
+
+  /// When this cache entry was generated.
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {sourceType, sourceId, modelVersion, inputHash},
+  ];
+}
+
 /// Stores key-value settings for the application.
 ///
 /// Common settings include default currency, theme mode, and onboarding status.
@@ -338,6 +376,21 @@ class AppSettings extends Table {
   Set<Column> get primaryKey => {key};
 }
 
+
+class StatementSchemaCache extends Table {
+  TextColumn get fingerprint => text()();
+
+  TextColumn get signConvention => text()();
+
+  TextColumn get skipLinePatterns => text()();
+
+  DateTimeColumn get createdAt => dateTime()();
+
+  DateTimeColumn get updatedAt => dateTime()();
+
+
+  @override
+  Set<Column> get primaryKey => {fingerprint};
 enum ImportFileType {pdf,csv}
 class Imports extends Table{
   TextColumn get id => text()();

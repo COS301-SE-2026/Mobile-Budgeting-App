@@ -26,6 +26,9 @@ migrate_working_dir/
 # Flutter/Dart/Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id
+**/*.g.dart
+**/*.freezed.dart
+**/*.mocks.dart
 .dart_tool/
 .flutter-plugins-dependencies
 .pub-cache/
@@ -44,5 +47,10 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+.fvm/flutter_sdk
+.fvm/versions/
+
+# Local AI model bundle
+/assets/models/bge-small-en-v1.5/model.onnx
 # FVM Version Cache
 .fvm/

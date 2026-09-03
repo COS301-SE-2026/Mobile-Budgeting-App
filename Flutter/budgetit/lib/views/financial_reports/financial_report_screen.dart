@@ -97,7 +97,6 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
     final cardTextColor = Theme.of(context).brightness == Brightness.dark
         ? context.colours.secondary
         : context.colours.background;
-    final borderColor = context.colours.category;
 
     return Scaffold(
       backgroundColor: background,
@@ -118,10 +117,7 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
                 color: cardColor,
                 border: Border.all(color: Colors.black, width: 4),
                 boxShadow: [
-                  BoxShadow(
-                    color: Colors.black,
-                    offset: const Offset(6, 6),
-                  ),
+                  BoxShadow(color: Colors.black, offset: const Offset(6, 6)),
                 ],
               ),
               child: Text(
@@ -134,13 +130,13 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
               ),
             ),
             const SizedBox(height: 24),
-             //i used Pavan's code to decorate the boxes
+            //i used Pavan's code to decorate the boxes
             Container(
               decoration: BoxDecoration(
                 color: tertiary,
-                border: Border.all(color: borderColor, width: 4),
+                border: Border.all(color: Colors.black, width: 4),
                 boxShadow: [
-                  BoxShadow(color: borderColor, offset: const Offset(6, 6)),
+                  BoxShadow(color: Colors.black, offset: const Offset(6, 6)),
                 ],
               ),
               child: ElevatedButton.icon(
@@ -150,9 +146,9 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: tertiary,
                   foregroundColor: context.colours.whiteAccents,
-                //
+                  //
                   elevation: 0,
-                  shadowColor: context.colours.background.withValues(alpha: 0),
+                  shadowColor: context.colours.background,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: const RoundedRectangleBorder(),
                 ),
@@ -160,10 +156,14 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
             ),
             const SizedBox(height: 12),
             Container(
-              decoration : BoxDecoration(
-                color : background,
-                border : Border.all(color: borderColor, width: 4),
-                boxShadow : [ BoxShadow(color: borderColor, offset: const Offset(6, 6)),// using the box shadoww we used in transaction manager
+              decoration: BoxDecoration(
+                color: background,
+                border: Border.all(color: Colors.black, width: 4),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black,
+                    offset: const Offset(6, 6),
+                  ), // using the box shadoww we used in transaction manager
                 ],
               ),
               //AI helped me with this section
@@ -173,7 +173,7 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
                 label: const Text('Export as CSV'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: secondary,
-                  side: BorderSide(color: background.withValues(alpha: 0)),
+                  side: const BorderSide(color: Colors.black, width: 0),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: const RoundedRectangleBorder(),
                 ),
