@@ -1,7 +1,6 @@
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
 
-
 class FABMenu extends StatefulWidget {
   final VoidCallback? onAddTransaction;
   final VoidCallback? onImportStatement;
@@ -18,81 +17,109 @@ class _FABMenuState extends State<FABMenu> {
 
   @override
   Widget build(BuildContext context) {
+    final colours = context.colours;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final buttonColor = isDark ? colours.blendedprimary : colours.secondary;
+    final textColor = isDark ? colours.cardText : colours.background;
+    final hoverColor = isDark ? colours.background : colours.primary;
+    final hoverTextColor = colours.cardText;
+
     return Container(
-      color: context.colours.secondary,
-      padding: const EdgeInsets.all(1),
-      alignment: Alignment.center,
+      color: colours.background,
+      padding: const EdgeInsets.fromLTRB(20, 22, 20, 28),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
-        
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              TextButton(
-                onPressed: widget.onAddTransaction,
-                onHover: (isHovering) => setState(() => isHover1 = isHovering),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: isHover1
-                        ? context.colours.background
-                        : context.colours.secondary,
-                    borderRadius: const BorderRadius.all(Radius.circular(10)),
-                    border: Border.all(
-                      color: context.colours.background,
-                      width: 2,
-                      style: BorderStyle.solid,
-                    ),
-                  ),
-                  padding: const EdgeInsets.all(4),
-                  child: Text(
-                    'Add Transaction',
-                    style: TextStyle(
-                      color: isHover1
-                          ? context.colours.secondary
-                          : context.colours.background,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+          _MenuButton(
+            label: 'Add Transaction',
+            icon: Icons.add,
+            isHovered: isHover1,
+            color: buttonColor,
+            hoverColor: hoverColor,
+            textColor: textColor,
+            hoverTextColor: hoverTextColor,
+            onHover: (isHovering) => setState(() => isHover1 = isHovering),
+            onPressed: widget.onAddTransaction,
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              TextButton(
-                onPressed: widget.onImportStatement,
-                onHover: (isHovering) =>
-                    setState(() => isHover2 = isHovering),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: isHover2
-                        ? context.colours.background
-                        : context.colours.secondary,
-                    borderRadius: const BorderRadius.all(Radius.circular(10)),
-                    border: Border.all(
-                      color: context.colours.background,
-                      width: 2,
-                      style: BorderStyle.solid,
-                    ),
-                  ),
-                  padding: const EdgeInsets.all(4),
-                  child: Text(
-                    'Import PDF/CSV',
-                    style: TextStyle(
-                      color: isHover2
-                          ? context.colours.secondary
-                          : context.colours.background,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+          const SizedBox(height: 16),
+          _MenuButton(
+            label: 'Import PDF/CSV',
+            icon: Icons.upload_file_outlined,
+            isHovered: isHover2,
+            color: buttonColor,
+            hoverColor: hoverColor,
+            textColor: textColor,
+            hoverTextColor: hoverTextColor,
+            onHover: (isHovering) => setState(() => isHover2 = isHovering),
+            onPressed: widget.onImportStatement,
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _MenuButton extends StatelessWidget {
+  const _MenuButton({
+    required this.label,
+    required this.icon,
+    required this.isHovered,
+    required this.color,
+    required this.hoverColor,
+    required this.textColor,
+    required this.hoverTextColor,
+    required this.onHover,
+    required this.onPressed,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool isHovered;
+  final Color color;
+  final Color hoverColor;
+  final Color textColor;
+  final Color hoverTextColor;
+  final ValueChanged<bool> onHover;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final effectiveTextColor = isHovered ? hoverTextColor : textColor;
+
+    return Padding(
+      padding: const EdgeInsets.only(right: 6, bottom: 6),
+      child: InkWell(
+        onTap: onPressed,
+        onHover: onHover,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          decoration: BoxDecoration(
+            color: isHovered ? hoverColor : color,
+            border: Border.all(color: Colors.black, width: 4),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black,
+                offset: Offset(6, 6),
+                blurRadius: 0,
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: effectiveTextColor, size: 20),
+              const SizedBox(width: 10),
+              Text(
+                label,
+                style: context.colours.b1.copyWith(
+                  color: effectiveTextColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

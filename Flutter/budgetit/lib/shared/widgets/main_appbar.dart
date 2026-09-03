@@ -42,10 +42,7 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
             color: context.colours.blue,
             border: Border.all(color: Colors.black, width: 4),
           ),
-          child: const Icon(
-            Icons.help_outline,
-            color: Colors.black,
-          ),
+          child: const Icon(Icons.question_mark, color: Colors.black),
         ),
         onPressed: () {
           Navigator.push(

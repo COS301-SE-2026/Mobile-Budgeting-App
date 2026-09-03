@@ -333,3 +333,20 @@ class AppSettings extends Table {
   @override
   Set<Column> get primaryKey => {key};
 }
+
+
+class StatementSchemaCache extends Table {
+  TextColumn get fingerprint => text()();
+
+  TextColumn get signConvention => text()();
+
+  TextColumn get skipLinePatterns => text()();
+
+  DateTimeColumn get createdAt => dateTime()();
+
+  DateTimeColumn get updatedAt => dateTime()();
+
+
+  @override
+  Set<Column> get primaryKey => {fingerprint};
+}

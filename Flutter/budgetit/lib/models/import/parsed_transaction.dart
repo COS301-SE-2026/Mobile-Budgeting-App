@@ -1,7 +1,7 @@
 import 'package:decimal/decimal.dart';
 
 class ParsedTransaction {
-    final DateTime date; final String description;  final Decimal amount; final bool isIncome; bool categoryOverridden = false; bool isDuplicate = false; final String deduplicationHash; final Map<String, String> rawData;
+    final DateTime date; final String description;  final Decimal amount; bool isIncome; bool categoryOverridden = false; bool isDuplicate = false; bool excludedByUser = false; final String deduplicationHash; final Map<String, String> rawData; //added excludedby user  for accomodation fo the confirmation
     String? categoryId; String? categoryName;
 
     ParsedTransaction({

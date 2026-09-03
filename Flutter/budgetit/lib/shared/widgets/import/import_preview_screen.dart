@@ -22,6 +22,7 @@ class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
     bool _committing = false;
 
     List<ParsedTransaction> get _new => widget.transactions.where((t) => !t.isDuplicate).toList();
+    List<ParsedTransaction> get _includedNew => _new.where((t) => !t.excludedByUser).toList();
 
     List<ParsedTransaction> get _duplicates => widget.transactions.where((t) => t.isDuplicate).toList();
 
@@ -72,7 +73,7 @@ class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
         Widget build(BuildContext context) {
             final theme = Theme.of(context);
             final colors = theme.colorScheme;
-            final newCount = _new.length;
+            final newCount = _includedNew.length;
             final dupCount = _duplicates.length;
 
             return Scaffold(
@@ -104,7 +105,11 @@ class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
                                 _SectionHeader(title: 'New Transactions'),
                                 ..._new.map((ta) => _TransactionTile(
                                     tx:ta,
+                                    dimmed: ta.excludedByUser,
                                     onCategoryTap: () => _pickCategory(ta),
+                                    toggleLabel: ta.excludedByUser ? 'Income' : 'Exclude',
+                                    onIncludeToggle: () => setState(() => ta.excludedByUser = !ta.excludedByUser),
+                                    onFlipIncome: () => setState(() => ta.isIncome = !ta.isIncome),
                                 )),
                             ],
 
@@ -117,7 +122,9 @@ class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
                                     tx:ta,
                                     dimmed:true,
                                     onCategoryTap: () => _pickCategory(ta),
+                                    toggleLabel: 'Include',
                                     onIncludeToggle: () => setState(()=> ta.isDuplicate = false),
+                                    onFlipIncome: () => setState(()=> ta.isIncome = !ta.isIncome),
                                 )),
                             ],
                         ],
@@ -188,12 +195,16 @@ class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
         final bool dimmed;
         final VoidCallback? onCategoryTap;
         final VoidCallback? onIncludeToggle;
+        final String toggleLabel;
+        final VoidCallback? onFlipIncome;
         
         const _TransactionTile({
             required this.tx,
             this.dimmed = false,
             this.onCategoryTap,
             this.onIncludeToggle,
+            this.toggleLabel = 'Include',
+            this.onFlipIncome,
         });
 
 
@@ -209,21 +220,28 @@ class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
         opacity: dimmed ? 0.45 : 1.0,
         child: ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            leading: CircleAvatar(
-            backgroundColor: (isIncome ? Colors.green : colors.errorContainer)
-                .withValues(alpha: 0.15),
-            child: Icon(
-                isIncome ? Icons.arrow_downward : Icons.arrow_upward,
-                color: isIncome ? Colors.green.shade700 : colors.error,
-                size: 18,
+            leading: GestureDetector(
+            onTap: onFlipIncome,
+            child: Tooltip(
+                message: 'Tap to flip income/expense',
+                child: CircleAvatar(
+                backgroundColor: (isIncome ? Colors.green : colors.errorContainer)
+                    .withValues(alpha: 0.15),
+                child: Icon(
+                    isIncome ? Icons.arrow_downward : Icons.arrow_upward,
+                    color: isIncome ? Colors.green.shade700 : colors.error,
+                    size: 18,
+                ),
+                ),
             ),
             ),
-            title: Text(
-              tx.shortDescription,
+            title:Text(
+                tx.shortDescription,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.bodyMedium,
             ),
+
             subtitle: Row(
             children: [
                 Text(
