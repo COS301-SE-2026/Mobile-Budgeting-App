@@ -9,6 +9,8 @@ readonly FLUTTER_LEGACY_VERSION='3.41.9'
 readonly FLUTTER_LEGACY_HOME='/opt/flutter-3.41.9'
 readonly JAVA_MAJOR='17'
 readonly GRADLE_VERSION='8.14'
+readonly NODE_VERSION='24.20.0'
+readonly K6_VERSION='2.2.0'
 readonly AGP_VERSION='8.12.1'
 readonly KOTLIN_VERSION='2.2.20'
 readonly DEPENDENCY_SDK='34'
@@ -24,6 +26,7 @@ readonly NDK_VERSION='28.2.13676358'
 readonly FLUTTER_VERSION_RE='.*"frameworkVersion"[[:space:]]*:[[:space:]]*"\([^"]*\)".*'
 readonly JAVA_VERSION_RE='^.*version "\([0-9][0-9._-]*\)".*$'
 readonly GRADLE_VERSION_RE='^Gradle \([0-9][0-9.]*\).*$'
+readonly K6_VERSION_RE='^k6 v\([0-9][0-9.]*\).*$'
 readonly AGP_VERSION_RE='.*id("com.android.application")[[:space:]]*version[[:space:]]*"\([^"]*\)".*'
 readonly KOTLIN_VERSION_RE='.*id("org.jetbrains.kotlin.android")[[:space:]]*version[[:space:]]*"\([^"]*\)".*'
 
@@ -108,11 +111,11 @@ check_file() {
 
 check_commands() {
   section 'Tools'
-  ci_require_cmd flutter dart java gradle sed || exit 1
+  ci_require_cmd flutter dart java gradle node npm npx corepack k6 sed || exit 1
 
   if [ "$show_diagnostics" = true ]; then
     local command_name
-    for command_name in flutter dart java gradle; do
+    for command_name in flutter dart java gradle node npm npx corepack k6; do
       printf '%s: %s\n' "$command_name" "$(command -v "$command_name")"
     done
   fi
@@ -185,6 +188,39 @@ check_gradle() {
   fi
 
   check_version 'Gradle' "$version" "$GRADLE_VERSION"
+}
+
+check_javascript() {
+  local node_version=''
+  local npm_version=''
+  local corepack_version=''
+
+  node_version=$(node --version 2>/dev/null || true)
+  node_version=${node_version#v}
+  check_version 'Node.js' "$node_version" "$NODE_VERSION"
+
+  npm_version=$(npm --version 2>/dev/null || true)
+  corepack_version=$(corepack --version 2>/dev/null || true)
+  printf 'npm: %s\n' "${npm_version:-unknown}"
+  printf 'Corepack: %s\n' "${corepack_version:-unknown}"
+
+  if [ -z "$npm_version" ]; then
+    add_error 'Could not read the npm version.'
+  fi
+  if [ -z "$corepack_version" ]; then
+    add_error 'Could not read the Corepack version.'
+  fi
+}
+
+check_k6() {
+  local output=''
+  local version=''
+
+  if output=$(k6 version 2>&1); then
+    version=$(printf '%s\n' "$output" | ci_first_match_in_text "$K6_VERSION_RE")
+  fi
+
+  check_version 'k6' "$version" "$K6_VERSION"
 }
 
 check_android_sdk() {
@@ -261,6 +297,8 @@ main() {
   check_dart
   check_java
   check_gradle
+  check_javascript
+  check_k6
 
   check_android_sdk
   check_android_project
