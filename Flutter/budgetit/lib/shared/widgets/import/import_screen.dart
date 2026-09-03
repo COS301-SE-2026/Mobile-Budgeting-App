@@ -10,12 +10,16 @@ import '../../../services/ai/transaction_classifier/bge_onnx_embedder.dart';
 import '../../../services/ai/transaction_classifier/embedding_cache_service.dart';
 import '../../../services/ai/transaction_classifier/transaction_classification_service.dart';
 import '../../../services/import/import_orchestrator.dart';
+import '../../../utils/app_colour.dart';
 import 'import_preview_screen.dart';
 
 class ImportScreen extends StatefulWidget {
   final AppDatabase db;
 
-  const ImportScreen({super.key, required this.db});
+  const ImportScreen({
+    super.key,
+    required this.db,
+  });
 
   @override
   State<ImportScreen> createState() => _ImportScreenState();
@@ -133,9 +137,12 @@ class _ImportScreenState extends State<ImportScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final colours = context.colours;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Import Statement')),
+      appBar: AppBar(
+        title: const Text('Import Statement'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -147,7 +154,10 @@ class _ImportScreenState extends State<ImportScreen> {
                 color: Theme.of(context).brightness == Brightness.dark
                     ? colours.blendedprimary
                     : colours.secondary,
-                border: Border.all(color: Colors.black, width: 4),
+                border: Border.all(
+                  color: Colors.black,
+                  width: 4,
+                ),
                 boxShadow: const [
                   BoxShadow(
                     color: Colors.black,
@@ -182,19 +192,29 @@ class _ImportScreenState extends State<ImportScreen> {
                 ],
               ),
             ),
+
             const SizedBox(height: 32),
+
             Text(
               'Supported formats',
               style: theme.textTheme.labelMedium?.copyWith(
                 color: colors.onSurfaceVariant,
               ),
             ),
+
             const SizedBox(height: 8),
+
             const Row(
               children: [
-                _FormatChip(label: 'CSV', icon: Icons.table_chart_outlined),
+                _FormatChip(
+                  label: 'CSV',
+                  icon: Icons.table_chart_outlined,
+                ),
                 SizedBox(width: 8),
-                _FormatChip(label: 'PDF', icon: Icons.picture_as_pdf_outlined),
+                _FormatChip(
+                  label: 'PDF',
+                  icon: Icons.picture_as_pdf_outlined,
+                ),
               ],
             ),
 
@@ -211,16 +231,29 @@ class _ImportScreenState extends State<ImportScreen> {
                         color: colours.background,
                       ),
                     )
-                  : const Icon(Icons.upload_file_outlined),
-              label: Text(_loading ? ' Reading file..,' : 'Upload a statement'),
+                  : const Icon(
+                      Icons.upload_file_outlined,
+                    ),
+              label: Text(
+                _loading
+                    ? 'Reading file...'
+                    : 'Upload a statement',
+              ),
               style: FilledButton.styleFrom(
                 backgroundColor: colours.secondary,
                 foregroundColor: colours.background,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                textStyle: colours.b1.copyWith(fontWeight: FontWeight.bold),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 16,
+                ),
+                textStyle: colours.b1.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.zero,
-                  side: BorderSide(color: Colors.black, width: 4),
+                  side: BorderSide(
+                    color: Colors.black,
+                    width: 4,
+                  ),
                 ),
               ),
             ),
@@ -236,7 +269,11 @@ class _ImportScreenState extends State<ImportScreen> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.error_outline, color: colors.error, size: 18),
+                    Icon(
+                      Icons.error_outline,
+                      color: colors.error,
+                      size: 18,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -251,6 +288,7 @@ class _ImportScreenState extends State<ImportScreen> {
               ),
               const SizedBox(height: 16),
             ],
+
             FilledButton.icon(
               onPressed: _loading ? null : _pickAndParse,
               icon: _loading
@@ -262,10 +300,18 @@ class _ImportScreenState extends State<ImportScreen> {
                         color: colors.onPrimary,
                       ),
                     )
-                  : const Icon(Icons.upload_file_outlined),
-              label: Text(_loading ? 'Reading file…' : 'Choose file'),
+                  : const Icon(
+                      Icons.upload_file_outlined,
+                    ),
+              label: Text(
+                _loading
+                    ? 'Reading file…'
+                    : 'Choose file',
+              ),
               style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 16,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -282,17 +328,34 @@ class _FormatChip extends StatelessWidget {
   final String label;
   final IconData icon;
 
-  const _FormatChip({required this.label, required this.icon});
+  const _FormatChip({
+    required this.label,
+    required this.icon,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+    final colours = context.colours;
 
     return Chip(
-      avatar: Icon(icon, size: 16, color: colours.cardText),
-      label: Text(label, style: colours.b1.copyWith(color: colours.cardText)),
-      side: const BorderSide(color: Colors.black, width: 3),
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      avatar: Icon(
+        icon,
+        size: 16,
+        color: colours.cardText,
+      ),
+      label: Text(
+        label,
+        style: colours.b1.copyWith(
+          color: colours.cardText,
+        ),
+      ),
+      side: const BorderSide(
+        color: Colors.black,
+        width: 3,
+      ),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.zero,
+      ),
       backgroundColor: colours.primary,
     );
   }
