@@ -249,21 +249,40 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
   /// - [categoryId] - the category to assign
   /// - [assignmentSource] - how the assignment was made (manual, AI, import)
   Future<TransactionCategoryMapData> assignCategory({
-    required String transactionId,
-    required String categoryId,
-    required AssignmentSource assignmentSource,
-  }) async {
-    final companion = TransactionCategoryMapCompanion.insert(
-      transactionId: transactionId,
-      categoryId: categoryId,
-      assignedAt: _now(),
-      assignmentSource: assignmentSource,
+  required String transactionId,
+  required String categoryId,
+  required AssignmentSource assignmentSource,
+}) async {
+  final now = _now();
+  final existing = await getCategoryForTransaction(transactionId);
+
+  if (existing != null) {
+    await (update(transactionCategoryMap)
+          ..where((t) => t.id.equals(existing.id)))
+        .write(
+      TransactionCategoryMapCompanion(
+        categoryId: Value(categoryId),
+        assignmentSource: Value(assignmentSource),
+        updatedAt: Value(now),
+      ),
     );
-    await into(transactionCategoryMap).insertOnConflictUpdate(companion);
-    return (select(
-      transactionCategoryMap,
-    )..where((t) => t.transactionId.equals(transactionId))).getSingle();
+  } else {
+    await into(transactionCategoryMap).insert(
+      TransactionCategoryMapCompanion.insert(
+        id: _uuid.v4(),
+        transactionId: transactionId,
+        categoryId: categoryId,
+        assignedAt: now,
+        assignmentSource: assignmentSource,
+        updatedAt: now,
+      ),
+    );
   }
+
+  return (select(
+    transactionCategoryMap,
+  )..where((t) => t.transactionId.equals(transactionId))).getSingle();
+}
 
   /// Retrieves the category assigned to a transaction.
   ///

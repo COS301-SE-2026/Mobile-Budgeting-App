@@ -17,8 +17,10 @@ ENV APP_PORT=${APP_PORT}
 
 EXPOSE ${APP_PORT}
 
+ENV PYTHONPATH=/app/src
+
 RUN useradd --create-home --shell /bin/bash appuser \
     && chown -R appuser:appuser /app
 USER appuser
 
-CMD ["sh", "-c", "uv run --no-sync uvicorn src.main:app --host ${APP_HOST} --port ${APP_PORT}"]
+CMD ["sh", "-c", "uv run --no-sync uvicorn main:app --host ${APP_HOST} --port ${APP_PORT}"]

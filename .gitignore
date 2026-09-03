@@ -3,9 +3,13 @@ Flutter/budgetit/build/*
 Flutter/budgetit/macos/*
 Flutter/budgetit/windows/*
 Flutter/budgetit/android/*
+!Flutter/budgetit/android/app/
+Flutter/budgetit/android/app/*
+!Flutter/budgetit/android/app/proguard-rules.pro
 Flutter/budgetit/web/*
 flutter_*.log
 docker/flutter/.env
+.github/gh_runner/.env
 
 
 scripts/test/act/artifacts/
@@ -17,5 +21,16 @@ Flutter/budgetit/linux/
 artifacts/
 backend/.env
 docker/flutter/.env
+
+
+scripts/test/act/artifacts/
+scripts/test/act/cache/
+cache/
+Flutter/budgetit/flutter/
+Flutter/budgetit/ios/
+Flutter/budgetit/linux/
+artifacts/
+backend/.env
+docker/backend/.env
 Flutter\budgetit\lib\bsg\main.directories.g.dart
 Flutter/budgetit/test/maestro/auth/.env

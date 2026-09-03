@@ -25,8 +25,13 @@ services:
     volumes:
       - minio-data:/data
     environment:
-      - MINIO_ROOT_USER=adminuser
-      - MINIO_ROOT_PASSWORD=adminpassword
+      - MINIO_ROOT_USER=${MINIO_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3  
     networks:
       - budgetit-net
     restart: always
@@ -40,13 +45,56 @@ services:
     entrypoint: >
       /bin/sh -c "
       sleep 5;
-      /usr/bin/mc alias set localminio http://minio:9000 adminuser adminpassword;
+      /usr/bin/mc alias set localminio http://minio:9000 ${MINIO_USER} ${MINIO_PASSWORD};
       /usr/bin/mc mb localminio/apk-bucket;
       exit 0;
       "
 
+  db:
+    image: postgres:latest
+    container_name: my-postgres-db
+    restart: always
+    environment:
+       POSTGRES_USER: ${POSTGRES_USER}
+       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+       POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    command: ["postgres", "-c", "wal_level=logical"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - budgetit-net
+
+  powersync:
+    image: journeyapps/powersync-service:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["start", "-r", "unified"]
+    volumes:
+      - ../../powersync/config.yaml:/config/config.yaml
+      - ../../powersync/sync-rules.yaml:/config/sync-rules.yaml
+    ports:
+      - "8080:8080"
+    environment:
+      POWERSYNC_CONFIG_PATH: /config/config.yaml
+      PS_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      PS_COGNITO_JWKS_URI: https://cognito-idp.${COGNITO_REGION}.amazonaws.com/${COGNITO_USER_POOL_ID}/.well-known/jwks.json
+      PS_COGNITO_APP_CLIENT_ID: ${COGNITO_APP_CLIENT_ID}
+    networks:
+      - budgetit-net
+
 volumes:
   minio-data:
+  pgdata:
 
 networks:
   budgetit-net:
