@@ -5,6 +5,7 @@ import 'package:budgetit/shared/widgets/profile_page.dart';
 import 'package:budgetit/shared/widgets/help_menu_page.dart';
 import 'package:provider/provider.dart';
 import 'package:budgetit/utils/theme_provider.dart';
+import 'package:budgetit/shared/widgets/settings_page.dart';
 
 class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
   const MainAppbar({super.key});
@@ -124,12 +125,9 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
           ),
           ),
           onPressed: () {
-            _openComingSoonPage(
+            Navigator.push(
               context,
-              title: 'Settings Coming Soon',
-              message:
-                  'App settings are still under development. Soon you will be able to customise your preferences here.',
-              icon: Icons.settings_outlined,
+              MaterialPageRoute(builder: (_) => const SettingsPage()),
             );
           },
         ),

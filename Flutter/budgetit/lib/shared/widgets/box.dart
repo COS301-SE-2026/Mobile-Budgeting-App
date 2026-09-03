@@ -90,8 +90,28 @@ class _MyBoxState extends State<MyBox> {
     );
   }
 
+  
+  String _formatAmount(double amount) {
+    final fixed = amount.abs().toStringAsFixed(2);
+    final parts = fixed.split('.');
+    final whole = parts.first;
+    final buffer = StringBuffer();
+    for (var i = 0; i < whole.length; i++) {
+      final remaining = whole.length - i;
+      buffer.write(whole[i]);
+      if (remaining > 1 && remaining % 3 == 1) buffer.write(',');
+    }
+    return '${buffer.toString()}.${parts.last}';
+  }
+
   @override
   Widget build(BuildContext context) {
+    final colours = context.colours;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark ? colours.secondary : colours.primary;
+    final cardFg = isDark ? colours.background : colours.cardText;
+    final incomeColor = isDark ? colours.background : colours.greenAccents;
+
     return GestureDetector(
       onTap: _openEditDialog,
 
@@ -119,8 +139,7 @@ class _MyBoxState extends State<MyBox> {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               shape: BoxShape.rectangle,
-              color: context.colours.primary,
-
+              color: cardColor,
               border: Border.all(color: Colors.black, width: 4.0),
             ),
             child: Row(
@@ -128,11 +147,7 @@ class _MyBoxState extends State<MyBox> {
                 const SizedBox(width: 12),
                 Icon(
                   _icon,
-                  color: _isPressed
-                      ? context.colours.background
-                      : _isExpense
-                      ? context.colours.error
-                      : context.colours.greenAccents,
+                  color: _isExpense ? colours.error : incomeColor,
                   size: MediaQuery.of(context).size.width * 0.04,
                 ),
                 const SizedBox(width: 6),
@@ -143,16 +158,14 @@ class _MyBoxState extends State<MyBox> {
                     children: [
                       Text(
                         _name,
-                        style: context.colours.budgetheader.copyWith(
-                          color: context.colours.cardText,
-                        ),
+                        style: colours.budgetheader.copyWith(color: cardFg),
                         overflow: TextOverflow.ellipsis,
                       ),
                       if (_category.isNotEmpty)
                         Text(
                           _category + (_date.isNotEmpty ? ' - $_date' : ''),
-                          style: context.colours.b5.copyWith(
-                            color: context.colours.cardText,
+                          style: colours.b5.copyWith(
+                            color: cardFg.withValues(alpha: 0.75),
                           ),
                           overflow: TextOverflow.visible,
                         ),
@@ -161,16 +174,10 @@ class _MyBoxState extends State<MyBox> {
                 ),
                 Text(
                   _isExpense
-                      ? '- R${_amount.toStringAsFixed(2)}'
-                      : 'R${_amount.toStringAsFixed(2)}',
-                  style: context.colours.b4.copyWith(
-                    color: _isExpense
-                        ? _isPressed
-                              ? context.colours.background
-                              : context.colours.error
-                        : _isPressed
-                        ? context.colours.background
-                        : context.colours.greenAccents,
+                      ? '- R${_formatAmount(_amount)}'
+                      : 'R${_formatAmount(_amount)}',
+                  style: colours.b4.copyWith(
+                    color: _isExpense ? colours.error : incomeColor,
                   ),
                 ),
                 const SizedBox(width: 12),
