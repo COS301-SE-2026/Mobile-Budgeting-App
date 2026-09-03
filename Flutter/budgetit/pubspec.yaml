@@ -28,17 +28,17 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  fl_chart: ^0.68.0
-  file_picker: 12.0.0
+  fl_chart: ^1.2.0
+  file_picker: ^12.2.0
   popover: ^0.4.0
   flutter:
     sdk: flutter
-  drift_sqlite_async: ^0.2.6   
-  powersync: ^1.14.0     
+  drift_sqlite_async: ^0.3.1   
+  powersync: ^2.4.0     
   http: ^1.2.0 
   dio: ^5.7.0
-  drift: 2.31.0
-  drift_flutter: ^0.2.8
+  drift: ^2.34.4
+  drift_flutter: ^0.3.1
   path_provider: ^2.1.6
   path: ^1.9.0
   widgetbook : ^3.23.0
@@ -48,10 +48,10 @@ dependencies:
   cupertino_icons: ^1.0.8
   url_launcher: ^6.3.0
 
-  saropa_drift_advisor: ^3.5.1
+  saropa_drift_advisor: ^4.2.5
   uuid: ^4.5.3
   decimal: ^3.0.0
-  csv: ^6.0.0
+  csv: ^8.0.0
   crypto: ^3.0.3
   pdfrx: ^2.4.7
 
@@ -62,7 +62,7 @@ dependencies:
   amplify_auth_cognito: ^2.11.0
   amplify_db_common_dart: ^0.4.18
   # Secure token storage
-  flutter_secure_storage: ^10.2.0
+  flutter_secure_storage: ^10.3.1
   # State management
   provider: ^6.1.2
   jiffy: ^6.4.5
@@ -79,18 +79,18 @@ dependencies:
 
 
 dependency_overrides:
-  sqlite3: ^2.9.4
+  sqlite3: ^3.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  drift_dev: 2.31.0
+  drift_dev: ^2.34.6
   build_runner: ^2.15.0
   widgetbook_generator: ^3.11.0
   mockito: ^5.4.5
-  sqlite3: ^2.9.4
+  sqlite3: ^3.0.0
 
-  very_good_analysis: ^10.2.0
+  very_good_analysis: ^11.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

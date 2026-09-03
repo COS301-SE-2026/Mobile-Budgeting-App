@@ -39,10 +39,8 @@ bucket_definitions:
       - SELECT * FROM category_closure
         WHERE user_id = bucket.user_id
           AND is_default = false
-          AND deleted_at IS NULL
 
   global_category_closure:
     data:
       - SELECT * FROM category_closure
         WHERE is_default = true
-          AND deleted_at IS NULL
