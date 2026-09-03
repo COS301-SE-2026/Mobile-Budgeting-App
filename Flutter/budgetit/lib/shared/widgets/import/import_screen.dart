@@ -80,10 +80,10 @@ class _ImportScreenState extends State<ImportScreen> {
       }
     }
   }
+
   @override
   Widget build(BuildContext context) {
     final colours = context.colours;
-
 
     return Scaffold(
       backgroundColor: colours.background,
@@ -101,11 +101,12 @@ class _ImportScreenState extends State<ImportScreen> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Theme.of(context).brightness == Brightness.dark
-                    ? colours.blendedprimary : colours.secondary,
+                    ? colours.blendedprimary
+                    : colours.secondary,
                 border: Border.all(color: Colors.black, width: 4),
                 boxShadow: const [
                   BoxShadow(
-                     color: Colors.black,
+                    color: Colors.black,
                     offset: Offset(6, 6),
                     blurRadius: 0,
                   ),
@@ -174,9 +175,10 @@ class _ImportScreenState extends State<ImportScreen> {
                 backgroundColor: colours.secondary,
                 foregroundColor: colours.background,
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
+                textStyle: colours.b1.copyWith(fontWeight: FontWeight.bold),
+                shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.zero,
-                  side: const BorderSide(color: Colors.black, width: 4),
+                  side: BorderSide(color: Colors.black, width: 4),
                 ),
               ),
             ),
@@ -225,7 +227,8 @@ class _FormatChip extends StatelessWidget {
     return Chip(
       avatar: Icon(icon, size: 16, color: colours.cardText),
       label: Text(label, style: colours.b1.copyWith(color: colours.cardText)),
-      side: const BorderSide(color: Colors.black, width: 2),
+      side: const BorderSide(color: Colors.black, width: 3),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
       backgroundColor: colours.primary,
     );
   }
