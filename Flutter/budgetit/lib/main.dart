@@ -21,12 +21,12 @@ import 'shared/widgets/main_appbar.dart';
 import 'utils/app_colour.dart';
 import 'views/budget_manager/budget_manager_screen.dart';
 import 'package:budgetit/services/analysis/background_anomaly_scanner.dart';
+import 'package:budgetit/views/profile/profile_page.dart';
 import 'package:flutter_gemma/flutter_gemma.dart';
 //import 'package:flutter_gemma_litertlm/flutter_gemma_litertlm.dart';
 import 'package:pdfrx/pdfrx.dart';
 import 'package:flutter_gemma_mediapipe/flutter_gemma_mediapipe.dart';
 import 'services/import/llm_schema_classifier.dart';
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -218,6 +218,11 @@ class _HomePageState extends State<HomePage> {
               selectedIcon: Icon(Icons.pie_chart, color: selectedNavIconColor),
               label: '',
             ),
+            NavigationDestination(
+              icon: Icon(Icons.person_outline),
+              selectedIcon: Icon(Icons.person),
+              label: 'Profile',
+            ),
           ],
         ),
       ),
@@ -229,6 +234,7 @@ class _HomePageState extends State<HomePage> {
       const Dashboard(),
       const TransactionManager(),
       BudgetManagerScreen(database: db),
+      const ProfilePage(),
     ];
   }
 
