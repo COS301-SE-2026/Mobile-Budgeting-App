@@ -19,7 +19,7 @@ Widget recurringTransactionCardUseCase(BuildContext context) {
     type: TransactionType.expense,
     shortDescription: 'Music Subscription',
     longDescription: 'A monthly subscription that keeps the tunes coming.',
-    nextTransactionDate: DateTime(now.year, now.month + 1, 1),
+    nextTransactionDate: DateTime(now.year, now.month + 1),
     createdAt: now,
     updatedAt: now,
     currency: 'ZAR',

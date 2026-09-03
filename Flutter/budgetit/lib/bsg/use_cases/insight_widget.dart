@@ -12,13 +12,13 @@ Widget addButton(BuildContext context) {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            "Inside our Insights",
+            'Inside our Insights',
             style: context.colours.h2,
           ),
           
            const SizedBox(height: 28),
           Text(
-            "These provide us with valuable suggestions that we can show the user to help improve their financial health! ",
+            'These provide us with valuable suggestions that we can show the user to help improve their financial health! ',
             style: context.colours.b1,
             textAlign: TextAlign.center,
           ),

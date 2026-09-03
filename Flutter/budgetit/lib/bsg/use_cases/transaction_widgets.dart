@@ -113,7 +113,7 @@ Widget searchBarUseCase(BuildContext context) =>
 )
 Widget boxPopupMenuUseCase(BuildContext context) => _canvas(
   context,
-  Container(
+  ColoredBox(
     color: context.colours.secondary,
     child: BoxPopupMenu(onSelected: (_) {}),
   ),
