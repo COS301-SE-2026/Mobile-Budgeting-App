@@ -4,7 +4,11 @@ import 'package:widgetbook_annotation/widgetbook_annotation.dart' as widgetbook;
 
 class Intro {}
 
-@widgetbook.UseCase(name: 'Intro', type: Intro, path: '[Brand Style Guide]')
+@widgetbook.UseCase(
+  name: 'Intro',
+  type: Intro,
+  path: '[Brand Style Guide]',
+)
 Widget introUseCase(BuildContext context) => const _IntroPage();
 
 class _IntroPage extends StatelessWidget {
@@ -33,6 +37,7 @@ class _IntroPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 32),
                   Text(
                     'BUDGET IT DESIGN SYSTEM',
                     style: colours.h4.copyWith(
@@ -62,17 +67,29 @@ class _IntroPage extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: colours.primary.withValues(alpha: 0.08),
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? colours.blendedprimary
+                          : colours.secondary,
                       border: Border.all(
-                        color: colours.textPrimary.withValues(alpha: 0.2),
+                        color: Colors.black,
+                        width: 4,
                       ),
-                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(6, 6),
+                          blurRadius: 0,
+                        ),
+                      ],
                     ),
                     child: Text(
                       'Use Addons to switch between Light and Dark themes. '
                       'Every colour on this page comes from the same theme '
                       'used by the BudgetIt app.',
-                      style: colours.b1.copyWith(height: 1.5),
+                      style: colours.b1.copyWith(
+                        height: 1.5,
+                        color: colours.cardText,
+                      ),
                     ),
                   ),
                 ],
