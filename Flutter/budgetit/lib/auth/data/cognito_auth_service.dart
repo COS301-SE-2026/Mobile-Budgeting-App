@@ -1,6 +1,6 @@
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
-import 'auth_service.dart';
+import 'package:budgetit/auth/data/auth_service.dart';
 
 class CognitoAuthService implements AuthService {
   @override
@@ -182,6 +182,18 @@ class CognitoAuthService implements AuthService {
     try {
       final user = await Amplify.Auth.getCurrentUser();
       return AppAuthUser(email: user.username);
+    } on AuthException {
+      return null;
+    }
+  }
+
+  Future<String?> getJWT() async {
+    try {
+      final session = await Amplify.Auth.fetchAuthSession();
+      if (session.isSignedIn && session is CognitoAuthSession) {
+        return session.userPoolTokensResult.valueOrNull?.idToken.raw;
+      }
+      return null;
     } on AuthException {
       return null;
     }

@@ -16,6 +16,10 @@ class FAB extends StatefulWidget {
 }
 
 class _FABState extends State<FAB> {
+  static const double _buttonWidth = 88;
+  static const double _buttonHeight = 56;
+  static const double _iconSize = 32;
+
   bool _pressed = false;
 
   void _navigateToImport() {
@@ -23,31 +27,31 @@ class _FABState extends State<FAB> {
     Navigator.of(context).pop();
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => ImportScreen(db: context.read<AppDatabase>())
+        builder: (_) => ImportScreen(db: context.read<AppDatabase>()),
       ),
     );
   }
 
   void _showMenu() {
-    // Capture context before async gap — FAB stays mounted while sheet is open.
     final outerContext = context;
 
-    showModalBottomSheet<void>(
+    showDialog<void>(
       context: outerContext,
-      backgroundColor: context.colours.secondary,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (sheetContext) => FABMenu(
-        onAddTransaction: () {
-          Navigator.of(sheetContext).pop();
-          showDialog<void>(
-            context: outerContext,
-            builder: (_) =>
-                AddTransactionDialog(onAdded: widget.onTransactionAdded),
-          );
-        },
-        onImportStatement: _navigateToImport,
+      barrierColor: Colors.black.withValues(alpha: 0.35),
+      builder: (dialogContext) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+        child: FABMenu(
+          onAddTransaction: () {
+            Navigator.of(dialogContext).pop();
+            showDialog<void>(
+              context: outerContext,
+              builder: (_) =>
+                  AddTransactionDialog(onAdded: widget.onTransactionAdded),
+            );
+          },
+          onImportStatement: _navigateToImport,
+        ),
       ),
     );
   }
@@ -60,23 +64,26 @@ class _FABState extends State<FAB> {
       onTapCancel: () => setState(() => _pressed = false),
       onTap: _showMenu,
       child: Container(
-        width: MediaQuery.of(context).size.width * 0.15,
-        height: MediaQuery.of(context).size.height * 0.07,
+        width: _buttonWidth,
+        height: _buttonHeight,
         decoration: BoxDecoration(
-          boxShadow: [BoxShadow( 
-                    offset: const Offset(6, 6),
-                    color: Colors.black,
-                  )],
+          boxShadow: [
+            BoxShadow(offset: const Offset(6, 6), color: Colors.black),
+          ],
           border: Border.all(color: Colors.black, width: 4.0),
-          color: _pressed ? context.colours.informational : context.colours.secondary,
+          color: _pressed
+              ? context.colours.informational
+              : context.colours.secondary,
           shape: BoxShape.rectangle,
         ),
         child: Align(
           alignment: const Alignment(-0.1, -0.1),
           child: Icon(
             Icons.add,
-            color: _pressed ? context.colours.secondary : context.colours.background,
-            size: MediaQuery.of(context).size.width * 0.08,
+            color: _pressed
+                ? context.colours.secondary
+                : context.colours.background,
+            size: _iconSize,
           ),
         ),
       ),

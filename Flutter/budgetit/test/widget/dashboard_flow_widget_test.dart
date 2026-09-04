@@ -29,8 +29,8 @@ void main() {
     expect(find.textContaining('Monthly total:'), findsOneWidget);
 
     // 3. Dashboard action buttons load.
-    expect(find.text('INSIGHTS'), findsWidgets);
-    expect(find.text('REPORTS'), findsOneWidget);
+    expect(find.text('VIEW INSIGHTS'), findsWidgets);
+    expect(find.text('VIEW REPORTS'), findsOneWidget);
 
     // 4. Recent transactions section loads.
     expect(find.text('RECENT TRANSACTIONS'), findsOneWidget);
@@ -61,5 +61,30 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(AlertDialog), findsNothing);
+  });
+
+  testWidgets('Dashboard daily filter opens the styled date picker', (
+    WidgetTester tester,
+  ) async {
+    final mock = MockDb();
+    final now = DateTime.now();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: ThemeData(
+          extensions: <ThemeExtension<dynamic>>[MyColours.lightTheme],
+        ),
+        home: wrapWithProviders(const Dashboard(), db: mock.db),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('${now.day}/${now.month}/${now.year}'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('SELECT DASHBOARD DATE'), findsOneWidget);
+    expect(find.byType(CalendarDatePicker), findsOneWidget);
+    expect(find.text('Apply'), findsOneWidget);
+    expect(find.text('Cancel'), findsOneWidget);
   });
 }

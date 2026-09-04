@@ -1,0 +1,36 @@
+services:
+  backend-api:
+    env_file:
+      - .env.local
+
+  powersync:
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env.local
+
+  db:
+    image: postgres:latest
+    container_name: my-postgres-db
+    restart: always
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    command: ["postgres", "-c", "wal_level=logical"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d mydatabase"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - budgetit-net
+
+volumes:
+  pgdata:

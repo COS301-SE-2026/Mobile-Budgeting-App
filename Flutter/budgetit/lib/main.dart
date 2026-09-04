@@ -1,4 +1,8 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+import 'package:powersync/powersync.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:budgetit/views/transaction_manager/transaction.manager.dart';
@@ -11,8 +15,11 @@ import 'auth/data/cognito_auth_service.dart';
 import 'auth/providers/auth_provider.dart';
 import 'database/app_database.dart';
 import 'database/database_seeder.dart';
+import 'database/powersync_schema.dart';
 import 'models/recurring/recurring_transaction_catch_up_result.dart';
+import 'services/analysis/background_anomaly_scanner.dart';
 import 'services/recurring/recurring_transaction_catch_up_service.dart';
+import 'synch/backendconnector.dart';
 import 'views/dashboard/dashboard.dart';
 import 'shared/widgets/login_password_screen.dart';
 import 'utils/theme_provider.dart';
@@ -20,17 +27,39 @@ import 'shared/widgets/main_appbar.dart';
 import 'utils/app_colour.dart';
 import 'views/budget_manager/budget_manager_screen.dart';
 import 'package:budgetit/services/analysis/background_anomaly_scanner.dart';
+import 'package:flutter_gemma/flutter_gemma.dart';
+//import 'package:flutter_gemma_litertlm/flutter_gemma_litertlm.dart';
+import 'package:pdfrx/pdfrx.dart';
+import 'package:flutter_gemma_mediapipe/flutter_gemma_mediapipe.dart';
+import 'services/import/llm_schema_classifier.dart';
+import 'services/ai/transaction_classifier/bge_model_downloader.dart';
+
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  pdfrxFlutterInitialize();
   await _configureAmplify();
   const skipReseed = bool.fromEnvironment('SKIP_RESEED', defaultValue: false);
   final shouldReseed = kDebugMode && !skipReseed;
-  final db = await AppDatabase.create(reset: shouldReseed);
+
+  final powerSyncDb = await _openPowerSyncDatabase(reset: shouldReseed);
+  final db = AppDatabase(powerSyncDb);
+
+  // Initialise the local schema before seeding, so the tables exist when the
+  // seeder writes to them. Syncing is started separately once the user signs in.
+  await powerSyncDb.initialize();
+
   if (shouldReseed) await DatabaseSeeder(db).seed();
-  if (kDebugMode) {
+  if (kDebugMode && !kIsWeb) {
     unawaited(db.startDriftViewer(enabled: true));
   }
+
+  const hfToken = String.fromEnvironment('HUGGINGFACE_TOKEN');
+  FlutterGemma.initialize(
+    inferenceEngines: const [MediaPipeEngine()],
+    huggingFaceToken: hfToken.isNotEmpty ? hfToken : null,
+  );
 
   runApp(
     MultiProvider(
@@ -45,7 +74,7 @@ void main() async {
         ),
         ChangeNotifierProvider(
           //USED DEEPSEEK TO FIX CONTEXT ERRORS
-          create: (_) => AppAuthProvider(authService: CognitoAuthService()),
+          create: (_) => _createAuthProvider(powerSyncDb),
         ),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(
@@ -56,6 +85,45 @@ void main() async {
       child: const BudgetApp(),
     ),
   );
+}
+
+Future<PowerSyncDatabase> _openPowerSyncDatabase({required bool reset}) async {
+  final directory = await getApplicationDocumentsDirectory();
+  final file = File(p.join(directory.path, 'budgetit.db'));
+  if (reset && await file.exists()) {
+    await file.delete();
+  }
+  return PowerSyncDatabase(
+    schema: powerSyncSchema,
+    path: file.path,
+  );
+}
+
+/// Creates the auth provider and keeps PowerSync in sync with the auth state.
+///
+/// PowerSync only connects once the user is signed in, and disconnects on
+/// sign-out — so it doesn't repeatedly fail to fetch a JWT while the user is
+/// a guest (which is what produced the recurring "JWT is null" errors).
+AppAuthProvider _createAuthProvider(PowerSyncDatabase powerSyncDb) {
+  final authProvider = AppAuthProvider(authService: CognitoAuthService());
+
+  AuthStatus? lastSyncedStatus;
+  void syncWithAuthStatus() {
+    final status = authProvider.status;
+    if (status == lastSyncedStatus) return;
+    lastSyncedStatus = status;
+    if (status == AuthStatus.loggedIn) {
+      unawaited(powerSyncDb.connect(connector: PSyncConnector()));
+    } else {
+      unawaited(powerSyncDb.disconnect());
+    }
+  }
+
+  authProvider.addListener(syncWithAuthStatus);
+  // Handle the current status in case the session check already resolved
+  // before this listener was attached.
+  syncWithAuthStatus();
+  return authProvider;
 }
 
 Future<void> _configureAmplify() async {
@@ -130,6 +198,8 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(_runRecurringTransactionCatchUp());
+      unawaited(LlmSchemaClassifier.ensureModelDownloaded());
+      unawaited(BgeModelDownloader.ensureModelDownloaded());
     });
   }
 
@@ -167,36 +237,76 @@ class _HomePageState extends State<HomePage> {
     context.watch<ThemeProvider>();
 
     final db = context.read<AppDatabase>();
+    final selectedNavIconColor = Theme.of(context).brightness == Brightness.dark
+        ? context.colours.background
+        : context.colours.cardText;
+    final unselectedNavIconColor = context.colours.cardText;
 
     return Scaffold(
       appBar: const MainAppbar(),
       body: _buildPages(db)[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(10)),
+          border: const Border(top: BorderSide(color: Colors.black, width: 4)),
         ),
-        child: NavigationBar(
-          selectedIndex: _selectedIndex,
-          backgroundColor: context.colours.background,
-          indicatorColor: context.colours.secondary,
-          onDestinationSelected: _onDestinationSelected,
-          destinations: const [
-            NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home),
-              label: '',
+        child: SafeArea(
+          top: false,
+          child: NavigationBar(
+            height: 60,
+            selectedIndex: _selectedIndex,
+            elevation: 0,
+            surfaceTintColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            backgroundColor: context.colours.blendedprimary,
+            indicatorColor: context.colours.secondary,
+            labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+            indicatorShape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.zero,
+              side: BorderSide(color: Colors.black, width: 3),
             ),
-            NavigationDestination(
-              icon: Icon(Icons.attach_money),
-              selectedIcon: Icon(Icons.attach_money),
-              label: '',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.pie_chart_outline),
-              selectedIcon: Icon(Icons.pie_chart),
-              label: '',
-            ),
-          ],
+            onDestinationSelected: _onDestinationSelected,
+            destinations: [
+              NavigationDestination(
+                icon: Icon(
+                  Icons.home_outlined,
+                  color: unselectedNavIconColor,
+                  size: 26,
+                ),
+                selectedIcon: Icon(
+                  Icons.home,
+                  color: selectedNavIconColor,
+                  size: 26,
+                ),
+                label: 'Home',
+              ),
+              NavigationDestination(
+                icon: Icon(
+                  Icons.attach_money,
+                  color: unselectedNavIconColor,
+                  size: 26,
+                ),
+                selectedIcon: Icon(
+                  Icons.attach_money,
+                  color: selectedNavIconColor,
+                  size: 26,
+                ),
+                label: 'Transactions',
+              ),
+              NavigationDestination(
+                icon: Icon(
+                  Icons.pie_chart_outline,
+                  color: unselectedNavIconColor,
+                  size: 26,
+                ),
+                selectedIcon: Icon(
+                  Icons.pie_chart,
+                  color: selectedNavIconColor,
+                  size: 26,
+                ),
+                label: 'Budgets',
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -204,7 +314,7 @@ class _HomePageState extends State<HomePage> {
 
   List<Widget> _buildPages(AppDatabase db) {
     return [
-      const Dashboard(),
+      Dashboard(onViewTransactions: () => _onDestinationSelected(1)),
       const TransactionManager(),
       BudgetManagerScreen(database: db),
     ];
