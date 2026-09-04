@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
+import '../../../utils/app_colour.dart';
 import '../../../database/app_database.dart';
 import '../../../database/daos/category_dao.dart';
 import '../../../database/daos/transaction_dao.dart';
@@ -152,12 +153,9 @@ class _ImportScreenState extends State<ImportScreen> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Theme.of(context).brightness == Brightness.dark
-                    ? colours.blendedprimary
-                    : colours.secondary,
-                border: Border.all(
-                  color: Colors.black,
-                  width: 4,
-                ),
+                    ? context.colours.blendedprimary
+                    : context.colours.secondary,
+                border: Border.all(color: Colors.black, width: 4),
                 boxShadow: const [
                   BoxShadow(
                     color: Colors.black,
@@ -228,7 +226,7 @@ class _ImportScreenState extends State<ImportScreen> {
                       height: 18,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: colours.background,
+                        color: context.colours.background,
                       ),
                     )
                   : const Icon(
@@ -240,14 +238,10 @@ class _ImportScreenState extends State<ImportScreen> {
                     : 'Upload a statement',
               ),
               style: FilledButton.styleFrom(
-                backgroundColor: colours.secondary,
-                foregroundColor: colours.background,
-                padding: const EdgeInsets.symmetric(
-                  vertical: 16,
-                ),
-                textStyle: colours.b1.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                backgroundColor: context.colours.secondary,
+                foregroundColor: context.colours.background,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                textStyle: context.colours.b1.copyWith(fontWeight: FontWeight.bold),
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.zero,
                   side: BorderSide(
@@ -338,25 +332,11 @@ class _FormatChip extends StatelessWidget {
     final colours = context.colours;
 
     return Chip(
-      avatar: Icon(
-        icon,
-        size: 16,
-        color: colours.cardText,
-      ),
-      label: Text(
-        label,
-        style: colours.b1.copyWith(
-          color: colours.cardText,
-        ),
-      ),
-      side: const BorderSide(
-        color: Colors.black,
-        width: 3,
-      ),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.zero,
-      ),
-      backgroundColor: colours.primary,
+      avatar: Icon(icon, size: 16, color: context.colours.cardText),
+      label: Text(label, style: context.colours.b1.copyWith(color: context.colours.cardText)),
+      side: const BorderSide(color: Colors.black, width: 3),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      backgroundColor: context.colours.primary,
     );
   }
 }
