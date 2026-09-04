@@ -99,49 +99,5 @@ Widget transactionFilterBarUseCase(BuildContext context) {
   );
 }
 
-@widgetbook.UseCase(
-  name: 'Spending Chart',
-  type: SpendingChart,
-  path: '[Widgets]',
-)
-Widget spendingChartUseCase(BuildContext context) {
-  final colours = context.colours;
 
-  return _canvas(
-    context,
-    SpendingChart(
-      total: 'R4 200',
-      categories: [
-        SpendingCategory(
-          label: 'Groceries',
-          percentage: 45,
-          color: colours.secondary,
-        ),
-        SpendingCategory(
-          label: 'Transport',
-          percentage: 30,
-          color: colours.informational,
-        ),
-        SpendingCategory(
-          label: 'Dining',
-          percentage: 25,
-          color: colours.greenAccents,
-        ),
-      ],
-    ),
-  );
-}
-
-
-@widgetbook.UseCase(
-  name: 'Search Bar (Legacy)',
-  type: legacy.SearchBar,
-  path: '[Widgets]',
-)
-Widget searchBarUseCase(BuildContext context) {
-  return _canvas(
-    context,
-    const legacy.SearchBar(),
-  );
-}
 
