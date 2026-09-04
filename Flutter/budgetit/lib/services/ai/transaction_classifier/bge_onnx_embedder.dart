@@ -1,18 +1,14 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:bert_tokenizer/bert_tokenizer.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_onnxruntime/flutter_onnxruntime.dart';
 
+import 'bge_model_downloader.dart';
 import 'text_embedder.dart';
 import 'vector_similarity.dart';
 
 final class BgeOnnxEmbedder implements TextEmbedder {
-  static const String _modelAsset =
-      'assets/models/bge-small-en-v1.5/model.onnx';
-
-  static const String _vocabAsset = 'assets/models/bge-small-en-v1.5/vocab.txt';
-
   static const int _maximumSequenceLength = 96;
 
   final OnnxRuntime _runtime = OnnxRuntime();
@@ -27,9 +23,7 @@ final class BgeOnnxEmbedder implements TextEmbedder {
   int get embeddingSize => 384;
 
   bool get isInitialized => _session != null && _tokenizer != null;
-
   List<String> get inputNames => _session?.inputNames ?? const [];
-
   List<String> get outputNames => _session?.outputNames ?? const [];
 
   @override
@@ -38,30 +32,33 @@ final class BgeOnnxEmbedder implements TextEmbedder {
       return;
     }
 
-    final vocabulary = await rootBundle.loadString(_vocabAsset);
+    await BgeModelDownloader.ensureModelDownloaded();
+
+    final basePath = await BgeModelDownloader.modelPath;
+    final modelPath = '$basePath/model.onnx';
+    final vocabPath = '$basePath/vocab.txt';
+
+    final vocabFile = File(vocabPath);
+    if (!await vocabFile.exists()) {
+      throw StateError('Vocabulary file not found at: $vocabPath');
+    }
+    final vocabulary = await vocabFile.readAsString();
 
     _tokenizer = BertTokenizer.fromStringContent(vocabulary);
 
-    _session = await _runtime.createSessionFromAsset(_modelAsset);
-
-    // These diagnostic messages confirm the actual exported ONNX contract.
-    // They can be removed after the integration has been verified.
-    // ignore: avoid_print
+    _session = await _runtime.createSession(
+      modelPath,
+      options: OrtSessionOptions(useArena: true),
+    );
     print('BGE input names: ${_session!.inputNames}');
-    // ignore: avoid_print
     print('BGE output names: ${_session!.outputNames}');
 
     try {
       final inputInfo = await _session!.getInputInfo();
       final outputInfo = await _session!.getOutputInfo();
-
-      // ignore: avoid_print
       print('BGE input info: $inputInfo');
-      // ignore: avoid_print
       print('BGE output info: $outputInfo');
     } catch (error) {
-      // Input/output metadata is diagnostic only.
-      // ignore: avoid_print
       print('BGE metadata inspection unavailable: $error');
     }
   }
@@ -86,9 +83,6 @@ final class BgeOnnxEmbedder implements TextEmbedder {
 
     final results = <Float32List>[];
 
-    // @Donny: Please note
-    // This first implementation processes one item at a time.
-    // Proper model batching can be added after correctness is verified.
     for (final text in texts) {
       results.add(await _embedSingle(text));
     }
@@ -209,8 +203,6 @@ final class BgeOnnxEmbedder implements TextEmbedder {
     final numericValues = values.cast<num>();
 
     if (shape.length == 3 && shape.last == embeddingSize) {
-      // Shape: [batch, sequenceLength, 384].
-      // The first 384 values are token zero, the CLS token.
       return Float32List.fromList(
         numericValues
             .take(embeddingSize)
@@ -220,7 +212,6 @@ final class BgeOnnxEmbedder implements TextEmbedder {
     }
 
     if (shape.length == 2 && shape.last == embeddingSize) {
-      // Shape: [batch, 384]. Pooling happened inside the model.
       return Float32List.fromList(
         numericValues
             .take(embeddingSize)
