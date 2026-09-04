@@ -72,7 +72,11 @@ jobs:
 
       - name: Build release APK
         working-directory: Flutter/budgetit
-        run: flutter build apk --release --no-tree-shake-icons
+        run: |
+          flutter build apk --release --no-tree-shake-icons \
+            --dart-define=ENVIRONMENT=prod \
+            --dart-define=POWERSYNC_URL=${{ vars.POWERSYNC_URL }} \
+            --dart-define=API_URL=${{ vars.API_URL }}
 
       - name: Upload release APK
         if: always()
