@@ -6,7 +6,6 @@ import 'package:budgetit/utils/icon_mapper.dart';
 // import '../components/balance_card.dart';
 import '../../models/financial_health_score.dart';
 import '../../services/financial_health_score_service.dart';
-import '../../shared/widgets/monthly_trend_widget.dart';
 import '../../shared/widgets/spending_chart.dart';
 import '../../database/app_database.dart';
 import '../../database/schema.dart';
@@ -30,7 +29,6 @@ class _DashboardState extends State<Dashboard> {
   double dailySpending = 0;
   FinancialHealthScore? financialHealthScore;
   double monthlySpending = 0;
-  List<MonthData> dashboardMonths = [];
   List<SpendingCategory> spendingCategories = [];
   List<Transaction> recentTransactions = [];
   Map<String, IconData> _transactionCategoryIcons = {};
@@ -40,7 +38,6 @@ class _DashboardState extends State<Dashboard> {
   void initState() {
     super.initState();
     db = context.read<AppDatabase>();
-    dashboardMonths = _emptyMonthlyTrends();
     spendingCategories = [];
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadDashboardData());
   }
@@ -222,19 +219,6 @@ class _DashboardState extends State<Dashboard> {
     return '${transaction.transactionDate.day}/${transaction.transactionDate.month}/${transaction.transactionDate.year}';
   }
 
-  List<MonthData> _emptyMonthlyTrends() {
-    final start = DateTime(selectedDate.year, selectedDate.month - 2);
-    return List.generate(3, (i) {
-      final month = DateTime(start.year, start.month + i);
-      return MonthData(
-        month: _monthName(month.month),
-        shortMonth: _shortMonthName(month.month),
-        income: 0,
-        spent: 0,
-      );
-    });
-  }
-
   Future<List<SpendingCategory>> _loadSpendingCategories(
     List<Transaction> transactions,
     MyColours colours,
@@ -311,27 +295,6 @@ class _DashboardState extends State<Dashboard> {
   IconData _categoryIconForTransaction(Transaction transaction) =>
       _transactionCategoryIcons[transaction.id] ?? Icons.category_outlined;
 
-  Future<List<MonthData>> _loadMonthlyTrends() async {
-    final start = DateTime(selectedDate.year, selectedDate.month - 2);
-    final months = <MonthData>[];
-    for (var i = 0; i < 3; i++) {
-      final month = DateTime(start.year, start.month + i);
-      final txns = await db.transactionDao.getTransactionsByDateRange(
-        _startOfMonth(month),
-        _endOfMonth(month),
-      );
-      months.add(
-        MonthData(
-          month: _monthName(month.month),
-          shortMonth: _shortMonthName(month.month),
-          income: _sumTransactions(txns, TransactionType.income),
-          spent: _sumTransactions(txns, TransactionType.expense),
-        ),
-      );
-    }
-    return months;
-  }
-
   Future<void> _loadDashboardData() async {
     setState(() {
       isLoading = true;
@@ -352,7 +315,6 @@ class _DashboardState extends State<Dashboard> {
         allTxns,
       );
       final categories = await _loadSpendingCategories(monthTxns, colours);
-      final trends = await _loadMonthlyTrends();
       final healthScore = await FinancialHealthScoreService(
         db,
       ).calculateMonthlyScore();
@@ -362,7 +324,6 @@ class _DashboardState extends State<Dashboard> {
         dailySpending = _sumTransactions(dayTxns, TransactionType.expense);
         monthlySpending = _sumTransactions(monthTxns, TransactionType.expense);
         spendingCategories = categories;
-        dashboardMonths = trends;
         recentTransactions = allTxns.take(4).toList();
         _transactionCategoryIcons = transactionCategoryIcons;
         financialHealthScore = healthScore;

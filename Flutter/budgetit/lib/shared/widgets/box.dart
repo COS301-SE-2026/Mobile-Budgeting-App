@@ -90,7 +90,6 @@ class _MyBoxState extends State<MyBox> {
     );
   }
 
-  
   String _formatAmount(double amount) {
     final fixed = amount.abs().toStringAsFixed(2);
     final parts = fixed.split('.');
@@ -110,7 +109,6 @@ class _MyBoxState extends State<MyBox> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = isDark ? colours.secondary : colours.primary;
     final cardFg = isDark ? colours.background : colours.cardText;
-    final incomeColor = isDark ? colours.background : colours.greenAccents;
 
     return GestureDetector(
       onTap: _openEditDialog,
@@ -168,7 +166,7 @@ class _MyBoxState extends State<MyBox> {
                       Text(
                         _name,
                         style: context.colours.budgetheader.copyWith(
-                          color: context.colours.cardText,
+                          color: cardFg,
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
                         ),
@@ -179,7 +177,7 @@ class _MyBoxState extends State<MyBox> {
                         Text(
                           _category + (_date.isNotEmpty ? ' - $_date' : ''),
                           style: context.colours.b5.copyWith(
-                            color: context.colours.cardText,
+                            color: cardFg,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                           ),
