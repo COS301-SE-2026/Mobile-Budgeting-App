@@ -10,7 +10,7 @@ class MyBox extends StatefulWidget {
   final double? amount;
   final String? category;
   final String? date;
-  // forgot to add the category to our current ui so here it is
+  // forgot to add the category to our current ui so here it is 
   final List<String> categories;
   final TransactionType? transactionType;
   final bool isExpense;
@@ -73,8 +73,8 @@ class _MyBoxState extends State<MyBox> {
         icon: _icon,
         category: _category,
         categories: widget.categories,
-        transactionId: widget.transactionId,
-        transactionType: widget.transactionType,
+        transactionId : widget.transactionId,
+        transactionType : widget.transactionType,
         onSave: (newName, newAmount, newIcon, newCategory) {
           setState(() {
             _name = newName;
@@ -90,28 +90,8 @@ class _MyBoxState extends State<MyBox> {
     );
   }
 
-  
-  String _formatAmount(double amount) {
-    final fixed = amount.abs().toStringAsFixed(2);
-    final parts = fixed.split('.');
-    final whole = parts.first;
-    final buffer = StringBuffer();
-    for (var i = 0; i < whole.length; i++) {
-      final remaining = whole.length - i;
-      buffer.write(whole[i]);
-      if (remaining > 1 && remaining % 3 == 1) buffer.write(',');
-    }
-    return '${buffer.toString()}.${parts.last}';
-  }
-
   @override
   Widget build(BuildContext context) {
-    final colours = context.colours;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? colours.secondary : colours.primary;
-    final cardFg = isDark ? colours.background : colours.cardText;
-    final incomeColor = isDark ? colours.background : colours.greenAccents;
-
     return GestureDetector(
       onTap: _openEditDialog,
 
@@ -120,11 +100,10 @@ class _MyBoxState extends State<MyBox> {
       onTapCancel: () => setState(() => _isPressed = false),
       child: Stack(
         children: [
-          Container(
-            //adding our custom card decor
+          Container(//adding our custom card decor
             height: MediaQuery.of(context).size.height * 0.1,
             width: MediaQuery.of(context).size.width * 0.9,
-            alignment: Alignment.center,
+            alignment : Alignment.center,
             decoration: BoxDecoration(
               shape: BoxShape.rectangle,
               color: context.colours.background,
@@ -140,26 +119,23 @@ class _MyBoxState extends State<MyBox> {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               shape: BoxShape.rectangle,
-              color: cardColor,
+              color: context.colours.primary,
+
               border: Border.all(color: Colors.black, width: 4.0),
             ),
             child: Row(
               children: [
                 const SizedBox(width: 12),
-                Container(
-                  width: 34,
-                  height: 34,
-                  decoration: BoxDecoration(
-                    color: context.colours.secondary,
-                    border: Border.all(color: Colors.black, width: 2),
-                  ),
-                  child: Icon(
-                    _icon,
-                    color: context.colours.background,
-                    size: 20,
-                  ),
+                Icon(
+                  _icon,
+                  color: _isPressed
+                      ? context.colours.background
+                      : _isExpense
+                      ? context.colours.error
+                      : context.colours.greenAccents,
+                  size: MediaQuery.of(context).size.width * 0.04,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 6),
                 Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -169,24 +145,17 @@ class _MyBoxState extends State<MyBox> {
                         _name,
                         style: context.colours.budgetheader.copyWith(
                           color: context.colours.cardText,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
-                      if (_category.isNotEmpty) ...[
-                        const SizedBox(height: 5),
+                      if (_category.isNotEmpty)
                         Text(
                           _category + (_date.isNotEmpty ? ' - $_date' : ''),
                           style: context.colours.b5.copyWith(
                             color: context.colours.cardText,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                          overflow: TextOverflow.visible,
                         ),
-                      ],
                     ],
                   ),
                 ),
@@ -195,8 +164,6 @@ class _MyBoxState extends State<MyBox> {
                       ? '- R${_amount.toStringAsFixed(2)}'
                       : 'R${_amount.toStringAsFixed(2)}',
                   style: context.colours.b4.copyWith(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
                     color: _isExpense
                         ? _isPressed
                               ? context.colours.background
