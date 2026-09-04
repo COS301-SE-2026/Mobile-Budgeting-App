@@ -43,86 +43,91 @@ class _ImportScreenState extends State<ImportScreen> {
     _aiClassifier = TransactionClassificationService(
       embedder: _embedder,
       embeddingCache: embeddingCache,
+      db: widget.db,
     );
   }
 
-  Future<void> _pickAndParse() async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
+Future<void> _pickAndParse() async {
+  setState(() {
+    _loading = true;
+    _error = null;
+  });
 
-    try {
-      final file = await FilePicker.pickFile(
-        type: FileType.custom,
-        allowedExtensions: const ['csv', 'pdf'],
-      );
+  try {
+    final result = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['csv', 'pdf'],
+      allowMultiple: false,
+    );
 
-      if (file == null) {
-        return;
+    if (result == null || result.isEmpty) {
+      if (mounted) {
+        setState(() => _loading = false);
       }
+      return;
+    }
 
-      final path = file.path;
+    final path = result.single.path;
 
-      if (path == null) {
-        if (mounted) {
-          setState(() {
-            _error = 'The selected file could not be opened.';
-          });
-        }
-        return;
-      }
-
-      debugPrint('Selected statement file: $path');
-
-      await _aiClassifier.initialize();
-
-      final orchestrator = ImportOrchestrator(
-        db: widget.db,
-        taDao: TransactionDao(widget.db),
-        categoryDao: CategoryDao(widget.db),
-        aiClassifier: _aiClassifier,
-      );
-
-      final preview = await orchestrator.preparePreview(path);
-
-      if (!mounted) {
-        return;
-      }
-
-      if (preview.isEmpty) {
+    if (path == null) {
+      if (mounted) {
         setState(() {
-          _error = 'No transactions were found in this file.';
+          _error = 'The selected file could not be opened.';
         });
-        return;
       }
+      return;
+    }
 
-      await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => ImportPreviewScreen(
-            transactions: preview,
-            orchestrator: orchestrator,
-          ),
+    debugPrint('Selected statement file: $path');
+
+    await _aiClassifier.initialize();
+
+    final orchestrator = ImportOrchestrator(
+      db: widget.db,
+      taDao: TransactionDao(widget.db),
+      categoryDao: CategoryDao(widget.db),
+      aiClassifier: _aiClassifier,
+    );
+
+    final preview = await orchestrator.preparePreview(path);
+
+    if (!mounted) {
+      return;
+    }
+
+    if (preview.isEmpty) {
+      setState(() {
+        _error = 'No transactions were found in this file.';
+      });
+      return;
+    }
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ImportPreviewScreen(
+          transactions: preview,
+          orchestrator: orchestrator,
         ),
-      );
-    } catch (error, stackTrace) {
-      debugPrint('Statement import failed: $error');
-      debugPrintStack(stackTrace: stackTrace);
+      ),
+    );
+  } catch (error, stackTrace) {
+    debugPrint('Statement import failed: $error');
+    debugPrintStack(stackTrace: stackTrace);
 
-      if (mounted) {
-        setState(() {
-          _error = error.toString();
-        });
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _loading = false;
-        });
-      }
+    if (mounted) {
+      setState(() {
+        _error = error.toString();
+      });
+    }
+  } finally {
+    if (mounted) {
+      setState(() {
+        _loading = false;
+      });
     }
   }
+}
 
   @override
   void dispose() {
@@ -132,11 +137,15 @@ class _ImportScreenState extends State<ImportScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
+    final colors = context.colours;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Import Statement')),
+      backgroundColor: colors.background,
+      appBar: AppBar(
+        backgroundColor: colors.background,
+        iconTheme: IconThemeData(color: colors.textPrimary),
+        title: Text('Import Statement', style: colors.h2),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -146,8 +155,8 @@ class _ImportScreenState extends State<ImportScreen> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Theme.of(context).brightness == Brightness.dark
-                    ? context.colours.blendedprimary
-                    : context.colours.secondary,
+                    ? colors.blendedprimary
+                    : colors.secondary,
                 border: Border.all(color: Colors.black, width: 4),
                 boxShadow: const [
                   BoxShadow(
@@ -163,21 +172,27 @@ class _ImportScreenState extends State<ImportScreen> {
                   Icon(
                     Icons.account_balance_outlined,
                     size: 36,
-                    color: colors.primary,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? colors.secondary
+                        : colors.background,
                   ),
                   const SizedBox(height: 12),
                   Text(
                     'Import Bank Statement',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
+                    style: colors.h2.copyWith(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? colors.secondary
+                          : colors.background,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Transactions are extracted and categorised on your '
-                    'device. No data is sent to a server.',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: colors.onSurfaceVariant,
+                    'device. No data is sent to any server.',
+                    style: colors.b1.copyWith(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? colors.secondary
+                          : colors.background,
                     ),
                   ),
                 ],
@@ -186,21 +201,17 @@ class _ImportScreenState extends State<ImportScreen> {
             const SizedBox(height: 32),
             Text(
               'Supported formats',
-              style: theme.textTheme.labelMedium?.copyWith(
-                color: colors.onSurfaceVariant,
-              ),
+              style: colors.h2.copyWith(fontSize: 14),
             ),
             const SizedBox(height: 8),
-            const Row(
+            Row(
               children: [
                 _FormatChip(label: 'CSV', icon: Icons.table_chart_outlined),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 _FormatChip(label: 'PDF', icon: Icons.picture_as_pdf_outlined),
               ],
             ),
-
             const SizedBox(height: 24),
-
             FilledButton.icon(
               onPressed: _loading ? null : _pickAndParse,
               icon: _loading
@@ -209,31 +220,28 @@ class _ImportScreenState extends State<ImportScreen> {
                       height: 18,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: context.colours.background,
+                        color: colors.background,
                       ),
                     )
                   : const Icon(Icons.upload_file_outlined),
               label: Text(_loading ? ' Reading file..,' : 'Upload a statement'),
               style: FilledButton.styleFrom(
-                backgroundColor: context.colours.secondary,
-                foregroundColor: context.colours.background,
+                backgroundColor: colors.secondary,
+                foregroundColor: colors.background,
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                textStyle: context.colours.b1.copyWith(fontWeight: FontWeight.bold),
-                shape: const RoundedRectangleBorder(
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.zero,
-                  side: BorderSide(color: Colors.black, width: 4),
+                  side: const BorderSide(color: Colors.black, width: 4),
                 ),
               ),
             ),
-
             const SizedBox(height: 16),
-
             if (_error != null) ...[
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: colors.errorContainer,
-                  borderRadius: BorderRadius.circular(12),
+                  color: colors.background,
+                  border: Border.all(color: colors.error, width: 4),
                 ),
                 child: Row(
                   children: [
@@ -242,9 +250,7 @@ class _ImportScreenState extends State<ImportScreen> {
                     Expanded(
                       child: Text(
                         _error!,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: colors.onErrorContainer,
-                        ),
+                        style: colors.b1.copyWith(color: colors.error),
                       ),
                     ),
                   ],
@@ -252,26 +258,6 @@ class _ImportScreenState extends State<ImportScreen> {
               ),
               const SizedBox(height: 16),
             ],
-            FilledButton.icon(
-              onPressed: _loading ? null : _pickAndParse,
-              icon: _loading
-                  ? SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: colors.onPrimary,
-                      ),
-                    )
-                  : const Icon(Icons.upload_file_outlined),
-              label: Text(_loading ? 'Reading file…' : 'Choose file'),
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
           ],
         ),
       ),
@@ -287,14 +273,12 @@ class _FormatChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
+    final colors = context.colours;
     return Chip(
-      avatar: Icon(icon, size: 16, color: context.colours.cardText),
-      label: Text(label, style: context.colours.b1.copyWith(color: context.colours.cardText)),
-      side: const BorderSide(color: Colors.black, width: 3),
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-      backgroundColor: context.colours.primary,
+      avatar: Icon(icon, size: 16, color: colors.cardText),
+      label: Text(label, style: colors.b1.copyWith(color: colors.cardText)),
+      side: const BorderSide(color: Colors.black, width: 2),
+      backgroundColor: colors.primary,
     );
   }
 }

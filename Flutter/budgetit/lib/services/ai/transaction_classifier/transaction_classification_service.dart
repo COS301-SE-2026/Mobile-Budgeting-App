@@ -1,3 +1,4 @@
+import '../../../database/app_database.dart';
 import '../../../database/schema.dart';
 import 'category_score.dart';
 import 'embedding_cache_service.dart';
@@ -25,19 +26,27 @@ final class TransactionClassificationResult {
     if (rankedCategories.isEmpty) {
       return null;
     }
-
     return rankedCategories.first;
   }
+
+  bool get hasMatch => rankedCategories.isNotEmpty;
 }
 
 final class TransactionClassificationService {
   final TextEmbedder embedder;
   final EmbeddingCacheService? embeddingCache;
+  final AppDatabase _db;
 
   TransactionClassificationService({
     required this.embedder,
     this.embeddingCache,
-  });
+    required AppDatabase db,
+  }) : _db = db;
+
+  bool get isEnabled {
+    final value = _db.settingsDao.getSetting('ai_categorisation');
+    return value != 'false';
+  }
 
   Future<void> initialize() {
     return embedder.initialize();
@@ -49,6 +58,13 @@ final class TransactionClassificationService {
     String? longDescription,
     required List<ClassificationCategory> categories,
   }) async {
+    if (!isEnabled) {
+      return TransactionClassificationResult(
+        modelVersion: embedder.modelVersion,
+        rankedCategories: const [],
+      );
+    }
+
     final transactionText = buildTransactionEmbeddingText(
       shortDescription: shortDescription,
       longDescription: longDescription,
@@ -61,8 +77,8 @@ final class TransactionClassificationService {
       );
     }
 
-    final transactionVector =
-        embeddingCache != null && transactionId?.trim().isNotEmpty == true
+    final transactionVector = embeddingCache != null && 
+            transactionId?.trim().isNotEmpty == true
         ? await embeddingCache!.getOrCreate(
             sourceType: EmbeddingSourceType.transaction,
             sourceId: transactionId!,
