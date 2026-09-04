@@ -9,5 +9,7 @@ import 'package:widgetbook_annotation/widgetbook_annotation.dart' as widgetbook;
   path: '[Widgets]',
 )
 Widget predictiveSpendingUseCase(BuildContext context) {
-  return appPreview(database: true, child: const PredictiveSpendingScreen());
+  return appPreview(
+    child: const PredictiveSpendingScreen(),
+  );
 }
