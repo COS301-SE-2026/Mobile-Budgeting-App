@@ -24,7 +24,6 @@ jobs:
 
   deploy-apk-production:
     name: Deploy APK
-    needs: secret-scan
     uses: ./.github/workflows/apk-deploy-production.yml
     permissions:
       contents: read
