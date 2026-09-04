@@ -7,7 +7,6 @@ import 'package:widgetbook_annotation/widgetbook_annotation.dart' as widgetbook;
 @widgetbook.UseCase(name: 'FAB', type: FAB, path: '[Widgets]')
 Widget fabUseCase(BuildContext context) {
   return appPreview(
-    database: true,
     child: Scaffold(
       backgroundColor: context.colours.background,
       body: Center(
