@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-
-import 'services/ai/transaction_classifier/bge_onnx_embedder.dart';
-import 'services/ai/transaction_classifier/transaction_classification_service.dart';
+import 'package:drift/native.dart';
+import 'package:budgetit/database/app_database.dart';
+import 'package:budgetit/services/ai/transaction_classifier/bge_onnx_embedder.dart';
+import 'package:budgetit/services/ai/transaction_classifier/transaction_classification_service.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,6 +42,7 @@ class _AiClassifierDemoScreenState extends State<AiClassifierDemoScreen> {
     text: 'Groceries, Transport, Entertainment, Rent',
   );
 
+  late final AppDatabase _db;
   late final BgeOnnxEmbedder _embedder;
   late final TransactionClassificationService _service;
 
@@ -53,8 +55,12 @@ class _AiClassifierDemoScreenState extends State<AiClassifierDemoScreen> {
   void initState() {
     super.initState();
 
+    _db = AppDatabase.forTesting(NativeDatabase.memory());
     _embedder = BgeOnnxEmbedder();
-    _service = TransactionClassificationService(embedder: _embedder);
+    _service = TransactionClassificationService(
+      embedder: _embedder,
+      db: _db,
+    );
 
     _initialize();
   }
@@ -145,6 +151,7 @@ class _AiClassifierDemoScreenState extends State<AiClassifierDemoScreen> {
     _transactionController.dispose();
     _categoriesController.dispose();
     _service.dispose();
+    _db.close();
     super.dispose();
   }
 

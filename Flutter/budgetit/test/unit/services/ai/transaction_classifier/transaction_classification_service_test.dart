@@ -1,10 +1,9 @@
 import 'dart:typed_data';
-
+import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:budgetit/services/ai/transaction_classifier/'
-    'text_embedder.dart';
-import 'package:budgetit/services/ai/transaction_classifier/'
-    'transaction_classification_service.dart';
+import 'package:budgetit/database/app_database.dart';
+import 'package:budgetit/services/ai/transaction_classifier/text_embedder.dart';
+import 'package:budgetit/services/ai/transaction_classifier/transaction_classification_service.dart';
 
 final class TestTextEmbedder implements TextEmbedder {
   @override
@@ -21,15 +20,12 @@ final class TestTextEmbedder implements TextEmbedder {
     if (text.contains('UBER')) {
       return Float32List.fromList([1, 0]);
     }
-
     if (text == 'Transport') {
       return Float32List.fromList([0.9, 0.1]);
     }
-
     if (text == 'Groceries') {
       return Float32List.fromList([0, 1]);
     }
-
     return Float32List.fromList([0.5, 0.5]);
   }
 
@@ -43,10 +39,20 @@ final class TestTextEmbedder implements TextEmbedder {
 }
 
 void main() {
+  late AppDatabase db;
   late TransactionClassificationService service;
 
-  setUp(() {
-    service = TransactionClassificationService(embedder: TestTextEmbedder());
+  setUp(() async {
+    db = AppDatabase.forTesting(NativeDatabase.memory());
+    await db.settingsDao.setSetting('ai_categorisation', 'true');
+    service = TransactionClassificationService(
+      embedder: TestTextEmbedder(),
+      db: db,
+    );
+  });
+
+  tearDown(() async {
+    await db.close();
   });
 
   test('ranks the most similar category first', () async {
@@ -84,5 +90,19 @@ void main() {
       ),
       throwsArgumentError,
     );
+  });
+
+  test('returns empty result when AI is disabled', () async {
+    await db.settingsDao.setSetting('ai_categorisation', 'false');
+
+    final result = await service.classify(
+      shortDescription: 'UBER TRIP',
+      categories: const [
+        ClassificationCategory(id: 'transport', name: 'Transport'),
+      ],
+    );
+
+    expect(result.rankedCategories, isEmpty);
+    expect(result.hasMatch, false);
   });
 }

@@ -37,6 +37,7 @@ dependencies:
   powersync: ^2.4.0     
   http: ^1.2.0 
   dio: ^5.7.0
+  huggingface_downloader: ^1.1.0
   drift: ^2.34.4
   drift_flutter: ^0.3.1
   path_provider: ^2.1.6
@@ -109,6 +110,7 @@ flutter:
     - assets/images/flow.jpg
     - assets/images/logo.png
     - assets/models/bge-small-en-v1.5/
+    - assets/images/budgetit_logo.jpg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

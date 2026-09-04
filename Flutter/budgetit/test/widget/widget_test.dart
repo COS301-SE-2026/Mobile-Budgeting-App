@@ -89,6 +89,6 @@ void main() {
     await tester.tap(find.text('CREATE NEW BUDGET'));
     await tester.pumpAndSettle();
 
-    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.byType(Dialog), findsOneWidget);
   });
 }
