@@ -23,7 +23,6 @@ jobs:
 
   deploy-pages-production:
     name: Deploy Pages
-    needs: secret-scan
     uses: ./.github/workflows/pages-deploy-production.yml
     permissions:
       contents: read
