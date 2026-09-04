@@ -49,6 +49,22 @@ Widget _widget(Widget child) {
   );
 }
 
+Widget _themedWidget(Widget child, Brightness brightness) {
+  final colours = brightness == Brightness.dark
+      ? MyColours.darkTheme
+      : MyColours.lightTheme;
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => ThemeProvider()),
+      Provider<AppDatabase>.value(value: _mock.db),
+    ],
+    child: MaterialApp(
+      theme: ThemeData(brightness: brightness, extensions: [colours]),
+      home: Scaffold(body: child),
+    ),
+  );
+}
+
 late MockDb _mock;
 
 void _usePhoneSize(WidgetTester tester) {
@@ -270,6 +286,44 @@ void main() {
       await tester.pumpWidget(makeBox(category: 'Food'));
       await tester.pump();
       expect(find.text('Food'), findsOneWidget);
+    });
+
+    testWidgets('uses a visible foreground in light mode', (tester) async {
+      _usePhoneSize(tester);
+      await tester.pumpWidget(
+        _themedWidget(
+          const MyBox(text: 'Coffee', category: 'Food'),
+          Brightness.light,
+        ),
+      );
+
+      expect(
+        tester.widget<Text>(find.text('Coffee')).style?.color,
+        MyColours.lightTheme.cardText,
+      );
+      expect(
+        tester.widget<Text>(find.text('Food')).style?.color,
+        MyColours.lightTheme.cardText,
+      );
+    });
+
+    testWidgets('uses a visible foreground in dark mode', (tester) async {
+      _usePhoneSize(tester);
+      await tester.pumpWidget(
+        _themedWidget(
+          const MyBox(text: 'Coffee', category: 'Food'),
+          Brightness.dark,
+        ),
+      );
+
+      expect(
+        tester.widget<Text>(find.text('Coffee')).style?.color,
+        MyColours.darkTheme.background,
+      );
+      expect(
+        tester.widget<Text>(find.text('Food')).style?.color,
+        MyColours.darkTheme.background,
+      );
     });
 
     testWidgets('tapping opens EditTransactionDialog', (tester) async {
