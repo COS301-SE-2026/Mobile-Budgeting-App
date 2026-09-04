@@ -1,0 +1,6 @@
+api.16.28.126.118.sslip.io {
+    reverse_proxy backend-api:8000
+}
+sync.16.28.126.118.sslip.io {
+    reverse_proxy powersync:8080
+}
