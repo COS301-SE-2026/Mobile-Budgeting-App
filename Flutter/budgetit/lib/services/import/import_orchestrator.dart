@@ -12,6 +12,7 @@ import '../ai/transaction_classifier/transaction_classification_service.dart';
 import 'classification_service.dart';
 import 'duplicate_detector.dart';
 import 'statement_parser_service.dart';
+import 'schema_discovery_service.dart';
 
 class ImportOrchestrator {
   final TransactionDao _taDao;
@@ -23,14 +24,20 @@ class ImportOrchestrator {
     required AppDatabase db,
     required TransactionDao taDao,
     required CategoryDao categoryDao,
-    TransactionClassificationService? aiClassifier,
+    TransactionClassificationService? aiClassifier, StatementParserService? parser,
   }) : _taDao = taDao,
        _categoryDao = categoryDao,
        _aiClassifier = aiClassifier,
-       _parser = StatementParserService();
+       _parser = parser ?? StatementParserService();
 
-  Future<List<ParsedTransaction>> preparePreview(String filePath) async {
-    final parsed = await _parser.parse(filePath);
+  Future<List<ParsedTransaction>> preparePreview(
+    String filePath, {
+    SchemaConfirmationCallback? onNeedsSchemaConfirmation,
+  }) async {
+    final parsed = await _parser.parse(
+      filePath,
+      onNeedsSchemaConfirmation: onNeedsSchemaConfirmation,
+    );
 
     if (parsed.isEmpty) {
       return [];
@@ -185,6 +192,7 @@ class ImportOrchestrator {
       return ExistingTransaction(
         date: transaction.transactionDate,
         amount: transaction.amount,
+        description: transaction.shortDescription.toLowerCase().trim(),
         deduplicationHash: hash,
       );
     }).toList();
