@@ -54,9 +54,9 @@ dependencies:
   decimal: ^3.0.0
   csv: ^8.0.0
   crypto: ^3.0.3
-  pdfrx: ^2.4.7
+  pdfrx: ^2.5.0
 
-  flutter_pdfview: ^1.4.4
+  #flutter_pdfview: ^1.4.4
 
   # Auth
   amplify_flutter: ^2.11.0
