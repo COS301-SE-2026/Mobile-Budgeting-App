@@ -1,8 +1,6 @@
 import 'dart:async';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-
 import '../../../utils/app_colour.dart';
 import '../../../database/app_database.dart';
 import '../../../database/daos/category_dao.dart';
@@ -12,6 +10,11 @@ import '../../../services/ai/transaction_classifier/embedding_cache_service.dart
 import '../../../services/ai/transaction_classifier/transaction_classification_service.dart';
 import '../../../services/import/import_orchestrator.dart';
 import 'import_preview_screen.dart';
+import '../../../services/import/schema_discovery_service.dart';
+import '../../../services/import/llm_schema_classifier.dart';
+import '../../../services/import/statement_parser_service.dart';
+import 'schema_confirmation_dialog.dart';
+
 
 class ImportScreen extends StatefulWidget {
   final AppDatabase db;
@@ -25,6 +28,9 @@ class ImportScreen extends StatefulWidget {
 class _ImportScreenState extends State<ImportScreen> {
   late final BgeOnnxEmbedder _embedder;
   late final TransactionClassificationService _aiClassifier;
+  late final SchemaDiscoveryService _schemaDiscovery;
+  late final StatementParserService _parser;
+
 
   bool _loading = false;
   String? _error;
@@ -45,7 +51,13 @@ class _ImportScreenState extends State<ImportScreen> {
       embeddingCache: embeddingCache,
       db: widget.db,
     );
+    _schemaDiscovery = SchemaDiscoveryService(
+      classifier: LlmSchemaClassifier(),
+      cache: widget.db.schemaCacheDao,
+    );
+    _parser = StatementParserService(schemaDiscovery: _schemaDiscovery);
   }
+
 
 Future<void> _pickAndParse() async {
   setState(() {
@@ -87,9 +99,18 @@ Future<void> _pickAndParse() async {
       taDao: TransactionDao(widget.db),
       categoryDao: CategoryDao(widget.db),
       aiClassifier: _aiClassifier,
+      parser: _parser,
     );
 
-    final preview = await orchestrator.preparePreview(path);
+    final preview = await orchestrator.preparePreview(
+      path,
+      onNeedsSchemaConfirmation: (proposed, sampleRows) => showSchemaConfirmationDialog(
+        context,
+        proposed: proposed,
+        sampleRows: sampleRows,
+      ),
+    );
+
 
     if (!mounted) {
       return;
