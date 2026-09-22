@@ -1,26 +1,34 @@
 import 'package:flutter/foundation.dart';
 import 'package:budgetit/auth/data/auth_service.dart';
+import 'package:budgetit/auth/data/biometric_lock_service.dart';
 
 enum AuthStatus {
   unknown, // app just launched, checking session
   guest, // not logged in, using app as guest
   skipped, // user chose to skip login
   loggedIn, // successfully authenticated
+  locked, // saved session exists, awaiting biometric verification
 }
 
 class AppAuthProvider extends ChangeNotifier {
-
-  AppAuthProvider({required AuthService authService})
-    : _authService = authService {
-    _checkCurrentSession();
+  AppAuthProvider({
+    required AuthService authService,
+    BiometricLockService? biometricLockService,
+  }) : _authService = authService,
+       _biometricLockService =
+           biometricLockService ?? DeviceBiometricLockService() {
+    initialSessionCheck = _checkCurrentSession();
   }
+  late final Future<void> initialSessionCheck;
   final AuthService _authService;
+  final BiometricLockService _biometricLockService;
 
   AuthStatus _status = AuthStatus.unknown;
   AppAuthUser? _currentUser;
   String? _errorMessage;
   bool _isLoading = false;
   bool _needsVerification = false;
+  bool _biometricLockEnabled = false;
 
   // Getters — screens read these to know what to show
   AuthStatus get status => _status;
@@ -29,6 +37,7 @@ class AppAuthProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get isLoggedIn => _status == AuthStatus.loggedIn;
   bool get needsVerification => _needsVerification;
+  bool get biometricLockEnabled => _biometricLockEnabled;
 
   // Called on app launch — checks if user is already logged in
   Future<void> _checkCurrentSession() async {
@@ -37,12 +46,18 @@ class AppAuthProvider extends ChangeNotifier {
       final user = await _authService.getCurrentUser();
       if (user != null) {
         _currentUser = user;
-        _status = AuthStatus.loggedIn;
+        _biometricLockEnabled = await _biometricLockService.isEnabled(
+          user.email,
+        );
+        _status = _biometricLockEnabled
+            ? AuthStatus.locked
+            : AuthStatus.loggedIn;
       } else {
         _status = AuthStatus.guest;
       }
     } catch (_) {
-      _status = AuthStatus.guest;
+      // A storage failure must never expose a restored session
+      _status = _currentUser == null ? AuthStatus.guest : AuthStatus.locked;
     }
     _setLoading(false);
   }
@@ -109,6 +124,13 @@ class AppAuthProvider extends ChangeNotifier {
     final result = await _authService.signIn(email, password);
     if (result.success) {
       _currentUser = await _authService.getCurrentUser();
+      try {
+        _biometricLockEnabled =
+            _currentUser != null &&
+            await _biometricLockService.isEnabled(_currentUser!.email);
+      } catch (_) {
+        _biometricLockEnabled = false;
+      }
       _status = AuthStatus.loggedIn;
     } else {
       _errorMessage = result.errorMessage;
@@ -124,9 +146,59 @@ class AppAuthProvider extends ChangeNotifier {
     _setLoading(true);
     await _authService.signOut();
     _currentUser = null;
+    _biometricLockEnabled = false;
     _status = AuthStatus.guest;
     _setLoading(false);
   }
+
+  Future<bool> setBiometricLockEnabled(bool enabled) async {
+    final user = _currentUser;
+    if (user == null || _status != AuthStatus.loggedIn) return false;
+    _clearError();
+    try {
+      if (enabled) {
+        if (!await _biometricLockService.canAuthenticate() ||
+            !await _biometricLockService.authenticate()) {
+          _errorMessage = 'Biometric verification was not completed.';
+          notifyListeners();
+          return false;
+        }
+      }
+      await _biometricLockService.setEnabled(user.email, enabled);
+      _biometricLockEnabled = enabled;
+      notifyListeners();
+      return true;
+    } catch (_) {
+      _errorMessage = 'Biometric lock is unavailable on this device.';
+      notifyListeners();
+      return false;
+    }
+  }
+
+  void lock() {
+    if (_status == AuthStatus.loggedIn && _biometricLockEnabled) {
+      _status = AuthStatus.locked;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> unlock() async {
+    if (_status != AuthStatus.locked) return false;
+    _clearError();
+    try {
+      if (await _biometricLockService.authenticate()) {
+        _status = AuthStatus.loggedIn;
+        notifyListeners();
+        return true;
+      }
+    } catch (_) {
+      _errorMessage = 'Biometric verification is unavailable. Sign in again.';
+    }
+    notifyListeners();
+    return false;
+  }
+
+  Future<void> usePasswordInstead() => signOut();
 
   // --- Continue as Guest ---
   void continueAsGuest() {

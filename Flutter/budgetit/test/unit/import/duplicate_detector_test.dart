@@ -23,10 +23,12 @@ ExistingTransaction _existing({
   required DateTime date,
   required String amount,
   required String hash,
+  String description = 'test transaction',
 }) {
   return ExistingTransaction(
     date: date,
     amount: Decimal.parse(amount),
+    description: description,
     deduplicationHash: hash,
   );
 }

@@ -22,6 +22,7 @@ import 'services/recurring/recurring_transaction_catch_up_service.dart';
 import 'synch/backendconnector.dart';
 import 'views/dashboard/dashboard.dart';
 import 'shared/widgets/login_password_screen.dart';
+import 'shared/widgets/biometric_lock_screen.dart';
 import 'utils/theme_provider.dart';
 import 'shared/widgets/main_appbar.dart';
 import 'shared/widgets/splash_screen.dart';
@@ -183,6 +184,7 @@ Future<void> _configureAmplify() async {
 }
 
 class BudgetApp extends StatefulWidget {
+class BudgetApp extends StatefulWidget {
   const BudgetApp({super.key});
 
   @override
@@ -330,7 +332,9 @@ class _HomePageState extends State<HomePage> {
       body: _buildPages(db)[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          border: const Border(top: BorderSide(color: Colors.black, width: 4)),
+          border: Border(
+            top: BorderSide(color: context.colours.category, width: 4),
+          ),
         ),
         child: SafeArea(
           top: false,
@@ -345,9 +349,9 @@ class _HomePageState extends State<HomePage> {
                 : context.colours.blendedprimary,
             indicatorColor: context.colours.secondary,
             labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-            indicatorShape: const RoundedRectangleBorder(
+            indicatorShape: RoundedRectangleBorder(
               borderRadius: BorderRadius.zero,
-              side: BorderSide(color: Colors.black, width: 3),
+              side: BorderSide(color: context.colours.category, width: 3),
             ),
             onDestinationSelected: _onDestinationSelected,
             destinations: [

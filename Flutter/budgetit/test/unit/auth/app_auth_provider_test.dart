@@ -1,6 +1,26 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:budgetit/auth/providers/auth_provider.dart';
 import 'package:budgetit/auth/data/auth_service.dart';
+import 'package:budgetit/auth/data/biometric_lock_service.dart';
+
+class FakeBiometricLockService implements BiometricLockService {
+  bool enabled = false;
+  bool result = true;
+
+  @override
+  Future<bool> isEnabled(String userId) async => enabled;
+
+  @override
+  Future<void> setEnabled(String userId, bool value) async {
+    enabled = value;
+  }
+
+  @override
+  Future<bool> canAuthenticate() async => true;
+
+  @override
+  Future<bool> authenticate() async => result;
+}
 
 Future<AppAuthProvider> _freshProvider() async {
   final provider = AppAuthProvider(authService: MockAuthService());
@@ -9,6 +29,31 @@ Future<AppAuthProvider> _freshProvider() async {
 }
 
 void main() {
+  test('restored session remains locked until biometrics succeed', () async {
+    final auth = MockAuthService();
+    final biometrics = FakeBiometricLockService();
+    await auth.signUp('locked@example.com', 'password123');
+    await auth.confirmSignUp('locked@example.com', '123456');
+    await auth.signIn('locked@example.com', 'password123');
+    biometrics.enabled = true;
+    biometrics.result = false;
+
+    final provider = AppAuthProvider(
+      authService: auth,
+      biometricLockService: biometrics,
+    );
+    await provider.initialSessionCheck;
+    expect(provider.status, AuthStatus.locked);
+    expect(await provider.unlock(), isFalse);
+    expect(provider.status, AuthStatus.locked);
+
+    biometrics.result = true;
+    expect(await provider.unlock(), isTrue);
+    expect(provider.status, AuthStatus.loggedIn);
+    provider.lock();
+    expect(provider.status, AuthStatus.locked);
+  });
+
   group('initial session check', () {
     test('starts as guest when no user is logged in', () async {
       final provider = await _freshProvider();
@@ -28,33 +73,41 @@ void main() {
       expect(provider.errorMessage, isNull);
     });
 
-    test('signing up the same unconfirmed email again triggers needsVerification', () async {
-      final provider = await _freshProvider();
-      await provider.signUp('pav@example.com', 'pavword123');
-      final result = await provider.signUp('pav@example.com', 'pavword123');
+    test(
+      'signing up the same unconfirmed email again triggers needsVerification',
+      () async {
+        final provider = await _freshProvider();
+        await provider.signUp('pav@example.com', 'pavword123');
+        final result = await provider.signUp('pav@example.com', 'pavword123');
 
-      expect(result, isTrue);
-      expect(provider.needsVerification, isTrue);
-      expect(provider.errorMessage, contains('not verified'));
-    });    
+        expect(result, isTrue);
+        expect(provider.needsVerification, isTrue);
+        expect(provider.errorMessage, contains('not verified'));
+      },
+    );
 
     test('signing up a fully confirmed email fails', () async {
       final provider = await _freshProvider();
       await provider.signUp('paverified@example.com', 'paverifiedword123');
       await provider.confirmSignUp('paverified@example.com', '123456');
-      final result = await provider.signUp('paverified@example.com', 'paverifiedword123');
+      final result = await provider.signUp(
+        'paverified@example.com',
+        'paverifiedword123',
+      );
 
       expect(result, isFalse);
       expect(provider.errorMessage, contains('already exists'));
     });
   });
 
-
   group('confirmSignUp', () {
     test('valid 6-character code succeeds', () async {
       final provider = await _freshProvider();
       await provider.signUp('paverify@example.com', 'pavword123');
-      final result = await provider.confirmSignUp('paverify@example.com', '123456');
+      final result = await provider.confirmSignUp(
+        'paverify@example.com',
+        '123456',
+      );
 
       expect(result, isTrue);
       expect(provider.errorMessage, isNull);
@@ -63,12 +116,14 @@ void main() {
     test('invalid code length fails with an error message', () async {
       final provider = await _freshProvider();
       await provider.signUp('paverify2@example.com', 'pavword123');
-      final result = await provider.confirmSignUp('paverify2@example.com', '123');
+      final result = await provider.confirmSignUp(
+        'paverify2@example.com',
+        '123',
+      );
       expect(result, isFalse);
       expect(provider.errorMessage, equals('Invalid verification code.'));
     });
   });
-
 
   group('resendSignUpCode', () {
     test('unknown email fails', () async {
@@ -85,8 +140,6 @@ void main() {
       expect(result, isTrue);
     });
   });
-
-
 
   group('signIn', () {
     test('unknown email fails without changing status', () async {
@@ -111,27 +164,35 @@ void main() {
     test('unconfirmed user fails with needsVerification set', () async {
       final provider = await _freshProvider();
       await provider.signUp('unconfirmedPAV@example.com', 'pavword123');
-      final result = await provider.signIn('unconfirmedPAV@example.com', 'pavword123');
+      final result = await provider.signIn(
+        'unconfirmedPAV@example.com',
+        'pavword123',
+      );
 
       expect(result, isFalse);
       expect(provider.needsVerification, isTrue);
       expect(provider.status, equals(AuthStatus.guest));
     });
 
-    test('correct credentials for a confirmed user succeed and set loggedIn status', () async {
-      final provider = await _freshProvider();
-      await provider.signUp('goodPAV@example.com', 'pavword123');
-      await provider.confirmSignUp('goodPAV@example.com', '123456');
+    test(
+      'correct credentials for a confirmed user succeed and set loggedIn status',
+      () async {
+        final provider = await _freshProvider();
+        await provider.signUp('goodPAV@example.com', 'pavword123');
+        await provider.confirmSignUp('goodPAV@example.com', '123456');
 
-      final result = await provider.signIn('goodPAV@example.com', 'pavword123');
+        final result = await provider.signIn(
+          'goodPAV@example.com',
+          'pavword123',
+        );
 
-      expect(result, isTrue);
-      expect(provider.status, equals(AuthStatus.loggedIn));
-      expect(provider.isLoggedIn, isTrue);
-      expect(provider.currentUser?.email, equals('goodPAV@example.com'));
-    });
+        expect(result, isTrue);
+        expect(provider.status, equals(AuthStatus.loggedIn));
+        expect(provider.isLoggedIn, isTrue);
+        expect(provider.currentUser?.email, equals('goodPAV@example.com'));
+      },
+    );
   });
-
 
   group('signOut', () {
     test('resets status to guest and clears current user', () async {
@@ -164,7 +225,6 @@ void main() {
     });
   });
 
-
   group('password reset', () {
     test('resetPassword fails for an unknown email', () async {
       final provider = await _freshProvider();
@@ -183,23 +243,37 @@ void main() {
     test('confirmResetPassword fails with an invalid code', () async {
       final provider = await _freshProvider();
       await provider.signUp('samePav@example.com', 'old-pavword');
-      final result = await provider.confirmResetPassword('samePav@example.com', 'new-pavword', '12');
+      final result = await provider.confirmResetPassword(
+        'samePav@example.com',
+        'new-pavword',
+        '12',
+      );
 
       expect(result, isFalse);
       expect(provider.errorMessage, equals('Invalid reset code.'));
     });
 
-    test('confirmResetPassword with a valid code updates the password so a later sign-in works', () async {
-      final provider = await _freshProvider();
-      await provider.signUp('pavAgain@example.com', 'old-pavword');
-      await provider.confirmSignUp('pavAgain@example.com', '123456');
+    test(
+      'confirmResetPassword with a valid code updates the password so a later sign-in works',
+      () async {
+        final provider = await _freshProvider();
+        await provider.signUp('pavAgain@example.com', 'old-pavword');
+        await provider.confirmSignUp('pavAgain@example.com', '123456');
 
-      final confirmed = await provider.confirmResetPassword('pavAgain@example.com', 'brand-new-pavword', '123456');
-      expect(confirmed, isTrue);
+        final confirmed = await provider.confirmResetPassword(
+          'pavAgain@example.com',
+          'brand-new-pavword',
+          '123456',
+        );
+        expect(confirmed, isTrue);
 
-      final signInResult = await provider.signIn('pavAgain@example.com', 'brand-new-pavword');
-      expect(signInResult, isTrue);
-    });
+        final signInResult = await provider.signIn(
+          'pavAgain@example.com',
+          'brand-new-pavword',
+        );
+        expect(signInResult, isTrue);
+      },
+    );
   });
 
   group('error and verification state helpers', () {
@@ -224,6 +298,4 @@ void main() {
       expect(provider.needsVerification, isFalse);
     });
   });
-
-
 }
