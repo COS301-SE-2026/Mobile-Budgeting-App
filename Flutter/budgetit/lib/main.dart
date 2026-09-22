@@ -22,6 +22,7 @@ import 'services/recurring/recurring_transaction_catch_up_service.dart';
 import 'synch/backendconnector.dart';
 import 'views/dashboard/dashboard.dart';
 import 'shared/widgets/login_password_screen.dart';
+import 'shared/widgets/biometric_lock_screen.dart';
 import 'utils/theme_provider.dart';
 import 'shared/widgets/main_appbar.dart';
 import 'utils/app_colour.dart';
@@ -33,8 +34,6 @@ import 'package:pdfrx/pdfrx.dart';
 import 'package:flutter_gemma_mediapipe/flutter_gemma_mediapipe.dart';
 import 'services/import/llm_schema_classifier.dart';
 import 'services/ai/transaction_classifier/bge_model_downloader.dart';
-
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -133,8 +132,32 @@ Future<void> _configureAmplify() async {
   } on AmplifyAlreadyConfiguredException {}
 }
 
-class BudgetApp extends StatelessWidget {
+class BudgetApp extends StatefulWidget {
   const BudgetApp({super.key});
+
+  @override
+  State<BudgetApp> createState() => _BudgetAppState();
+}
+
+class _BudgetAppState extends State<BudgetApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
+      context.read<AppAuthProvider>().lock();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -154,6 +177,17 @@ class BudgetApp extends StatelessWidget {
       initialRoute: '/',
       routes: {'/transaction_manager': (context) => const TransactionManager()},
       home: const AuthWrapper(),
+      builder: (context, child) {
+        final locked =
+            context.watch<AppAuthProvider>().status == AuthStatus.locked;
+        return Stack(
+          children: [
+            if (child != null) child,
+
+            if (locked) const BiometricLockScreen(),
+          ],
+        );
+      },
     );
   }
 }
@@ -168,12 +202,14 @@ class AuthWrapper extends StatelessWidget {
 
     switch (auth.status) {
       case AuthStatus.unknown:
-        return const Scaffold(
-          backgroundColor: Color(0xFF04240C),
+        return Scaffold(
+          backgroundColor: context.colours.background,
           body: Center(
-            child: CircularProgressIndicator(color: Color(0xFFDDD6AE)),
+            child: CircularProgressIndicator(color: context.colours.secondary),
           ),
         );
+      case AuthStatus.locked:
+        return const Scaffold(body: SizedBox.expand());
       case AuthStatus.guest:
         return const LoginRegisterScreen();
       case AuthStatus.skipped:
@@ -247,7 +283,9 @@ class _HomePageState extends State<HomePage> {
       body: _buildPages(db)[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          border: const Border(top: BorderSide(color: Colors.black, width: 4)),
+          border: Border(
+            top: BorderSide(color: context.colours.category, width: 4),
+          ),
         ),
         child: SafeArea(
           top: false,
@@ -260,9 +298,9 @@ class _HomePageState extends State<HomePage> {
             backgroundColor: context.colours.blendedprimary,
             indicatorColor: context.colours.secondary,
             labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-            indicatorShape: const RoundedRectangleBorder(
+            indicatorShape: RoundedRectangleBorder(
               borderRadius: BorderRadius.zero,
-              side: BorderSide(color: Colors.black, width: 3),
+              side: BorderSide(color: context.colours.category, width: 3),
             ),
             onDestinationSelected: _onDestinationSelected,
             destinations: [
