@@ -15,6 +15,7 @@ A mobile budgeting app designed to help users track income and expenses, manage 
 | [Coding Standards](docs/CodingStandards.pdf)                           | Outlines the coding conventions, formatting rules, naming guidelines, and development practices followed by the team. |
 | [Testing Policy](docs/TestingPolicy.md)                                | Explains the testing approach, required test types, coverage expectations, and quality assurance process.             |
 | [User Manual](docs/Final%20User%20Manual.pdf)                          | Provides instructions for installing, navigating, and using the application.                                          |
+| [Service Contracts](docs/ServiceContracts.md)                          | Documents the public interfaces each service and DAO honours, grouped by domain.                                      |
 | [Landing Page](https://cos301-se-2026.github.io/Mobile-Budgeting-App/) | Provides access to the deployed project landing page.                                                                 |
 
 ## Team
