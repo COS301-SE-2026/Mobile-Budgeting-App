@@ -215,33 +215,6 @@ class AppAuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-void lock() {
-  if (_status == AuthStatus.loggedIn && _biometricLockEnabled) {
-    _status = AuthStatus.locked;
-    notifyListeners();
-  }
-}
-
-Future<bool> unlock() async {
-  if (_status != AuthStatus.locked) return false;
-
-  _clearError();
-
-  try {
-    if (await _biometricLockService.authenticate()) {
-      _status = AuthStatus.loggedIn;
-      notifyListeners();
-      return true;
-    }
-  } catch (_) {
-    _errorMessage =
-        'Biometric verification is unavailable. Sign in again.';
-  }
-
-  notifyListeners();
-  return false;
-}
-
   // --- Reset Password ---
   Future<bool> resetPassword(String email) async {
     _setLoading(true);
