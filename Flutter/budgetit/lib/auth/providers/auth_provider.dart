@@ -42,8 +42,10 @@ class AppAuthProvider extends ChangeNotifier {
   // Called on app launch — checks if user is already logged in
   Future<void> _checkCurrentSession() async {
     _setLoading(true);
+
     try {
       final user = await _authService.getCurrentUser();
+
       if (user != null) {
         _currentUser = user;
         _biometricLockEnabled = await _biometricLockService.isEnabled(
@@ -59,6 +61,7 @@ class AppAuthProvider extends ChangeNotifier {
       // A storage failure must never expose a restored session
       _status = _currentUser == null ? AuthStatus.guest : AuthStatus.locked;
     }
+
     _setLoading(false);
   }
 
@@ -145,6 +148,7 @@ class AppAuthProvider extends ChangeNotifier {
   Future<void> signOut() async {
     _setLoading(true);
     await _authService.signOut();
+    _biometricLockEnabled = false;
     _currentUser = null;
     _biometricLockEnabled = false;
     _status = AuthStatus.guest;
@@ -210,6 +214,33 @@ class AppAuthProvider extends ChangeNotifier {
     _status = AuthStatus.guest;
     notifyListeners();
   }
+
+void lock() {
+  if (_status == AuthStatus.loggedIn && _biometricLockEnabled) {
+    _status = AuthStatus.locked;
+    notifyListeners();
+  }
+}
+
+Future<bool> unlock() async {
+  if (_status != AuthStatus.locked) return false;
+
+  _clearError();
+
+  try {
+    if (await _biometricLockService.authenticate()) {
+      _status = AuthStatus.loggedIn;
+      notifyListeners();
+      return true;
+    }
+  } catch (_) {
+    _errorMessage =
+        'Biometric verification is unavailable. Sign in again.';
+  }
+
+  notifyListeners();
+  return false;
+}
 
   // --- Reset Password ---
   Future<bool> resetPassword(String email) async {

@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:saropa_drift_advisor/saropa_drift_advisor.dart';
 import 'amplifyconfiguration.dart';
+import 'shared/widgets/biometric_lock_screen.dart';
 import 'auth/data/cognito_auth_service.dart';
 import 'auth/providers/auth_provider.dart';
 import 'database/app_database.dart';
@@ -29,7 +30,7 @@ import 'shared/widgets/splash_screen.dart';
 import 'shared/widgets/biometric_lock_screen.dart';
 import 'utils/app_colour.dart';
 import 'views/budget_manager/budget_manager_screen.dart';
-import 'package:budgetit/services/analysis/background_anomaly_scanner.dart';
+import 'package:budgetit/views/profile/profile_page.dart';
 import 'package:flutter_gemma/flutter_gemma.dart';
 //import 'package:flutter_gemma_litertlm/flutter_gemma_litertlm.dart';
 import 'package:pdfrx/pdfrx.dart';
@@ -184,7 +185,6 @@ Future<void> _configureAmplify() async {
 }
 
 class BudgetApp extends StatefulWidget {
-class BudgetApp extends StatefulWidget {
   const BudgetApp({super.key});
 
   @override
@@ -218,17 +218,27 @@ class _BudgetAppState extends State<BudgetApp> with WidgetsBindingObserver {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      themeMode: themeProvider.isDark ? ThemeMode.dark : ThemeMode.light,
+
+      themeMode:
+          themeProvider.isDark ? ThemeMode.dark : ThemeMode.light,
+
       theme: ThemeData(
         brightness: Brightness.light,
         extensions: [MyColours.lightTheme],
       ),
+
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         extensions: [MyColours.darkTheme],
       ),
+
       initialRoute: '/',
-      routes: {'/transaction_manager': (context) => const TransactionManager()},
+
+      routes: {
+        '/transaction_manager': (context) =>
+            const TransactionManager(),
+      },
+
       home: const AuthWrapper(),
       builder: (context, child) {
         final locked =
@@ -259,6 +269,7 @@ class AuthWrapper extends StatelessWidget {
         return const SplashScreen();
       case AuthStatus.guest:
         return const LoginRegisterScreen();
+
       case AuthStatus.skipped:
       case AuthStatus.loggedIn:
         return const HomePage();
@@ -328,7 +339,15 @@ class _HomePageState extends State<HomePage> {
     final unselectedNavIconColor = context.colours.cardText;
 
     return Scaffold(
-      appBar: const MainAppbar(),
+      appBar: MainAppbar(
+  onProfileTap: () {
+    debugPrint('Profile icon tapped');
+
+    setState(() {
+      _selectedIndex = 3;
+    });
+  },
+),
       body: _buildPages(db)[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -414,4 +433,10 @@ class _HomePageState extends State<HomePage> {
       _selectedIndex = index;
     });
   }
+
+  void _goToProfile() {
+  setState(() {
+    _selectedIndex = 3;
+  });
+}
 }
