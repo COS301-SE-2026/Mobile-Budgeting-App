@@ -4,22 +4,22 @@
 // --- Result types ---
 
 class AppAuthResult {
+  const AppAuthResult({
+    required this.success,
+    this.errorMessage,
+    this.needsVerification = false,
+  });
   final bool success;
   final String? errorMessage;
   // Set to true when the operation didn't succeed because the user exists
   // but their email is not yet verified. UI uses this to route to the
   // verification screen instead of just showing an error.
   final bool needsVerification;
-  const AppAuthResult({
-    required this.success,
-    this.errorMessage,
-    this.needsVerification = false,
-  });
 }
 
 class AppAuthUser {
-  final String email;
   const AppAuthUser({required this.email});
+  final String email;
 }
 
 // --- Abstract interface ---

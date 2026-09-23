@@ -13,11 +13,13 @@ class MockDb {
       transactionDao = MockTransactionDao(),
       categoryDao = MockCategoryDao(),
       budgetDao = MockBudgetDao(),
-      settingsDao = MockSettingsDao() {
+      settingsDao = MockSettingsDao(),
+      recurringTransactionDao = MockRecurringTransactionDao() {
     when(db.transactionDao).thenReturn(transactionDao);
     when(db.categoryDao).thenReturn(categoryDao);
     when(db.budgetDao).thenReturn(budgetDao);
     when(db.settingsDao).thenReturn(settingsDao);
+    when(db.recurringTransactionDao).thenReturn(recurringTransactionDao);
   }
 
   final MockAppDatabase db;
@@ -25,6 +27,7 @@ class MockDb {
   final MockCategoryDao categoryDao;
   final MockBudgetDao budgetDao;
   final MockSettingsDao settingsDao;
+  final MockRecurringTransactionDao recurringTransactionDao;
 }
 
 Widget wrapWithProviders(Widget child, {required AppDatabase db}) =>

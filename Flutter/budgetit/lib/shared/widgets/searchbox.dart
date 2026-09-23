@@ -17,10 +17,9 @@ class _SearchBoxState extends State<SearchBox> {
 
   @override
   void initState() {
-
     super.initState();
-    
-    _focusNode = FocusNode();   
+
+    _focusNode = FocusNode();
     _focusNode.addListener(() {
       setState(() {
         _isFocused = _focusNode.hasFocus;
@@ -36,53 +35,38 @@ class _SearchBoxState extends State<SearchBox> {
 
   @override
   Widget build(BuildContext context) {
-    return 
-    Stack(
-      children: [
-       
-
-    
-    TextField(
+    return TextField(
       focusNode: _focusNode,
       onChanged: widget.onChanged,
+      cursorColor: context.colours.whiteAccents,
+      style: context.colours.b1.copyWith(
+        color: context.colours.whiteAccents,
+      ),
       decoration: InputDecoration(
-
         hintText: _isFocused ? null : widget.hintText,
         hintStyle: context.colours.searchtext,
         prefixIcon: _isFocused
             ? null
             : Icon(Icons.search, color: context.colours.textMuted),
         filled: true,
-        
         fillColor: context.colours.searchBar,
-         border: OutlineInputBorder(
-    borderRadius: BorderRadius.zero,
-    borderSide: BorderSide(
-      color: Colors.black,
-      width: 4,
-    ),
-  ),
-  enabledBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.zero,
-    borderSide: BorderSide(
-      color: Colors.black,
-      width: 4,
-    ),
-  ),
-  focusedBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.zero,
-    borderSide: BorderSide(
-      color: Colors.black,
-      width: 4,
-    ),
-  ),
-      contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-        
+        border: const OutlineInputBorder(
+          borderRadius: BorderRadius.zero,
+          borderSide: BorderSide(color: Colors.black, width: 4),
+        ),
+        enabledBorder: const OutlineInputBorder(
+          borderRadius: BorderRadius.zero,
+          borderSide: BorderSide(color: Colors.black, width: 4),
+        ),
+        focusedBorder: const OutlineInputBorder(
+          borderRadius: BorderRadius.zero,
+          borderSide: BorderSide(color: Colors.black, width: 4),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 10,
+          horizontal: 8,
+        ),
       ),
-       
-    ),
-      ],
     );
-
   }
 }

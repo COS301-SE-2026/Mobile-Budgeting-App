@@ -2,13 +2,14 @@ import 'package:decimal/decimal.dart';
 import '../../models/import/parsed_transaction.dart';
 
 class DuplicateDetector {
-
-    final  List<ExistingTransaction> _existing;
-
-    late final Set<String> _existingHashes; 
+    final List<ExistingTransaction> _existing;
+    late final Map<String, int> _unmatched;
 
     DuplicateDetector(this._existing){
-        _existingHashes = _existing.map<String>((e)=> e.deduplicationHash).toSet();
+        _unmatched = <String, int>{};
+        for (final e in _existing) {
+            _unmatched.update(e.deduplicationHash, (v) => v + 1, ifAbsent: () => 1);
+        }
     }
 
     void flagDuplicates(List<ParsedTransaction> parsed){
@@ -18,18 +19,18 @@ class DuplicateDetector {
     }
 
     bool _isDuplicate(ParsedTransaction ta){
-        if(_existingHashes.contains(ta.deduplicationHash)){
+        final spare = _unmatched[ta.deduplicationHash] ?? 0;
+        if (spare > 0) {
+            _unmatched[ta.deduplicationHash] = spare - 1;
             return true;
         }
 
+        final description = ta.description.toLowerCase().trim();
         for(final existing in _existing){
-            if(existing.amount != ta.amount) {
-                continue;
-            }
-            final diff = ta.date.difference(existing.date).inDays.abs();
-            if(diff<=3){
-                return true;
-            }
+            if(existing.amount != ta.amount) continue;
+            if(existing.description != description) continue;
+            if(ta.date.difference(existing.date).inDays.abs() > 3) continue;
+            return true;
         }
         return false;
     }
@@ -40,11 +41,13 @@ class DuplicateDetector {
 class ExistingTransaction {
     final DateTime date;
     final Decimal amount;
+    final String description;
     final String deduplicationHash;
 
     const ExistingTransaction({
         required this.date,
         required this.amount,
+        required this.description,
         required this.deduplicationHash,
     });
 }

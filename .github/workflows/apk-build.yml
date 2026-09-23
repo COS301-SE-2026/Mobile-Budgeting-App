@@ -1,0 +1,88 @@
+name: APK Build
+
+on:
+  workflow_call:
+    inputs:
+      blocking:
+        description: Fail the workflow when the APK build fails
+        required: false
+        default: true
+        type: boolean
+      generated-artifact:
+        description: Generated Dart artifact name
+        required: true
+        type: string
+      source-ref:
+        description: Source ref to build
+        required: true
+        type: string
+    outputs:
+      artifact-name:
+        description: Uploaded APK artifact name
+        value: ${{ jobs.build.outputs.artifact-name }}
+      source-sha:
+        description: Source SHA for the APK artifact
+        value: ${{ jobs.build.outputs.source-sha }}
+
+jobs:
+  build:
+    name: Build APK
+    runs-on:
+      - self-hosted
+      - linux
+      - flutter-3.47.1
+      - android-ndk-28.2.13676358
+    continue-on-error: ${{ !inputs.blocking }}
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      artifact-name: ${{ steps.source.outputs.artifact-name }}
+      source-sha: ${{ steps.source.outputs.source-sha }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.source-ref }}
+
+      - name: Get source commit
+        id: source
+        shell: bash
+        run: |
+          source_sha="$(git rev-parse HEAD)"
+          echo "source-sha=${source_sha}" >> "${GITHUB_OUTPUT}"
+          echo "artifact-name=apk-${source_sha}-${GITHUB_RUN_ID}" >> "${GITHUB_OUTPUT}"
+
+      - name: Set up Flutter
+        uses: ./.github/actions/flutter-ci-setup
+
+      - name: Download generated Dart
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: ${{ inputs.generated-artifact }}
+          path: Flutter/budgetit
+
+      - name: Check toolchain
+        shell: bash
+        run: ./.github/CI-scripts/verify-runner-toolchain.sh --diagnostic
+
+      - name: Apply Gradle settings
+        shell: bash
+        run: cp .github/gradle/ci-gradle.properties Flutter/budgetit/android/gradle.properties
+
+      - name: Build release APK
+        working-directory: Flutter/budgetit
+        run: |
+          flutter build apk --release --no-tree-shake-icons \
+            --dart-define=ENVIRONMENT=prod \
+            --dart-define=POWERSYNC_URL=${{ vars.POWERSYNC_URL }} \
+            --dart-define=API_URL=${{ vars.API_URL }}
+
+      - name: Upload release APK
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: ${{ steps.source.outputs.artifact-name }}
+          path: Flutter/budgetit/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 7

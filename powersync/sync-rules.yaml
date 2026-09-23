@@ -1,0 +1,46 @@
+bucket_definitions:
+  global_categories:
+    data:
+      - SELECT * FROM categories
+        WHERE is_default = true AND deleted_at IS NULL
+
+  user_data:
+    parameters: SELECT request.user_id() AS user_id
+    data:
+      - SELECT * FROM categories
+        WHERE user_id = bucket.user_id
+          AND is_default = false
+          AND deleted_at IS NULL
+
+      - SELECT * FROM transactions
+        WHERE user_id = bucket.user_id
+          AND deleted_at IS NULL
+
+      - SELECT * FROM budget_templates
+        WHERE user_id = bucket.user_id
+          AND deleted_at IS NULL
+
+      - SELECT * FROM recurring_transactions
+        WHERE user_id = bucket.user_id
+          AND deleted_at IS NULL
+
+      - SELECT * FROM imports
+        WHERE user_id = bucket.user_id
+          AND deleted_at IS NULL
+
+      - SELECT * FROM budget_periods
+        WHERE user_id = bucket.user_id
+          AND deleted_at IS NULL
+
+      - SELECT * FROM transaction_category_map
+        WHERE user_id = bucket.user_id
+          AND deleted_at IS NULL
+
+      - SELECT * FROM category_closure
+        WHERE user_id = bucket.user_id
+          AND is_default = false
+
+  global_category_closure:
+    data:
+      - SELECT * FROM category_closure
+        WHERE is_default = true

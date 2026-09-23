@@ -24,6 +24,9 @@ enum AssignmentSource { manual, ai, import }
 /// The period type used by budget templates.
 enum PeriodType { daily, weekly, monthly, yearly }
 
+/// The type of record from which an embedding was generated.
+enum EmbeddingSourceType { transaction, category }
+
 /// SQLite does not have a built-in decimal type.
 /// Dart uses custom column types to automatically convert [Decimal] values
 /// to and from SQLite's TEXT type.
@@ -73,6 +76,7 @@ class Categories extends Table {
 
   /// When the category was soft-deleted (null if active).
   DateTimeColumn get deletedAt => dateTime().nullable()();
+  TextColumn get userId => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -83,17 +87,27 @@ class Categories extends Table {
 /// This enables efficient queries for ancestors, descendants, and subtree
 /// traversal in a tree structure.
 class CategoryClosure extends Table {
+  TextColumn get id => text()();
   /// Ancestor category ID.
   TextColumn get ancestorId => text().references(Categories, #id)();
 
   /// Descendant category ID.
   TextColumn get descendantId => text().references(Categories, #id)();
 
+  TextColumn get userId => text().nullable()();
+
+  BoolColumn get isDefault => boolean()();
+
   /// Distance from ancestor to descendant (0 = self, 1 = direct child, etc.).
   IntColumn get depth => integer()();
 
   @override
-  Set<Column> get primaryKey => {ancestorId, descendantId};
+  Set<Column> get primaryKey => {id};
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+        {ancestorId, descendantId},
+      ];
 }
 
 /// Stores individual income and expense transactions.
@@ -137,6 +151,13 @@ class Transactions extends Table {
   TextColumn get recurringId =>
       text().references(RecurringTransactions, #id).nullable()();
 
+  /// The occurrence date this transaction was generated for (recurring transactions only).
+  DateTimeColumn get recurringOccurrenceDate => dateTime().nullable()();
+
+  TextColumn get userId => text().nullable()();
+
+  TextColumn get importId => text().references(Imports, #id).nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -146,20 +167,32 @@ class Transactions extends Table {
 /// Each transaction can be assigned one category, with metadata about
 /// how the assignment was made.
 class TransactionCategoryMap extends Table {
+  TextColumn get id => text()();
   /// The transaction this category is assigned to.
   TextColumn get transactionId => text().references(Transactions, #id)();
 
   /// The assigned category.
   TextColumn get categoryId => text().references(Categories, #id)();
 
+  TextColumn get userId => text().nullable()();
+
   /// When the assignment was made.
   DateTimeColumn get assignedAt => dateTime()();
+
+  DateTimeColumn get updatedAt => dateTime()();
+
+  DateTimeColumn get deletedAt => dateTime().nullable()();
 
   /// How the assignment was determined (manual, AI, import).
   TextColumn get assignmentSource => textEnum<AssignmentSource>()();
 
   @override
-  Set<Column> get primaryKey => {transactionId};
+  Set<Column> get primaryKey => {id};
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+        {transactionId},
+      ];
 }
 
 /// Defines a recurring budget amount for a category over a time period.
@@ -171,7 +204,7 @@ class BudgetTemplates extends Table {
   TextColumn get id => text()();
 
   /// The category this budget applies to.
-  TextColumn get categoryId => text().references(Categories, #id)();
+  TextColumn get categoryId => text().references(Categories, #id).nullable()();
 
   /// The budget amount per period.
   TextColumn get amount => text().map(DecimalConverter())();
@@ -191,6 +224,8 @@ class BudgetTemplates extends Table {
   /// When the template was soft-deleted (null if active).
   DateTimeColumn get deletedAt => dateTime().nullable()();
 
+  TextColumn get userId => text().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -204,6 +239,10 @@ class BudgetPeriods extends Table {
 
   /// The template this period belongs to.
   TextColumn get templateId => text().references(BudgetTemplates, #id)();
+
+  TextColumn get userId => text().nullable()();
+
+  TextColumn get periodKey => text()();
 
   /// Start of the budgeting period.
   DateTimeColumn get startDate => dateTime()();
@@ -222,6 +261,8 @@ class BudgetPeriods extends Table {
 
   /// When the period was last modified.
   DateTimeColumn get updatedAt => dateTime()();
+
+  DateTimeColumn get deletedAt => dateTime().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -275,8 +316,47 @@ class RecurringTransactions extends Table {
   /// (Nullable) category for recurring transactions , inherited by generated children.
   TextColumn get categoryId => text().references(Categories, #id).nullable()();
 
+  TextColumn get userId => text().nullable()();
+
+  DateTimeColumn get recurringOccurrenceDate => dateTime().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
+}
+
+/// Stores locally generated embeddings for transactions and categories.
+///
+/// Embeddings are derived data and are separated by model version and input
+/// hash so vectors produced by different models are never mixed.
+class EmbeddingCacheEntries extends Table {
+  /// Unique identifier for this cache entry.
+  TextColumn get id => text()();
+
+  /// Whether the embedding belongs to a transaction or category.
+  TextColumn get sourceType => textEnum<EmbeddingSourceType>()();
+
+  /// ID of the source transaction or category.
+  TextColumn get sourceId => text()();
+
+  /// Version of the model that generated this vector.
+  TextColumn get modelVersion => text()();
+
+  /// Hash of the exact text supplied to the model.
+  TextColumn get inputHash => text()();
+
+  /// Serialized Float32 embedding.
+  BlobColumn get embedding => blob()();
+
+  /// When this cache entry was generated.
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {sourceType, sourceId, modelVersion, inputHash},
+  ];
 }
 
 /// Stores key-value settings for the application.
@@ -311,4 +391,21 @@ class StatementSchemaCache extends Table {
 
   @override
   Set<Column> get primaryKey => {fingerprint};
+}
+
+enum ImportFileType {pdf,csv}
+class Imports extends Table{
+  TextColumn get id => text()();
+  TextColumn get userId => text().nullable()();
+  TextColumn get fileSha256 => text()();
+  TextColumn get originalFilename => text()();
+  TextColumn get fileType => textEnum<ImportFileType>()();
+  TextColumn get accountIdentifier => text().nullable()();
+  DateTimeColumn get importedAt => dateTime()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
 }

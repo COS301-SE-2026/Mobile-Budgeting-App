@@ -123,6 +123,31 @@ class ProfilePage extends StatelessWidget {
               ),
               const SizedBox(height: 30),
 
+              if (auth.isLoggedIn) ...[
+                SwitchListTile(
+                  title: const Text('Biometric lock'),
+                  subtitle: const Text(
+                    'Require Android biometrics when reopening the app',
+                  ),
+                  value: auth.biometricLockEnabled,
+                  onChanged: auth.isLoading
+                      ? null
+                      : (enabled) async {
+                          final changed = await auth.setBiometricLockEnabled(
+                            enabled,
+                          );
+                          if (!changed &&
+                              context.mounted &&
+                              auth.errorMessage != null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(auth.errorMessage!)),
+                            );
+                          }
+                        },
+                ),
+                const SizedBox(height: 16),
+              ],
+
               ElevatedButton.icon(
                 onPressed: () => Navigator.pop(context),
                 icon: const Icon(Icons.arrow_back),

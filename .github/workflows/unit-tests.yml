@@ -1,0 +1,103 @@
+name: Unit Tests
+
+on:
+  workflow_call:
+    inputs:
+      blocking:
+        description: Fail the workflow when unit tests fail
+        required: false
+        default: true
+        type: boolean
+      generated-artifact:
+        description: Generated Dart artifact
+        required: true
+        type: string
+      source-ref:
+        description: Source ref
+        required: true
+        type: string
+    outputs:
+      report-artifact:
+        description: Unit test report artifact
+        value: ${{ jobs.unit-tests.outputs.report-artifact }}
+      coverage-artifact:
+        description: Unit test LCOV artifact
+        value: ${{ jobs.unit-tests.outputs.coverage-artifact }}
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on:
+      - self-hosted
+      - linux
+      - flutter-3.47.1
+    continue-on-error: ${{ !inputs.blocking }}
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      report-artifact: unit-test-report-${{ github.run_id }}
+      coverage-artifact: unit-coverage-${{ github.run_id }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.source-ref }}
+
+      - name: Set up Flutter
+        uses: ./.github/actions/flutter-ci-setup
+
+      - name: Download generated Dart
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: ${{ inputs.generated-artifact }}
+          path: Flutter/budgetit
+
+      - name: Run unit tests
+        id: tests
+        continue-on-error: true
+        working-directory: Flutter/budgetit
+        shell: bash
+        run: |
+          mkdir -p test-results
+          set +e
+          flutter test --machine --no-pub --coverage --concurrency=4 test/unit/ \
+            > test-results/unit.json \
+            2> >(tee test-results/unit.log >&2)
+          status=$?
+          echo "exit-code=${status}" >> "${GITHUB_OUTPUT}"
+          exit "${status}"
+
+      - name: Upload unit test report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: unit-test-report-${{ github.run_id }}
+          path: Flutter/budgetit/test-results/unit.json
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload unit test diagnostics
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: unit-test-diagnostics-${{ github.run_id }}
+          path: Flutter/budgetit/test-results/unit.log
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload unit coverage
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: unit-coverage-${{ github.run_id }}
+          path: Flutter/budgetit/coverage/lcov.info
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Check unit test result
+        if: ${{ always() && inputs.blocking && steps.tests.outcome != 'success' }}
+        shell: bash
+        run: |
+          echo 'Unit tests failed.' >&2
+          exit 1

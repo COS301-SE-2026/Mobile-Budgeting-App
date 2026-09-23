@@ -1,0 +1,76 @@
+name: Pages Production Deploy
+
+on:
+  workflow_call:
+    inputs:
+      source-sha:
+        description: Source commit
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  validate-inputs:
+    name: Check Pages production inputs
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Check inputs
+        shell: bash
+        env:
+          SOURCE_SHA: ${{ inputs.source-sha }}
+        run: |
+          if [ -z "$SOURCE_SHA" ]; then
+            echo 'source-sha is missing.' >&2
+            exit 1
+          fi
+
+  deploy:
+    name: Deploy Pages
+    needs: validate-inputs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      pages: write
+      pull-requests: read
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout release
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Find candidate
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./.github/CI-scripts/validate-release-candidate.sh "${GITHUB_REF_NAME}" pages "${GITHUB_ENV}"
+
+      - name: Download candidate
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p site
+          gh release download "$CANDIDATE_RELEASE_TAG" \
+            --repo "$REPOSITORY" \
+            --pattern 'pages-release-candidate.tar.gz' \
+            --dir .
+          tar -xzf pages-release-candidate.tar.gz -C site
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@f33f41b675f0ab2dc5a6863c9a170fe83af3571e

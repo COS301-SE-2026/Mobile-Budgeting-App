@@ -8,6 +8,7 @@ mixin _$CategoryDaoMixin on DatabaseAccessor<AppDatabase> {
   $CategoryClosureTable get categoryClosure => attachedDatabase.categoryClosure;
   $RecurringTransactionsTable get recurringTransactions =>
       attachedDatabase.recurringTransactions;
+  $ImportsTable get imports => attachedDatabase.imports;
   $TransactionsTable get transactions => attachedDatabase.transactions;
   $TransactionCategoryMapTable get transactionCategoryMap =>
       attachedDatabase.transactionCategoryMap;
@@ -31,6 +32,8 @@ class CategoryDaoManager {
         _db.attachedDatabase,
         _db.recurringTransactions,
       );
+  $$ImportsTableTableManager get imports =>
+      $$ImportsTableTableManager(_db.attachedDatabase, _db.imports);
   $$TransactionsTableTableManager get transactions =>
       $$TransactionsTableTableManager(_db.attachedDatabase, _db.transactions);
   $$TransactionCategoryMapTableTableManager get transactionCategoryMap =>

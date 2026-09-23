@@ -8,14 +8,13 @@ import '../../utils/app_colour.dart';
 class FinancialReportScreen extends StatefulWidget {
   const FinancialReportScreen({
     super.key,
-    AppDatabase? database,
+    required this.database,
     FinancialReportService? reportService,
     FinancialReportExportService? exportService,
-  }) : _database = database,
-       _reportService = reportService,
+  }) : _reportService = reportService,
        _exportService = exportService;
 
-  final AppDatabase? _database;
+  final AppDatabase database;
   final FinancialReportService? _reportService;
   final FinancialReportExportService? _exportService;
 
@@ -24,29 +23,17 @@ class FinancialReportScreen extends StatefulWidget {
 }
 
 class _FinancialReportScreenState extends State<FinancialReportScreen> {
-  late final AppDatabase _database;
   late final FinancialReportService _reportService;
   late final FinancialReportExportService _exportService;
-  late final bool _ownsDatabase;
 
   bool _isExporting = false;
 
   @override
   void initState() {
     super.initState();
-
-    _database = widget._database ?? AppDatabase();
-    _ownsDatabase = widget._database == null;
-    _reportService = widget._reportService ?? FinancialReportService(_database);
+    _reportService =
+        widget._reportService ?? FinancialReportService(widget.database);
     _exportService = widget._exportService ?? FinancialReportExportService();
-  }
-
-  @override
-  void dispose() {
-    if (_ownsDatabase) {
-      _database.close();
-    }
-    super.dispose();
   }
 
   Future<void> _exportPdf() async {

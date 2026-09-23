@@ -1,6 +1,5 @@
 import 'package:budgetit/database/app_database.dart';
 import 'package:budgetit/database/schema.dart';
-import 'package:budgetit/main.dart';
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:budgetit/views/budget_manager/budget_detail_screen.dart';
 import 'package:decimal/decimal.dart';

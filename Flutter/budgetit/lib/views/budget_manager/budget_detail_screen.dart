@@ -823,14 +823,15 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colours.secondary,
                         foregroundColor: colours.background,
-                      ),
-                      child: Text(
-                        'Save',
-                        style: colours.b1.copyWith(
-                          color: colours.background,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          side: const BorderSide(color: Colors.black, width: 3),
+                        ),
+                        textStyle: colours.b1.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                      child: const Text('Save'),
                     ),
                   ],
                 ),
@@ -872,14 +873,33 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
           backgroundColor: isError
               ? context.colours.error
               : context.colours.secondary,
-          content: Text(
-            message,
-            style: TextStyle(
-              color: isError
-                  ? context.colours.whiteAccents
-                  : context.colours.background,
-              fontWeight: FontWeight.w600,
-            ),
+          margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+          elevation: 8,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero,
+            side: BorderSide(color: Colors.black, width: 3),
+          ),
+          content: Row(
+            children: [
+              Icon(
+                isError ? Icons.error_outline : Icons.check_box_outlined,
+                color: isError
+                    ? context.colours.whiteAccents
+                    : context.colours.background,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  message,
+                  style: context.colours.b1.copyWith(
+                    color: isError
+                        ? context.colours.whiteAccents
+                        : context.colours.background,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       );

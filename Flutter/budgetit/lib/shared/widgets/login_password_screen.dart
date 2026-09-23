@@ -123,7 +123,7 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Nerf your expenses',// we might change this slogan lowkey
+          'Make every rand count',
           style: context.colours.h2.copyWith(
             color: _softCream,
             fontSize: 13,
