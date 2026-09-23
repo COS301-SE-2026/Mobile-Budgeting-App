@@ -3,24 +3,28 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+
 import 'dart:async' as _i7;
 
 import 'package:budgetit/database/app_database.dart' as _i2;
 import 'package:budgetit/database/daos/budget_dao.dart' as _i10;
 import 'package:budgetit/database/daos/category_dao.dart' as _i6;
 import 'package:budgetit/database/daos/embedding_cache_dao.dart' as _i12;
+import 'package:budgetit/database/daos/friends_dao.dart' as _i16;
+import 'package:budgetit/database/daos/goal_dao.dart' as _i14;
 import 'package:budgetit/database/daos/recurring_transaction_dao.dart' as _i9;
 import 'package:budgetit/database/daos/schema_cache_dao.dart' as _i13;
 import 'package:budgetit/database/daos/settings_dao.dart' as _i11;
+import 'package:budgetit/database/daos/sharing_dao.dart' as _i15;
 import 'package:budgetit/database/daos/transaction_dao.dart' as _i8;
-import 'package:budgetit/database/schema.dart' as _i15;
-import 'package:decimal/decimal.dart' as _i17;
+import 'package:budgetit/database/schema.dart' as _i18;
+import 'package:decimal/decimal.dart' as _i20;
 import 'package:drift/backends.dart' as _i4;
 import 'package:drift/drift.dart' as _i3;
 import 'package:drift/src/runtime/executor/stream_queries.dart' as _i5;
-import 'package:flutter/widgets.dart' as _i16;
+import 'package:flutter/widgets.dart' as _i19;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i14;
+import 'package:mockito/src/dummies.dart' as _i17;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -291,40 +295,97 @@ class _FakeSchemaCacheDao_42 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
-class _Fake$AppDatabaseManager_43 extends _i1.SmartFake
-    implements _i2.$AppDatabaseManager {
-  _Fake$AppDatabaseManager_43(Object parent, Invocation parentInvocation)
+class _FakeGoalDao_43 extends _i1.SmartFake implements _i14.GoalDao {
+  _FakeGoalDao_43(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _Fake$EmbeddingCacheEntriesTable_44 extends _i1.SmartFake
+class _FakeSharingDao_44 extends _i1.SmartFake implements _i15.SharingDao {
+  _FakeSharingDao_44(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeFriendsDao_45 extends _i1.SmartFake implements _i16.FriendsDao {
+  _FakeFriendsDao_45(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$AppDatabaseManager_46 extends _i1.SmartFake
+    implements _i2.$AppDatabaseManager {
+  _Fake$AppDatabaseManager_46(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$GoalTemplatesTable_47 extends _i1.SmartFake
+    implements _i2.$GoalTemplatesTable {
+  _Fake$GoalTemplatesTable_47(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$GoalPeriodsTable_48 extends _i1.SmartFake
+    implements _i2.$GoalPeriodsTable {
+  _Fake$GoalPeriodsTable_48(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$BudgetMembersTable_49 extends _i1.SmartFake
+    implements _i2.$BudgetMembersTable {
+  _Fake$BudgetMembersTable_49(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$GoalMembersTable_50 extends _i1.SmartFake
+    implements _i2.$GoalMembersTable {
+  _Fake$GoalMembersTable_50(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$UserProfilesTable_51 extends _i1.SmartFake
+    implements _i2.$UserProfilesTable {
+  _Fake$UserProfilesTable_51(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$FriendRequestsTable_52 extends _i1.SmartFake
+    implements _i2.$FriendRequestsTable {
+  _Fake$FriendRequestsTable_52(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$FriendshipsTable_53 extends _i1.SmartFake
+    implements _i2.$FriendshipsTable {
+  _Fake$FriendshipsTable_53(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$EmbeddingCacheEntriesTable_54 extends _i1.SmartFake
     implements _i2.$EmbeddingCacheEntriesTable {
-  _Fake$EmbeddingCacheEntriesTable_44(
+  _Fake$EmbeddingCacheEntriesTable_54(
     Object parent,
     Invocation parentInvocation,
   ) : super(parent, parentInvocation);
 }
 
-class _Fake$StatementSchemaCacheTable_45 extends _i1.SmartFake
+class _Fake$StatementSchemaCacheTable_55 extends _i1.SmartFake
     implements _i2.$StatementSchemaCacheTable {
-  _Fake$StatementSchemaCacheTable_45(Object parent, Invocation parentInvocation)
+  _Fake$StatementSchemaCacheTable_55(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeGeneratedDatabase_46 extends _i1.SmartFake
+class _FakeGeneratedDatabase_56 extends _i1.SmartFake
     implements _i3.GeneratedDatabase {
-  _FakeGeneratedDatabase_46(Object parent, Invocation parentInvocation)
+  _FakeGeneratedDatabase_56(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeStreamQueryUpdateRules_47 extends _i1.SmartFake
+class _FakeStreamQueryUpdateRules_57 extends _i1.SmartFake
     implements _i3.StreamQueryUpdateRules {
-  _FakeStreamQueryUpdateRules_47(Object parent, Invocation parentInvocation)
+  _FakeStreamQueryUpdateRules_57(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeMigrator_48 extends _i1.SmartFake implements _i3.Migrator {
-  _FakeMigrator_48(Object parent, Invocation parentInvocation)
+class _FakeMigrator_58 extends _i1.SmartFake implements _i3.Migrator {
+  _FakeMigrator_58(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -381,11 +442,11 @@ class MockCategoryDao extends _i1.Mock implements _i6.CategoryDao {
   _i3.SqlTypes get typeMapping =>
       (super.noSuchMethod(
             Invocation.getter(#typeMapping),
-            returnValue: _i14.dummyValue<_i3.SqlTypes>(
+            returnValue: _i17.dummyValue<_i3.SqlTypes>(
               this,
               Invocation.getter(#typeMapping),
             ),
-            returnValueForMissingStub: _i14.dummyValue<_i3.SqlTypes>(
+            returnValueForMissingStub: _i17.dummyValue<_i3.SqlTypes>(
               this,
               Invocation.getter(#typeMapping),
             ),
@@ -575,8 +636,8 @@ class MockCategoryDao extends _i1.Mock implements _i6.CategoryDao {
   @override
   _i7.Future<_i2.Category> insertCategory({
     required String? name,
-    required _i15.CategoryType? type,
-    _i16.IconData? icon,
+    required _i18.CategoryType? type,
+    _i19.IconData? icon,
     String? color,
     bool? isDefault = false,
   }) =>
@@ -648,7 +709,7 @@ class MockCategoryDao extends _i1.Mock implements _i6.CategoryDao {
 
   @override
   _i7.Future<List<_i2.Category>> getCategoriesByType(
-    _i15.CategoryType? type, {
+    _i18.CategoryType? type, {
     bool? includeDeleted = false,
   }) =>
       (super.noSuchMethod(
@@ -668,8 +729,8 @@ class MockCategoryDao extends _i1.Mock implements _i6.CategoryDao {
   _i7.Future<_i2.Category> updateCategory(
     String? id, {
     String? name,
-    _i15.CategoryType? type,
-    _i3.Value<_i16.IconData?>? icon = const _i3.Value.absent(),
+    _i18.CategoryType? type,
+    _i3.Value<_i19.IconData?>? icon = const _i3.Value.absent(),
     _i3.Value<String?>? color = const _i3.Value.absent(),
     bool? isDefault,
   }) =>
@@ -793,11 +854,11 @@ class MockCategoryDao extends _i1.Mock implements _i6.CategoryDao {
   T alias<T, D>(_i3.ResultSetImplementation<T, D>? table, String? alias) =>
       (super.noSuchMethod(
             Invocation.method(#alias, [table, alias]),
-            returnValue: _i14.dummyValue<T>(
+            returnValue: _i17.dummyValue<T>(
               this,
               Invocation.method(#alias, [table, alias]),
             ),
-            returnValueForMissingStub: _i14.dummyValue<T>(
+            returnValueForMissingStub: _i17.dummyValue<T>(
               this,
               Invocation.method(#alias, [table, alias]),
             ),
@@ -835,8 +896,8 @@ class MockCategoryDao extends _i1.Mock implements _i6.CategoryDao {
       (super.noSuchMethod(
             Invocation.method(#doWhenOpened, [fn]),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#doWhenOpened, [fn]),
                   ),
@@ -844,8 +905,8 @@ class MockCategoryDao extends _i1.Mock implements _i6.CategoryDao {
                 ) ??
                 _FakeFuture_16<T>(this, Invocation.method(#doWhenOpened, [fn])),
             returnValueForMissingStub:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#doWhenOpened, [fn]),
                   ),
@@ -1106,8 +1167,8 @@ class MockCategoryDao extends _i1.Mock implements _i6.CategoryDao {
               {#requireNew: requireNew},
             ),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #transaction,
@@ -1126,8 +1187,8 @@ class MockCategoryDao extends _i1.Mock implements _i6.CategoryDao {
                   ),
                 ),
             returnValueForMissingStub:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #transaction,
@@ -1153,8 +1214,8 @@ class MockCategoryDao extends _i1.Mock implements _i6.CategoryDao {
       (super.noSuchMethod(
             Invocation.method(#exclusively, [action]),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#exclusively, [action]),
                   ),
@@ -1165,8 +1226,8 @@ class MockCategoryDao extends _i1.Mock implements _i6.CategoryDao {
                   Invocation.method(#exclusively, [action]),
                 ),
             returnValueForMissingStub:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#exclusively, [action]),
                   ),
@@ -1200,8 +1261,8 @@ class MockCategoryDao extends _i1.Mock implements _i6.CategoryDao {
               {#interceptor: interceptor},
             ),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #runWithInterceptor,
@@ -1220,8 +1281,8 @@ class MockCategoryDao extends _i1.Mock implements _i6.CategoryDao {
                   ),
                 ),
             returnValueForMissingStub:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #runWithInterceptor,
@@ -1345,11 +1406,11 @@ class MockCategoryDao extends _i1.Mock implements _i6.CategoryDao {
   String $expandVar(int? start, int? amount) =>
       (super.noSuchMethod(
             Invocation.method(#$expandVar, [start, amount]),
-            returnValue: _i14.dummyValue<String>(
+            returnValue: _i17.dummyValue<String>(
               this,
               Invocation.method(#$expandVar, [start, amount]),
             ),
-            returnValueForMissingStub: _i14.dummyValue<String>(
+            returnValueForMissingStub: _i17.dummyValue<String>(
               this,
               Invocation.method(#$expandVar, [start, amount]),
             ),
@@ -1419,11 +1480,11 @@ class MockTransactionDao extends _i1.Mock implements _i8.TransactionDao {
   _i3.SqlTypes get typeMapping =>
       (super.noSuchMethod(
             Invocation.getter(#typeMapping),
-            returnValue: _i14.dummyValue<_i3.SqlTypes>(
+            returnValue: _i17.dummyValue<_i3.SqlTypes>(
               this,
               Invocation.getter(#typeMapping),
             ),
-            returnValueForMissingStub: _i14.dummyValue<_i3.SqlTypes>(
+            returnValueForMissingStub: _i17.dummyValue<_i3.SqlTypes>(
               this,
               Invocation.getter(#typeMapping),
             ),
@@ -1567,12 +1628,12 @@ class MockTransactionDao extends _i1.Mock implements _i8.TransactionDao {
 
   @override
   _i7.Future<_i2.Transaction> insertTransaction({
-    required _i17.Decimal? amount,
-    required _i15.TransactionType? type,
+    required _i20.Decimal? amount,
+    required _i18.TransactionType? type,
     required String? shortDescription,
     String? longDescription,
     required DateTime? transactionDate,
-    required _i15.TransactionSource? source,
+    required _i18.TransactionSource? source,
     String? currency = 'ZAR',
     String? recurringId,
   }) =>
@@ -1655,7 +1716,7 @@ class MockTransactionDao extends _i1.Mock implements _i8.TransactionDao {
 
   @override
   _i7.Future<List<_i2.Transaction>> getTransactionsByType(
-    _i15.TransactionType? type, {
+    _i18.TransactionType? type, {
     bool? includeDeleted = false,
   }) =>
       (super.noSuchMethod(
@@ -1697,12 +1758,12 @@ class MockTransactionDao extends _i1.Mock implements _i8.TransactionDao {
   @override
   _i7.Future<_i2.Transaction> updateTransaction(
     String? id, {
-    _i17.Decimal? amount,
-    _i15.TransactionType? type,
+    _i20.Decimal? amount,
+    _i18.TransactionType? type,
     String? shortDescription,
     _i3.Value<String?>? longDescription = const _i3.Value.absent(),
     DateTime? transactionDate,
-    _i15.TransactionSource? source,
+    _i18.TransactionSource? source,
     String? currency,
   }) =>
       (super.noSuchMethod(
@@ -1789,7 +1850,7 @@ class MockTransactionDao extends _i1.Mock implements _i8.TransactionDao {
   _i7.Future<_i2.TransactionCategoryMapData> assignCategory({
     required String? transactionId,
     required String? categoryId,
-    required _i15.AssignmentSource? assignmentSource,
+    required _i18.AssignmentSource? assignmentSource,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#assignCategory, [], {
@@ -1888,11 +1949,11 @@ class MockTransactionDao extends _i1.Mock implements _i8.TransactionDao {
   T alias<T, D>(_i3.ResultSetImplementation<T, D>? table, String? alias) =>
       (super.noSuchMethod(
             Invocation.method(#alias, [table, alias]),
-            returnValue: _i14.dummyValue<T>(
+            returnValue: _i17.dummyValue<T>(
               this,
               Invocation.method(#alias, [table, alias]),
             ),
-            returnValueForMissingStub: _i14.dummyValue<T>(
+            returnValueForMissingStub: _i17.dummyValue<T>(
               this,
               Invocation.method(#alias, [table, alias]),
             ),
@@ -1930,8 +1991,8 @@ class MockTransactionDao extends _i1.Mock implements _i8.TransactionDao {
       (super.noSuchMethod(
             Invocation.method(#doWhenOpened, [fn]),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#doWhenOpened, [fn]),
                   ),
@@ -1939,8 +2000,8 @@ class MockTransactionDao extends _i1.Mock implements _i8.TransactionDao {
                 ) ??
                 _FakeFuture_16<T>(this, Invocation.method(#doWhenOpened, [fn])),
             returnValueForMissingStub:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#doWhenOpened, [fn]),
                   ),
@@ -2201,8 +2262,8 @@ class MockTransactionDao extends _i1.Mock implements _i8.TransactionDao {
               {#requireNew: requireNew},
             ),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #transaction,
@@ -2221,8 +2282,8 @@ class MockTransactionDao extends _i1.Mock implements _i8.TransactionDao {
                   ),
                 ),
             returnValueForMissingStub:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #transaction,
@@ -2248,8 +2309,8 @@ class MockTransactionDao extends _i1.Mock implements _i8.TransactionDao {
       (super.noSuchMethod(
             Invocation.method(#exclusively, [action]),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#exclusively, [action]),
                   ),
@@ -2260,8 +2321,8 @@ class MockTransactionDao extends _i1.Mock implements _i8.TransactionDao {
                   Invocation.method(#exclusively, [action]),
                 ),
             returnValueForMissingStub:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#exclusively, [action]),
                   ),
@@ -2295,8 +2356,8 @@ class MockTransactionDao extends _i1.Mock implements _i8.TransactionDao {
               {#interceptor: interceptor},
             ),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #runWithInterceptor,
@@ -2315,8 +2376,8 @@ class MockTransactionDao extends _i1.Mock implements _i8.TransactionDao {
                   ),
                 ),
             returnValueForMissingStub:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #runWithInterceptor,
@@ -2440,11 +2501,11 @@ class MockTransactionDao extends _i1.Mock implements _i8.TransactionDao {
   String $expandVar(int? start, int? amount) =>
       (super.noSuchMethod(
             Invocation.method(#$expandVar, [start, amount]),
-            returnValue: _i14.dummyValue<String>(
+            returnValue: _i17.dummyValue<String>(
               this,
               Invocation.method(#$expandVar, [start, amount]),
             ),
-            returnValueForMissingStub: _i14.dummyValue<String>(
+            returnValueForMissingStub: _i17.dummyValue<String>(
               this,
               Invocation.method(#$expandVar, [start, amount]),
             ),
@@ -2515,11 +2576,11 @@ class MockRecurringTransactionDao extends _i1.Mock
   _i3.SqlTypes get typeMapping =>
       (super.noSuchMethod(
             Invocation.getter(#typeMapping),
-            returnValue: _i14.dummyValue<_i3.SqlTypes>(
+            returnValue: _i17.dummyValue<_i3.SqlTypes>(
               this,
               Invocation.getter(#typeMapping),
             ),
-            returnValueForMissingStub: _i14.dummyValue<_i3.SqlTypes>(
+            returnValueForMissingStub: _i17.dummyValue<_i3.SqlTypes>(
               this,
               Invocation.getter(#typeMapping),
             ),
@@ -2663,12 +2724,12 @@ class MockRecurringTransactionDao extends _i1.Mock
 
   @override
   _i7.Future<_i2.RecurringTransaction> insertRecurringTransaction({
-    required _i17.Decimal? amount,
-    required _i15.TransactionType? type,
+    required _i20.Decimal? amount,
+    required _i18.TransactionType? type,
     required String? shortDescription,
     String? longDescription,
     required DateTime? nextTransactionDate,
-    required _i15.PeriodType? unit,
+    required _i18.PeriodType? unit,
     required int? intervalAmount,
     required DateTime? startDate,
     String? categoryId,
@@ -2762,7 +2823,7 @@ class MockRecurringTransactionDao extends _i1.Mock
 
   @override
   _i7.Future<List<_i2.RecurringTransaction>> getRecurringTransactionsByType(
-    _i15.TransactionType? type, {
+    _i18.TransactionType? type, {
     bool? includeDeleted = false,
   }) =>
       (super.noSuchMethod(
@@ -2784,12 +2845,12 @@ class MockRecurringTransactionDao extends _i1.Mock
   @override
   _i7.Future<_i2.RecurringTransaction> updateRecurringTransaction(
     String? id, {
-    _i17.Decimal? amount,
-    _i15.TransactionType? type,
+    _i20.Decimal? amount,
+    _i18.TransactionType? type,
     String? shortDescription,
     _i3.Value<String?>? longDescription = const _i3.Value.absent(),
     DateTime? nextTransactionDate,
-    _i15.PeriodType? unit,
+    _i18.PeriodType? unit,
     int? intervalAmount,
     String? currency,
     DateTime? startDate,
@@ -2957,11 +3018,11 @@ class MockRecurringTransactionDao extends _i1.Mock
   T alias<T, D>(_i3.ResultSetImplementation<T, D>? table, String? alias) =>
       (super.noSuchMethod(
             Invocation.method(#alias, [table, alias]),
-            returnValue: _i14.dummyValue<T>(
+            returnValue: _i17.dummyValue<T>(
               this,
               Invocation.method(#alias, [table, alias]),
             ),
-            returnValueForMissingStub: _i14.dummyValue<T>(
+            returnValueForMissingStub: _i17.dummyValue<T>(
               this,
               Invocation.method(#alias, [table, alias]),
             ),
@@ -2999,8 +3060,8 @@ class MockRecurringTransactionDao extends _i1.Mock
       (super.noSuchMethod(
             Invocation.method(#doWhenOpened, [fn]),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#doWhenOpened, [fn]),
                   ),
@@ -3008,8 +3069,8 @@ class MockRecurringTransactionDao extends _i1.Mock
                 ) ??
                 _FakeFuture_16<T>(this, Invocation.method(#doWhenOpened, [fn])),
             returnValueForMissingStub:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#doWhenOpened, [fn]),
                   ),
@@ -3270,8 +3331,8 @@ class MockRecurringTransactionDao extends _i1.Mock
               {#requireNew: requireNew},
             ),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #transaction,
@@ -3290,8 +3351,8 @@ class MockRecurringTransactionDao extends _i1.Mock
                   ),
                 ),
             returnValueForMissingStub:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #transaction,
@@ -3317,8 +3378,8 @@ class MockRecurringTransactionDao extends _i1.Mock
       (super.noSuchMethod(
             Invocation.method(#exclusively, [action]),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#exclusively, [action]),
                   ),
@@ -3329,8 +3390,8 @@ class MockRecurringTransactionDao extends _i1.Mock
                   Invocation.method(#exclusively, [action]),
                 ),
             returnValueForMissingStub:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#exclusively, [action]),
                   ),
@@ -3364,8 +3425,8 @@ class MockRecurringTransactionDao extends _i1.Mock
               {#interceptor: interceptor},
             ),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #runWithInterceptor,
@@ -3384,8 +3445,8 @@ class MockRecurringTransactionDao extends _i1.Mock
                   ),
                 ),
             returnValueForMissingStub:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #runWithInterceptor,
@@ -3509,11 +3570,11 @@ class MockRecurringTransactionDao extends _i1.Mock
   String $expandVar(int? start, int? amount) =>
       (super.noSuchMethod(
             Invocation.method(#$expandVar, [start, amount]),
-            returnValue: _i14.dummyValue<String>(
+            returnValue: _i17.dummyValue<String>(
               this,
               Invocation.method(#$expandVar, [start, amount]),
             ),
-            returnValueForMissingStub: _i14.dummyValue<String>(
+            returnValueForMissingStub: _i17.dummyValue<String>(
               this,
               Invocation.method(#$expandVar, [start, amount]),
             ),
@@ -3583,11 +3644,11 @@ class MockBudgetDao extends _i1.Mock implements _i10.BudgetDao {
   _i3.SqlTypes get typeMapping =>
       (super.noSuchMethod(
             Invocation.getter(#typeMapping),
-            returnValue: _i14.dummyValue<_i3.SqlTypes>(
+            returnValue: _i17.dummyValue<_i3.SqlTypes>(
               this,
               Invocation.getter(#typeMapping),
             ),
-            returnValueForMissingStub: _i14.dummyValue<_i3.SqlTypes>(
+            returnValueForMissingStub: _i17.dummyValue<_i3.SqlTypes>(
               this,
               Invocation.getter(#typeMapping),
             ),
@@ -3702,9 +3763,10 @@ class MockBudgetDao extends _i1.Mock implements _i10.BudgetDao {
   @override
   _i7.Future<_i2.BudgetTemplate> insertBudgetTemplate({
     required String? categoryId,
-    required _i17.Decimal? amount,
-    required _i15.PeriodType? periodType,
+    required _i20.Decimal? amount,
+    required _i18.PeriodType? periodType,
     String? currency = 'ZAR',
+    String? name,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#insertBudgetTemplate, [], {
@@ -3712,6 +3774,7 @@ class MockBudgetDao extends _i1.Mock implements _i10.BudgetDao {
               #amount: amount,
               #periodType: periodType,
               #currency: currency,
+              #name: name,
             }),
             returnValue: _i7.Future<_i2.BudgetTemplate>.value(
               _FakeBudgetTemplate_31(
@@ -3721,6 +3784,7 @@ class MockBudgetDao extends _i1.Mock implements _i10.BudgetDao {
                   #amount: amount,
                   #periodType: periodType,
                   #currency: currency,
+                  #name: name,
                 }),
               ),
             ),
@@ -3732,6 +3796,7 @@ class MockBudgetDao extends _i1.Mock implements _i10.BudgetDao {
                   #amount: amount,
                   #periodType: periodType,
                   #currency: currency,
+                  #name: name,
                 }),
               ),
             ),
@@ -3791,15 +3856,21 @@ class MockBudgetDao extends _i1.Mock implements _i10.BudgetDao {
   @override
   _i7.Future<_i2.BudgetTemplate> updateBudgetTemplate(
     String? id, {
-    _i17.Decimal? amount,
-    _i15.PeriodType? periodType,
+    _i20.Decimal? amount,
+    _i18.PeriodType? periodType,
     String? currency,
+    String? name,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
               #updateBudgetTemplate,
               [id],
-              {#amount: amount, #periodType: periodType, #currency: currency},
+              {
+                #amount: amount,
+                #periodType: periodType,
+                #currency: currency,
+                #name: name,
+              },
             ),
             returnValue: _i7.Future<_i2.BudgetTemplate>.value(
               _FakeBudgetTemplate_31(
@@ -3811,6 +3882,7 @@ class MockBudgetDao extends _i1.Mock implements _i10.BudgetDao {
                     #amount: amount,
                     #periodType: periodType,
                     #currency: currency,
+                    #name: name,
                   },
                 ),
               ),
@@ -3825,6 +3897,7 @@ class MockBudgetDao extends _i1.Mock implements _i10.BudgetDao {
                     #amount: amount,
                     #periodType: periodType,
                     #currency: currency,
+                    #name: name,
                   },
                 ),
               ),
@@ -3864,7 +3937,7 @@ class MockBudgetDao extends _i1.Mock implements _i10.BudgetDao {
     required String? templateId,
     required DateTime? startDate,
     required DateTime? endDate,
-    required _i17.Decimal? budgetedAmount,
+    required _i20.Decimal? budgetedAmount,
     bool? isOverridden = false,
   }) =>
       (super.noSuchMethod(
@@ -3960,7 +4033,7 @@ class MockBudgetDao extends _i1.Mock implements _i10.BudgetDao {
   @override
   _i7.Future<_i2.BudgetPeriod> updateBudgetPeriod(
     String? id, {
-    _i17.Decimal? budgetedAmount,
+    _i20.Decimal? budgetedAmount,
     bool? isOverridden,
     DateTime? startDate,
     DateTime? endDate,
@@ -4033,11 +4106,11 @@ class MockBudgetDao extends _i1.Mock implements _i10.BudgetDao {
   T alias<T, D>(_i3.ResultSetImplementation<T, D>? table, String? alias) =>
       (super.noSuchMethod(
             Invocation.method(#alias, [table, alias]),
-            returnValue: _i14.dummyValue<T>(
+            returnValue: _i17.dummyValue<T>(
               this,
               Invocation.method(#alias, [table, alias]),
             ),
-            returnValueForMissingStub: _i14.dummyValue<T>(
+            returnValueForMissingStub: _i17.dummyValue<T>(
               this,
               Invocation.method(#alias, [table, alias]),
             ),
@@ -4075,8 +4148,8 @@ class MockBudgetDao extends _i1.Mock implements _i10.BudgetDao {
       (super.noSuchMethod(
             Invocation.method(#doWhenOpened, [fn]),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#doWhenOpened, [fn]),
                   ),
@@ -4084,8 +4157,8 @@ class MockBudgetDao extends _i1.Mock implements _i10.BudgetDao {
                 ) ??
                 _FakeFuture_16<T>(this, Invocation.method(#doWhenOpened, [fn])),
             returnValueForMissingStub:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#doWhenOpened, [fn]),
                   ),
@@ -4346,8 +4419,8 @@ class MockBudgetDao extends _i1.Mock implements _i10.BudgetDao {
               {#requireNew: requireNew},
             ),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #transaction,
@@ -4366,8 +4439,8 @@ class MockBudgetDao extends _i1.Mock implements _i10.BudgetDao {
                   ),
                 ),
             returnValueForMissingStub:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #transaction,
@@ -4393,8 +4466,8 @@ class MockBudgetDao extends _i1.Mock implements _i10.BudgetDao {
       (super.noSuchMethod(
             Invocation.method(#exclusively, [action]),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#exclusively, [action]),
                   ),
@@ -4405,8 +4478,8 @@ class MockBudgetDao extends _i1.Mock implements _i10.BudgetDao {
                   Invocation.method(#exclusively, [action]),
                 ),
             returnValueForMissingStub:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#exclusively, [action]),
                   ),
@@ -4440,8 +4513,8 @@ class MockBudgetDao extends _i1.Mock implements _i10.BudgetDao {
               {#interceptor: interceptor},
             ),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #runWithInterceptor,
@@ -4460,8 +4533,8 @@ class MockBudgetDao extends _i1.Mock implements _i10.BudgetDao {
                   ),
                 ),
             returnValueForMissingStub:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #runWithInterceptor,
@@ -4585,11 +4658,11 @@ class MockBudgetDao extends _i1.Mock implements _i10.BudgetDao {
   String $expandVar(int? start, int? amount) =>
       (super.noSuchMethod(
             Invocation.method(#$expandVar, [start, amount]),
-            returnValue: _i14.dummyValue<String>(
+            returnValue: _i17.dummyValue<String>(
               this,
               Invocation.method(#$expandVar, [start, amount]),
             ),
-            returnValueForMissingStub: _i14.dummyValue<String>(
+            returnValueForMissingStub: _i17.dummyValue<String>(
               this,
               Invocation.method(#$expandVar, [start, amount]),
             ),
@@ -4659,11 +4732,11 @@ class MockSettingsDao extends _i1.Mock implements _i11.SettingsDao {
   _i3.SqlTypes get typeMapping =>
       (super.noSuchMethod(
             Invocation.getter(#typeMapping),
-            returnValue: _i14.dummyValue<_i3.SqlTypes>(
+            returnValue: _i17.dummyValue<_i3.SqlTypes>(
               this,
               Invocation.getter(#typeMapping),
             ),
-            returnValueForMissingStub: _i14.dummyValue<_i3.SqlTypes>(
+            returnValueForMissingStub: _i17.dummyValue<_i3.SqlTypes>(
               this,
               Invocation.getter(#typeMapping),
             ),
@@ -4788,13 +4861,13 @@ class MockSettingsDao extends _i1.Mock implements _i11.SettingsDao {
       (super.noSuchMethod(
             Invocation.method(#getDefaultCurrency, []),
             returnValue: _i7.Future<String>.value(
-              _i14.dummyValue<String>(
+              _i17.dummyValue<String>(
                 this,
                 Invocation.method(#getDefaultCurrency, []),
               ),
             ),
             returnValueForMissingStub: _i7.Future<String>.value(
-              _i14.dummyValue<String>(
+              _i17.dummyValue<String>(
                 this,
                 Invocation.method(#getDefaultCurrency, []),
               ),
@@ -4816,13 +4889,13 @@ class MockSettingsDao extends _i1.Mock implements _i11.SettingsDao {
       (super.noSuchMethod(
             Invocation.method(#getThemeMode, []),
             returnValue: _i7.Future<String>.value(
-              _i14.dummyValue<String>(
+              _i17.dummyValue<String>(
                 this,
                 Invocation.method(#getThemeMode, []),
               ),
             ),
             returnValueForMissingStub: _i7.Future<String>.value(
-              _i14.dummyValue<String>(
+              _i17.dummyValue<String>(
                 this,
                 Invocation.method(#getThemeMode, []),
               ),
@@ -4864,13 +4937,13 @@ class MockSettingsDao extends _i1.Mock implements _i11.SettingsDao {
       (super.noSuchMethod(
             Invocation.method(#getDateFormat, []),
             returnValue: _i7.Future<String>.value(
-              _i14.dummyValue<String>(
+              _i17.dummyValue<String>(
                 this,
                 Invocation.method(#getDateFormat, []),
               ),
             ),
             returnValueForMissingStub: _i7.Future<String>.value(
-              _i14.dummyValue<String>(
+              _i17.dummyValue<String>(
                 this,
                 Invocation.method(#getDateFormat, []),
               ),
@@ -4902,11 +4975,11 @@ class MockSettingsDao extends _i1.Mock implements _i11.SettingsDao {
   T alias<T, D>(_i3.ResultSetImplementation<T, D>? table, String? alias) =>
       (super.noSuchMethod(
             Invocation.method(#alias, [table, alias]),
-            returnValue: _i14.dummyValue<T>(
+            returnValue: _i17.dummyValue<T>(
               this,
               Invocation.method(#alias, [table, alias]),
             ),
-            returnValueForMissingStub: _i14.dummyValue<T>(
+            returnValueForMissingStub: _i17.dummyValue<T>(
               this,
               Invocation.method(#alias, [table, alias]),
             ),
@@ -4944,8 +5017,8 @@ class MockSettingsDao extends _i1.Mock implements _i11.SettingsDao {
       (super.noSuchMethod(
             Invocation.method(#doWhenOpened, [fn]),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#doWhenOpened, [fn]),
                   ),
@@ -4953,8 +5026,8 @@ class MockSettingsDao extends _i1.Mock implements _i11.SettingsDao {
                 ) ??
                 _FakeFuture_16<T>(this, Invocation.method(#doWhenOpened, [fn])),
             returnValueForMissingStub:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#doWhenOpened, [fn]),
                   ),
@@ -5215,8 +5288,8 @@ class MockSettingsDao extends _i1.Mock implements _i11.SettingsDao {
               {#requireNew: requireNew},
             ),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #transaction,
@@ -5235,8 +5308,8 @@ class MockSettingsDao extends _i1.Mock implements _i11.SettingsDao {
                   ),
                 ),
             returnValueForMissingStub:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #transaction,
@@ -5262,8 +5335,8 @@ class MockSettingsDao extends _i1.Mock implements _i11.SettingsDao {
       (super.noSuchMethod(
             Invocation.method(#exclusively, [action]),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#exclusively, [action]),
                   ),
@@ -5274,8 +5347,8 @@ class MockSettingsDao extends _i1.Mock implements _i11.SettingsDao {
                   Invocation.method(#exclusively, [action]),
                 ),
             returnValueForMissingStub:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#exclusively, [action]),
                   ),
@@ -5309,8 +5382,8 @@ class MockSettingsDao extends _i1.Mock implements _i11.SettingsDao {
               {#interceptor: interceptor},
             ),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #runWithInterceptor,
@@ -5329,8 +5402,8 @@ class MockSettingsDao extends _i1.Mock implements _i11.SettingsDao {
                   ),
                 ),
             returnValueForMissingStub:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #runWithInterceptor,
@@ -5454,11 +5527,11 @@ class MockSettingsDao extends _i1.Mock implements _i11.SettingsDao {
   String $expandVar(int? start, int? amount) =>
       (super.noSuchMethod(
             Invocation.method(#$expandVar, [start, amount]),
-            returnValue: _i14.dummyValue<String>(
+            returnValue: _i17.dummyValue<String>(
               this,
               Invocation.method(#$expandVar, [start, amount]),
             ),
-            returnValueForMissingStub: _i14.dummyValue<String>(
+            returnValueForMissingStub: _i17.dummyValue<String>(
               this,
               Invocation.method(#$expandVar, [start, amount]),
             ),
@@ -5606,14 +5679,56 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
           as _i13.SchemaCacheDao);
 
   @override
+  _i14.GoalDao get goalDao =>
+      (super.noSuchMethod(
+            Invocation.getter(#goalDao),
+            returnValue: _FakeGoalDao_43(this, Invocation.getter(#goalDao)),
+            returnValueForMissingStub: _FakeGoalDao_43(
+              this,
+              Invocation.getter(#goalDao),
+            ),
+          )
+          as _i14.GoalDao);
+
+  @override
+  _i15.SharingDao get sharingDao =>
+      (super.noSuchMethod(
+            Invocation.getter(#sharingDao),
+            returnValue: _FakeSharingDao_44(
+              this,
+              Invocation.getter(#sharingDao),
+            ),
+            returnValueForMissingStub: _FakeSharingDao_44(
+              this,
+              Invocation.getter(#sharingDao),
+            ),
+          )
+          as _i15.SharingDao);
+
+  @override
+  _i16.FriendsDao get friendsDao =>
+      (super.noSuchMethod(
+            Invocation.getter(#friendsDao),
+            returnValue: _FakeFriendsDao_45(
+              this,
+              Invocation.getter(#friendsDao),
+            ),
+            returnValueForMissingStub: _FakeFriendsDao_45(
+              this,
+              Invocation.getter(#friendsDao),
+            ),
+          )
+          as _i16.FriendsDao);
+
+  @override
   _i2.$AppDatabaseManager get managers =>
       (super.noSuchMethod(
             Invocation.getter(#managers),
-            returnValue: _Fake$AppDatabaseManager_43(
+            returnValue: _Fake$AppDatabaseManager_46(
               this,
               Invocation.getter(#managers),
             ),
-            returnValueForMissingStub: _Fake$AppDatabaseManager_43(
+            returnValueForMissingStub: _Fake$AppDatabaseManager_46(
               this,
               Invocation.getter(#managers),
             ),
@@ -5741,6 +5856,111 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
           as _i2.$BudgetPeriodsTable);
 
   @override
+  _i2.$GoalTemplatesTable get goalTemplates =>
+      (super.noSuchMethod(
+            Invocation.getter(#goalTemplates),
+            returnValue: _Fake$GoalTemplatesTable_47(
+              this,
+              Invocation.getter(#goalTemplates),
+            ),
+            returnValueForMissingStub: _Fake$GoalTemplatesTable_47(
+              this,
+              Invocation.getter(#goalTemplates),
+            ),
+          )
+          as _i2.$GoalTemplatesTable);
+
+  @override
+  _i2.$GoalPeriodsTable get goalPeriods =>
+      (super.noSuchMethod(
+            Invocation.getter(#goalPeriods),
+            returnValue: _Fake$GoalPeriodsTable_48(
+              this,
+              Invocation.getter(#goalPeriods),
+            ),
+            returnValueForMissingStub: _Fake$GoalPeriodsTable_48(
+              this,
+              Invocation.getter(#goalPeriods),
+            ),
+          )
+          as _i2.$GoalPeriodsTable);
+
+  @override
+  _i2.$BudgetMembersTable get budgetMembers =>
+      (super.noSuchMethod(
+            Invocation.getter(#budgetMembers),
+            returnValue: _Fake$BudgetMembersTable_49(
+              this,
+              Invocation.getter(#budgetMembers),
+            ),
+            returnValueForMissingStub: _Fake$BudgetMembersTable_49(
+              this,
+              Invocation.getter(#budgetMembers),
+            ),
+          )
+          as _i2.$BudgetMembersTable);
+
+  @override
+  _i2.$GoalMembersTable get goalMembers =>
+      (super.noSuchMethod(
+            Invocation.getter(#goalMembers),
+            returnValue: _Fake$GoalMembersTable_50(
+              this,
+              Invocation.getter(#goalMembers),
+            ),
+            returnValueForMissingStub: _Fake$GoalMembersTable_50(
+              this,
+              Invocation.getter(#goalMembers),
+            ),
+          )
+          as _i2.$GoalMembersTable);
+
+  @override
+  _i2.$UserProfilesTable get userProfiles =>
+      (super.noSuchMethod(
+            Invocation.getter(#userProfiles),
+            returnValue: _Fake$UserProfilesTable_51(
+              this,
+              Invocation.getter(#userProfiles),
+            ),
+            returnValueForMissingStub: _Fake$UserProfilesTable_51(
+              this,
+              Invocation.getter(#userProfiles),
+            ),
+          )
+          as _i2.$UserProfilesTable);
+
+  @override
+  _i2.$FriendRequestsTable get friendRequests =>
+      (super.noSuchMethod(
+            Invocation.getter(#friendRequests),
+            returnValue: _Fake$FriendRequestsTable_52(
+              this,
+              Invocation.getter(#friendRequests),
+            ),
+            returnValueForMissingStub: _Fake$FriendRequestsTable_52(
+              this,
+              Invocation.getter(#friendRequests),
+            ),
+          )
+          as _i2.$FriendRequestsTable);
+
+  @override
+  _i2.$FriendshipsTable get friendships =>
+      (super.noSuchMethod(
+            Invocation.getter(#friendships),
+            returnValue: _Fake$FriendshipsTable_53(
+              this,
+              Invocation.getter(#friendships),
+            ),
+            returnValueForMissingStub: _Fake$FriendshipsTable_53(
+              this,
+              Invocation.getter(#friendships),
+            ),
+          )
+          as _i2.$FriendshipsTable);
+
+  @override
   _i2.$AppSettingsTable get appSettings =>
       (super.noSuchMethod(
             Invocation.getter(#appSettings),
@@ -5759,11 +5979,11 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
   _i2.$EmbeddingCacheEntriesTable get embeddingCacheEntries =>
       (super.noSuchMethod(
             Invocation.getter(#embeddingCacheEntries),
-            returnValue: _Fake$EmbeddingCacheEntriesTable_44(
+            returnValue: _Fake$EmbeddingCacheEntriesTable_54(
               this,
               Invocation.getter(#embeddingCacheEntries),
             ),
-            returnValueForMissingStub: _Fake$EmbeddingCacheEntriesTable_44(
+            returnValueForMissingStub: _Fake$EmbeddingCacheEntriesTable_54(
               this,
               Invocation.getter(#embeddingCacheEntries),
             ),
@@ -5774,11 +5994,11 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
   _i2.$StatementSchemaCacheTable get statementSchemaCache =>
       (super.noSuchMethod(
             Invocation.getter(#statementSchemaCache),
-            returnValue: _Fake$StatementSchemaCacheTable_45(
+            returnValue: _Fake$StatementSchemaCacheTable_55(
               this,
               Invocation.getter(#statementSchemaCache),
             ),
-            returnValueForMissingStub: _Fake$StatementSchemaCacheTable_45(
+            returnValueForMissingStub: _Fake$StatementSchemaCacheTable_55(
               this,
               Invocation.getter(#statementSchemaCache),
             ),
@@ -5822,11 +6042,11 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
   _i3.GeneratedDatabase get attachedDatabase =>
       (super.noSuchMethod(
             Invocation.getter(#attachedDatabase),
-            returnValue: _FakeGeneratedDatabase_46(
+            returnValue: _FakeGeneratedDatabase_56(
               this,
               Invocation.getter(#attachedDatabase),
             ),
-            returnValueForMissingStub: _FakeGeneratedDatabase_46(
+            returnValueForMissingStub: _FakeGeneratedDatabase_56(
               this,
               Invocation.getter(#attachedDatabase),
             ),
@@ -5837,11 +6057,11 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
   _i3.StreamQueryUpdateRules get streamUpdateRules =>
       (super.noSuchMethod(
             Invocation.getter(#streamUpdateRules),
-            returnValue: _FakeStreamQueryUpdateRules_47(
+            returnValue: _FakeStreamQueryUpdateRules_57(
               this,
               Invocation.getter(#streamUpdateRules),
             ),
-            returnValueForMissingStub: _FakeStreamQueryUpdateRules_47(
+            returnValueForMissingStub: _FakeStreamQueryUpdateRules_57(
               this,
               Invocation.getter(#streamUpdateRules),
             ),
@@ -5867,11 +6087,11 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
   _i3.SqlTypes get typeMapping =>
       (super.noSuchMethod(
             Invocation.getter(#typeMapping),
-            returnValue: _i14.dummyValue<_i3.SqlTypes>(
+            returnValue: _i17.dummyValue<_i3.SqlTypes>(
               this,
               Invocation.getter(#typeMapping),
             ),
-            returnValueForMissingStub: _i14.dummyValue<_i3.SqlTypes>(
+            returnValueForMissingStub: _i17.dummyValue<_i3.SqlTypes>(
               this,
               Invocation.getter(#typeMapping),
             ),
@@ -5927,11 +6147,11 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
   _i3.Migrator createMigrator() =>
       (super.noSuchMethod(
             Invocation.method(#createMigrator, []),
-            returnValue: _FakeMigrator_48(
+            returnValue: _FakeMigrator_58(
               this,
               Invocation.method(#createMigrator, []),
             ),
-            returnValueForMissingStub: _FakeMigrator_48(
+            returnValueForMissingStub: _FakeMigrator_58(
               this,
               Invocation.method(#createMigrator, []),
             ),
@@ -5970,8 +6190,8 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
               #connect: connect,
             }),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<Ret>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<Ret>(
                     this,
                     Invocation.method(#computeWithDatabase, [], {
                       #computation: computation,
@@ -5988,8 +6208,8 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
                   }),
                 ),
             returnValueForMissingStub:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<Ret>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<Ret>(
                     this,
                     Invocation.method(#computeWithDatabase, [], {
                       #computation: computation,
@@ -6023,11 +6243,11 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
   T alias<T, D>(_i3.ResultSetImplementation<T, D>? table, String? alias) =>
       (super.noSuchMethod(
             Invocation.method(#alias, [table, alias]),
-            returnValue: _i14.dummyValue<T>(
+            returnValue: _i17.dummyValue<T>(
               this,
               Invocation.method(#alias, [table, alias]),
             ),
-            returnValueForMissingStub: _i14.dummyValue<T>(
+            returnValueForMissingStub: _i17.dummyValue<T>(
               this,
               Invocation.method(#alias, [table, alias]),
             ),
@@ -6065,8 +6285,8 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
       (super.noSuchMethod(
             Invocation.method(#doWhenOpened, [fn]),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#doWhenOpened, [fn]),
                   ),
@@ -6074,8 +6294,8 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
                 ) ??
                 _FakeFuture_16<T>(this, Invocation.method(#doWhenOpened, [fn])),
             returnValueForMissingStub:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#doWhenOpened, [fn]),
                   ),
@@ -6336,8 +6556,8 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
               {#requireNew: requireNew},
             ),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #transaction,
@@ -6356,8 +6576,8 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
                   ),
                 ),
             returnValueForMissingStub:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #transaction,
@@ -6383,8 +6603,8 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
       (super.noSuchMethod(
             Invocation.method(#exclusively, [action]),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#exclusively, [action]),
                   ),
@@ -6395,8 +6615,8 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
                   Invocation.method(#exclusively, [action]),
                 ),
             returnValueForMissingStub:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#exclusively, [action]),
                   ),
@@ -6430,8 +6650,8 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
               {#interceptor: interceptor},
             ),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #runWithInterceptor,
@@ -6450,8 +6670,8 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
                   ),
                 ),
             returnValueForMissingStub:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #runWithInterceptor,
@@ -6575,11 +6795,11 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
   String $expandVar(int? start, int? amount) =>
       (super.noSuchMethod(
             Invocation.method(#$expandVar, [start, amount]),
-            returnValue: _i14.dummyValue<String>(
+            returnValue: _i17.dummyValue<String>(
               this,
               Invocation.method(#$expandVar, [start, amount]),
             ),
-            returnValueForMissingStub: _i14.dummyValue<String>(
+            returnValueForMissingStub: _i17.dummyValue<String>(
               this,
               Invocation.method(#$expandVar, [start, amount]),
             ),

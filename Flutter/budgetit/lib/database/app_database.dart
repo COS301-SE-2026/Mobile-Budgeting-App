@@ -10,6 +10,9 @@ import 'daos/budget_dao.dart';
 import 'daos/recurring_transaction_dao.dart';
 import 'daos/settings_dao.dart';
 import 'daos/schema_cache_dao.dart';
+import 'daos/goal_dao.dart';
+import 'daos/sharing_dao.dart';
+import 'daos/friends_dao.dart';
 
 part 'app_database.g.dart';
 
@@ -22,6 +25,13 @@ part 'app_database.g.dart';
     TransactionCategoryMap,
     BudgetTemplates,
     BudgetPeriods,
+    GoalTemplates,
+    GoalPeriods,
+    BudgetMembers,
+    GoalMembers,
+    UserProfiles,
+    FriendRequests,
+    Friendships,
     AppSettings,
     EmbeddingCacheEntries,
     StatementSchemaCache,
@@ -69,4 +79,13 @@ late final EmbeddingCacheDao embeddingCacheDao = EmbeddingCacheDao(this);
   late final SettingsDao settingsDao = SettingsDao(this);
 
   late final SchemaCacheDao schemaCacheDao = SchemaCacheDao(this);
+
+  /// Accessor for income goals.
+  late final GoalDao goalDao = GoalDao(this);
+
+  /// Accessor for budget/goal sharing (co-owners).
+  late final SharingDao sharingDao = SharingDao(this);
+
+  /// Accessor for friends, requests and profiles.
+  late final FriendsDao friendsDao = FriendsDao(this);
 }
