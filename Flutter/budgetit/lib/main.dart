@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:saropa_drift_advisor/saropa_drift_advisor.dart';
 import 'amplifyconfiguration.dart';
+import 'shared/widgets/biometric_lock_screen.dart';
 import 'auth/data/cognito_auth_service.dart';
 import 'auth/providers/auth_provider.dart';
 import 'database/app_database.dart';
@@ -20,7 +21,6 @@ import 'utils/theme_provider.dart';
 import 'shared/widgets/main_appbar.dart';
 import 'utils/app_colour.dart';
 import 'views/budget_manager/budget_manager_screen.dart';
-import 'package:budgetit/services/analysis/background_anomaly_scanner.dart';
 import 'package:budgetit/views/profile/profile_page.dart';
 import 'package:flutter_gemma/flutter_gemma.dart';
 //import 'package:flutter_gemma_litertlm/flutter_gemma_litertlm.dart';
@@ -48,6 +48,7 @@ void main() async {
 
   runApp(
     MultiProvider(
+      
       providers: [
         Provider<AppDatabase>(
           create: (_) => db,
@@ -79,8 +80,35 @@ Future<void> _configureAmplify() async {
   } on AmplifyAlreadyConfiguredException {}
 }
 
-class BudgetApp extends StatelessWidget {
+class BudgetApp extends StatefulWidget {
   const BudgetApp({super.key});
+
+  @override
+  State<BudgetApp> createState() => _BudgetAppState();
+}
+
+class _BudgetAppState extends State<BudgetApp>
+    with WidgetsBindingObserver {
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden) {
+      context.read<AppAuthProvider>().lock();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,18 +116,41 @@ class BudgetApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      themeMode: themeProvider.isDark ? ThemeMode.dark : ThemeMode.light,
+
+      themeMode:
+          themeProvider.isDark ? ThemeMode.dark : ThemeMode.light,
+
       theme: ThemeData(
         brightness: Brightness.light,
         extensions: [MyColours.lightTheme],
       ),
+
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         extensions: [MyColours.darkTheme],
       ),
+
       initialRoute: '/',
-      routes: {'/transaction_manager': (context) => const TransactionManager()},
+
+      routes: {
+        '/transaction_manager': (context) =>
+            const TransactionManager(),
+      },
+
       home: const AuthWrapper(),
+
+      builder: (context, child) {
+        final auth = context.watch<AppAuthProvider>();
+
+        return Stack(
+          children: [
+            if (child != null) child,
+
+            if (auth.status == AuthStatus.locked)
+              const BiometricLockScreen(),
+          ],
+        );
+      },
     );
   }
 }
@@ -109,8 +160,6 @@ class AuthWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context.watch<ThemeProvider>();
-    context.watch<ThemeProvider>();
     final auth = context.watch<AppAuthProvider>();
 
     switch (auth.status) {
@@ -118,11 +167,22 @@ class AuthWrapper extends StatelessWidget {
         return const Scaffold(
           backgroundColor: Color(0xFF04240C),
           body: Center(
-            child: CircularProgressIndicator(color: Color(0xFFDDD6AE)),
+            child: CircularProgressIndicator(
+              color: Color(0xFFDDD6AE),
+            ),
           ),
         );
+
+      case AuthStatus.locked:
+        return const Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
+
       case AuthStatus.guest:
         return const LoginRegisterScreen();
+
       case AuthStatus.skipped:
       case AuthStatus.loggedIn:
         return const HomePage();
@@ -188,7 +248,15 @@ class _HomePageState extends State<HomePage> {
         : context.colours.cardText;
 
     return Scaffold(
-      appBar: const MainAppbar(),
+      appBar: MainAppbar(
+  onProfileTap: () {
+    debugPrint('Profile icon tapped');
+
+    setState(() {
+      _selectedIndex = 3;
+    });
+  },
+),
       body: _buildPages(db)[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -229,18 +297,29 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  List<Widget> _buildPages(AppDatabase db) {
-    return [
-      const Dashboard(),
-      const TransactionManager(),
-      BudgetManagerScreen(database: db),
-      const ProfilePage(),
-    ];
-  }
+ List<Widget> _buildPages(AppDatabase db) {
+  final themeProvider = context.watch<ThemeProvider>();
+
+  return [
+    const Dashboard(),
+    const TransactionManager(),
+    BudgetManagerScreen(database: db),
+    ProfilePage(
+      isDarkMode: themeProvider.isDark,
+      onToggleTheme: themeProvider.toggle,
+    ),
+  ];
+}
 
   void _onDestinationSelected(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
+
+  void _goToProfile() {
+  setState(() {
+    _selectedIndex = 3;
+  });
+}
 }
