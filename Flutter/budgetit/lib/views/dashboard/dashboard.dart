@@ -52,8 +52,12 @@ class _DashboardState extends State<Dashboard> {
     showDialog(
       context: context,
       builder: (dialogContext) {
+        final isDark = Theme.of(dialogContext).brightness == Brightness.dark;
+        final dialogColor = isDark ? colours.blendedprimary : colours.secondary;
+        final dialogTextColor = isDark ? colours.secondary : colours.background;
+
         return AlertDialog(
-          backgroundColor: colours.secondary,
+          backgroundColor: dialogColor,
           surfaceTintColor: Colors.transparent,
           elevation: 8,
           shadowColor: Colors.black,
@@ -64,7 +68,7 @@ class _DashboardState extends State<Dashboard> {
           title: Text(
             'Financial Health Analysis',
             style: TextStyle(
-              color: colours.background,
+              color: dialogTextColor,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -134,7 +138,8 @@ class _DashboardState extends State<Dashboard> {
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
               style: TextButton.styleFrom(
-                backgroundColor: colours.background,
+                backgroundColor: dialogTextColor,
+                foregroundColor: dialogColor,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,
                   vertical: 12,
@@ -147,7 +152,7 @@ class _DashboardState extends State<Dashboard> {
               child: Text(
                 'CLOSE',
                 style: TextStyle(
-                  color: colours.secondary,
+                  color: dialogColor,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -186,6 +191,9 @@ class _DashboardState extends State<Dashboard> {
   }
 
   String _shortMonthName(int month) => _monthName(month).substring(0, 3);
+
+  String _formatDashboardDate(DateTime date) =>
+      '${date.day} ${_monthName(date.month).toUpperCase()} ${date.year}';
 
   double _amountAsDouble(Transaction transaction) =>
       double.parse(transaction.amount.toString());
@@ -355,7 +363,7 @@ class _DashboardState extends State<Dashboard> {
       final trends = await _loadMonthlyTrends();
       final healthScore = await FinancialHealthScoreService(
         db,
-      ).calculateMonthlyScore();
+      ).calculateMonthlyScore(anchorDate: selectedDate);
 
       if (!mounted) return;
       setState(() {
@@ -378,6 +386,9 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget _analysisRow(MyColours colours, String label, String value) {
+    final textColor = Theme.of(context).brightness == Brightness.dark
+        ? colours.secondary : colours.background;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -387,7 +398,7 @@ class _DashboardState extends State<Dashboard> {
             child: Text(
               label,
               style: colours.h2.copyWith(
-                color: colours.background.withValues(alpha: 0.75),
+                color: textColor.withValues(alpha: 0.75),
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),
@@ -399,7 +410,7 @@ class _DashboardState extends State<Dashboard> {
               value,
               textAlign: TextAlign.right,
               style: colours.h2.copyWith(
-                color: colours.background,
+                color: textColor,
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),
@@ -411,12 +422,15 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget _analysisTitle(MyColours colours, String title) {
+    final textColor = Theme.of(context).brightness == Brightness.dark
+        ? colours.secondary : colours.background;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         title.toUpperCase(),
         style: colours.h2.copyWith(
-          color: colours.background,
+          color: textColor,
           fontWeight: FontWeight.bold,
           fontSize: 14,
           letterSpacing: 1,
@@ -426,12 +440,15 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget _bulletText(MyColours colours, String text) {
+    final textColor = Theme.of(context).brightness == Brightness.dark
+        ? colours.secondary : colours.background;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Text(
         '• $text',
         style: colours.h2.copyWith(
-          color: colours.background.withValues(alpha: 0.85),
+          color: textColor.withValues(alpha: 0.85),
           fontSize: 13,
           fontWeight: FontWeight.w500,
         ),
@@ -447,19 +464,22 @@ class _DashboardState extends State<Dashboard> {
     final cardTextColor = Theme.of(context).brightness == Brightness.dark
         ? colours.secondary
         : colours.background;
+    final analysisButtonColor = Theme.of(context).brightness == Brightness.dark
+        ? colours.background: cardTextColor;
+    final analysisButtonTextColor =
+        Theme.of(context).brightness == Brightness.dark
+        ? colours.secondary
+        : cardColor;
 
     if (health == null) {
       return const SizedBox.shrink();
     }
 
     final statusColor = health.isPoor
-        ? colours.error
+        ? const Color(0xFFD15F3D)
         : (health.isGood || health.isExcellent)
         ? colours.greenAccents
         : colours.warning;
-    final statusTextColor = health.isPoor
-        ? colours.whiteAccents
-        : colours.primary;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -478,47 +498,103 @@ class _DashboardState extends State<Dashboard> {
         ),
         const SizedBox(height: 10),
         Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              health.scoreLabel,
-              style: colours.h2.copyWith(
-                color: statusColor,
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                height: 1,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: statusColor,
-                border: Border.all(color: Colors.black, width: 3),
-                boxShadow: const [
-                  BoxShadow(color: Colors.black, offset: Offset(3, 3)),
+            SizedBox(
+              width: 104,
+              height: 104,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox.expand(
+                    child: CircularProgressIndicator(
+                      value: health.score.clamp(0, 100) / 100,
+                      strokeWidth: 12,
+                      strokeCap: StrokeCap.round,
+                      backgroundColor: cardTextColor.withValues(alpha: 0.1),
+                      valueColor: AlwaysStoppedAnimation<Color>(statusColor),
+                    ),
+                  ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        health.score.toString(),
+                        style: colours.h2.copyWith(
+                          color: cardTextColor,
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          height: 1,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        '/ 100',
+                        style: colours.b5.copyWith(
+                          color: cardTextColor.withValues(alpha: 0.7),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
-              child: Text(
-                health.status.toUpperCase(),
-                style: colours.h2.copyWith(
-                  color: statusTextColor,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1,
-                ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 7,
+                    ),
+                    decoration: BoxDecoration(
+                      color: statusColor.withValues(alpha: 0.14),
+                      border: Border.all(color: Colors.black, width: 2),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: statusColor,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            '${health.status} · ${health.riskLevel}',
+                            overflow: TextOverflow.ellipsis,
+                            style: colours.b5.copyWith(
+                              color: statusColor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    health.summary,
+                    style: colours.h2.copyWith(
+                      color: cardTextColor.withValues(alpha: 0.8),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      height: 1.45,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
-        ),
-        const SizedBox(height: 8),
-        Text(
-          health.summary,
-          style: colours.h2.copyWith(
-            color: cardTextColor.withValues(alpha: 0.8),
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-          ),
         ),
         const SizedBox(height: 14),
         Row(
@@ -543,7 +619,7 @@ class _DashboardState extends State<Dashboard> {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
-              color: cardTextColor,
+              color: analysisButtonColor,
               border: Border.all(color: Colors.black, width: 3),
               boxShadow: const [
                 BoxShadow(color: Colors.black, offset: Offset(4, 4)),
@@ -552,14 +628,18 @@ class _DashboardState extends State<Dashboard> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.insights_outlined, color: cardColor, size: 18),
+                Icon(
+                  Icons.insights_outlined,
+                  color: analysisButtonTextColor,
+                  size: 18,
+                ),
                 const SizedBox(width: 8),
                 Flexible(
                   child: Text(
                     'VIEW HEALTH ANALYSIS',
                     textAlign: TextAlign.center,
                     style: colours.h2.copyWith(
-                      color: cardColor,
+                      color: analysisButtonTextColor,
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 0.8,
@@ -625,7 +705,7 @@ class _DashboardState extends State<Dashboard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "DAILY SPENDING FOR ${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+            'DAILY SPENDING FOR ${_formatDashboardDate(selectedDate)}',
             style: colours.h2.copyWith(
               color: cardTextColor,
               fontSize: 16,
@@ -669,7 +749,8 @@ class _DashboardState extends State<Dashboard> {
           Expanded(
             child: _incomeExpenseCard(
               colours: colours,
-              title: 'Income',
+              title:
+                  'TOTAL INCOME\n${_monthName(selectedDate.month).toUpperCase()}',
               amount: health.totalIncome,
               icon: Icons.arrow_upward,
               amountColor: colours.greenAccents,
@@ -679,7 +760,8 @@ class _DashboardState extends State<Dashboard> {
           Expanded(
             child: _incomeExpenseCard(
               colours: colours,
-              title: 'Expenses',
+              title:
+                  'TOTAL EXPENSES\n${_monthName(selectedDate.month).toUpperCase()}',
               amount: health.totalExpenses,
               icon: Icons.arrow_downward,
               amountColor: colours.error,
@@ -976,29 +1058,38 @@ class _DashboardState extends State<Dashboard> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text("DASHBOARD", style: colours.h2),
-                    GestureDetector(
+                    InkWell(
                       onTap: _showStyledDatePicker,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 10,
+                          horizontal: 10,
+                          vertical: 8,
                         ),
                         decoration: BoxDecoration(
                           color: colours.primary,
-                          border: Border.all(color: Colors.black, width: 4),
+                          border: Border.all(color: Colors.black, width: 3),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(4, 4),
+                            ),
+                          ],
                         ),
                         child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
                               Icons.calendar_month,
                               color: colours.cardText,
-                              size: 18,
+                              size: 17,
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 7),
                             Text(
-                              "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
-                              style: colours.b1.copyWith(
+                              _formatDashboardDate(selectedDate),
+                              style: colours.b5.copyWith(
                                 color: colours.cardText,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.8,
                               ),
                             ),
                           ],
@@ -1027,87 +1118,49 @@ class _DashboardState extends State<Dashboard> {
                 ),
               _buildDailySpendingCard(colours),
               _buildIncomeExpenseCards(colours),
-              const SizedBox(height: 10), //here
+              GraphicalReportsScreen(
+                database: db,
+                embedded: true,
+                initialDate: selectedDate,
+              ),
+              const SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const PredictiveSpendingScreen(),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          height: MediaQuery.sizeOf(context).height * 0.08,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.black, width: 4),
-                            color: dashboardCardColor,
-
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colors.black,
-                                offset: Offset(4, 4),
-                                blurRadius: 0,
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                            child: Text(
-                              "VIEW INSIGHTS",
-                              style: colours.h2.copyWith(
-                                color: dashboardCardTextColor,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const PredictiveSpendingScreen(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    height: MediaQuery.sizeOf(context).height * 0.08,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black, width: 4),
+                      color: dashboardCardColor,
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(4, 4),
+                          blurRadius: 0,
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        "VIEW INSIGHTS",
+                        style: colours.h2.copyWith(
+                          color: dashboardCardTextColor,
+                          fontSize: 15,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  GraphicalReportsScreen(database: db),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          height: MediaQuery.sizeOf(context).height * 0.08,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.black, width: 4),
-                            color: dashboardCardColor,
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colors.black,
-                                offset: Offset(4, 4),
-                                blurRadius: 0,
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                            child: Text(
-                              "VIEW REPORTS",
-                              style: colours.h2.copyWith(
-                                color: dashboardCardTextColor,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ), //here
+              ),
               const SizedBox(height: 25),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
