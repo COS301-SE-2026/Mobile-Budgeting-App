@@ -611,24 +611,36 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
 
                 const SizedBox(height: 12),
 
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: () => _showCreateBudgetDialog(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: context.colours.background,
-                      foregroundColor: context.colours.secondary,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero,
-                        side: BorderSide(color: Colors.black, width: 4),
-                      ),
-                      textStyle: context.colours.b3.copyWith(
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.8,
-                      ),
+                GestureDetector(
+                  onTap: () => _showCreateBudgetDialog(context),
+                  child: Container(
+                    width: double.infinity,
+                    height: 55,
+                    decoration: BoxDecoration(
+                      color: cardColor,
+                      border: Border.all(color: Colors.black, width: 4),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(4, 4),
+                          blurRadius: 0,
+                        ),
+                      ],
                     ),
-                    child: const Text('CREATE NEW BUDGET'),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.add, color: cardTextColor),
+                        const SizedBox(width: 8),
+                        Text(
+                          'CREATE NEW BUDGET',
+                          style: colours.h2.copyWith(
+                            color: cardTextColor,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
 
@@ -776,7 +788,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
         ? context.colours.error
         : spent <= 0
         ? context.colours.cardText
-        : context.colours.blue;
+        : context.colours.greenAccents;
 
     return InkWell(
       onTap: onTap,
