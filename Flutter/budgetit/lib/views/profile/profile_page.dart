@@ -1,13 +1,221 @@
 import 'package:flutter/material.dart';
+import 'package:budgetit/auth/providers/auth_provider.dart';
 
+import 'package:provider/provider.dart';
 import '../../utils/app_colour.dart';
 
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({
+    super.key,
+    required this.isDarkMode,
+    required this.onToggleTheme,
+  });
+
+  final bool isDarkMode;
+  final VoidCallback onToggleTheme;
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  String _selectedCurrency = 'ZAR (\R)';
+  // bool _darkModeEnabled = true;
+  bool _billAlertsEnabled = true;
+  // bool _biometricUnlockEnabled = false;
+  bool _twoFactorEnabled = true;
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: context.colours.blendedprimary,
+          content: Text(
+            message,
+            style: context.colours.b1.copyWith(
+              color: context.colours.textPrimary,
+            ),
+          ),
+        ),
+      );
+  }
+
+  Future<void> _showCurrencyPicker() async {
+    final currencies = ['ZAR (R)'];
+
+    final selected = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        final colours = context.colours;
+        final auth = context.watch<AppAuthProvider>();
+
+        return AlertDialog(
+          backgroundColor: colours.background,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero,
+            side: const BorderSide(color: Colors.black, width: 4),
+          ),
+          title: Text('Select Currency', style: colours.h2),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: currencies.map((currency) {
+              return ListTile(
+                title: Text(currency, style: colours.b1),
+                trailing: _selectedCurrency == currency
+                    ? Icon(Icons.check, color: colours.informational)
+                    : null,
+                onTap: () {
+                  Navigator.of(dialogContext).pop(currency);
+                },
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
+
+    if (selected == null) return;
+
+    setState(() {
+      _selectedCurrency = selected;
+    });
+
+    _showMessage('Currency changed to $selected');
+  }
+
+  void _toggleAppearance() {
+    widget.onToggleTheme();
+
+    _showMessage(
+      widget.isDarkMode ? 'Light mode enabled' : 'Dark mode enabled',
+    );
+  }
+
+  void _showBillAlertsDialog() {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        final colours = context.colours;
+
+        return AlertDialog(
+          backgroundColor: colours.background,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero,
+            side: const BorderSide(color: Colors.black, width: 4),
+          ),
+          title: Text('Bill Alerts', style: colours.h2),
+          content: Text(
+            _billAlertsEnabled
+                ? 'Daily bill summaries are currently enabled.'
+                : 'Bill alerts are currently disabled.',
+            style: colours.b1,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+              child: Text('Close', style: colours.b1),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+
+                setState(() {
+                  _billAlertsEnabled = !_billAlertsEnabled;
+                });
+
+                _showMessage(
+                  _billAlertsEnabled
+                      ? 'Bill alerts enabled'
+                      : 'Bill alerts disabled',
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colours.secondary,
+                foregroundColor: colours.background,
+              ),
+              child: Text(
+                _billAlertsEnabled ? 'Disable' : 'Enable',
+                style: colours.b1.copyWith(
+                  color: colours.background,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _toggleTwoFactorAuth() {
+    setState(() {
+      _twoFactorEnabled = !_twoFactorEnabled;
+    });
+
+    _showMessage(
+      _twoFactorEnabled
+          ? '2-Factor authentication enabled'
+          : '2-Factor authentication disabled',
+    );
+  }
+
+  Future<void> _confirmLogout() async {
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        final colours = context.colours;
+
+        return AlertDialog(
+          backgroundColor: colours.background,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero,
+            side: const BorderSide(color: Colors.black, width: 4),
+          ),
+          title: Text('Logout', style: colours.h2),
+          content: Text('Are you sure you want to logout?', style: colours.b1),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false);
+              },
+              child: Text('Cancel', style: colours.b1),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colours.error,
+                foregroundColor: colours.whiteAccents,
+              ),
+              child: Text(
+                'Logout',
+                style: colours.b1.copyWith(
+                  color: colours.whiteAccents,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldLogout != true) return;
+
+    _showMessage(
+      'Logout selected. Connect this to Amplify sign out if needed.',
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final colours = context.colours;
+    final auth = context.watch<AppAuthProvider>();
 
     return Scaffold(
       backgroundColor: colours.background,
@@ -23,77 +231,97 @@ class ProfilePage extends StatelessWidget {
                   children: [
                     _profileHeader(context),
                     const SizedBox(height: 22),
-
                     _sectionTitle(context, 'PREFERENCES'),
                     const SizedBox(height: 12),
-
                     _menuCard(
                       context,
                       icon: Icons.payments_outlined,
                       title: 'Currency',
-                      subtitle: 'USD (\$)',
+                      subtitle: _selectedCurrency,
                       trailing: Icon(
                         Icons.chevron_right,
                         color: colours.textPrimary,
                         size: 22,
                       ),
-                      onTap: () {},
+                      onTap: _showCurrencyPicker,
                     ),
                     const SizedBox(height: 12),
-
                     _menuCard(
                       context,
                       icon: Icons.dark_mode_outlined,
                       title: 'Appearance',
-                      subtitle: 'Dark Mode (Enabled)',
-                      trailing: _toggle(context, isOn: true),
-                      onTap: () {},
+                      subtitle: widget.isDarkMode
+                          ? 'Dark Mode (Enabled)'
+                          : 'Light Mode (Selected)',
+                      trailing: _toggle(context, isOn: widget.isDarkMode),
+                      onTap: _toggleAppearance,
                     ),
                     const SizedBox(height: 12),
-
                     _menuCard(
                       context,
                       icon: Icons.notifications_none_outlined,
                       title: 'Bill Alerts',
-                      subtitle: 'Daily Summaries',
+                      subtitle: _billAlertsEnabled
+                          ? 'Daily Summaries'
+                          : 'Disabled',
                       trailing: Icon(
                         Icons.chevron_right,
                         color: colours.textPrimary,
                         size: 22,
                       ),
-                      onTap: () {},
+                      onTap: _showBillAlertsDialog,
                     ),
-
                     const SizedBox(height: 20),
-
                     _sectionTitle(context, 'SECURITY'),
                     const SizedBox(height: 12),
-
                     _menuCard(
                       context,
                       icon: Icons.fingerprint,
                       title: 'Biometric Unlock',
-                      trailing: _toggle(context, isOn: false),
-                      onTap: () {},
+                      trailing: _toggle(
+                        context,
+                        isOn: auth.biometricLockEnabled,
+                      ),
+                      onTap: () async {
+                        final newValue = !auth.biometricLockEnabled;
+
+                        final changed = await context
+                            .read<AppAuthProvider>()
+                            .setBiometricLockEnabled(newValue);
+
+                        if (!mounted) return;
+
+                        if (changed) {
+                          _showMessage(
+                            newValue
+                                ? 'Biometric unlock enabled'
+                                : 'Biometric unlock disabled',
+                          );
+                        } else {
+                          _showMessage(
+                            context.read<AppAuthProvider>().errorMessage ??
+                                'Unable to change biometric setting',
+                          );
+                        }
+                      },
                     ),
                     const SizedBox(height: 12),
-
                     _menuCard(
                       context,
                       icon: Icons.shield_outlined,
                       title: '2-Factor Auth',
                       trailing: Icon(
-                        Icons.verified_user_outlined,
+                        _twoFactorEnabled
+                            ? Icons.verified_user_outlined
+                            : Icons.shield_outlined,
                         color: colours.textPrimary,
                         size: 19,
                       ),
-                      onTap: () {},
+                      onTap: _toggleTwoFactorAuth,
                     ),
-
                     const SizedBox(height: 30),
                     _logoutButton(context),
                     const SizedBox(height: 22),
-
                     Center(
                       child: Text(
                         'VERSION 4.2.0-STABLE  •  MADE BY BUDGET.IT',
@@ -168,22 +396,16 @@ class ProfilePage extends StatelessWidget {
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(5),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.zero,
-                    child: Image.asset(
-                      'assets/images/profile_avatar.png',
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: colours.primary,
-                          child: Icon(
-                            Icons.person,
-                            color: colours.textPrimary,
-                            size: 42,
-                          ),
-                        );
-                      },
-                    ),
+                  child: Image.asset(
+                    'assets/images/profile_avatar.png',
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Icon(
+                        Icons.person,
+                        color: colours.textPrimary,
+                        size: 42,
+                      );
+                    },
                   ),
                 ),
               ),
@@ -220,7 +442,6 @@ class ProfilePage extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 2),
           Text(
             'alex.smith@example.com',
             style: colours.b5.copyWith(
@@ -365,7 +586,7 @@ class ProfilePage extends StatelessWidget {
           width: double.infinity,
           height: 44,
           child: ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: _confirmLogout,
             icon: Icon(Icons.logout, color: colours.whiteAccents, size: 16),
             label: Text(
               'LOGOUT',
