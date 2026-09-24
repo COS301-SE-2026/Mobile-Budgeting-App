@@ -24,6 +24,9 @@ enum AssignmentSource { manual, ai, import }
 /// The period type used by budget templates.
 enum PeriodType { daily, weekly, monthly, yearly }
 
+/// The lifecycle state of a friend request.
+enum FriendRequestStatus { pending, accepted, declined }
+
 /// The type of record from which an embedding was generated.
 enum EmbeddingSourceType { transaction, category }
 
@@ -202,6 +205,9 @@ class TransactionCategoryMap extends Table {
 class BudgetTemplates extends Table {
   /// Unique identifier for the template.
   TextColumn get id => text()();
+
+  /// Optional human-readable label to distinguish multiple budgets.
+  TextColumn get name => text().nullable()();
 
   /// The category this budget applies to.
   TextColumn get categoryId => text().references(Categories, #id).nullable()();
@@ -402,6 +408,176 @@ class Imports extends Table{
   TextColumn get fileType => textEnum<ImportFileType>()();
   TextColumn get accountIdentifier => text().nullable()();
   DateTimeColumn get importedAt => dateTime()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Defines a recurring income target for a category over a time period.
+///
+/// Mirrors [BudgetTemplates], but for income. [GoalPeriods] are generated from
+/// a template and track actual target amounts for each period.
+class GoalTemplates extends Table {
+  /// Unique identifier for the goal template.
+  TextColumn get id => text()();
+
+  /// Optional human-readable label to distinguish multiple goals.
+  TextColumn get name => text().nullable()();
+
+  /// The (income) category this goal applies to.
+  TextColumn get categoryId => text().references(Categories, #id).nullable()();
+
+  /// The income target amount per period.
+  TextColumn get targetAmount => text().map(DecimalConverter())();
+
+  /// How often the goal repeats (daily, weekly, monthly, yearly).
+  TextColumn get periodType => textEnum<PeriodType>()();
+
+  /// Currency code (defaults to 'ZAR').
+  TextColumn get currency => text().withDefault(const Constant('ZAR'))();
+
+  /// When the template was created.
+  DateTimeColumn get createdAt => dateTime()();
+
+  /// When the template was last modified.
+  DateTimeColumn get updatedAt => dateTime()();
+
+  /// When the template was soft-deleted (null if active).
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  TextColumn get userId => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Represents a specific goal period generated from a [GoalTemplates] template.
+class GoalPeriods extends Table {
+  /// Unique identifier for the period.
+  TextColumn get id => text()();
+
+  /// The template this period belongs to.
+  TextColumn get templateId => text().references(GoalTemplates, #id)();
+
+  TextColumn get userId => text().nullable()();
+
+  TextColumn get periodKey => text()();
+
+  /// Start of the goal period.
+  DateTimeColumn get startDate => dateTime()();
+
+  /// End of the goal period.
+  DateTimeColumn get endDate => dateTime()();
+
+  /// The income target for this period.
+  TextColumn get targetAmount => text().map(DecimalConverter())();
+
+  /// Whether this period's target has been manually overridden.
+  BoolColumn get isOverridden => boolean()();
+
+  /// When the period was created.
+  DateTimeColumn get createdAt => dateTime()();
+
+  /// When the period was last modified.
+  DateTimeColumn get updatedAt => dateTime()();
+
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Lists the co-owners of a shared budget template.
+///
+/// The template owner is identified by [BudgetTemplates.userId]; these rows
+/// hold the additional participants (equal co-owners).
+class BudgetMembers extends Table {
+  TextColumn get id => text()();
+
+  /// The shared budget template.
+  TextColumn get budgetTemplateId =>
+      text().references(BudgetTemplates, #id)();
+
+  /// The co-owner (Cognito subject).
+  TextColumn get userId => text().nullable()();
+
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Lists the co-owners of a shared goal template.
+class GoalMembers extends Table {
+  TextColumn get id => text()();
+
+  /// The shared goal template.
+  TextColumn get goalTemplateId => text().references(GoalTemplates, #id)();
+
+  /// The co-owner (Cognito subject).
+  TextColumn get userId => text().nullable()();
+
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// One row per registered user; holds the shareable friend code.
+class UserProfiles extends Table {
+  TextColumn get id => text()();
+
+  /// Cognito subject this profile belongs to.
+  TextColumn get userId => text().nullable()();
+
+  /// Short shareable code used to send friend requests.
+  TextColumn get friendCode => text()();
+
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// A friend request from [requesterId] to [addresseeId].
+class FriendRequests extends Table {
+  TextColumn get id => text()();
+
+  /// The sender's Cognito subject.
+  TextColumn get requesterId => text()();
+
+  /// The recipient's Cognito subject.
+  TextColumn get addresseeId => text()();
+
+  /// Current state of the request.
+  TextColumn get status => textEnum<FriendRequestStatus>()();
+
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// An accepted friendship between two users (stored as user_a < user_b).
+class Friendships extends Table {
+  TextColumn get id => text()();
+
+  /// The lexicographically smaller Cognito subject.
+  TextColumn get userA => text()();
+
+  /// The lexicographically larger Cognito subject.
+  TextColumn get userB => text()();
+
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
   DateTimeColumn get deletedAt => dateTime().nullable()();

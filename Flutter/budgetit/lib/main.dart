@@ -31,6 +31,7 @@ import 'shared/widgets/biometric_lock_screen.dart';
 import 'utils/app_colour.dart';
 import 'views/budget_manager/budget_manager_screen.dart';
 import 'package:budgetit/views/profile/profile_page.dart';
+import 'shared/widgets/friends_page.dart';
 import 'package:flutter_gemma/flutter_gemma.dart';
 //import 'package:flutter_gemma_litertlm/flutter_gemma_litertlm.dart';
 import 'package:pdfrx/pdfrx.dart';
@@ -341,11 +342,10 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: MainAppbar(
   onProfileTap: () {
-    debugPrint('Profile icon tapped');
-
-    setState(() {
-      _selectedIndex = 3;
-    });
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const FriendsPage()),
+    );
   },
 ),
       body: _buildPages(db)[_selectedIndex],
@@ -433,10 +433,4 @@ class _HomePageState extends State<HomePage> {
       _selectedIndex = index;
     });
   }
-
-  void _goToProfile() {
-  setState(() {
-    _selectedIndex = 3;
-  });
-}
 }

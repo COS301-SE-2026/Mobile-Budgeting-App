@@ -269,10 +269,10 @@ packages:
     dependency: transitive
     description:
       name: cli_util
-      sha256: "71e43f1976c3eae2d9468a5b4d6600bf8cae61508b87f27fa1799228935d48ab"
+      sha256: ff6785f7e9e3c38ac98b2fb035701789de90154024a75b6cb926445e83197d1c
       url: "https://pub.dev"
     source: hosted
-    version: "0.5.2"
+    version: "0.4.2"
   clock:
     dependency: transitive
     description:
@@ -582,6 +582,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
+  flutter_launcher_icons:
+    dependency: "direct dev"
+    description:
+      name: flutter_launcher_icons
+      sha256: "10f13781741a2e3972126fae08393d3c4e01fa4cd7473326b94b72cf594195e7"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.14.4"
   flutter_localizations:
     dependency: transitive
     description: flutter
@@ -595,14 +603,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.8.4"
-  flutter_pdfview:
-    dependency: "direct main"
-    description:
-      name: flutter_pdfview
-      sha256: f0d14d51a69dee6ce4a7e8ddf45531b9cd26a5a0b984ff34cb3a2cc36a1355a5
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.4.5"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:

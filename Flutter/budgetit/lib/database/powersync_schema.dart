@@ -49,6 +49,7 @@ final powerSyncSchema = Schema([
   ]),
 
   Table('budget_templates', [
+    Column.text('name'),
     Column.text('category_id'),
     Column.text('amount'),
     Column.text('period_type'),
@@ -97,6 +98,71 @@ final powerSyncSchema = Schema([
     Column.text('file_type'),
     Column.text('account_identifier'),
     Column.text('imported_at'),
+    Column.text('created_at'),
+    Column.text('updated_at'),
+    Column.text('deleted_at'),
+  ]),
+
+  Table('goal_templates', [
+    Column.text('user_id'),
+    Column.text('name'),
+    Column.text('category_id'),
+    Column.text('target_amount'),
+    Column.text('period_type'),
+    Column.text('currency'),
+    Column.text('created_at'),
+    Column.text('updated_at'),
+    Column.text('deleted_at'),
+  ]),
+
+  Table('goal_periods', [
+    Column.text('template_id'),
+    Column.text('user_id'),
+    Column.text('period_key'),
+    Column.text('start_date'),
+    Column.text('end_date'),
+    Column.text('target_amount'),
+    Column.integer('is_overridden'),
+    Column.text('created_at'),
+    Column.text('updated_at'),
+    Column.text('deleted_at'),
+  ]),
+
+  Table('budget_members', [
+    Column.text('budget_template_id'),
+    Column.text('user_id'),
+    Column.text('created_at'),
+    Column.text('updated_at'),
+    Column.text('deleted_at'),
+  ]),
+
+  Table('goal_members', [
+    Column.text('goal_template_id'),
+    Column.text('user_id'),
+    Column.text('created_at'),
+    Column.text('updated_at'),
+    Column.text('deleted_at'),
+  ]),
+
+  Table('user_profiles', [
+    Column.text('user_id'),
+    Column.text('friend_code'),
+    Column.text('created_at'),
+    Column.text('updated_at'),
+  ]),
+
+  Table('friend_requests', [
+    Column.text('requester_id'),
+    Column.text('addressee_id'),
+    Column.text('status'),
+    Column.text('created_at'),
+    Column.text('updated_at'),
+    Column.text('deleted_at'),
+  ]),
+
+  Table('friendships', [
+    Column.text('user_a'),
+    Column.text('user_b'),
     Column.text('created_at'),
     Column.text('updated_at'),
     Column.text('deleted_at'),
