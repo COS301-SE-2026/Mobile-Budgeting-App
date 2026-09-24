@@ -13,7 +13,7 @@ Widget recurringTransactionsDropdownUseCase(BuildContext context) {
   return appPreview(
     database: true,
     child: Scaffold(
-      backgroundColor: context.colours.background,
+      backgroundColor: context.colours.blendedprimary,
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(vertical: 32),

@@ -132,11 +132,17 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
             const SizedBox(height: 24),
             //i used Pavan's code to decorate the boxes
             Container(
+              width: double.infinity,
+              height: 55,
               decoration: BoxDecoration(
                 color: tertiary,
                 border: Border.all(color: Colors.black, width: 4),
-                boxShadow: [
-                  BoxShadow(color: Colors.black, offset: const Offset(6, 6)),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black,
+                    offset: Offset(4, 4),
+                    blurRadius: 0,
+                  ),
                 ],
               ),
               child: ElevatedButton.icon(
@@ -156,13 +162,16 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
             ),
             const SizedBox(height: 12),
             Container(
+              width: double.infinity,
+              height: 55,
               decoration: BoxDecoration(
                 color: background,
                 border: Border.all(color: Colors.black, width: 4),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
                     color: Colors.black,
-                    offset: const Offset(6, 6),
+                    offset: Offset(4, 4),
+                    blurRadius: 0,
                   ), // using the box shadoww we used in transaction manager
                 ],
               ),

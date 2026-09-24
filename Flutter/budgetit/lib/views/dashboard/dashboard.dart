@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:budgetit/utils/app_colour.dart';
+import 'package:budgetit/utils/date_display_formatter.dart';
+import 'package:budgetit/utils/app_dialog_style.dart';
 import 'package:provider/provider.dart';
 import 'package:budgetit/utils/theme_provider.dart';
 import 'package:budgetit/utils/icon_mapper.dart';
@@ -52,8 +54,12 @@ class _DashboardState extends State<Dashboard> {
     showDialog(
       context: context,
       builder: (dialogContext) {
+        final isDark = Theme.of(dialogContext).brightness == Brightness.dark;
+        final dialogColor = isDark ? colours.blendedprimary : colours.secondary;
+        final dialogTextColor = isDark ? colours.secondary : colours.background;
+
         return AlertDialog(
-          backgroundColor: colours.secondary,
+          backgroundColor: dialogColor,
           surfaceTintColor: Colors.transparent,
           elevation: 8,
           shadowColor: Colors.black,
@@ -64,7 +70,7 @@ class _DashboardState extends State<Dashboard> {
           title: Text(
             'Financial Health Analysis',
             style: TextStyle(
-              color: colours.background,
+              color: dialogTextColor,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -133,21 +139,24 @@ class _DashboardState extends State<Dashboard> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              style: TextButton.styleFrom(
-                backgroundColor: colours.background,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
-                ),
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.zero,
-                  side: BorderSide(color: Colors.black, width: 3),
-                ),
-              ),
+              style: isDark
+                  ? AppDialogStyle.cancel(dialogContext)
+                  : TextButton.styleFrom(
+                      backgroundColor: dialogTextColor,
+                      foregroundColor: dialogColor,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero,
+                        side: BorderSide(color: Colors.black, width: 3),
+                      ),
+                    ),
               child: Text(
                 'CLOSE',
                 style: TextStyle(
-                  color: colours.secondary,
+                  color: isDark ? dialogTextColor : dialogColor,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -186,6 +195,8 @@ class _DashboardState extends State<Dashboard> {
   }
 
   String _shortMonthName(int month) => _monthName(month).substring(0, 3);
+
+  String _formatDashboardDate(DateTime date) => formatLongDate(date);
 
   double _amountAsDouble(Transaction transaction) =>
       double.parse(transaction.amount.toString());
@@ -355,7 +366,7 @@ class _DashboardState extends State<Dashboard> {
       final trends = await _loadMonthlyTrends();
       final healthScore = await FinancialHealthScoreService(
         db,
-      ).calculateMonthlyScore();
+      ).calculateMonthlyScore(anchorDate: selectedDate);
 
       if (!mounted) return;
       setState(() {
@@ -378,6 +389,10 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget _analysisRow(MyColours colours, String label, String value) {
+    final textColor = Theme.of(context).brightness == Brightness.dark
+        ? colours.secondary
+        : colours.background;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -387,7 +402,7 @@ class _DashboardState extends State<Dashboard> {
             child: Text(
               label,
               style: colours.h2.copyWith(
-                color: colours.background.withValues(alpha: 0.75),
+                color: textColor.withValues(alpha: 0.75),
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),
@@ -399,7 +414,7 @@ class _DashboardState extends State<Dashboard> {
               value,
               textAlign: TextAlign.right,
               style: colours.h2.copyWith(
-                color: colours.background,
+                color: textColor,
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),
@@ -411,12 +426,16 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget _analysisTitle(MyColours colours, String title) {
+    final textColor = Theme.of(context).brightness == Brightness.dark
+        ? colours.secondary
+        : colours.background;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         title.toUpperCase(),
         style: colours.h2.copyWith(
-          color: colours.background,
+          color: textColor,
           fontWeight: FontWeight.bold,
           fontSize: 14,
           letterSpacing: 1,
@@ -426,12 +445,16 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget _bulletText(MyColours colours, String text) {
+    final textColor = Theme.of(context).brightness == Brightness.dark
+        ? colours.secondary
+        : colours.background;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Text(
         '• $text',
         style: colours.h2.copyWith(
-          color: colours.background.withValues(alpha: 0.85),
+          color: textColor.withValues(alpha: 0.85),
           fontSize: 13,
           fontWeight: FontWeight.w500,
         ),
@@ -447,19 +470,23 @@ class _DashboardState extends State<Dashboard> {
     final cardTextColor = Theme.of(context).brightness == Brightness.dark
         ? colours.secondary
         : colours.background;
+    final analysisButtonColor = Theme.of(context).brightness == Brightness.dark
+        ? colours.background
+        : cardTextColor;
+    final analysisButtonTextColor =
+        Theme.of(context).brightness == Brightness.dark
+        ? colours.secondary
+        : cardColor;
 
     if (health == null) {
       return const SizedBox.shrink();
     }
 
     final statusColor = health.isPoor
-        ? colours.error
+        ? const Color(0xFFD15F3D)
         : (health.isGood || health.isExcellent)
         ? colours.greenAccents
         : colours.warning;
-    final statusTextColor = health.isPoor
-        ? colours.whiteAccents
-        : colours.primary;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -478,47 +505,103 @@ class _DashboardState extends State<Dashboard> {
         ),
         const SizedBox(height: 10),
         Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              health.scoreLabel,
-              style: colours.h2.copyWith(
-                color: statusColor,
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                height: 1,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: statusColor,
-                border: Border.all(color: Colors.black, width: 3),
-                boxShadow: const [
-                  BoxShadow(color: Colors.black, offset: Offset(3, 3)),
+            SizedBox(
+              width: 104,
+              height: 104,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox.expand(
+                    child: CircularProgressIndicator(
+                      value: health.score.clamp(0, 100) / 100,
+                      strokeWidth: 12,
+                      strokeCap: StrokeCap.round,
+                      backgroundColor: cardTextColor.withValues(alpha: 0.1),
+                      valueColor: AlwaysStoppedAnimation<Color>(statusColor),
+                    ),
+                  ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        health.score.toString(),
+                        style: colours.h2.copyWith(
+                          color: cardTextColor,
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          height: 1,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        '/ 100',
+                        style: colours.b5.copyWith(
+                          color: cardTextColor.withValues(alpha: 0.7),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
-              child: Text(
-                health.status.toUpperCase(),
-                style: colours.h2.copyWith(
-                  color: statusTextColor,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1,
-                ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 7,
+                    ),
+                    decoration: BoxDecoration(
+                      color: statusColor.withValues(alpha: 0.14),
+                      border: Border.all(color: Colors.black, width: 2),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: statusColor,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            '${health.status} · ${health.riskLevel}',
+                            overflow: TextOverflow.ellipsis,
+                            style: colours.b5.copyWith(
+                              color: statusColor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    health.summary,
+                    style: colours.h2.copyWith(
+                      color: cardTextColor.withValues(alpha: 0.8),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      height: 1.45,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
-        ),
-        const SizedBox(height: 8),
-        Text(
-          health.summary,
-          style: colours.h2.copyWith(
-            color: cardTextColor.withValues(alpha: 0.8),
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-          ),
         ),
         const SizedBox(height: 14),
         Row(
@@ -543,7 +626,7 @@ class _DashboardState extends State<Dashboard> {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
-              color: cardTextColor,
+              color: analysisButtonColor,
               border: Border.all(color: Colors.black, width: 3),
               boxShadow: const [
                 BoxShadow(color: Colors.black, offset: Offset(4, 4)),
@@ -552,14 +635,18 @@ class _DashboardState extends State<Dashboard> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.insights_outlined, color: cardColor, size: 18),
+                Icon(
+                  Icons.insights_outlined,
+                  color: analysisButtonTextColor,
+                  size: 18,
+                ),
                 const SizedBox(width: 8),
                 Flexible(
                   child: Text(
                     'VIEW HEALTH ANALYSIS',
                     textAlign: TextAlign.center,
                     style: colours.h2.copyWith(
-                      color: cardColor,
+                      color: analysisButtonTextColor,
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 0.8,
@@ -625,7 +712,7 @@ class _DashboardState extends State<Dashboard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "DAILY SPENDING FOR ${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+            'DAILY SPENDING FOR ${_formatDashboardDate(selectedDate)}',
             style: colours.h2.copyWith(
               color: cardTextColor,
               fontSize: 16,
@@ -669,7 +756,8 @@ class _DashboardState extends State<Dashboard> {
           Expanded(
             child: _incomeExpenseCard(
               colours: colours,
-              title: 'Income',
+              title:
+                  'TOTAL INCOME\n${_monthName(selectedDate.month).toUpperCase()}',
               amount: health.totalIncome,
               icon: Icons.arrow_upward,
               amountColor: colours.greenAccents,
@@ -679,7 +767,8 @@ class _DashboardState extends State<Dashboard> {
           Expanded(
             child: _incomeExpenseCard(
               colours: colours,
-              title: 'Expenses',
+              title:
+                  'TOTAL EXPENSES\n${_monthName(selectedDate.month).toUpperCase()}',
               amount: health.totalExpenses,
               icon: Icons.arrow_downward,
               amountColor: colours.error,
@@ -697,12 +786,9 @@ class _DashboardState extends State<Dashboard> {
     required IconData icon,
     required Color amountColor,
   }) {
-    final cardColor = Theme.of(context).brightness == Brightness.dark
-        ? colours.blendedprimary
-        : colours.secondary;
-    final cardTextColor = Theme.of(context).brightness == Brightness.dark
-        ? colours.secondary
-        : colours.background;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark ? colours.blendedprimary : colours.secondary;
+    final cardTextColor = isDark ? colours.secondary : colours.background;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -720,10 +806,14 @@ class _DashboardState extends State<Dashboard> {
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: cardTextColor,
+                  color: isDark ? colours.background : colours.cardText,
                   border: Border.all(color: Colors.black, width: 2),
                 ),
-                child: Icon(icon, color: cardColor, size: 18),
+                child: Icon(
+                  icon,
+                  color: isDark ? colours.cardText : cardColor,
+                  size: 18,
+                ),
               ),
               const SizedBox(width: 9),
               Expanded(
@@ -757,19 +847,23 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget _dashboardTransactionTile(Transaction transaction) {
+    final colours = context.colours;
+    final isLight = Theme.of(context).brightness == Brightness.light;
     final isIncome = transaction.type == TransactionType.income;
     final moneyColor = isIncome
-        ? context.colours.greenAccents
-        : context.colours.error;
+        ? (isLight ? colours.blendedprimary : colours.greenAccents)
+        : colours.error;
+    final tileTextColor = isLight ? colours.secondary : colours.cardText;
     final prefix = isIncome ? '+ ' : '- ';
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-      padding: const EdgeInsets.all(14),
+      width: double.infinity,
+      height: MediaQuery.sizeOf(context).height * 0.1,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: context.colours.primary,
-        border: Border.all(color: Colors.black, width: 4),
-        boxShadow: [BoxShadow(color: Colors.black, offset: const Offset(4, 4))],
+        color: colours.background,
+        border: Border.all(color: Colors.black, width: 3),
       ),
       child: Row(
         children: [
@@ -777,24 +871,25 @@ class _DashboardState extends State<Dashboard> {
             width: 34,
             height: 34,
             decoration: BoxDecoration(
-              color: context.colours.secondary,
+              color: isLight ? colours.secondary : colours.blendedprimary,
               border: Border.all(color: Colors.black, width: 2),
             ),
             child: Icon(
               _categoryIconForTransaction(transaction),
-              color: context.colours.background,
+              color: isLight ? colours.background : colours.cardText,
               size: 20,
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   transaction.shortDescription,
-                  style: context.colours.budgetheader.copyWith(
-                    color: context.colours.cardText,
+                  style: colours.budgetheader.copyWith(
+                    color: tileTextColor,
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                   ),
@@ -804,8 +899,8 @@ class _DashboardState extends State<Dashboard> {
                 const SizedBox(height: 5),
                 Text(
                   _transactionSubtitle(transaction),
-                  style: context.colours.b5.copyWith(
-                    color: context.colours.cardText,
+                  style: colours.b5.copyWith(
+                    color: tileTextColor,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -817,7 +912,7 @@ class _DashboardState extends State<Dashboard> {
           ),
           Text(
             '$prefix${_formatCurrency(_amountAsDouble(transaction))}',
-            style: context.colours.b4.copyWith(
+            style: colours.b4.copyWith(
               color: moneyColor,
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -836,12 +931,12 @@ class _DashboardState extends State<Dashboard> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) {
-          final cardColor = Theme.of(context).brightness == Brightness.dark
-              ? colours.blendedprimary
-              : colours.secondary;
-          final cardTextColor = Theme.of(context).brightness == Brightness.dark
-              ? colours.secondary
-              : colours.background;
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+          final cardColor = isDark ? colours.blendedprimary : colours.secondary;
+          final cardTextColor = isDark ? colours.secondary : colours.background;
+          final selectedDateColor = isDark
+              ? colours.background
+              : colours.primary;
 
           return Dialog(
             backgroundColor: Colors.transparent,
@@ -869,8 +964,8 @@ class _DashboardState extends State<Dashboard> {
                     data: Theme.of(context).copyWith(
                       colorScheme: ColorScheme.fromSeed(
                         seedColor: cardTextColor,
-                        primary: cardTextColor,
-                        onPrimary: cardColor,
+                        primary: colours.background,
+                        onPrimary: colours.secondary,
                         surface: cardColor,
                         onSurface: cardTextColor,
                         brightness: Theme.of(context).brightness,
@@ -879,24 +974,87 @@ class _DashboardState extends State<Dashboard> {
                         backgroundColor: cardColor,
                         headerBackgroundColor: cardColor,
                         headerForegroundColor: cardTextColor,
+                        toggleButtonTextStyle: colours.b5.copyWith(
+                          color: cardTextColor,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.8,
+                        ),
+                        subHeaderForegroundColor: cardTextColor,
                         weekdayStyle: colours.b5.copyWith(
                           color: cardTextColor,
                           fontWeight: FontWeight.bold,
                         ),
-                        dayStyle: colours.b1.copyWith(color: cardTextColor),
-                        yearStyle: colours.b1.copyWith(color: cardTextColor),
+                        dayStyle: colours.b5.copyWith(
+                          color: cardTextColor,
+                          fontSize: 14,
+                        ),
+                        dayForegroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? colours.cardText
+                              : colours.secondary,
+                        ),
+                        dayBackgroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? selectedDateColor
+                              : isDark
+                              ? cardColor
+                              : colours.background,
+                        ),
+                        todayForegroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? colours.cardText
+                              : colours.secondary,
+                        ),
+                        todayBackgroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? selectedDateColor
+                              : isDark
+                              ? cardColor
+                              : colours.background,
+                        ),
+                        yearStyle: colours.b5.copyWith(
+                          color: cardTextColor,
+                          fontSize: 14,
+                        ),
+                        yearForegroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? colours.cardText
+                              : colours.secondary,
+                        ),
+                        yearBackgroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? selectedDateColor
+                              : isDark
+                              ? cardColor
+                              : colours.background,
+                        ),
                         dayShape: WidgetStateProperty.resolveWith((states) {
                           return RoundedRectangleBorder(
                             borderRadius: BorderRadius.zero,
-                            side: states.contains(WidgetState.selected)
-                                ? const BorderSide(
-                                    color: Colors.black,
-                                    width: 2,
-                                  )
-                                : BorderSide.none,
+                            side: BorderSide(
+                              color: Colors.black,
+                              width: states.contains(WidgetState.selected)
+                                  ? (isDark ? 3 : 2)
+                                  : 1,
+                            ),
                           );
                         }),
-                        todayBorder: BorderSide(color: cardTextColor, width: 2),
+                        yearShape: WidgetStateProperty.resolveWith((states) {
+                          return RoundedRectangleBorder(
+                            borderRadius: BorderRadius.zero,
+                            side: BorderSide(
+                              color: Colors.black,
+                              width: states.contains(WidgetState.selected)
+                                  ? 3
+                                  : 1,
+                            ),
+                          );
+                        }),
+                        todayBorder: BorderSide(
+                          color: isDark ? Colors.black : cardTextColor,
+                          width: isDark ? 3 : 2,
+                        ),
                       ),
                     ),
                     child: CalendarDatePicker(
@@ -913,6 +1071,18 @@ class _DashboardState extends State<Dashboard> {
                     children: [
                       TextButton(
                         onPressed: () => Navigator.of(dialogContext).pop(),
+                        style: AppDialogStyle.isDark(context)
+                            ? AppDialogStyle.cancel(context)
+                            : TextButton.styleFrom(
+                                foregroundColor: cardTextColor,
+                                side: const BorderSide(
+                                  color: Colors.black,
+                                  width: 3,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
                         child: Text(
                           'Cancel',
                           style: colours.b1.copyWith(color: cardTextColor),
@@ -922,17 +1092,22 @@ class _DashboardState extends State<Dashboard> {
                       ElevatedButton(
                         onPressed: () =>
                             Navigator.of(dialogContext).pop(draftDate),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: cardTextColor,
-                          foregroundColor: cardColor,
-                          textStyle: colours.b1.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.zero,
-                            side: BorderSide(color: Colors.black, width: 3),
-                          ),
-                        ),
+                        style: AppDialogStyle.isDark(context)
+                            ? AppDialogStyle.primary(context)
+                            : ElevatedButton.styleFrom(
+                                backgroundColor: cardTextColor,
+                                foregroundColor: cardColor,
+                                textStyle: colours.b1.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.zero,
+                                  side: BorderSide(
+                                    color: Colors.black,
+                                    width: 3,
+                                  ),
+                                ),
+                              ),
                         child: const Text('Apply'),
                       ),
                     ],
@@ -976,29 +1151,38 @@ class _DashboardState extends State<Dashboard> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text("DASHBOARD", style: colours.h2),
-                    GestureDetector(
+                    InkWell(
                       onTap: _showStyledDatePicker,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 10,
+                          horizontal: 10,
+                          vertical: 8,
                         ),
                         decoration: BoxDecoration(
                           color: colours.primary,
-                          border: Border.all(color: Colors.black, width: 4),
+                          border: Border.all(color: Colors.black, width: 3),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(4, 4),
+                            ),
+                          ],
                         ),
                         child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
                               Icons.calendar_month,
                               color: colours.cardText,
-                              size: 18,
+                              size: 17,
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 7),
                             Text(
-                              "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
-                              style: colours.b1.copyWith(
+                              _formatDashboardDate(selectedDate),
+                              style: colours.b5.copyWith(
                                 color: colours.cardText,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.8,
                               ),
                             ),
                           ],
@@ -1027,106 +1211,94 @@ class _DashboardState extends State<Dashboard> {
                 ),
               _buildDailySpendingCard(colours),
               _buildIncomeExpenseCards(colours),
-              const SizedBox(height: 10), //here
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const PredictiveSpendingScreen(),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          height: MediaQuery.sizeOf(context).height * 0.08,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.black, width: 4),
-                            color: dashboardCardColor,
-
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colors.black,
-                                offset: Offset(4, 4),
-                                blurRadius: 0,
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                            child: Text(
-                              "VIEW INSIGHTS",
-                              style: colours.h2.copyWith(
-                                color: dashboardCardTextColor,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  GraphicalReportsScreen(database: db),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          height: MediaQuery.sizeOf(context).height * 0.08,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.black, width: 4),
-                            color: dashboardCardColor,
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colors.black,
-                                offset: Offset(4, 4),
-                                blurRadius: 0,
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                            child: Text(
-                              "VIEW REPORTS",
-                              style: colours.h2.copyWith(
-                                color: dashboardCardTextColor,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ), //here
-              const SizedBox(height: 25),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Text("RECENT TRANSACTIONS", style: colours.h2),
+              GraphicalReportsScreen(
+                database: db,
+                embedded: true,
+                initialDate: selectedDate,
               ),
               const SizedBox(height: 10),
-              if (recentTransactions.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 10,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const PredictiveSpendingScreen(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    height: MediaQuery.sizeOf(context).height * 0.08,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black, width: 4),
+                      color: dashboardCardColor,
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(4, 4),
+                          blurRadius: 0,
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        "VIEW INSIGHTS",
+                        style: colours.h2.copyWith(
+                          color: dashboardCardTextColor,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
                   ),
-                  child: Text(
-                    'No recent transactions yet.',
-                    style: TextStyle(color: colours.textPrimary),
-                  ),
-                )
-              else
-                ...recentTransactions.map(_dashboardTransactionTile),
+                ),
+              ),
+              const SizedBox(height: 25),
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+                padding: const EdgeInsets.fromLTRB(14, 14, 14, 6),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? colours.secondary
+                      : colours.blendedprimary,
+                  border: Border.all(color: Colors.black, width: 4),
+                  boxShadow: const [
+                    BoxShadow(color: Colors.black, offset: Offset(6, 6)),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'RECENT TRANSACTIONS',
+                      style: colours.h2.copyWith(color: colours.cardText),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      height: 3,
+                      color: colours.cardText.withValues(alpha: 0.35),
+                    ),
+                    const SizedBox(height: 12),
+                    if (recentTransactions.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: Text(
+                          'No recent transactions yet.',
+                          style: colours.b1.copyWith(color: colours.cardText),
+                        ),
+                      )
+                    else
+                      ...recentTransactions.map(
+                        (transaction) => Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: _dashboardTransactionTile(transaction),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
               const SizedBox(height: 18),
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 24, 8),
@@ -1136,7 +1308,7 @@ class _DashboardState extends State<Dashboard> {
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     decoration: BoxDecoration(
-                      color: colours.secondary,
+                      color: dashboardCardColor,
                       border: Border.all(color: Colors.black, width: 4),
                       boxShadow: const [
                         BoxShadow(
@@ -1152,14 +1324,14 @@ class _DashboardState extends State<Dashboard> {
                         Text(
                           'VIEW MORE TRANSACTIONS',
                           style: colours.b1.copyWith(
-                            color: colours.background,
+                            color: dashboardCardTextColor,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(width: 8),
                         Icon(
                           Icons.arrow_forward,
-                          color: colours.background,
+                          color: dashboardCardTextColor,
                           size: 20,
                         ),
                       ],

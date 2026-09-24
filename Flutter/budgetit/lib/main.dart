@@ -39,7 +39,7 @@ import 'package:flutter_gemma_mediapipe/flutter_gemma_mediapipe.dart';
 import 'services/import/llm_schema_classifier.dart';
 import 'services/ai/transaction_classifier/bge_model_downloader.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const StartupApp());
 }
@@ -335,6 +335,9 @@ class _HomePageState extends State<HomePage> {
 
     final db = context.read<AppDatabase>();
     final selectedNavIconColor = Theme.of(context).brightness == Brightness.dark
+        ? context.colours.cardText
+        : context.colours.secondary;
+    final navIndicatorColor = Theme.of(context).brightness == Brightness.dark
         ? context.colours.background
         : context.colours.cardText;
     final unselectedNavIconColor = context.colours.cardText;
@@ -363,10 +366,8 @@ class _HomePageState extends State<HomePage> {
             elevation: 0,
             surfaceTintColor: Colors.transparent,
             shadowColor: Colors.transparent,
-            backgroundColor: Theme.of(context).brightness == Brightness.dark
-                ? context.colours.background
-                : context.colours.blendedprimary,
-            indicatorColor: context.colours.secondary,
+            backgroundColor: context.colours.blendedprimary,
+            indicatorColor: navIndicatorColor,
             labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
             indicatorShape: RoundedRectangleBorder(
               borderRadius: BorderRadius.zero,

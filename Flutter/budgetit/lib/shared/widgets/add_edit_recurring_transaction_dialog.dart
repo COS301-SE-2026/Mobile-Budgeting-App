@@ -1,6 +1,8 @@
 import 'package:budgetit/database/app_database.dart';
 import 'package:budgetit/database/schema.dart';
 import 'package:budgetit/utils/app_colour.dart';
+import 'package:budgetit/utils/date_display_formatter.dart';
+import 'package:budgetit/utils/app_dialog_style.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -58,21 +60,6 @@ class _AddEditRecurringTransactionDialogState
     ),
     _RecurrenceOption('Yearly', 'Repeats every year', PeriodType.yearly, 1),
   ];
-  static const _months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
-
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _descController;
   late final TextEditingController _amountController;
@@ -126,31 +113,186 @@ class _AddEditRecurringTransactionDialogState
 
   Future<void> _pickDate() async {
     final colours = context.colours;
-    final picked = await showDatePicker(
+    var draftDate = _startDate;
+
+    final picked = await showDialog<DateTime>(
       context: context,
-      initialDate: _startDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-      builder: (context, child) => Theme(
-        data: Theme.of(context).copyWith(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: colours.secondary,
-            primary: colours.secondary,
-            onPrimary: colours.background,
-            surface: colours.background,
-            onSurface: colours.textPrimary,
-            brightness: Theme.of(context).brightness,
-          ),
-          datePickerTheme: DatePickerThemeData(
-            backgroundColor: colours.background,
-            headerBackgroundColor: colours.secondary,
-            headerForegroundColor: colours.background,
-            shape: const RoundedRectangleBorder(
-              side: BorderSide(color: Colors.black, width: 4),
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+          final cardColor = isDark ? colours.blendedprimary : colours.secondary;
+          final cardTextColor = isDark ? colours.secondary : colours.background;
+          final numberStyle = colours.b5.copyWith(
+            color: cardTextColor,
+            fontSize: 14,
+          );
+
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 430),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: cardColor,
+                border: Border.all(color: Colors.black, width: 4),
+                boxShadow: const [
+                  BoxShadow(color: Colors.black, offset: Offset(6, 6)),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'SELECT FIRST TRANSACTION DATE',
+                    style: colours.h2.copyWith(color: cardTextColor),
+                  ),
+                  const SizedBox(height: 12),
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      colorScheme: ColorScheme.fromSeed(
+                        seedColor: cardTextColor,
+                        primary: colours.background,
+                        onPrimary: colours.secondary,
+                        surface: cardColor,
+                        onSurface: cardTextColor,
+                        brightness: Theme.of(context).brightness,
+                      ),
+                      datePickerTheme: DatePickerThemeData(
+                        backgroundColor: cardColor,
+                        headerBackgroundColor: cardColor,
+                        headerForegroundColor: cardTextColor,
+                        toggleButtonTextStyle: colours.b5.copyWith(
+                          color: cardTextColor,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.8,
+                        ),
+                        subHeaderForegroundColor: cardTextColor,
+                        weekdayStyle: colours.b5.copyWith(
+                          color: cardTextColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        dayStyle: numberStyle,
+                        dayForegroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? colours.cardText
+                              : isDark
+                              ? null
+                              : colours.secondary,
+                        ),
+                        dayBackgroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? (isDark ? colours.background : colours.primary)
+                              : isDark
+                              ? null
+                              : colours.background,
+                        ),
+                        todayForegroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? colours.cardText
+                              : isDark
+                              ? null
+                              : colours.secondary,
+                        ),
+                        todayBackgroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? (isDark ? colours.background : colours.primary)
+                              : isDark
+                              ? null
+                              : colours.background,
+                        ),
+                        yearStyle: numberStyle,
+                        yearForegroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? colours.cardText
+                              : isDark
+                              ? null
+                              : colours.secondary,
+                        ),
+                        yearBackgroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? (isDark ? colours.background : colours.primary)
+                              : isDark
+                              ? null
+                              : colours.background,
+                        ),
+                        dayShape: WidgetStateProperty.resolveWith((states) {
+                          return RoundedRectangleBorder(
+                            borderRadius: BorderRadius.zero,
+                            side: states.contains(WidgetState.selected)
+                                ? BorderSide(
+                                    color: Colors.black,
+                                    width: isDark ? 3 : 2,
+                                  )
+                                : BorderSide.none,
+                          );
+                        }),
+                        todayBorder: BorderSide(
+                          color: isDark ? Colors.black : cardTextColor,
+                          width: isDark ? 3 : 2,
+                        ),
+                      ),
+                    ),
+                    child: CalendarDatePicker(
+                      initialDate: draftDate,
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
+                      onDateChanged: (date) =>
+                          setDialogState(() => draftDate = date),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      OutlinedButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                        style: AppDialogStyle.isDark(context)
+                            ? AppDialogStyle.cancel(context)
+                            : OutlinedButton.styleFrom(
+                                foregroundColor: cardTextColor,
+                                side: const BorderSide(
+                                  color: Colors.black,
+                                  width: 3,
+                                ),
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.zero,
+                                ),
+                                textStyle: colours.b1,
+                              ),
+                        child: const Text('Cancel'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: () =>
+                            Navigator.of(dialogContext).pop(draftDate),
+                        style: AppDialogStyle.isDark(context)
+                            ? AppDialogStyle.primary(context)
+                            : ElevatedButton.styleFrom(
+                                backgroundColor: cardTextColor,
+                                foregroundColor: cardColor,
+                                textStyle: colours.b1.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.zero,
+                                  side: BorderSide(
+                                    color: Colors.black,
+                                    width: 3,
+                                  ),
+                                ),
+                              ),
+                        child: const Text('Apply'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ),
-        child: child!,
+          );
+        },
       ),
     );
     if (picked != null && mounted) setState(() => _startDate = picked);
@@ -203,6 +345,118 @@ class _AddEditRecurringTransactionDialogState
   Future<void> _delete() async {
     final existing = widget.existing;
     if (existing == null) return;
+
+    final colours = context.colours;
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        final cardColor = Theme.of(context).brightness == Brightness.light
+            ? colours.secondary
+            : colours.blendedprimary;
+        final cardTextColor = Theme.of(context).brightness == Brightness.light
+            ? colours.background
+            : colours.secondary;
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 420),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: cardColor,
+              border: Border.all(color: Colors.black, width: 4),
+              boxShadow: const [
+                BoxShadow(color: Colors.black, offset: Offset(6, 6)),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 34,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        color: colours.error,
+                        border: Border.all(color: Colors.black, width: 2),
+                      ),
+                      child: Icon(
+                        Icons.delete_outline,
+                        color: colours.whiteAccents,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Delete Recurring Transaction',
+                        style: colours.h2.copyWith(
+                          color: cardTextColor,
+                          fontSize: 17,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Are you sure you want to delete "${existing.shortDescription}"? Future occurrences will no longer be created.',
+                  style: colours.b1.copyWith(color: cardTextColor),
+                ),
+                const SizedBox(height: 22),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    OutlinedButton(
+                      onPressed: () => Navigator.of(dialogContext).pop(false),
+                      style: AppDialogStyle.isDark(context)
+                          ? AppDialogStyle.cancel(context)
+                          : OutlinedButton.styleFrom(
+                              foregroundColor: cardTextColor,
+                              side: const BorderSide(
+                                color: Colors.black,
+                                width: 3,
+                              ),
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero,
+                              ),
+                              textStyle: colours.b1.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                      child: const Text('Cancel'),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () => Navigator.of(dialogContext).pop(true),
+                      style: AppDialogStyle.isDark(context)
+                          ? AppDialogStyle.primary(context)
+                          : ElevatedButton.styleFrom(
+                              backgroundColor: colours.error,
+                              foregroundColor: colours.whiteAccents,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero,
+                                side: BorderSide(color: Colors.black, width: 3),
+                              ),
+                              textStyle: colours.b1.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                      child: const Text('Delete'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (shouldDelete != true || !mounted) return;
     setState(() => _saving = true);
     try {
       await context
@@ -228,8 +482,10 @@ class _AddEditRecurringTransactionDialogState
   @override
   Widget build(BuildContext context) {
     final colours = context.colours;
-    final dateLabel =
-        '${_startDate.day} ${_months[_startDate.month - 1]} ${_startDate.year}';
+    final dateLabel = formatLongDate(_startDate);
+    final dialogColor = AppDialogStyle.isDark(context)
+        ? AppDialogStyle.surface(context)
+        : colours.background;
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 28),
@@ -240,7 +496,7 @@ class _AddEditRecurringTransactionDialogState
         ),
         padding: const EdgeInsets.fromLTRB(22, 20, 22, 18),
         decoration: BoxDecoration(
-          color: colours.background,
+          color: dialogColor,
           border: Border.all(color: Colors.black, width: 4),
           boxShadow: const [
             BoxShadow(color: Colors.black, offset: Offset(6, 6)),
@@ -259,12 +515,12 @@ class _AddEditRecurringTransactionDialogState
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: colours.secondary,
+                        color: colours.background,
                         border: Border.all(color: Colors.black, width: 2),
                       ),
                       child: Icon(
                         Icons.autorenew,
-                        color: colours.background,
+                        color: colours.secondary,
                         size: 21,
                       ),
                     ),
@@ -326,7 +582,10 @@ class _AddEditRecurringTransactionDialogState
                 const SizedBox(height: 14),
                 TextFormField(
                   controller: _amountController,
-                  style: colours.b1,
+                  style: colours.b4.copyWith(
+                    color: colours.textPrimary,
+                    fontSize: 16,
+                  ),
                   decoration: _inputDecoration(context).copyWith(
                     labelText: 'Amount',
                     hintText: '0.00',
@@ -406,33 +665,59 @@ class _AddEditRecurringTransactionDialogState
                         size: 19,
                       ),
                     ),
-                    child: Text(dateLabel, style: colours.b1),
+                    child: Text(
+                      dateLabel,
+                      style: colours.b5.copyWith(
+                        color: colours.textPrimary,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 22),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    TextButton(
+                    OutlinedButton(
                       onPressed: _saving
                           ? null
                           : () => Navigator.of(context).pop(),
+                      style: AppDialogStyle.isDark(context)
+                          ? AppDialogStyle.cancel(context)
+                          : OutlinedButton.styleFrom(
+                              foregroundColor: colours.textPrimary,
+                              side: const BorderSide(
+                                color: Colors.black,
+                                width: 3,
+                              ),
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 12,
+                              ),
+                            ),
                       child: Text('Cancel', style: colours.b1),
                     ),
                     const SizedBox(width: 8),
                     ElevatedButton(
                       onPressed: _saving ? null : _save,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colours.secondary,
-                        foregroundColor: colours.background,
-                        shape: const RoundedRectangleBorder(
-                          side: BorderSide(color: Colors.black, width: 3),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
-                        ),
-                      ),
+                      style: AppDialogStyle.isDark(context)
+                          ? AppDialogStyle.primary(context)
+                          : ElevatedButton.styleFrom(
+                              backgroundColor: colours.secondary,
+                              foregroundColor: colours.background,
+                              shape: const RoundedRectangleBorder(
+                                side: BorderSide(color: Colors.black, width: 3),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 12,
+                              ),
+                            ),
                       child: _saving
                           ? SizedBox(
                               width: 16,
@@ -484,20 +769,25 @@ class _TypeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colours = context.colours;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Expanded(
       child: InkWell(
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: selected ? colours.secondary : colours.background,
+            color: selected
+                ? (isDark ? colours.blendedprimary : colours.secondary)
+                : colours.background,
             border: Border.all(color: Colors.black, width: selected ? 3 : 2),
           ),
           alignment: Alignment.center,
           child: Text(
             label,
             style: colours.b1.copyWith(
-              color: selected ? colours.background : colours.textPrimary,
+              color: selected && !isDark
+                  ? colours.background
+                  : colours.secondary,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -525,7 +815,7 @@ InputDecoration _inputDecoration(BuildContext context) {
     border: border,
     enabledBorder: border,
     focusedBorder: border.copyWith(
-      borderSide: BorderSide(color: colours.secondary, width: 3),
+      borderSide: const BorderSide(color: Colors.black, width: 4),
     ),
     errorBorder: border.copyWith(
       borderSide: BorderSide(color: colours.error, width: 3),
