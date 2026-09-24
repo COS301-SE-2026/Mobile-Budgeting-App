@@ -348,7 +348,9 @@ class _TransactionManagerState extends State<TransactionManager> {
                     margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                     padding: const EdgeInsets.fromLTRB(14, 14, 14, 6),
                     decoration: BoxDecoration(
-                      color: colours.blendedprimary,
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? colours.secondary
+                          : colours.blendedprimary,
                       border: Border.all(color: Colors.black, width: 4),
                       boxShadow: const [
                         BoxShadow(color: Colors.black, offset: Offset(6, 6)),

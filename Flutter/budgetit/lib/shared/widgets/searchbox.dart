@@ -35,21 +35,25 @@ class _SearchBoxState extends State<SearchBox> {
 
   @override
   Widget build(BuildContext context) {
+    final searchBackground = Color.alphaBlend(
+      context.colours.cardText.withValues(alpha: 0.13),
+      context.colours.primary.withValues(alpha: 1),
+    );
+    final searchForeground = context.colours.cardText;
+
     return TextField(
       focusNode: _focusNode,
       onChanged: widget.onChanged,
-      cursorColor: context.colours.whiteAccents,
-      style: context.colours.b1.copyWith(
-        color: context.colours.whiteAccents,
-      ),
+      cursorColor: searchForeground,
+      style: context.colours.b1.copyWith(color: searchForeground),
       decoration: InputDecoration(
         hintText: _isFocused ? null : widget.hintText,
-        hintStyle: context.colours.searchtext,
+        hintStyle: TextStyle(color: searchForeground),
         prefixIcon: _isFocused
             ? null
-            : Icon(Icons.search, color: context.colours.textMuted),
+            : Icon(Icons.search, color: searchForeground),
         filled: true,
-        fillColor: context.colours.searchBar,
+        fillColor: searchBackground,
         border: const OutlineInputBorder(
           borderRadius: BorderRadius.zero,
           borderSide: BorderSide(color: Colors.black, width: 4),
@@ -62,10 +66,7 @@ class _SearchBoxState extends State<SearchBox> {
           borderRadius: BorderRadius.zero,
           borderSide: BorderSide(color: Colors.black, width: 4),
         ),
-        contentPadding: const EdgeInsets.symmetric(
-          vertical: 10,
-          horizontal: 8,
-        ),
+        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       ),
     );
   }

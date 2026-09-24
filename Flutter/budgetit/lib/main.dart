@@ -34,8 +34,6 @@ import 'package:flutter_gemma_mediapipe/flutter_gemma_mediapipe.dart';
 import 'services/import/llm_schema_classifier.dart';
 import 'services/ai/transaction_classifier/bge_model_downloader.dart';
 
-
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   pdfrxFlutterInitialize();
@@ -88,15 +86,15 @@ void main() async {
 }
 
 Future<PowerSyncDatabase> _openPowerSyncDatabase({required bool reset}) async {
+  if (kIsWeb) {
+    return PowerSyncDatabase(schema: powerSyncSchema, path: 'budgetit.db');
+  }
   final directory = await getApplicationDocumentsDirectory();
   final file = File(p.join(directory.path, 'budgetit.db'));
   if (reset && await file.exists()) {
     await file.delete();
   }
-  return PowerSyncDatabase(
-    schema: powerSyncSchema,
-    path: file.path,
-  );
+  return PowerSyncDatabase(schema: powerSyncSchema, path: file.path);
 }
 
 /// Creates the auth provider and keeps PowerSync in sync with the auth state.
@@ -238,6 +236,9 @@ class _HomePageState extends State<HomePage> {
 
     final db = context.read<AppDatabase>();
     final selectedNavIconColor = Theme.of(context).brightness == Brightness.dark
+        ? context.colours.cardText
+        : context.colours.secondary;
+    final navIndicatorColor = Theme.of(context).brightness == Brightness.dark
         ? context.colours.background
         : context.colours.cardText;
     final unselectedNavIconColor = context.colours.cardText;
@@ -258,7 +259,7 @@ class _HomePageState extends State<HomePage> {
             surfaceTintColor: Colors.transparent,
             shadowColor: Colors.transparent,
             backgroundColor: context.colours.blendedprimary,
-            indicatorColor: context.colours.secondary,
+            indicatorColor: navIndicatorColor,
             labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
             indicatorShape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.zero,

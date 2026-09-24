@@ -32,10 +32,11 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>();
     return AppBar(
-      backgroundColor: theme.isDark
-          ? context.colours.background
-          : context.colours.blendedprimary,
+      backgroundColor: context.colours.blendedprimary,
       elevation: 0,
+      scrolledUnderElevation: 0,
+      surfaceTintColor: Colors.transparent,
+      shadowColor: Colors.transparent,
       shape: const Border(bottom: BorderSide(color: Colors.black, width: 4)),
       leading: IconButton(
         tooltip: 'Help menu',

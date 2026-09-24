@@ -103,6 +103,11 @@ class _MyBoxState extends State<MyBox> {
 
   @override
   Widget build(BuildContext context) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final tileTextColor = isLight
+        ? context.colours.secondary
+        : context.colours.cardText;
+
     return GestureDetector(
       onTap: _openEditDialog,
 
@@ -115,7 +120,7 @@ class _MyBoxState extends State<MyBox> {
         padding: const EdgeInsets.symmetric(horizontal: 12),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: context.colours.primary,
+          color: context.colours.background,
           border: Border.all(color: Colors.black, width: 3),
         ),
         child: Row(
@@ -124,10 +129,18 @@ class _MyBoxState extends State<MyBox> {
               width: 34,
               height: 34,
               decoration: BoxDecoration(
-                color: context.colours.secondary,
+                color: isLight
+                    ? context.colours.secondary
+                    : context.colours.blendedprimary,
                 border: Border.all(color: Colors.black, width: 2),
               ),
-              child: Icon(_icon, color: context.colours.background, size: 20),
+              child: Icon(
+                _icon,
+                color: isLight
+                    ? context.colours.background
+                    : context.colours.cardText,
+                size: 20,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -138,7 +151,7 @@ class _MyBoxState extends State<MyBox> {
                   Text(
                     _name,
                     style: context.colours.budgetheader.copyWith(
-                      color: context.colours.cardText,
+                      color: tileTextColor,
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                     ),
@@ -149,7 +162,7 @@ class _MyBoxState extends State<MyBox> {
                     Text(
                       _category + (_date.isNotEmpty ? ' - $_date' : ''),
                       style: context.colours.b5.copyWith(
-                        color: context.colours.cardText,
+                        color: tileTextColor,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
@@ -162,11 +175,15 @@ class _MyBoxState extends State<MyBox> {
             Text(
               _isExpense
                   ? '- R${_amount.toStringAsFixed(2)}'
-                  : 'R${_amount.toStringAsFixed(2)}',
+                  : '+ R${_amount.toStringAsFixed(2)}',
               style: context.colours.b4.copyWith(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
-                color: _isExpense
+                color: isLight
+                    ? (_isExpense
+                          ? context.colours.error
+                          : context.colours.blendedprimary)
+                    : _isExpense
                     ? _isPressed
                           ? context.colours.background
                           : context.colours.error

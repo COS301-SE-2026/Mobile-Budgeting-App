@@ -57,6 +57,8 @@ class _FABState extends State<FAB> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return GestureDetector(
       onTapDown: (_) => setState(() => _pressed = true),
       onTapUp: (_) => setState(() => _pressed = false),
@@ -70,7 +72,9 @@ class _FABState extends State<FAB> {
             BoxShadow(offset: const Offset(6, 6), color: Colors.black),
           ],
           border: Border.all(color: Colors.black, width: 4.0),
-          color: _pressed
+          color: isDark
+              ? context.colours.blendedprimary
+              : _pressed
               ? context.colours.informational
               : context.colours.secondary,
           shape: BoxShape.rectangle,
@@ -78,7 +82,9 @@ class _FABState extends State<FAB> {
         child: Center(
           child: Icon(
             Icons.add,
-            color: _pressed
+            color: isDark
+                ? context.colours.secondary
+                : _pressed
                 ? context.colours.secondary
                 : context.colours.background,
             size: _iconSize,
