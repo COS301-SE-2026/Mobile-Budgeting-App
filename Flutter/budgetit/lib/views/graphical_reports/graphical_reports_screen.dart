@@ -13,11 +13,15 @@ class GraphicalReportsScreen extends StatefulWidget {
     super.key,
     required this.database,
     this.reportBuilder,
+    this.embedded = false,
+    this.initialDate,
   });
 
   final AppDatabase database;
   final Future<GraphicalReportData> Function(ReportingPeriod period)?
-      reportBuilder;
+  reportBuilder;
+  final bool embedded;
+  final DateTime? initialDate;
 
   @override
   State<GraphicalReportsScreen> createState() => _GraphicalReportsScreenState();
@@ -26,16 +30,35 @@ class GraphicalReportsScreen extends StatefulWidget {
 class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
   ReportingPeriod _selectedPeriod = ReportingPeriod.monthly;
   late DateTime _selectedDate;
+  int _dashboardPageIndex = 0;
 
   late final GraphicalReportService _reportService;
   late Future<GraphicalReportData> _reportFuture;
+  late final PageController _dashboardPageController;
 
   @override
   void initState() {
     super.initState();
-    _selectedDate = DateTime.now();
+    _selectedDate = widget.initialDate ?? DateTime.now();
     _reportService = GraphicalReportService(widget.database);
+    _dashboardPageController = PageController(viewportFraction: 1);
     _reportFuture = _generateSelectedReport();
+  }
+
+  @override
+  void didUpdateWidget(covariant GraphicalReportsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final nextDate = widget.initialDate;
+    if (nextDate != null && nextDate != oldWidget.initialDate) {
+      _selectedDate = nextDate;
+      _reportFuture = _generateSelectedReport();
+    }
+  }
+
+  @override
+  void dispose() {
+    _dashboardPageController.dispose();
+    super.dispose();
   }
 
   Future<GraphicalReportData> _generateSelectedReport() {
@@ -90,6 +113,10 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
   Widget build(BuildContext context) {
     final colours = context.colours;
 
+    if (widget.embedded) {
+      return _buildReportContent(embedded: true);
+    }
+
     return Scaffold(
       backgroundColor: colours.background,
       appBar: AppBar(
@@ -103,89 +130,350 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
           ),
         ),
       ),
-      body: SafeArea(
-        child: FutureBuilder<GraphicalReportData>(
-          future: _reportFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                child: CircularProgressIndicator(color: colours.secondary),
-              );
-            }
+      body: SafeArea(child: _buildReportContent()),
+    );
+  }
 
-            if (snapshot.hasError) {
-              return Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Text(
-                    'Could not load graphical reports.',
-                    style: colours.b1.copyWith(color: colours.textPrimary),
-                  ),
-                ),
-              );
-            }
+  Widget _buildReportContent({bool embedded = false}) {
+    final colours = context.colours;
 
-            final report = snapshot.data;
+    return FutureBuilder<GraphicalReportData>(
+      future: _reportFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: CircularProgressIndicator(color: colours.secondary),
+          );
+        }
 
-            if (report == null) {
-              return Center(
-                child: Text(
-                  'No financial data is available.',
-                  style: colours.b1.copyWith(color: colours.textPrimary),
-                ),
-              );
-            }
+        if (snapshot.hasError) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(
+                'Could not load graphical reports.',
+                style: colours.b1.copyWith(color: colours.textPrimary),
+              ),
+            ),
+          );
+        }
 
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(18),
+        final report = snapshot.data;
+
+        if (report == null) {
+          return Center(
+            child: Text(
+              'No financial data is available.',
+              style: colours.b1.copyWith(color: colours.textPrimary),
+            ),
+          );
+        }
+
+        final filters = Column(
+          children: [
+            _periodSelector(),
+            const SizedBox(height: 12),
+            _datePickerButton(),
+          ],
+        );
+
+        if (embedded) {
+          return Padding(
+            key: const Key('dashboard-report-widgets'),
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 18),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: _cardDecoration(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _periodSelector(),
-                  const SizedBox(height: 16),
-                  _datePickerButton(),
-                  const SizedBox(height: 22),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.insert_chart_outlined,
+                        color: _reportCardTextColor(context),
+                        size: 24,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'GRAPHICAL REPORTS',
+                          style: colours.h2.copyWith(
+                            color: _reportCardTextColor(context),
+                          ),
+                        ),
+                      ),
+                      Text(
+                        'SWIPE TO VIEW',
+                        style: colours.b5.copyWith(
+                          color: _reportCardTextColor(context),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Divider(
+                    color: _reportCardTextColor(
+                      context,
+                    ).withValues(alpha: 0.35),
+                    thickness: 2,
+                  ),
+                  const SizedBox(height: 14),
+                  filters,
+                  const SizedBox(height: 20),
                   if (!report.hasFinancialData)
                     _noDataCard()
-                  else ...[
-                    _sectionTitle('Income versus Expenses'),
-                    const SizedBox(height: 12),
-                    _incomeExpenseChart(report),
-                    const SizedBox(height: 24),
-                    _sectionTitle('Spending by Category'),
-                    const SizedBox(height: 12),
-                    _categoryChart(report),
-                    const SizedBox(height: 24),
-                    _sectionTitle('Budget Used versus Limit'),
-                    const SizedBox(height: 12),
-                    _budgetChart(report),
-                    const SizedBox(height: 24),
-                    _sectionTitle('Spending Trend'),
-                    const SizedBox(height: 12),
-                    _trendChart(report),
-                  ],
+                  else
+                    SizedBox(
+                      key: const Key('graphical-report-carousel'),
+                      height: 510,
+                      child: PageView(
+                        controller: _dashboardPageController,
+                        padEnds: false,
+                        onPageChanged: (index) {
+                          setState(() => _dashboardPageIndex = index);
+                        },
+                        children: [
+                          _dashboardChartPage(
+                            'Income versus Expenses',
+                            _incomeExpenseChart(report),
+                            summary: _dashboardReportSummary(
+                              'Income versus Expenses',
+                              report,
+                            ),
+                          ),
+                          _dashboardChartPage(
+                            'Spending by Category',
+                            _categoryChart(report),
+                            summary: _dashboardReportSummary(
+                              'Spending by Category',
+                              report,
+                            ),
+                          ),
+                          _dashboardChartPage(
+                            'Budget Used versus Limit',
+                            _budgetChart(report),
+                            summary: _dashboardReportSummary(
+                              'Budget Used versus Limit',
+                              report,
+                            ),
+                          ),
+                          _dashboardChartPage(
+                            'Spending Trend',
+                            _trendChart(report),
+                            summary: _dashboardReportSummary(
+                              'Spending Trend',
+                              report,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(4, (index) {
+                      final selected = index == _dashboardPageIndex;
+                      return AnimatedContainer(
+                        key: ValueKey('graphical-report-page-$index'),
+                        duration: const Duration(milliseconds: 180),
+                        width: selected ? 11 : 9,
+                        height: selected ? 11 : 9,
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        decoration: BoxDecoration(
+                          color: selected
+                              ? _reportCardTextColor(context)
+                              : _reportCardTextColor(
+                                  context,
+                                ).withValues(alpha: 0.35),
+                          border: Border.all(color: Colors.black, width: 1.5),
+                          shape: BoxShape.circle,
+                        ),
+                      );
+                    }),
+                  ),
                 ],
               ),
-            );
-          },
+            ),
+          );
+        }
+
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              filters,
+              const SizedBox(height: 22),
+              if (!report.hasFinancialData)
+                _noDataCard()
+              else ...[
+                _sectionTitle('Income versus Expenses'),
+                const SizedBox(height: 12),
+                _incomeExpenseChart(report),
+                const SizedBox(height: 24),
+                _sectionTitle('Spending by Category'),
+                const SizedBox(height: 12),
+                _categoryChart(report),
+                const SizedBox(height: 24),
+                _sectionTitle('Budget Used versus Limit'),
+                const SizedBox(height: 12),
+                _budgetChart(report),
+                const SizedBox(height: 24),
+                _sectionTitle('Spending Trend'),
+                const SizedBox(height: 12),
+                _trendChart(report),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _dashboardChartPage(
+    String title,
+    Widget chart, {
+    required Widget summary,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Container(
+        width: double.infinity,
+        height: double.infinity,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: context.colours.background,
+          border: Border.all(color: Colors.black, width: 3),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: 46,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: _sectionTitle(title),
+              ),
+            ),
+            const SizedBox(height: 8),
+            summary,
+            const SizedBox(height: 14),
+            Expanded(child: SingleChildScrollView(child: chart)),
+          ],
         ),
       ),
     );
   }
 
+  Widget _dashboardReportSummary(String title, GraphicalReportData report) {
+    final colours = context.colours;
+    late final String amount;
+    late final String caption;
+    late final String insight;
+
+    switch (title) {
+      case 'Income versus Expenses':
+        final balance = report.totalIncome - report.totalExpenses;
+        amount = _formatCurrency(balance.abs());
+        caption = balance >= 0
+            ? 'Positive net balance'
+            : 'Negative net balance';
+        insight = balance >= 0
+            ? 'Income is covering expenses for this period.'
+            : 'Expenses are higher than income for this period.';
+        break;
+      case 'Spending by Category':
+        amount = _formatCurrency(report.totalExpenses);
+        caption = 'Total amount spent';
+        insight = report.categorySpending.isEmpty
+            ? 'No category spending is available.'
+            : '${report.categorySpending.first.categoryName} is your highest-spending category.';
+        break;
+      case 'Budget Used versus Limit':
+        final spent = report.budgetComparisons.fold<double>(
+          0,
+          (sum, item) => sum + item.spent,
+        );
+        amount = _formatCurrency(spent);
+        caption = 'Spent across tracked budgets';
+        final overCount = report.budgetComparisons
+            .where((item) => item.limit > 0 && item.spent > item.limit)
+            .length;
+        insight = overCount == 0
+            ? 'All tracked budgets are currently within their limits.'
+            : '$overCount budget${overCount == 1 ? '' : 's'} exceeded the limit.';
+        break;
+      default:
+        amount = _formatCurrency(report.totalExpenses);
+        caption = 'Total amount spent';
+        if (report.spendingTrend.isEmpty) {
+          insight = 'No spending trend is available.';
+        } else {
+          final peak = report.spendingTrend.reduce(
+            (current, next) => next.amount > current.amount ? next : current,
+          );
+          insight = '${peak.label} had your highest spending.';
+        }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          amount,
+          style: colours.h2.copyWith(
+            color: colours.textPrimary,
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          caption,
+          style: colours.b5.copyWith(
+            color: colours.textPrimary.withValues(alpha: 0.7),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              Icons.insights_outlined,
+              color: colours.informational,
+              size: 17,
+            ),
+            const SizedBox(width: 7),
+            Expanded(
+              child: Text(
+                insight,
+                style: colours.b5.copyWith(
+                  color: colours.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   Widget _periodSelector() {
     final colours = context.colours;
-    final textColor = _reportCardTextColor(context);
+    final textColor = _filterTextColor(context);
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-      decoration: _cardDecoration(),
+      decoration: _filterDecoration(),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<ReportingPeriod>(
           value: _selectedPeriod,
           isExpanded: true,
-          dropdownColor: _reportCardColor(context),
+          dropdownColor: _filterColor(context),
           icon: Icon(Icons.keyboard_arrow_down, color: textColor),
           style: colours.b1.copyWith(
             color: textColor,
@@ -206,7 +494,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
   }
 
   Widget _datePickerButton() {
-    final textColor = _reportCardTextColor(context);
+    final textColor = _filterTextColor(context);
     final dateLabel =
         '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}';
 
@@ -215,7 +503,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-        decoration: _cardDecoration(),
+        decoration: _filterDecoration(),
         child: Row(
           children: [
             Icon(Icons.calendar_month_outlined, color: textColor, size: 20),
@@ -245,10 +533,8 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
         builder: (context, setDialogState) {
           final cardColor = Theme.of(context).brightness == Brightness.dark
               ? colours.blendedprimary
-              : colours.secondary;
-          final cardTextColor = Theme.of(context).brightness == Brightness.dark
-              ? colours.secondary
               : colours.background;
+          final cardTextColor = colours.secondary;
 
           return Dialog(
             backgroundColor: Colors.transparent,
@@ -373,7 +659,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
   }
 
   String _compactAxisAmount(double amount) {
-    if (amount == 0) return '0';
+    if (amount == 0) return 'R0';
     if (amount.abs() >= 1000000000) {
       return 'R${(amount / 1000000000).toStringAsFixed(1)}b';
     }
@@ -545,6 +831,13 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
       (sum, category) => sum + category.amount,
     );
 
+    Color categoryColour(String categoryName, int index) {
+      if (categoryName.toLowerCase() == 'dining out') {
+        return const Color(0xFFFF5722);
+      }
+      return chartColours[index % chartColours.length];
+    }
+
     return _chartCard(
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -563,7 +856,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                 child: PieChart(
                   PieChartData(
                     centerSpaceRadius: centerRadius,
-                    sectionsSpace: 3,
+                    sectionsSpace: 0,
                     sections: report.categorySpending.asMap().entries.map((
                       entry,
                     ) {
@@ -571,7 +864,10 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                         value: entry.value.amount,
                         title: '',
                         radius: sectionRadius,
-                        color: chartColours[entry.key % chartColours.length],
+                        color: categoryColour(
+                          entry.value.categoryName,
+                          entry.key,
+                        ),
                       );
                     }).toList(),
                   ),
@@ -586,7 +882,10 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                   final percentage = total == 0
                       ? 0
                       : (category.amount / total) * 100;
-                  final colour = chartColours[entry.key % chartColours.length];
+                  final colour = categoryColour(
+                    category.categoryName,
+                    entry.key,
+                  );
 
                   return SizedBox(
                     width: constraints.maxWidth < 360
@@ -648,12 +947,10 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
           final progress = budget.limit <= 0
               ? 0.0
               : budget.spent / budget.limit;
-          final limitReached = budget.limit > 0 && budget.spent >= budget.limit;
-          final progressColor = limitReached
+          final isOverLimit = budget.limit > 0 && budget.spent > budget.limit;
+          final progressColor = isOverLimit
               ? colours.error
-              : budget.spent <= 0
-              ? colours.cardText
-              : colours.blue;
+              : colours.greenAccents;
 
           return Padding(
             padding: const EdgeInsets.only(bottom: 18),
@@ -732,13 +1029,23 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
               leftTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
-                  reservedSize: 42,
+                  reservedSize: 50,
                   getTitlesWidget: (value, metadata) {
-                    return Text(
-                      value.toInt().toString(),
-                      style: context.colours.b5.copyWith(
-                        color: cardTextColor,
-                        fontSize: 10,
+                    return Transform.translate(
+                      offset: Offset(0, value == 0 ? -8 : 0),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 6),
+                          child: Text(
+                            _compactAxisAmount(value),
+                            maxLines: 1,
+                            style: context.colours.b5.copyWith(
+                              color: cardTextColor,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ),
                       ),
                     );
                   },
@@ -747,18 +1054,26 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
               bottomTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
+                  reservedSize: 42,
+                  interval: 1,
                   getTitlesWidget: (value, metadata) {
                     final index = value.toInt();
                     final label =
-                        index >= 0 && index < report.spendingTrend.length
+                        index.isEven &&
+                            index >= 0 &&
+                            index < report.spendingTrend.length
                         ? report.spendingTrend[index].label
                         : '';
 
-                    return Text(
-                      label,
-                      style: context.colours.b5.copyWith(
-                        color: cardTextColor,
-                        fontSize: 10,
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Text(
+                        label,
+                        textAlign: TextAlign.center,
+                        style: context.colours.b5.copyWith(
+                          color: cardTextColor,
+                          fontSize: 10,
+                        ),
                       ),
                     );
                   },
@@ -792,6 +1107,23 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
       border: Border.all(color: Colors.black, width: 4),
       boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(6, 6))],
     );
+  }
+
+  BoxDecoration _filterDecoration() {
+    return BoxDecoration(
+      color: _filterColor(context),
+      border: Border.all(color: Colors.black, width: 3),
+    );
+  }
+
+  Color _filterColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? context.colours.blendedprimary
+        : context.colours.background;
+  }
+
+  Color _filterTextColor(BuildContext context) {
+    return context.colours.secondary;
   }
 
   Widget _sectionTitle(String title) {

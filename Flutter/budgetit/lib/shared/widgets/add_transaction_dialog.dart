@@ -1,6 +1,8 @@
 import 'package:budgetit/database/app_database.dart';
 import 'package:budgetit/database/schema.dart';
 import 'package:budgetit/utils/app_colour.dart';
+import 'package:budgetit/utils/date_display_formatter.dart';
+import 'package:budgetit/utils/app_dialog_style.dart';
 import 'package:budgetit/utils/icon_mapper.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
@@ -54,21 +56,6 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
     Icons.flight_outlined,
     Icons.card_giftcard_outlined,
     Icons.savings_outlined,
-  ];
-
-  static const _months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
   ];
 
   @override
@@ -133,12 +120,9 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) {
-          final cardColor = Theme.of(context).brightness == Brightness.dark
-              ? colours.blendedprimary
-              : colours.secondary;
-          final cardTextColor = Theme.of(context).brightness == Brightness.dark
-              ? colours.secondary
-              : colours.background;
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+          final cardColor = isDark ? colours.blendedprimary : colours.secondary;
+          final cardTextColor = isDark ? colours.secondary : colours.background;
 
           return Dialog(
             backgroundColor: Colors.transparent,
@@ -166,8 +150,8 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                     data: Theme.of(context).copyWith(
                       colorScheme: ColorScheme.fromSeed(
                         seedColor: cardTextColor,
-                        primary: cardTextColor,
-                        onPrimary: cardColor,
+                        primary: colours.background,
+                        onPrimary: colours.secondary,
                         surface: cardColor,
                         onSurface: cardTextColor,
                         brightness: Theme.of(context).brightness,
@@ -176,24 +160,82 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                         backgroundColor: cardColor,
                         headerBackgroundColor: cardColor,
                         headerForegroundColor: cardTextColor,
+                        toggleButtonTextStyle: colours.b5.copyWith(
+                          color: cardTextColor,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.8,
+                        ),
+                        subHeaderForegroundColor: cardTextColor,
                         weekdayStyle: colours.b5.copyWith(
                           color: cardTextColor,
                           fontWeight: FontWeight.bold,
                         ),
-                        dayStyle: colours.b1.copyWith(color: cardTextColor),
-                        yearStyle: colours.b1.copyWith(color: cardTextColor),
+                        dayStyle: colours.b5.copyWith(
+                          color: cardTextColor,
+                          fontSize: 14,
+                        ),
+                        dayForegroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? colours.cardText
+                              : isDark
+                              ? null
+                              : colours.secondary,
+                        ),
+                        dayBackgroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? (isDark ? colours.background : colours.primary)
+                              : isDark
+                              ? null
+                              : colours.background,
+                        ),
+                        todayForegroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? colours.cardText
+                              : isDark
+                              ? null
+                              : colours.secondary,
+                        ),
+                        todayBackgroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? (isDark ? colours.background : colours.primary)
+                              : isDark
+                              ? null
+                              : colours.background,
+                        ),
+                        yearStyle: colours.b5.copyWith(
+                          color: cardTextColor,
+                          fontSize: 14,
+                        ),
+                        yearForegroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? colours.cardText
+                              : isDark
+                              ? null
+                              : colours.secondary,
+                        ),
+                        yearBackgroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? (isDark ? colours.background : colours.primary)
+                              : isDark
+                              ? null
+                              : colours.background,
+                        ),
                         dayShape: WidgetStateProperty.resolveWith((states) {
                           return RoundedRectangleBorder(
                             borderRadius: BorderRadius.zero,
                             side: states.contains(WidgetState.selected)
-                                ? const BorderSide(
+                                ? BorderSide(
                                     color: Colors.black,
-                                    width: 2,
+                                    width: isDark ? 3 : 2,
                                   )
                                 : BorderSide.none,
                           );
                         }),
-                        todayBorder: BorderSide(color: cardTextColor, width: 2),
+                        todayBorder: BorderSide(
+                          color: isDark ? Colors.black : cardTextColor,
+                          width: isDark ? 3 : 2,
+                        ),
                       ),
                     ),
                     child: CalendarDatePicker(
@@ -210,6 +252,18 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                     children: [
                       TextButton(
                         onPressed: () => Navigator.of(dialogContext).pop(),
+                        style: AppDialogStyle.isDark(context)
+                            ? AppDialogStyle.cancel(context)
+                            : TextButton.styleFrom(
+                                foregroundColor: cardTextColor,
+                                side: const BorderSide(
+                                  color: Colors.black,
+                                  width: 3,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
                         child: Text(
                           'Cancel',
                           style: colours.b1.copyWith(color: cardTextColor),
@@ -219,17 +273,22 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                       ElevatedButton(
                         onPressed: () =>
                             Navigator.of(dialogContext).pop(draftDate),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: cardTextColor,
-                          foregroundColor: cardColor,
-                          textStyle: colours.b1.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.zero,
-                            side: BorderSide(color: Colors.black, width: 3),
-                          ),
-                        ),
+                        style: AppDialogStyle.isDark(context)
+                            ? AppDialogStyle.primary(context)
+                            : ElevatedButton.styleFrom(
+                                backgroundColor: cardTextColor,
+                                foregroundColor: cardColor,
+                                textStyle: colours.b1.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.zero,
+                                  side: BorderSide(
+                                    color: Colors.black,
+                                    width: 3,
+                                  ),
+                                ),
+                              ),
                         child: const Text('Apply'),
                       ),
                     ],
@@ -293,9 +352,11 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
   @override
   Widget build(BuildContext context) {
     final colours = context.colours;
-    final cardColor = colours.background;
+    final cardColor = AppDialogStyle.isDark(context)
+        ? AppDialogStyle.surface(context)
+        : colours.background;
     final cardTextColor = colours.textPrimary;
-    final dateLabel = '${_date.day} ${_months[_date.month - 1]} ${_date.year}';
+    final dateLabel = formatLongDate(_date);
     //still to be fixed
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -304,7 +365,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
         constraints: const BoxConstraints(maxWidth: 420),
         padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
         decoration: BoxDecoration(
-          color: colours.background,
+          color: cardColor,
           border: Border.all(color: Colors.black, width: 4),
           boxShadow: const [
             BoxShadow(color: Colors.black, offset: Offset(6, 6), blurRadius: 0),
@@ -332,9 +393,6 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                       selected: _type == TransactionType.expense,
                       onTap: () => _setType(TransactionType.expense),
                       colours: colours,
-                      cardColor: cardColor,
-                      cardTextColor: cardTextColor,
-                      borderColor: colours.secondary,
                     ),
                     const SizedBox(width: 8),
                     _TypeButton(
@@ -342,9 +400,6 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                       selected: _type == TransactionType.income,
                       onTap: () => _setType(TransactionType.income),
                       colours: colours,
-                      cardColor: cardColor,
-                      cardTextColor: cardTextColor,
-                      borderColor: colours.secondary,
                     ),
                   ],
                 ),
@@ -432,8 +487,10 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                         const SizedBox(width: 10),
                         Text(
                           dateLabel,
-                          style: colours.b1.copyWith(
+                          style: colours.b5.copyWith(
                             color: colours.textPrimary,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.8,
                           ),
                         ),
                       ],
@@ -528,10 +585,11 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                         vertical: 12,
                       ),
                       decoration: BoxDecoration(
-                        color: _creatingCustomCategory
-                            ? colours.informational
-                            : colours.background,
-                        border: Border.all(color: Colors.black, width: 3),
+                        color: colours.background,
+                        border: Border.all(
+                          color: Colors.black,
+                          width: _creatingCustomCategory ? 4 : 3,
+                        ),
                       ),
                       child: Row(
                         children: [
@@ -613,9 +671,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                               setState(() => _customCategoryIcon = icon),
                           child: Container(
                             decoration: BoxDecoration(
-                              color: selected
-                                  ? colours.secondary
-                                  : colours.background,
+                              color: colours.background,
                               border: Border.all(
                                 color: Colors.black,
                                 width: selected ? 3 : 2,
@@ -624,9 +680,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                             child: Icon(
                               icon,
                               size: 21,
-                              color: selected
-                                  ? colours.background
-                                  : colours.textPrimary,
+                              color: colours.secondary,
                             ),
                           ),
                         );
@@ -642,6 +696,18 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                       onPressed: _saving
                           ? null
                           : () => Navigator.of(context).pop(),
+                      style: AppDialogStyle.isDark(context)
+                          ? AppDialogStyle.cancel(context)
+                          : TextButton.styleFrom(
+                              foregroundColor: colours.secondary,
+                              side: const BorderSide(
+                                color: Colors.black,
+                                width: 3,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
                       child: Text(
                         'Cancel',
                         style: colours.b1.copyWith(color: colours.textPrimary),
@@ -650,17 +716,19 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                     const SizedBox(width: 8),
                     ElevatedButton(
                       onPressed: _saving ? null : _save,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colours.secondary,
-                        foregroundColor: colours.background,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero,
-                          side: BorderSide(color: Colors.black, width: 3),
-                        ),
-                        textStyle: colours.b1.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      style: AppDialogStyle.isDark(context)
+                          ? AppDialogStyle.primary(context)
+                          : ElevatedButton.styleFrom(
+                              backgroundColor: colours.secondary,
+                              foregroundColor: colours.background,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero,
+                                side: BorderSide(color: Colors.black, width: 3),
+                              ),
+                              textStyle: colours.b1.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                       child: _saving
                           ? SizedBox(
                               width: 16,
@@ -694,37 +762,36 @@ class _TypeButton extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
   final MyColours colours;
-  final Color cardColor;
-  final Color cardTextColor;
-  final Color borderColor;
   // defining the colours for the different modes of the buttons
   const _TypeButton({
     required this.label,
     required this.selected,
     required this.onTap,
     required this.colours,
-    required this.cardColor,
-    required this.cardTextColor,
-    required this.borderColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            color: selected ? cardTextColor : cardColor,
-            border: Border.all(color: borderColor, width: selected ? 2 : 1),
+            color: selected
+                ? (isDark ? colours.blendedprimary : colours.secondary)
+                : colours.background,
+            border: Border.all(color: Colors.black, width: selected ? 3 : 2),
           ),
           alignment: Alignment.center,
           child: Text(
             label,
             style: colours.h2.copyWith(
-              color: selected ? cardColor : cardTextColor,
-              fontWeight: FontWeight.w500,
+              color: selected && !isDark
+                  ? colours.background
+                  : colours.secondary,
+              fontWeight: selected ? FontWeight.bold : FontWeight.w500,
               fontSize: 14,
             ),
           ),
@@ -748,19 +815,19 @@ InputDecoration _inputDecoration(
     fontWeight: FontWeight.w500,
   ),
   filled: true,
-  fillColor: fillColor,
+  fillColor: context.colours.background,
   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
   border: OutlineInputBorder(
     borderRadius: BorderRadius.zero,
-    borderSide: BorderSide(color: context.colours.secondary),
+    borderSide: const BorderSide(color: Colors.black, width: 3),
   ),
   enabledBorder: OutlineInputBorder(
     borderRadius: BorderRadius.zero,
-    borderSide: BorderSide(color: context.colours.secondary),
+    borderSide: const BorderSide(color: Colors.black, width: 3),
   ),
   focusedBorder: OutlineInputBorder(
     borderRadius: BorderRadius.zero,
-    borderSide: BorderSide(color: context.colours.secondary, width: 2),
+    borderSide: const BorderSide(color: Colors.black, width: 4),
   ),
   errorBorder: OutlineInputBorder(
     borderRadius: BorderRadius.zero,

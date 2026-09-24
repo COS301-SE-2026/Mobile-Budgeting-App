@@ -36,17 +36,28 @@ class BalanceCard extends StatelessWidget {
         children: [
           Text(
             'MONTHLY BUDGET OVERVIEW',
-            style: context.colours.b1.copyWith(color: cardTextColor),
+            style: context.colours.h2.copyWith(
+              color: cardTextColor,
+              fontSize: 14,
+            ),
           ),
           const SizedBox(height: 18),
           Text(
             _formatCurrency(totalSpent),
-            style: context.colours.bigDisplay.copyWith(color: cardTextColor),
+            style: context.colours.h2.copyWith(
+              color: cardTextColor,
+              fontSize: 40,
+              letterSpacing: -1.2,
+            ),
           ),
           const SizedBox(height: 18),
           Text(
             'Budget target: ${_formatCurrency(totalTarget)}',
-            style: context.colours.b1.copyWith(color: cardTextColor),
+            style: context.colours.h2.copyWith(
+              color: cardTextColor,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),

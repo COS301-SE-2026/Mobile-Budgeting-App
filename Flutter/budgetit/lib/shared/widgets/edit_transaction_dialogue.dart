@@ -1,8 +1,8 @@
 import 'package:budgetit/database/app_database.dart';
 import 'package:budgetit/database/schema.dart';
 import 'package:budgetit/utils/app_colour.dart';
+import 'package:budgetit/utils/app_dialog_style.dart';
 import 'package:budgetit/utils/icon_mapper.dart';
-
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -146,29 +146,36 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
       if (mounted) setState(() => _saving = false);
     }
   }
-// i used ai to refactor this part,
-//it adds a usability confirmation for delete function
-// i used the neobrutalist shadow effect as our design guide
-//styled modal form for editing a transaction name and adding the confirmation step
-//added app styles, formatted by ai
+
+  // i used ai to refactor this part,
+  //it adds a usability confirmation for delete function
+  // i used the neobrutalist shadow effect as our design guide
+  //styled modal form for editing a transaction name and adding the confirmation step
+  //added app styles, formatted by ai
   Future<void> _confirmDelete() async {
     final colours = context.colours;
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor: colours.secondary,
+          backgroundColor: AppDialogStyle.isDark(context)
+              ? AppDialogStyle.surface(context)
+              : colours.secondary,
           title: Text(
             'Delete Transaction',
             style: colours.h2.copyWith(
-              color: colours.background,
+              color: AppDialogStyle.isDark(context)
+                  ? colours.secondary
+                  : colours.background,
               fontWeight: FontWeight.bold,
             ),
           ),
           content: Text(
             'Are you sure you want to delete this transaction?',
             style: colours.h2.copyWith(
-              color: colours.background.withValues(alpha: 0.9),
+              color: AppDialogStyle.isDark(context)
+                  ? colours.secondary.withValues(alpha: 0.9)
+                  : colours.background.withValues(alpha: 0.9),
               fontSize: 13,
               fontWeight: FontWeight.w500,
             ),
@@ -176,20 +183,27 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
+              style: AppDialogStyle.isDark(context)
+                  ? AppDialogStyle.cancel(context)
+                  : null,
               child: Text(
                 'CANCEL',
                 style: colours.h2.copyWith(
-                  color: colours.background,
+                  color: AppDialogStyle.isDark(context)
+                      ? colours.secondary
+                      : colours.background,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colours.error,
-                foregroundColor: colours.whiteAccents,
-              ),
+              style: AppDialogStyle.isDark(context)
+                  ? AppDialogStyle.primary(context)
+                  : ElevatedButton.styleFrom(
+                      backgroundColor: colours.error,
+                      foregroundColor: colours.whiteAccents,
+                    ),
               child: const Text('DELETE'),
             ),
           ],
@@ -252,12 +266,12 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
                             width: 34,
                             height: 34,
                             decoration: BoxDecoration(
-                              color: colours.secondary,
+                              color: colours.background,
                               border: Border.all(color: Colors.black, width: 2),
                             ),
                             child: Icon(
                               widget.icon,
-                              color: colours.background,
+                              color: colours.secondary,
                               size: 20,
                             ),
                           ),
@@ -357,6 +371,9 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
                             onPressed: _saving
                                 ? null
                                 : () => Navigator.of(context).pop(),
+                            style: AppDialogStyle.isDark(context)
+                                ? AppDialogStyle.cancel(context)
+                                : null,
                             child: Text(
                               'Cancel',
                               style: colours.h2.copyWith(
@@ -368,17 +385,22 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
                           const SizedBox(width: 8),
                           ElevatedButton(
                             onPressed: _saving ? null : _save,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: colours.secondary,
-                              foregroundColor: colours.background,
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(color: Colors.black, width: 4),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 10,
-                              ),
-                            ),
+                            style: AppDialogStyle.isDark(context)
+                                ? AppDialogStyle.primary(context)
+                                : ElevatedButton.styleFrom(
+                                    backgroundColor: colours.secondary,
+                                    foregroundColor: colours.background,
+                                    shape: RoundedRectangleBorder(
+                                      side: BorderSide(
+                                        color: Colors.black,
+                                        width: 4,
+                                      ),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 10,
+                                    ),
+                                  ),
                             child: _saving
                                 ? SizedBox(
                                     width: 16,
@@ -424,7 +446,7 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
           DropdownButtonFormField<Category>(
             initialValue: _selectedDaoCategory,
             isExpanded: true,
-            dropdownColor: cardColor,
+            dropdownColor: context.colours.background,
             style: colours.h2.copyWith(
               color: cardTextColor,
               fontSize: 14,
@@ -487,7 +509,7 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
         DropdownButtonFormField<String>(
           initialValue: _selectedCategory,
           isExpanded: true,
-          dropdownColor: cardColor,
+          dropdownColor: context.colours.background,
           style: colours.h2.copyWith(
             color: cardTextColor,
             fontSize: 14,
@@ -537,7 +559,7 @@ InputDecoration _inputDecoration(
     fontWeight: FontWeight.w500,
   ),
   filled: true,
-  fillColor: fillColor,
+  fillColor: context.colours.background,
   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
   border: OutlineInputBorder(
     borderRadius: BorderRadius.zero,
@@ -549,7 +571,7 @@ InputDecoration _inputDecoration(
   ),
   focusedBorder: OutlineInputBorder(
     borderRadius: BorderRadius.zero,
-    borderSide: BorderSide(color: context.colours.secondary, width: 4),
+    borderSide: const BorderSide(color: Colors.black, width: 4),
   ),
   errorBorder: OutlineInputBorder(
     borderRadius: BorderRadius.zero,

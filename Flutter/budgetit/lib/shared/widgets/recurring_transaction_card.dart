@@ -71,7 +71,9 @@ class _RecurringTransactionCardState extends State<RecurringTransactionCard> {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.rectangle,
-          color: context.colours.primary,
+          color: Theme.of(context).brightness == Brightness.dark
+              ? context.colours.background
+              : context.colours.primary,
           border: Border.all(color: Colors.black, width: 3),
         ),
         child: Row(

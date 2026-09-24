@@ -105,12 +105,17 @@ class _RecurringTransactionsDropdownState
   @override
   Widget build(BuildContext context) {
     final colours = context.colours;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final headerColor = isDark ? colours.blendedprimary : colours.secondary;
+    final headerTextColor = isDark ? colours.secondary : colours.background;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Container(
         decoration: BoxDecoration(
-          color: colours.background,
+          color: Theme.of(context).brightness == Brightness.light
+              ? colours.blendedprimary
+              : colours.background,
           border: Border.all(color: Colors.black, width: 4),
           boxShadow: const [
             BoxShadow(color: Colors.black, offset: Offset(6, 6)),
@@ -126,14 +131,14 @@ class _RecurringTransactionsDropdownState
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
-                  color: colours.secondary,
+                  color: headerColor,
                   border: const Border(
                     bottom: BorderSide(color: Colors.black, width: 3),
                   ),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.autorenew, color: colours.background),
+                    Icon(Icons.autorenew, color: headerTextColor),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -141,7 +146,7 @@ class _RecurringTransactionsDropdownState
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: colours.h2.copyWith(
-                          color: colours.background,
+                          color: headerTextColor,
                           fontSize: 14,
                         ),
                       ),
@@ -150,7 +155,7 @@ class _RecurringTransactionsDropdownState
                     AnimatedRotation(
                       turns: _expanded ? 0.5 : 0,
                       duration: const Duration(milliseconds: 200),
-                      child: Icon(Icons.expand_more, color: colours.background),
+                      child: Icon(Icons.expand_more, color: headerTextColor),
                     ),
                   ],
                 ),
@@ -168,6 +173,10 @@ class _RecurringTransactionsDropdownState
   }
 
   Widget _buildBody(MyColours colours) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final buttonColor = isDark ? colours.blendedprimary : colours.secondary;
+    final buttonTextColor = isDark ? colours.secondary : colours.background;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
       child: Column(
@@ -196,13 +205,13 @@ class _RecurringTransactionsDropdownState
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     shape: BoxShape.rectangle,
-                    color: colours.secondary,
+                    color: buttonColor,
                     border: Border.all(color: Colors.black, width: 4.0),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.add, color: colours.background),
+                      Icon(Icons.add, color: buttonTextColor),
                       const SizedBox(width: 6),
                       Flexible(
                         child: Text(
@@ -210,7 +219,7 @@ class _RecurringTransactionsDropdownState
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: colours.background,
+                            color: buttonTextColor,
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
                           ),
@@ -390,7 +399,9 @@ class _RecurringTransactionsDropdownState
       height: 74,
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        color: colours.primary,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? colours.background
+            : colours.primary,
         border: Border.all(color: Colors.black, width: 3),
       ),
       child: Row(
