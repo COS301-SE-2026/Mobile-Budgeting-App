@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:decimal/decimal.dart';
 import '../../utils/app_colour.dart';
+import '../../utils/app_dialog_style.dart';
 import '../financial_reports/financial_report_screen.dart';
 import '../../database/app_database.dart';
 import '../../database/schema.dart';
@@ -69,8 +70,19 @@ class _BudgetCategoryOption {
   });
 }
 
+enum _BudgetSort {
+  defaultOrder,
+  nameAZ,
+  nameZA,
+  spentHigh,
+  spentLow,
+  limitHigh,
+  limitLow,
+}
+
 class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
   String _categorySearchQuery = '';
+  _BudgetSort _budgetSort = _BudgetSort.defaultOrder;
 
   static const _customCategoryIcons = <IconData>[
     Icons.sell_outlined,
@@ -120,12 +132,9 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) {
-          final cardColor = Theme.of(context).brightness == Brightness.dark
-              ? colours.blendedprimary
-              : colours.secondary;
-          final cardTextColor = Theme.of(context).brightness == Brightness.dark
-              ? colours.secondary
-              : colours.background;
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+          final cardColor = isDark ? colours.blendedprimary : colours.secondary;
+          final cardTextColor = isDark ? colours.secondary : colours.background;
 
           return Dialog(
             backgroundColor: Colors.transparent,
@@ -133,7 +142,10 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
             child: Container(
               constraints: const BoxConstraints(maxWidth: 430),
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(color: cardColor),
+              decoration: BoxDecoration(
+                color: cardColor,
+                border: Border.all(color: Colors.black, width: 4),
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,23 +155,42 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     style: colours.h2.copyWith(color: cardTextColor),
                   ),
                   const SizedBox(height: 18),
-                  const SizedBox(height: 18),
+
+                  Text(
+                    'YEAR',
+                    style: colours.h2.copyWith(
+                      color: cardTextColor,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
 
                   DropdownButtonFormField<int>(
                     initialValue: draftYear,
-                    dropdownColor: cardColor,
-                    style: colours.b1.copyWith(color: cardTextColor),
-                    icon: Icon(Icons.keyboard_arrow_down, color: cardTextColor),
+                    dropdownColor: colours.background,
+                    style: colours.b5.copyWith(
+                      color: colours.secondary,
+                      fontSize: 14,
+                    ),
+                    icon: Icon(
+                      Icons.keyboard_arrow_down,
+                      color: colours.secondary,
+                    ),
                     decoration: InputDecoration(
-                      labelText: 'Year',
-                      labelStyle: colours.b1.copyWith(color: cardTextColor),
+                      filled: true,
+                      fillColor: colours.background,
                       enabledBorder: const OutlineInputBorder(
                         borderRadius: BorderRadius.zero,
                         borderSide: BorderSide(color: Colors.black, width: 3),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.zero,
-                        borderSide: BorderSide(color: cardTextColor, width: 3),
+                        borderSide: const BorderSide(
+                          color: Colors.black,
+                          width: 4,
+                        ),
                       ),
                     ),
                     items: years
@@ -196,14 +227,24 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                         child: Container(
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color: isSelected ? cardTextColor : cardColor,
-                            border: Border.all(color: Colors.black, width: 2),
+                            color: isSelected
+                                ? (isDark
+                                      ? colours.background
+                                      : colours.primary)
+                                : (isDark ? cardColor : colours.background),
+                            border: Border.all(
+                              color: Colors.black,
+                              width: isSelected ? 3 : 2,
+                            ),
                           ),
                           child: Text(
                             _monthNames[index].substring(0, 3),
-                            style: colours.b1.copyWith(
-                              color: isSelected ? cardColor : cardTextColor,
+                            style: colours.b5.copyWith(
+                              color: isSelected && !isDark
+                                  ? colours.cardText
+                                  : colours.secondary,
                               fontWeight: FontWeight.bold,
+                              fontSize: 14,
                             ),
                           ),
                         ),
@@ -216,6 +257,18 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     children: [
                       TextButton(
                         onPressed: () => Navigator.of(dialogContext).pop(),
+                        style: AppDialogStyle.isDark(context)
+                            ? AppDialogStyle.cancel(context)
+                            : TextButton.styleFrom(
+                                foregroundColor: cardTextColor,
+                                side: const BorderSide(
+                                  color: Colors.black,
+                                  width: 3,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
                         child: Text(
                           'Cancel',
                           style: colours.b1.copyWith(color: cardTextColor),
@@ -226,17 +279,22 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                         onPressed: () => Navigator.of(
                           dialogContext,
                         ).pop(DateTime(draftYear, draftMonth)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: cardTextColor,
-                          foregroundColor: cardColor,
-                          textStyle: colours.b1.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.zero,
-                            side: BorderSide(color: Colors.black, width: 3),
-                          ),
-                        ),
+                        style: AppDialogStyle.isDark(context)
+                            ? AppDialogStyle.primary(context)
+                            : ElevatedButton.styleFrom(
+                                backgroundColor: cardTextColor,
+                                foregroundColor: cardColor,
+                                textStyle: colours.b1.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.zero,
+                                  side: BorderSide(
+                                    color: Colors.black,
+                                    width: 3,
+                                  ),
+                                ),
+                              ),
                         child: const Text('Apply'),
                       ),
                     ],
@@ -598,149 +656,204 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                 ),
                 const SizedBox(height: 18),
 
-                Text("BUDGET CATEGORIES", style: context.colours.h2),
-
-                const SizedBox(height: 12),
-
                 SearchBox(
                   hintText: 'Search categories',
                   onChanged: (value) => setState(
                     () => _categorySearchQuery = value.trim().toLowerCase(),
                   ),
                 ),
-
-                const SizedBox(height: 12),
-
-                GestureDetector(
-                  onTap: () => _showCreateBudgetDialog(context),
-                  child: Container(
-                    width: double.infinity,
-                    height: 55,
-                    decoration: BoxDecoration(
-                      color: cardColor,
-                      border: Border.all(color: Colors.black, width: 4),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black,
-                          offset: Offset(4, 4),
-                          blurRadius: 0,
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.add, color: cardTextColor),
-                        const SizedBox(width: 8),
-                        Text(
-                          'CREATE NEW BUDGET',
-                          style: colours.h2.copyWith(
-                            color: cardTextColor,
-                            fontSize: 15,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                const SizedBox(height: 10),
+                _budgetSortFilter(),
 
                 const SizedBox(height: 18),
 
-                FutureBuilder<List<_BudgetManagerItem>>(
-                  future: _budgetItemsFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(
-                        child: LinearProgressIndicator(
-                          color: context.colours.secondary,
-                          borderRadius: BorderRadius.zero,
-                        ),
-                      );
-                    }
-
-                    if (snapshot.hasError) {
-                      return Text(
-                        'Could not load budgets.',
-                        style: TextStyle(
-                          color: context.colours.textPrimary,
-                          fontSize: 13,
-                        ),
-                      );
-                    }
-
-                    final budgets = snapshot.data ?? [];
-                    final filteredBudgets = budgets
-                        .where(
-                          (budget) => budget.title.toLowerCase().contains(
-                            _categorySearchQuery,
-                          ),
-                        )
-                        .toList();
-
-                    if (budgets.isEmpty) {
-                      final cardColor =
-                          Theme.of(context).brightness == Brightness.light
-                          ? context.colours.background
-                          : context.colours.primary;
-
-                      return Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(18),
-                        decoration: BoxDecoration(
-                          color: cardColor,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: context.colours.secondary,
-                            width: 1,
-                          ),
-                        ),
-                        child: Text(
-                          'No budgets created yet. Use the button above to create one.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: context.colours.textPrimary,
-                            fontSize: 13,
-                          ),
-                        ),
-                      );
-                    }
-
-                    if (filteredBudgets.isEmpty) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 24),
-                        child: Center(
-                          child: Text(
-                            'No categories match "$_categorySearchQuery".',
-                            textAlign: TextAlign.center,
-                            style: context.colours.b1.copyWith(
-                              color: context.colours.textPrimary.withValues(
-                                alpha: 0.7,
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(14, 14, 14, 6),
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    border: Border.all(color: Colors.black, width: 4),
+                    boxShadow: const [
+                      BoxShadow(color: Colors.black, offset: Offset(6, 6)),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'BUDGET CATEGORIES',
+                        style: colours.h2.copyWith(color: cardTextColor),
+                      ),
+                      const SizedBox(height: 10),
+                      Container(
+                        height: 3,
+                        color: cardTextColor.withValues(alpha: 0.35),
+                      ),
+                      const SizedBox(height: 12),
+                      GestureDetector(
+                        onTap: () => _showCreateBudgetDialog(context),
+                        child: Container(
+                          width: double.infinity,
+                          height: 55,
+                          decoration: BoxDecoration(
+                            color: cardColor,
+                            border: Border.all(color: Colors.black, width: 4),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black,
+                                offset: Offset(4, 4),
+                                blurRadius: 0,
                               ),
-                            ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.add, color: cardTextColor),
+                              const SizedBox(width: 8),
+                              Text(
+                                'CREATE NEW BUDGET',
+                                style: colours.h2.copyWith(
+                                  color: cardTextColor,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      );
-                    }
+                      ),
+                      const SizedBox(height: 18),
+                      FutureBuilder<List<_BudgetManagerItem>>(
+                        future: _budgetItemsFuture,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(
+                              child: LinearProgressIndicator(
+                                color: cardTextColor,
+                                borderRadius: BorderRadius.zero,
+                              ),
+                            );
+                          }
 
-                    return Column(
-                      children: [
-                        for (final budget in filteredBudgets) ...[
-                          _budgetCard(
-                            icon: budget.icon,
-                            title: budget.title,
-                            subtitle: budget.subtitle,
-                            spent: budget.spent,
-                            limit: budget.limit,
-                            isOverLimit: budget.isOverLimit,
-                            onTap: () => _showBudgetInsights(budget),
+                          if (snapshot.hasError) {
+                            return Text(
+                              'Could not load budgets.',
+                              style: TextStyle(
+                                color: cardTextColor,
+                                fontSize: 13,
+                              ),
+                            );
+                          }
 
-                            onDelete: () => _confirmDeleteBudget(budget),
-                          ),
-                          const SizedBox(height: 14),
-                        ],
-                      ],
-                    );
-                  },
+                          final budgets = snapshot.data ?? [];
+                          final filteredBudgets = budgets
+                              .where(
+                                (budget) => budget.title.toLowerCase().contains(
+                                  _categorySearchQuery,
+                                ),
+                              )
+                              .toList();
+                          switch (_budgetSort) {
+                            case _BudgetSort.defaultOrder:
+                              break;
+                            case _BudgetSort.nameAZ:
+                              filteredBudgets.sort(
+                                (a, b) => a.title.compareTo(b.title),
+                              );
+                              break;
+                            case _BudgetSort.nameZA:
+                              filteredBudgets.sort(
+                                (a, b) => b.title.compareTo(a.title),
+                              );
+                              break;
+                            case _BudgetSort.spentHigh:
+                              filteredBudgets.sort(
+                                (a, b) => b.spent.compareTo(a.spent),
+                              );
+                              break;
+                            case _BudgetSort.spentLow:
+                              filteredBudgets.sort(
+                                (a, b) => a.spent.compareTo(b.spent),
+                              );
+                              break;
+                            case _BudgetSort.limitHigh:
+                              filteredBudgets.sort(
+                                (a, b) => b.limit.compareTo(a.limit),
+                              );
+                              break;
+                            case _BudgetSort.limitLow:
+                              filteredBudgets.sort(
+                                (a, b) => a.limit.compareTo(b.limit),
+                              );
+                              break;
+                          }
+
+                          if (budgets.isEmpty) {
+                            final cardColor =
+                                Theme.of(context).brightness == Brightness.light
+                                ? context.colours.background
+                                : context.colours.primary;
+
+                            return Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(18),
+                              decoration: BoxDecoration(
+                                color: cardColor,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: context.colours.secondary,
+                                  width: 1,
+                                ),
+                              ),
+                              child: Text(
+                                'No budgets created yet. Use the button above to create one.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: context.colours.textPrimary,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            );
+                          }
+
+                          if (filteredBudgets.isEmpty) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 24),
+                              child: Center(
+                                child: Text(
+                                  'No categories match "$_categorySearchQuery".',
+                                  textAlign: TextAlign.center,
+                                  style: context.colours.b1.copyWith(
+                                    color: cardTextColor.withValues(alpha: 0.7),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+
+                          return Column(
+                            children: [
+                              for (final budget in filteredBudgets) ...[
+                                _budgetCard(
+                                  icon: budget.icon,
+                                  title: budget.title,
+                                  subtitle: budget.subtitle,
+                                  spent: budget.spent,
+                                  limit: budget.limit,
+                                  isOverLimit: budget.isOverLimit,
+                                  onTap: () => _showBudgetInsights(budget),
+
+                                  onDelete: () => _confirmDeleteBudget(budget),
+                                ),
+                                const SizedBox(height: 14),
+                              ],
+                            ],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -763,6 +876,61 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
     );
   }
 
+  Widget _budgetSortFilter() {
+    final colours = context.colours;
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final foreground = isLight ? colours.secondary : colours.cardText;
+    final background = isLight
+        ? colours.cardText
+        : _budgetSort == _BudgetSort.defaultOrder
+        ? colours.searchBar
+        : colours.informational;
+    const labels = <_BudgetSort, String>{
+      _BudgetSort.defaultOrder: 'Default order',
+      _BudgetSort.nameAZ: 'Name: A–Z',
+      _BudgetSort.nameZA: 'Name: Z–A',
+      _BudgetSort.spentHigh: 'Spent: high to low',
+      _BudgetSort.spentLow: 'Spent: low to high',
+      _BudgetSort.limitHigh: 'Limit: high to low',
+      _BudgetSort.limitLow: 'Limit: low to high',
+    };
+
+    return Container(
+      height: 48,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      decoration: BoxDecoration(
+        color: background,
+        border: Border.all(color: Colors.black, width: 4),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<_BudgetSort>(
+          value: _budgetSort,
+          isExpanded: true,
+          dropdownColor: isLight ? colours.cardText : colours.searchBar,
+          iconEnabledColor: foreground,
+          style: colours.b1.copyWith(color: foreground),
+          items: _BudgetSort.values.map((sort) {
+            return DropdownMenuItem<_BudgetSort>(
+              value: sort,
+              child: Row(
+                children: [
+                  Icon(Icons.sort, size: 18, color: foreground),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(labels[sort]!, overflow: TextOverflow.ellipsis),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+          onChanged: (sort) {
+            if (sort != null) setState(() => _budgetSort = sort);
+          },
+        ),
+      ),
+    );
+  }
+
   Widget _budgetCard({
     required IconData icon,
     required String title,
@@ -775,15 +943,10 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
   }) {
     //i used AAI to figure out how these theme colours can be made when modes changes
     final double progress = limit <= 0 ? 0 : spent / limit;
-    final cardColor = Theme.of(context).brightness == Brightness.light
-        ? context.colours.secondary
-        : context.colours.blendedprimary;
-    final cardTextColor = Theme.of(context).brightness == Brightness.light
-        ? context.colours.background
-        : context.colours.secondary;
-    final progressTrackColor = Theme.of(context).brightness == Brightness.light
-        ? context.colours.background
-        : context.colours.secondary;
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final cardColor = context.colours.background;
+    final cardTextColor = context.colours.secondary;
+    final progressTrackColor = context.colours.secondary;
     final progressValueColor = isOverLimit
         ? context.colours.error
         : spent <= 0
@@ -840,12 +1003,16 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                       width: 34,
                       height: 34,
                       decoration: BoxDecoration(
-                        color: context.colours.secondary,
+                        color: isLight
+                            ? context.colours.secondary
+                            : context.colours.blendedprimary,
                         border: Border.all(color: Colors.black, width: 2),
                       ),
                       child: Icon(
                         icon,
-                        color: context.colours.background,
+                        color: isLight
+                            ? context.colours.background
+                            : context.colours.cardText,
                         size: 20,
                       ),
                     ),
@@ -942,6 +1109,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
 
   Future<void> _showBudgetInsights(_BudgetManagerItem budget) async {
     final colours = context.colours;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final usedPercentage = budget.limit <= 0
         ? 0.0
         : (budget.spent / budget.limit) * 100;
@@ -956,7 +1124,9 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
           constraints: const BoxConstraints(maxWidth: 420),
           padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
           decoration: BoxDecoration(
-            color: colours.background,
+            color: isDark
+                ? AppDialogStyle.surface(context)
+                : colours.background,
             border: Border.all(color: Colors.black, width: 4),
             boxShadow: const [
               BoxShadow(color: Colors.black, offset: Offset(6, 6)),
@@ -1009,8 +1179,9 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
               Text(
                 '${usedPercentage.toStringAsFixed(1)}% used. '
                 '${budget.isOverLimit ? 'You are R${remaining.abs().toStringAsFixed(2)} over budget.' : 'You have R${remaining.toStringAsFixed(2)} remaining.'}',
-                style: colours.b1.copyWith(
+                style: colours.b5.copyWith(
                   color: colours.textPrimary,
+                  fontSize: 14,
                   height: 1.4,
                 ),
               ),
@@ -1020,32 +1191,43 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                 children: [
                   OutlinedButton(
                     onPressed: () => Navigator.of(dialogContext).pop(false),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: colours.textPrimary,
-                      side: const BorderSide(color: Colors.black, width: 3),
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero,
-                      ),
-                      textStyle: colours.b1.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    style: isDark
+                        ? AppDialogStyle.cancel(context)
+                        : OutlinedButton.styleFrom(
+                            foregroundColor: colours.textPrimary,
+                            side: const BorderSide(
+                              color: Colors.black,
+                              width: 3,
+                            ),
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero,
+                            ),
+                            textStyle: colours.b1.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                     child: const Text('Close'),
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton(
                     onPressed: () => Navigator.of(dialogContext).pop(true),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: colours.secondary,
-                      foregroundColor: colours.background,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero,
-                        side: BorderSide(color: Colors.black, width: 3),
-                      ),
-                      textStyle: colours.b1.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    style: isDark
+                        ? AppDialogStyle.primary(context)
+                        : ElevatedButton.styleFrom(
+                            backgroundColor: isDark
+                                ? colours.blendedprimary
+                                : colours.secondary,
+                            foregroundColor: isDark
+                                ? colours.secondary
+                                : colours.background,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero,
+                              side: BorderSide(color: Colors.black, width: 3),
+                            ),
+                            textStyle: colours.b1.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                     child: const Text('View details'),
                   ),
                 ],
@@ -1140,32 +1322,39 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                   children: [
                     OutlinedButton(
                       onPressed: () => Navigator.of(dialogContext).pop(false),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: cardTextColor,
-                        side: const BorderSide(color: Colors.black, width: 3),
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero,
-                        ),
-                        textStyle: colours.b1.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      style: AppDialogStyle.isDark(context)
+                          ? AppDialogStyle.cancel(context)
+                          : OutlinedButton.styleFrom(
+                              foregroundColor: cardTextColor,
+                              side: const BorderSide(
+                                color: Colors.black,
+                                width: 3,
+                              ),
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero,
+                              ),
+                              textStyle: colours.b1.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                       child: const Text('Cancel'),
                     ),
                     const SizedBox(width: 8),
                     ElevatedButton(
                       onPressed: () => Navigator.of(dialogContext).pop(true),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colours.error,
-                        foregroundColor: colours.whiteAccents,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero,
-                          side: BorderSide(color: Colors.black, width: 3),
-                        ),
-                        textStyle: colours.b1.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      style: AppDialogStyle.isDark(context)
+                          ? AppDialogStyle.primary(context)
+                          : ElevatedButton.styleFrom(
+                              backgroundColor: colours.error,
+                              foregroundColor: colours.whiteAccents,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero,
+                                side: BorderSide(color: Colors.black, width: 3),
+                              ),
+                              textStyle: colours.b1.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                       child: const Text('Delete'),
                     ),
                   ],
@@ -1233,10 +1422,8 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
             final dialogTextColor = isDark
                 ? colours.secondary
                 : colours.textPrimary;
-            final accentColor = colours.secondary;
-            final accentTextColor = isDark
-                ? colours.primary
-                : colours.background;
+            final accentColor = colours.background;
+            final accentTextColor = colours.secondary;
 
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Dialog(
@@ -1249,7 +1436,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                   constraints: const BoxConstraints(maxWidth: 420),
                   padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
                   decoration: BoxDecoration(
-                    color: colours.background,
+                    color: dialogColor,
                     border: Border.all(color: Colors.black, width: 4),
                     boxShadow: const [
                       BoxShadow(
@@ -1280,7 +1467,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                   fontWeight: FontWeight.w500,
                 ),
                 filled: true,
-                fillColor: dialogColor,
+                fillColor: colours.background,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 12,
                   vertical: 10,
@@ -1295,7 +1482,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.zero,
-                  borderSide: BorderSide(color: colours.secondary, width: 3),
+                  borderSide: const BorderSide(color: Colors.black, width: 4),
                 ),
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.zero,
@@ -1345,7 +1532,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
               showDialog<void>(
                 context: context,
                 builder: (messageContext) => AlertDialog(
-                  backgroundColor: colours.background,
+                  backgroundColor: dialogColor,
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.zero,
                     side: BorderSide(color: Colors.black, width: 4),
@@ -1359,17 +1546,19 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                   actions: [
                     ElevatedButton(
                       onPressed: () => Navigator.of(messageContext).pop(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colours.secondary,
-                        foregroundColor: colours.background,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero,
-                          side: BorderSide(color: Colors.black, width: 3),
-                        ),
-                        textStyle: colours.b1.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      style: isDark
+                          ? AppDialogStyle.primary(context)
+                          : ElevatedButton.styleFrom(
+                              backgroundColor: colours.secondary,
+                              foregroundColor: colours.background,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero,
+                                side: BorderSide(color: Colors.black, width: 3),
+                              ),
+                              textStyle: colours.b1.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                       child: const Text('OK'),
                     ),
                   ],
@@ -1385,30 +1574,12 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(
-                            color: accentColor,
-                            border: Border.all(color: Colors.black, width: 3),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.account_balance_wallet_outlined,
-                                color: accentTextColor,
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  'CREATE NEW BUDGET',
-                                  style: colours.h2.copyWith(
-                                    color: accentTextColor,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                              ),
-                            ],
+                        Text(
+                          'Create New Budget',
+                          style: colours.h2.copyWith(
+                            color: dialogTextColor,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                         const SizedBox(height: 10),
@@ -1423,7 +1594,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                         DropdownButtonFormField<_BudgetCategoryOption>(
                           initialValue: selectedCategory,
                           isExpanded: true,
-                          dropdownColor: dialogColor,
+                          dropdownColor: colours.background,
                           style: colours.b1.copyWith(color: dialogTextColor),
                           decoration: inputDecoration('Budget category'),
                           items: categoryOptions.map((category) {
@@ -1492,26 +1663,23 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                               vertical: 12,
                             ),
                             decoration: BoxDecoration(
-                              color: createCustomCategory
-                                  ? accentColor
-                                  : dialogColor,
-                              border: Border.all(color: Colors.black, width: 3),
+                              color: accentColor,
+                              border: Border.all(
+                                color: Colors.black,
+                                width: createCustomCategory ? 4 : 3,
+                              ),
                             ),
                             child: Row(
                               children: [
                                 Icon(
                                   Icons.add_box_outlined,
-                                  color: createCustomCategory
-                                      ? accentTextColor
-                                      : dialogTextColor,
+                                  color: accentTextColor,
                                 ),
                                 const SizedBox(width: 10),
                                 Text(
                                   'CREATE A CUSTOM CATEGORY',
                                   style: colours.b1.copyWith(
-                                    color: createCustomCategory
-                                        ? accentTextColor
-                                        : dialogTextColor,
+                                    color: accentTextColor,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -1560,7 +1728,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                                 ),
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    color: selected ? accentColor : dialogColor,
+                                    color: accentColor,
                                     border: Border.all(
                                       color: Colors.black,
                                       width: selected ? 3 : 2,
@@ -1569,9 +1737,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                                   child: Icon(
                                     icon,
                                     size: 21,
-                                    color: selected
-                                        ? accentTextColor
-                                        : dialogTextColor,
+                                    color: accentTextColor,
                                   ),
                                 ),
                               );
@@ -1604,19 +1770,21 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                               onPressed: () {
                                 Navigator.of(dialogContext).pop();
                               },
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: dialogTextColor,
-                                side: const BorderSide(
-                                  color: Colors.black,
-                                  width: 3,
-                                ),
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.zero,
-                                ),
-                                textStyle: colours.b1.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                              style: isDark
+                                  ? AppDialogStyle.cancel(context)
+                                  : OutlinedButton.styleFrom(
+                                      foregroundColor: dialogTextColor,
+                                      side: const BorderSide(
+                                        color: Colors.black,
+                                        width: 3,
+                                      ),
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.zero,
+                                      ),
+                                      textStyle: colours.b1.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                               child: const Text('Cancel'),
                             ),
                             const SizedBox(width: 8),
@@ -1637,9 +1805,11 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                                           horizontal: 18,
                                           vertical: 16,
                                         ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            14,
+                                        shape: const RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.zero,
+                                          side: BorderSide(
+                                            color: Colors.black,
+                                            width: 3,
                                           ),
                                         ),
                                         content: Row(
@@ -1758,14 +1928,20 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                                   ..showSnackBar(
                                     SnackBar(
                                       behavior: SnackBarBehavior.floating,
-                                      backgroundColor: colours.secondary,
+                                      backgroundColor: isDark
+                                          ? colours.blendedprimary
+                                          : colours.secondary,
                                       elevation: 8,
                                       margin: const EdgeInsets.symmetric(
                                         horizontal: 18,
                                         vertical: 16,
                                       ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(14),
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.zero,
+                                        side: BorderSide(
+                                          color: Colors.black,
+                                          width: 3,
+                                        ),
                                       ),
                                       duration: const Duration(seconds: 3),
                                       content: Row(
@@ -1775,8 +1951,10 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                                             height: 34,
                                             decoration: BoxDecoration(
                                               color: colours.background,
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
+                                              border: Border.all(
+                                                color: Colors.black,
+                                                width: 2,
+                                              ),
                                             ),
                                             child: Icon(
                                               categoryIcon,
@@ -1789,7 +1967,9 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                                             child: Text(
                                               '$categoryLabel budget created successfully',
                                               style: TextStyle(
-                                                color: colours.background,
+                                                color: isDark
+                                                    ? colours.secondary
+                                                    : colours.background,
                                                 fontWeight: FontWeight.w700,
                                                 fontSize: 13,
                                               ),
@@ -1800,20 +1980,22 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                                     ),
                                   );
                               },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: colours.secondary,
-                                foregroundColor: colours.background,
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.zero,
-                                  side: BorderSide(
-                                    color: Colors.black,
-                                    width: 3,
-                                  ),
-                                ),
-                                textStyle: colours.b1.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                              style: isDark
+                                  ? AppDialogStyle.primary(context)
+                                  : ElevatedButton.styleFrom(
+                                      backgroundColor: colours.secondary,
+                                      foregroundColor: colours.background,
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.zero,
+                                        side: BorderSide(
+                                          color: Colors.black,
+                                          width: 3,
+                                        ),
+                                      ),
+                                      textStyle: colours.b1.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                               child: const Text('Create'),
                             ),
                           ],

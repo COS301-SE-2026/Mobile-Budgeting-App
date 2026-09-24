@@ -7,6 +7,8 @@ import '../../models/graphical_report.dart';
 import '../../models/reporting_period.dart';
 import '../../services/graphical_report_service.dart';
 import '../../utils/app_colour.dart';
+import '../../utils/date_display_formatter.dart';
+import '../../utils/app_dialog_style.dart';
 
 class GraphicalReportsScreen extends StatefulWidget {
   const GraphicalReportsScreen({
@@ -92,9 +94,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
   }
 
   Color _reportCardColor(BuildContext context) {
-    return Theme.of(context).brightness == Brightness.dark
-        ? context.colours.blendedprimary
-        : context.colours.secondary;
+    return context.colours.blendedprimary;
   }
 
   Color _reportCardTextColor(BuildContext context) {
@@ -103,10 +103,16 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
         : context.colours.background;
   }
 
-  Color _lightModeCreamAccent(BuildContext context) {
+  Color _chartTextColor(BuildContext context) {
     return Theme.of(context).brightness == Brightness.dark
         ? context.colours.secondary
         : context.colours.cardText;
+  }
+
+  Color _chartCardColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? context.colours.blendedprimary
+        : context.colours.primary;
   }
 
   @override
@@ -118,14 +124,18 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
     }
 
     return Scaffold(
-      backgroundColor: colours.background,
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? colours.background
+          : colours.blendedprimary,
       appBar: AppBar(
-        backgroundColor: colours.background,
-        iconTheme: IconThemeData(color: colours.textPrimary),
+        backgroundColor: Theme.of(context).brightness == Brightness.dark
+            ? colours.background
+            : colours.blendedprimary,
+        iconTheme: IconThemeData(color: _reportCardTextColor(context)),
         title: Text(
           'Graphical Reports',
           style: colours.h2.copyWith(
-            color: colours.textPrimary,
+            color: _reportCardTextColor(context),
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -142,7 +152,9 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
-            child: CircularProgressIndicator(color: colours.secondary),
+            child: CircularProgressIndicator(
+              color: _reportCardTextColor(context),
+            ),
           );
         }
 
@@ -152,7 +164,9 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
               padding: const EdgeInsets.all(24),
               child: Text(
                 'Could not load graphical reports.',
-                style: colours.b1.copyWith(color: colours.textPrimary),
+                style: colours.b1.copyWith(
+                  color: _reportCardTextColor(context),
+                ),
               ),
             ),
           );
@@ -164,7 +178,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
           return Center(
             child: Text(
               'No financial data is available.',
-              style: colours.b1.copyWith(color: colours.textPrimary),
+              style: colours.b1.copyWith(color: _reportCardTextColor(context)),
             ),
           );
         }
@@ -354,7 +368,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
               height: 46,
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: _sectionTitle(title),
+                child: _sectionTitle(title, onChartPage: true),
               ),
             ),
             const SizedBox(height: 8),
@@ -495,8 +509,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
 
   Widget _datePickerButton() {
     final textColor = _filterTextColor(context);
-    final dateLabel =
-        '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}';
+    final dateLabel = formatLongDate(_selectedDate);
 
     return InkWell(
       onTap: _showStyledDatePicker,
@@ -510,9 +523,10 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
             const SizedBox(width: 10),
             Text(
               dateLabel,
-              style: context.colours.b1.copyWith(
+              style: context.colours.b5.copyWith(
                 color: textColor,
                 fontWeight: FontWeight.bold,
+                letterSpacing: 0.8,
               ),
             ),
             const Spacer(),
@@ -531,7 +545,8 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) {
-          final cardColor = Theme.of(context).brightness == Brightness.dark
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+          final cardColor = isDark
               ? colours.blendedprimary
               : colours.background;
           final cardTextColor = colours.secondary;
@@ -562,8 +577,8 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                     data: Theme.of(context).copyWith(
                       colorScheme: ColorScheme.fromSeed(
                         seedColor: cardTextColor,
-                        primary: cardTextColor,
-                        onPrimary: cardColor,
+                        primary: colours.background,
+                        onPrimary: colours.secondary,
                         surface: cardColor,
                         onSurface: cardTextColor,
                         brightness: Theme.of(context).brightness,
@@ -572,24 +587,82 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                         backgroundColor: cardColor,
                         headerBackgroundColor: cardColor,
                         headerForegroundColor: cardTextColor,
+                        toggleButtonTextStyle: colours.b5.copyWith(
+                          color: cardTextColor,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.8,
+                        ),
+                        subHeaderForegroundColor: cardTextColor,
                         weekdayStyle: colours.b5.copyWith(
                           color: cardTextColor,
                           fontWeight: FontWeight.bold,
                         ),
-                        dayStyle: colours.b1.copyWith(color: cardTextColor),
-                        yearStyle: colours.b1.copyWith(color: cardTextColor),
+                        dayStyle: colours.b5.copyWith(
+                          color: cardTextColor,
+                          fontSize: 14,
+                        ),
+                        dayForegroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? colours.cardText
+                              : isDark
+                              ? null
+                              : colours.secondary,
+                        ),
+                        dayBackgroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? (isDark ? colours.background : colours.primary)
+                              : isDark
+                              ? null
+                              : colours.background,
+                        ),
+                        todayForegroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? colours.cardText
+                              : isDark
+                              ? null
+                              : colours.secondary,
+                        ),
+                        todayBackgroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? (isDark ? colours.background : colours.primary)
+                              : isDark
+                              ? null
+                              : colours.background,
+                        ),
+                        yearStyle: colours.b5.copyWith(
+                          color: cardTextColor,
+                          fontSize: 14,
+                        ),
+                        yearForegroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? colours.cardText
+                              : isDark
+                              ? null
+                              : colours.secondary,
+                        ),
+                        yearBackgroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? (isDark ? colours.background : colours.primary)
+                              : isDark
+                              ? null
+                              : colours.background,
+                        ),
                         dayShape: WidgetStateProperty.resolveWith((states) {
                           return RoundedRectangleBorder(
                             borderRadius: BorderRadius.zero,
                             side: states.contains(WidgetState.selected)
-                                ? const BorderSide(
+                                ? BorderSide(
                                     color: Colors.black,
-                                    width: 2,
+                                    width: isDark ? 3 : 2,
                                   )
                                 : BorderSide.none,
                           );
                         }),
-                        todayBorder: BorderSide(color: cardTextColor, width: 2),
+                        todayBorder: BorderSide(
+                          color: isDark ? Colors.black : cardTextColor,
+                          width: isDark ? 3 : 2,
+                        ),
                       ),
                     ),
                     child: CalendarDatePicker(
@@ -606,6 +679,18 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                     children: [
                       TextButton(
                         onPressed: () => Navigator.of(dialogContext).pop(),
+                        style: AppDialogStyle.isDark(context)
+                            ? AppDialogStyle.cancel(context)
+                            : TextButton.styleFrom(
+                                foregroundColor: cardTextColor,
+                                side: const BorderSide(
+                                  color: Colors.black,
+                                  width: 3,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
                         child: Text(
                           'Cancel',
                           style: colours.b1.copyWith(color: cardTextColor),
@@ -615,17 +700,22 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                       ElevatedButton(
                         onPressed: () =>
                             Navigator.of(dialogContext).pop(draftDate),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: cardTextColor,
-                          foregroundColor: cardColor,
-                          textStyle: colours.b1.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.zero,
-                            side: BorderSide(color: Colors.black, width: 3),
-                          ),
-                        ),
+                        style: AppDialogStyle.isDark(context)
+                            ? AppDialogStyle.primary(context)
+                            : ElevatedButton.styleFrom(
+                                backgroundColor: cardTextColor,
+                                foregroundColor: cardColor,
+                                textStyle: colours.b1.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.zero,
+                                  side: BorderSide(
+                                    color: Colors.black,
+                                    width: 3,
+                                  ),
+                                ),
+                              ),
                         child: const Text('Apply'),
                       ),
                     ],
@@ -672,14 +762,21 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
     return 'R${amount.toStringAsFixed(0)}';
   }
 
-  Widget _incomeExpenseChart(GraphicalReportData report) {
+  Widget _incomeExpenseChart(
+    GraphicalReportData report, {
+    bool expandable = true,
+  }) {
     final colours = context.colours;
+    final chartTextColor = _chartTextColor(context);
     final maximum = report.totalIncome > report.totalExpenses
         ? report.totalIncome
         : report.totalExpenses;
     final interval = _chartInterval(maximum);
 
     return _chartCard(
+      onTap: expandable
+          ? () => _showChartPopup('Income versus Expenses', report)
+          : null,
       child: SizedBox(
         height: 260,
         child: BarChart(
@@ -762,7 +859,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                       maxLines: 1,
                       overflow: TextOverflow.clip,
                       style: colours.b5.copyWith(
-                        color: colours.textMuted,
+                        color: chartTextColor.withValues(alpha: 0.7),
                         fontSize: 9,
                       ),
                     );
@@ -786,7 +883,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
                       child: Text(
                         label,
                         style: colours.b5.copyWith(
-                          color: _reportCardTextColor(context),
+                          color: chartTextColor,
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 0.8,
@@ -799,8 +896,8 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
             ),
             borderData: FlBorderData(
               border: Border(
-                left: BorderSide(color: colours.secondary),
-                bottom: BorderSide(color: colours.secondary),
+                left: BorderSide(color: chartTextColor),
+                bottom: BorderSide(color: chartTextColor),
               ),
             ),
           ),
@@ -810,21 +907,23 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
   }
 
   //fixes to colours and section data for widget
-  Widget _categoryChart(GraphicalReportData report) {
+  Widget _categoryChart(GraphicalReportData report, {bool expandable = true}) {
     if (report.categorySpending.isEmpty) {
       return _emptyChartMessage();
     }
 
     final colours = context.colours;
-    final cardTextColor = _reportCardTextColor(context);
+    final cardTextColor = _chartTextColor(context);
     final chartColours = [
       colours.greenAccents,
       colours.yellow,
-      colours.light,
+      Theme.of(context).brightness == Brightness.dark
+          ? colours.light
+          : colours.blue,
       colours.warning,
       colours.textMuted,
       colours.informational,
-      colours.secondary,
+      colours.cardText,
     ];
     final total = report.categorySpending.fold<double>(
       0,
@@ -839,6 +938,9 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
     }
 
     return _chartCard(
+      onTap: expandable
+          ? () => _showChartPopup('Spending by Category', report)
+          : null,
       child: LayoutBuilder(
         builder: (context, constraints) {
           final chartSize = constraints.maxWidth < 180
@@ -933,15 +1035,18 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
     );
   }
 
-  Widget _budgetChart(GraphicalReportData report) {
+  Widget _budgetChart(GraphicalReportData report, {bool expandable = true}) {
     if (report.budgetComparisons.isEmpty) {
       return _emptyChartMessage();
     }
 
     final colours = context.colours;
-    final cardTextColor = _reportCardTextColor(context);
+    final cardTextColor = _chartTextColor(context);
 
     return _chartCard(
+      onTap: expandable
+          ? () => _showChartPopup('Budget Used versus Limit', report)
+          : null,
       child: Column(
         children: report.budgetComparisons.map((budget) {
           final progress = budget.limit <= 0
@@ -994,96 +1099,102 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
     );
   }
 
-  Widget _trendChart(GraphicalReportData report) {
+  Widget _trendChart(GraphicalReportData report, {bool expandable = true}) {
     if (report.spendingTrend.isEmpty) {
       return _emptyChartMessage();
     }
 
-    final cardTextColor = _reportCardTextColor(context);
-    final trendColor = _lightModeCreamAccent(context);
+    final cardTextColor = _chartTextColor(context);
+    final trendColor = cardTextColor;
     final spots = report.spendingTrend.asMap().entries.map((entry) {
       return FlSpot(entry.key.toDouble(), entry.value.amount);
     }).toList();
 
     return _chartCard(
+      onTap: expandable
+          ? () => _showChartPopup('Spending Trend', report)
+          : null,
       child: SizedBox(
         height: 300,
-        child: LineChart(
-          LineChartData(
-            lineBarsData: [
-              LineChartBarData(
-                spots: spots,
-                isCurved: true,
-                barWidth: 3,
-                color: trendColor,
-                dotData: const FlDotData(show: true),
-              ),
-            ],
-            titlesData: FlTitlesData(
-              topTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              rightTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              leftTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  reservedSize: 50,
-                  getTitlesWidget: (value, metadata) {
-                    return Transform.translate(
-                      offset: Offset(0, value == 0 ? -8 : 0),
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 6),
-                          child: Text(
-                            _compactAxisAmount(value),
-                            maxLines: 1,
-                            style: context.colours.b5.copyWith(
-                              color: cardTextColor,
-                              fontSize: 10,
+        child: Padding(
+          padding: const EdgeInsets.only(right: 12),
+          child: LineChart(
+            LineChartData(
+              lineBarsData: [
+                LineChartBarData(
+                  spots: spots,
+                  isCurved: true,
+                  barWidth: 3,
+                  color: trendColor,
+                  dotData: const FlDotData(show: true),
+                ),
+              ],
+              titlesData: FlTitlesData(
+                topTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                rightTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 38,
+                    getTitlesWidget: (value, metadata) {
+                      return Transform.translate(
+                        offset: Offset(0, value == 0 ? -8 : 0),
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 6),
+                            child: Text(
+                              _compactAxisAmount(value),
+                              maxLines: 1,
+                              style: context.colours.b5.copyWith(
+                                color: cardTextColor,
+                                fontSize: 10,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
-              ),
-              bottomTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  reservedSize: 42,
-                  interval: 1,
-                  getTitlesWidget: (value, metadata) {
-                    final index = value.toInt();
-                    final label =
-                        index.isEven &&
-                            index >= 0 &&
-                            index < report.spendingTrend.length
-                        ? report.spendingTrend[index].label
-                        : '';
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 42,
+                    interval: 1,
+                    getTitlesWidget: (value, metadata) {
+                      final index = value.toInt();
+                      final label =
+                          index.isEven &&
+                              index >= 0 &&
+                              index < report.spendingTrend.length
+                          ? report.spendingTrend[index].label
+                          : '';
 
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 12),
-                      child: Text(
-                        label,
-                        textAlign: TextAlign.center,
-                        style: context.colours.b5.copyWith(
-                          color: cardTextColor,
-                          fontSize: 10,
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: Text(
+                          label,
+                          textAlign: TextAlign.center,
+                          style: context.colours.b5.copyWith(
+                            color: cardTextColor,
+                            fontSize: 10,
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
-            ),
-            borderData: FlBorderData(
-              border: Border(
-                left: BorderSide(color: trendColor),
-                bottom: BorderSide(color: trendColor),
+              borderData: FlBorderData(
+                border: Border(
+                  left: BorderSide(color: trendColor),
+                  bottom: BorderSide(color: trendColor),
+                ),
               ),
             ),
           ),
@@ -1092,12 +1203,138 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
     );
   }
 
-  Widget _chartCard({required Widget child}) {
-    return Container(
+  void _showChartPopup(String title, GraphicalReportData report) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        final colours = dialogContext.colours;
+        final isDark = Theme.of(dialogContext).brightness == Brightness.dark;
+        final foreground = isDark ? colours.secondary : colours.primary;
+        final chart = switch (title) {
+          'Income versus Expenses' => _incomeExpenseChart(
+            report,
+            expandable: false,
+          ),
+          'Spending by Category' => _categoryChart(report, expandable: false),
+          'Budget Used versus Limit' => _budgetChart(report, expandable: false),
+          _ => _trendChart(report, expandable: false),
+        };
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 24,
+          ),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: 600,
+              maxHeight: MediaQuery.sizeOf(dialogContext).height * 0.85,
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: colours.background,
+                border: Border.all(color: Colors.black, width: 4),
+                boxShadow: const [
+                  BoxShadow(color: Colors.black, offset: Offset(6, 6)),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: colours.h2.copyWith(color: foreground),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        tooltip: 'Close chart',
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                        style: IconButton.styleFrom(
+                          backgroundColor: isDark
+                              ? colours.background
+                              : colours.primary,
+                          foregroundColor: colours.cardText,
+                          side: const BorderSide(color: Colors.black, width: 3),
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.zero,
+                          ),
+                        ),
+                        icon: const Icon(Icons.close),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Flexible(child: SingleChildScrollView(child: chart)),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _chartCard({required Widget child, VoidCallback? onTap}) {
+    final card = Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
-      decoration: _cardDecoration(),
-      child: child,
+      decoration: BoxDecoration(
+        color: _chartCardColor(context),
+        border: Border.all(color: Colors.black, width: 4),
+        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(6, 6))],
+      ),
+      child: onTap == null
+          ? child
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Icon(
+                      Icons.open_in_full,
+                      size: 15,
+                      color: _chartTextColor(context),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'TAP TO EXPAND',
+                      style: context.colours.b5.copyWith(
+                        color: _chartTextColor(context),
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                child,
+              ],
+            ),
+    );
+
+    if (onTap == null) return card;
+
+    return Stack(
+      children: [
+        card,
+        Positioned.fill(
+          child: Material(
+            color: Colors.transparent,
+            child: Semantics(
+              button: true,
+              label: 'Expand chart',
+              child: InkWell(onTap: onTap),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -1118,19 +1355,23 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
 
   Color _filterColor(BuildContext context) {
     return Theme.of(context).brightness == Brightness.dark
-        ? context.colours.blendedprimary
-        : context.colours.background;
+        ? context.colours.background
+        : context.colours.secondary;
   }
 
   Color _filterTextColor(BuildContext context) {
-    return context.colours.secondary;
+    return Theme.of(context).brightness == Brightness.dark
+        ? context.colours.secondary
+        : context.colours.background;
   }
 
-  Widget _sectionTitle(String title) {
+  Widget _sectionTitle(String title, {bool onChartPage = false}) {
     return Text(
       title,
       style: TextStyle(
-        color: context.colours.textPrimary,
+        color: onChartPage
+            ? context.colours.textPrimary
+            : _reportCardTextColor(context),
         fontSize: 18,
         fontWeight: FontWeight.bold,
       ),
@@ -1138,7 +1379,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
   }
 
   Widget _emptyChartMessage() {
-    final cardTextColor = _reportCardTextColor(context);
+    final cardTextColor = _chartTextColor(context);
 
     return _chartCard(
       child: Text(
@@ -1150,7 +1391,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
   }
 
   Widget _noDataCard() {
-    final cardTextColor = _reportCardTextColor(context);
+    final cardTextColor = _chartTextColor(context);
 
     return _chartCard(
       child: Column(
