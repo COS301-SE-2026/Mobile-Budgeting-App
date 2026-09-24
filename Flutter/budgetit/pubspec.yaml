@@ -64,6 +64,7 @@ dependencies:
   amplify_db_common_dart: ^0.4.18
   # Secure token storage
   flutter_secure_storage: ^10.3.1
+  local_auth: ^3.0.2
   # State management
   provider: ^6.1.2
   jiffy: ^6.4.5
@@ -85,6 +86,7 @@ dependency_overrides:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.14.4
   drift_dev: ^2.34.6
   build_runner: ^2.15.0
   widgetbook_generator: ^3.11.0
@@ -92,6 +94,18 @@ dev_dependencies:
   sqlite3: ^3.0.0
 
   very_good_analysis: ^11.0.0
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/images/Appicon.png
+  remove_alpha_ios: true
+  background_color_ios: "#05230F"
+  web:
+    generate: true
+    image_path: assets/images/Appicon.png
+    background_color: "#05230F"
+    theme_color: "#05230F"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -109,6 +123,8 @@ flutter:
     - assets/images/phone_mockup.jpg
     - assets/images/flow.jpg
     - assets/images/logo.png
+    - assets/images/final_logo.png
+    - assets/images/app_icon.png
     - assets/models/bge-small-en-v1.5/
     - assets/images/budgetit_logo.jpg
   # An image asset can refer to one or more resolution-specific "variants", see

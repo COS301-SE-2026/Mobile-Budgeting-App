@@ -1,14 +1,19 @@
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
 import 'package:budgetit/shared/widgets/coming_soon_page.dart';
-import 'package:budgetit/shared/widgets/profile_page.dart';
+//import 'package:budgetit/shared/widgets/profile_page.dart';
 import 'package:budgetit/shared/widgets/help_menu_page.dart';
 import 'package:provider/provider.dart';
 import 'package:budgetit/utils/theme_provider.dart';
 import 'package:budgetit/shared/widgets/settings_page.dart';
 
 class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
-  const MainAppbar({super.key});
+  const MainAppbar({
+    super.key,
+    this.onProfileTap,
+  });
+
+  final VoidCallback? onProfileTap;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -100,12 +105,7 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
             ),
             child: Icon(Icons.person_outline, color: Colors.black),
           ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ProfilePage()),
-            );
-          },
+          onPressed: onProfileTap,
         ),
 
         IconButton(

@@ -40,6 +40,86 @@ bucket_definitions:
         WHERE user_id = bucket.user_id
           AND is_default = false
 
+      # Profiles: the user's own, plus those of friends and pending-request
+      # partners, so the UI can show friend codes as identifiers.
+      - SELECT * FROM user_profiles
+        WHERE user_id = bucket.user_id
+           OR user_id IN (
+                SELECT CASE WHEN user_a = bucket.user_id THEN user_b ELSE user_a END
+                FROM friendships
+                WHERE (user_a = bucket.user_id OR user_b = bucket.user_id)
+                  AND deleted_at IS NULL
+              )
+           OR user_id IN (
+                SELECT CASE WHEN requester_id = bucket.user_id THEN addressee_id ELSE requester_id END
+                FROM friend_requests
+                WHERE (requester_id = bucket.user_id OR addressee_id = bucket.user_id)
+                  AND deleted_at IS NULL
+              )
+
+      # Friend requests sent or received.
+      - SELECT * FROM friend_requests
+        WHERE (requester_id = bucket.user_id OR addressee_id = bucket.user_id)
+          AND deleted_at IS NULL
+
+      # Friendships involving this user.
+      - SELECT * FROM friendships
+        WHERE (user_a = bucket.user_id OR user_b = bucket.user_id)
+          AND deleted_at IS NULL
+
+      # Own goals (income targets).
+      - SELECT * FROM goal_templates
+        WHERE user_id = bucket.user_id
+          AND deleted_at IS NULL
+
+      - SELECT * FROM goal_periods
+        WHERE user_id = bucket.user_id
+          AND deleted_at IS NULL
+
+      # Shared budgets (co-owned): template, its membership rows and periods.
+      - SELECT * FROM budget_templates
+        WHERE id IN (
+          SELECT budget_template_id FROM budget_members
+          WHERE user_id = bucket.user_id AND deleted_at IS NULL
+        )
+        AND deleted_at IS NULL
+
+      - SELECT * FROM budget_members
+        WHERE user_id = bucket.user_id
+           OR budget_template_id IN (
+                SELECT id FROM budget_templates
+                WHERE user_id = bucket.user_id
+              )
+
+      - SELECT * FROM budget_periods
+        WHERE template_id IN (
+          SELECT budget_template_id FROM budget_members
+          WHERE user_id = bucket.user_id AND deleted_at IS NULL
+        )
+        AND deleted_at IS NULL
+
+      # Shared goals (co-owned): template, its membership rows and periods.
+      - SELECT * FROM goal_templates
+        WHERE id IN (
+          SELECT goal_template_id FROM goal_members
+          WHERE user_id = bucket.user_id AND deleted_at IS NULL
+        )
+        AND deleted_at IS NULL
+
+      - SELECT * FROM goal_members
+        WHERE user_id = bucket.user_id
+           OR goal_template_id IN (
+                SELECT id FROM goal_templates
+                WHERE user_id = bucket.user_id
+              )
+
+      - SELECT * FROM goal_periods
+        WHERE template_id IN (
+          SELECT goal_template_id FROM goal_members
+          WHERE user_id = bucket.user_id AND deleted_at IS NULL
+        )
+        AND deleted_at IS NULL
+
   global_category_closure:
     data:
       - SELECT * FROM category_closure
