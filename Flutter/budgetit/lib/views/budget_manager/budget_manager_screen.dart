@@ -9,6 +9,7 @@ import '../../utils/icon_mapper.dart';
 import '../../shared/widgets/balance_card.dart';
 import '../../shared/widgets/searchbox.dart';
 import 'budget_detail_screen.dart';
+import '../../shared/widgets/goals_page.dart';
 
 class BudgetManagerScreen extends StatefulWidget {
   final AppDatabase database;
@@ -423,7 +424,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
         _BudgetManagerItem(
           templateId: template.id,
           categoryId: category.id,
-          title: category.name,
+          title: template.name ?? category.name,
           subtitle: _periodTypeLabel(template.periodType),
           spent: spent,
           limit: template.amount.toDouble(),
@@ -608,6 +609,17 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                   ],
                 ),
                 const SizedBox(height: 18),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const GoalsPage()),
+                    ),
+                    icon: const Icon(Icons.flag_outlined),
+                    label: const Text('View / Add Goals'),
+                  ),
+                ),
+                const SizedBox(height: 14),
                 _summaryCard(),
 
                 const SizedBox(height: 14),
@@ -1914,6 +1926,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                                       categoryId: categoryId,
                                       amount: Decimal.parse(limit.toString()),
                                       periodType: PeriodType.monthly,
+                                      name: categoryLabel,
                                     );
 
                                 if (!mounted) return;
