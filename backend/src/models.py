@@ -243,6 +243,23 @@ class GoalPeriod(Base):
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
+class GoalContribution(Base):
+    __tablename__ = "goal_contributions"
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=_uuid)
+    template_id: Mapped[str] = mapped_column(ForeignKey("goal_templates.id"))
+    user_id: Mapped[str] = mapped_column(String)
+    amount: Mapped[Decimal] = mapped_column(Numeric(19, 4))
+    note: Mapped[str | None] = mapped_column(String, nullable=True)
+    transaction_id: Mapped[str | None] = mapped_column(
+        ForeignKey("transactions.id"), nullable=True
+    )
+    contributed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
 class BudgetMember(Base):
     __tablename__ = "budget_members"
 

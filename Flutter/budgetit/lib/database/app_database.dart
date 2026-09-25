@@ -27,6 +27,7 @@ part 'app_database.g.dart';
     BudgetPeriods,
     GoalTemplates,
     GoalPeriods,
+    GoalContributions,
     BudgetMembers,
     GoalMembers,
     UserProfiles,
