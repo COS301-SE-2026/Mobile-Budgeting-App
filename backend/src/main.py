@@ -23,6 +23,7 @@ from models import (
     Import,
     GoalTemplate,
     GoalPeriod,
+    GoalContribution,
     BudgetMember,
     GoalMember,
     UserProfile,
@@ -51,6 +52,7 @@ tables = {
     "imports": Import,
     "goal_templates": GoalTemplate,
     "goal_periods": GoalPeriod,
+    "goal_contributions": GoalContribution,
     "budget_members": BudgetMember,
     "goal_members": GoalMember,
     "user_profiles": UserProfile,
@@ -82,6 +84,7 @@ JOIN_OWNED_TABLES = {
     "transaction_category_map": (Transaction, "transaction_id"),
     "budget_periods": (BudgetTemplate, "template_id"),
     "goal_periods": (GoalTemplate, "template_id"),
+    "goal_contributions": (GoalTemplate, "template_id"),
 }
 
 # Membership tables: one row per co-owner. The writer must be a participant

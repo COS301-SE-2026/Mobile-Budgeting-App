@@ -115,3 +115,21 @@ ALTER PUBLICATION powersync ADD TABLE
   public.user_profiles,
   public.friend_requests,
   public.friendships;
+
+CREATE TABLE IF NOT EXISTS goal_contributions (
+  id uuid PRIMARY KEY,
+  template_id uuid NOT NULL REFERENCES goal_templates(id),
+  user_id text NOT NULL,
+  amount numeric(19,4) NOT NULL,
+  note text,
+  transaction_id uuid REFERENCES transactions(id),
+  contributed_at timestamptz NOT NULL,
+  created_at timestamptz NOT NULL,
+  updated_at timestamptz NOT NULL,
+  deleted_at timestamptz
+);
+CREATE INDEX IF NOT EXISTS ix_goal_contributions_template
+  ON goal_contributions (template_id)
+  WHERE deleted_at IS NULL;
+
+ALTER PUBLICATION powersync ADD TABLE public.goal_contributions;
