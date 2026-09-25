@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:budgetit/bsg/main.directories.g.dart';
 import 'package:budgetit/utils/app_colour.dart';
+import 'package:flutter/material.dart';
 import 'package:widgetbook/widgetbook.dart';
 import 'package:widgetbook_annotation/widgetbook_annotation.dart' as widgetbook;
-
-import 'package:budgetit/bsg/main.directories.g.dart';
 
 void main() {
   runApp(const WidgetbookApp());
