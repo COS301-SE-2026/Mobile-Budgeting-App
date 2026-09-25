@@ -161,6 +161,22 @@ CREATE UNIQUE INDEX ux_goal_period_active
   ON goal_periods (template_id, period_key)
   WHERE deleted_at IS NULL;
 
+CREATE TABLE goal_contributions (
+  id uuid PRIMARY KEY,
+  template_id uuid NOT NULL REFERENCES goal_templates(id),
+  user_id text NOT NULL,
+  amount numeric(19,4) NOT NULL,
+  note text,
+  transaction_id uuid REFERENCES transactions(id),
+  contributed_at timestamptz NOT NULL,
+  created_at timestamptz NOT NULL,
+  updated_at timestamptz NOT NULL,
+  deleted_at timestamptz
+);
+CREATE INDEX ix_goal_contributions_template
+  ON goal_contributions (template_id)
+  WHERE deleted_at IS NULL;
+
 CREATE TABLE budget_members (
   id uuid PRIMARY KEY,
   budget_template_id uuid NOT NULL REFERENCES budget_templates(id),
@@ -220,4 +236,4 @@ CREATE UNIQUE INDEX ux_friendships_pair
   ON friendships (user_a, user_b)
   WHERE deleted_at IS NULL;
 
-CREATE PUBLICATION powersync FOR TABLE public.categories, public.transactions, public.budget_templates, public.recurring_transactions, public.imports, public.budget_periods, public.transaction_category_map, public.category_closure, public.goal_templates, public.goal_periods, public.budget_members, public.goal_members, public.user_profiles, public.friend_requests, public.friendships;
+CREATE PUBLICATION powersync FOR TABLE public.categories, public.transactions, public.budget_templates, public.recurring_transactions, public.imports, public.budget_periods, public.transaction_category_map, public.category_closure, public.goal_templates, public.goal_periods, public.budget_members, public.goal_members, public.user_profiles, public.friend_requests, public.friendships, public.goal_contributions;
