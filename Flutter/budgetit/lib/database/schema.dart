@@ -490,6 +490,32 @@ class GoalPeriods extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+class GoalContributions extends Table {
+  TextColumn get id => text()();
+
+  TextColumn get templateId => text().references(GoalTemplates, #id)();
+
+  TextColumn get userId => text().nullable()();
+
+  TextColumn get amount => text().map(DecimalConverter())();
+
+  TextColumn get note => text().nullable()();
+
+  TextColumn get transactionId =>
+      text().references(Transactions, #id).nullable()();
+
+  DateTimeColumn get contributedAt => dateTime()();
+
+  DateTimeColumn get createdAt => dateTime()();
+
+  DateTimeColumn get updatedAt => dateTime()();
+
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 /// Lists the co-owners of a shared budget template.
 ///
 /// The template owner is identified by [BudgetTemplates.userId]; these rows

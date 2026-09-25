@@ -128,6 +128,18 @@ final powerSyncSchema = Schema([
     Column.text('deleted_at'),
   ]),
 
+  Table('goal_contributions', [
+    Column.text('template_id'),
+    Column.text('user_id'),
+    Column.text('amount'),
+    Column.text('note'),
+    Column.text('transaction_id'),
+    Column.text('contributed_at'),
+    Column.text('created_at'),
+    Column.text('updated_at'),
+    Column.text('deleted_at'),
+  ]),
+
   Table('budget_members', [
     Column.text('budget_template_id'),
     Column.text('user_id'),

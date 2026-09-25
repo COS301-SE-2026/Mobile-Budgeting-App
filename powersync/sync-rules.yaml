@@ -76,6 +76,10 @@ bucket_definitions:
         WHERE user_id = bucket.user_id
           AND deleted_at IS NULL
 
+      - SELECT * FROM goal_contributions
+        WHERE user_id = bucket.user_id
+          AND deleted_at IS NULL
+
       # Shared budgets (co-owned): template, its membership rows and periods.
       - SELECT * FROM budget_templates
         WHERE id IN (
@@ -114,6 +118,13 @@ bucket_definitions:
               )
 
       - SELECT * FROM goal_periods
+        WHERE template_id IN (
+          SELECT goal_template_id FROM goal_members
+          WHERE user_id = bucket.user_id AND deleted_at IS NULL
+        )
+        AND deleted_at IS NULL
+
+      - SELECT * FROM goal_contributions
         WHERE template_id IN (
           SELECT goal_template_id FROM goal_members
           WHERE user_id = bucket.user_id AND deleted_at IS NULL
