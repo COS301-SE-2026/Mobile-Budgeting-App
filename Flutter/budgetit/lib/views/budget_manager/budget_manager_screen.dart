@@ -551,14 +551,38 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                   ],
                 ),
                 const SizedBox(height: 18),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const GoalsPage()),
+                GestureDetector(
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const GoalsPage()),
+                  ),
+                  child: Container(
+                    width: double.infinity,
+                    height: 55,
+                    decoration: BoxDecoration(
+                      color: cardColor,
+                      border: Border.all(color: Colors.black, width: 4),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(4, 4),
+                          blurRadius: 0,
+                        ),
+                      ],
                     ),
-                    icon: const Icon(Icons.flag_outlined),
-                    label: const Text('View / Add Goals'),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.flag_outlined, color: cardTextColor),
+                        const SizedBox(width: 8),
+                        Text(
+                          'VIEW / ADD GOALS',
+                          style: colours.h2.copyWith(
+                            color: cardTextColor,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 14),
