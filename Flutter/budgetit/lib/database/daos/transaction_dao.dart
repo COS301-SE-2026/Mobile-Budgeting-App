@@ -118,6 +118,46 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
     return q.get();
   }
 
+  /// Returns the number of transactions.
+  /// 
+  /// Soft-deleted transactions are included if [includeDeleted] is `true`.
+  Future<int> countTransactions({bool includeDeleted = false}) async {
+    final transactions = await getAllTransactions(
+      includeDeleted: includeDeleted,
+    );
+    return transactions.length;
+  }
+
+  /// Returns the number of category assignments, 
+  /// 
+  /// Includes soft-deleted rows.
+  Future<int> countCategoryAssignments() async {
+    final assignments = await select(transactionCategoryMap).get();
+    return assignments.length;
+  }
+
+  /// Returns the number of transactions linked to any recurring transaction.
+  Future<int> countTransactionsWithRecurringId() async {
+    final query = select(transactions)
+      ..where((row) => row.recurringId.isNotNull());
+    final transactionsWithRecurringId = await query.get();
+    return transactionsWithRecurringId.length;
+  }
+
+  /// Returns the number of transactions linked to one of [recurringIds].
+  Future<int> countTransactionsLinkedToRecurringIds(
+    Iterable<String> recurringIds,
+  ) async {
+    final ids = recurringIds.toList();
+    if (ids.isEmpty) {
+      return 0;
+    }
+    final query = select(transactions)
+      ..where((row) => row.recurringId.isIn(ids));
+    final linkedTransactions = await query.get();
+    return linkedTransactions.length;
+  }
+
   /// Retrieves all transactions of the given [type].
   ///
   /// Ordered by [Transaction.transactionDate] descending. Soft-deleted

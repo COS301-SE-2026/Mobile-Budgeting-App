@@ -121,6 +121,14 @@ class CategoryDao extends DatabaseAccessor<AppDatabase>
     return q.get();
   }
 
+  /// Returns the number of categories.
+  ///
+  /// Includes soft deleted categories if [includeDeleted] is `true`.
+  Future<int> countCategories({bool includeDeleted = false}) async {
+    final categories = await getAllCategories(includeDeleted: includeDeleted);
+    return categories.length;
+  }
+
   /// Retrieves all categories of the given [type].
   ///
   /// By default, soft-deleted categories are excluded. Use [includeDeleted]

@@ -106,6 +106,14 @@ class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
     return q.get();
   }
 
+  /// Returns the number of budget templates and periods.
+  /// Includes soft deleted records.
+  Future<int> countBudgetScope() async {
+    final templates = await getAllBudgetTemplates(includeDeleted: true);
+    final periods = await select(budgetPeriods).get();
+    return templates.length + periods.length;
+  }
+
   /// Returns the active budget template for the given [categoryId].
   ///
   /// Returns the first matching template, or `null` if none exists.

@@ -109,6 +109,29 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     return query.get();
   }
 
+  /// Returns the number of recurring transactions.
+  /// Includes soft deleted records if [includeDeleted] is `true`.
+  Future<int> countRecurringTransactions({bool includeDeleted = false}) async {
+    final recurringTransactions = await getAllRecurringTransactions(
+      includeDeleted: includeDeleted,
+    );
+    return recurringTransactions.length;
+  }
+
+  /// Returns a list of schedule IDs linked to one of [categoryIds].
+  Future<List<String>> listRecurringTransactionIdsForCategoryIds(
+    Iterable<String> categoryIds,
+  ) async {
+    final ids = categoryIds.toList();
+    if (ids.isEmpty) {
+      return [];
+    }
+    final query = select(recurringTransactions)
+      ..where((row) => row.categoryId.isIn(ids));
+    final recurringTransactionsForCategories = await query.get();
+    return recurringTransactionsForCategories.map((row) => row.id).toList();
+  }
+
   Future<List<RecurringTransaction>> getRecurringTransactionsByType(
     TransactionType type, {
     bool includeDeleted = false,
