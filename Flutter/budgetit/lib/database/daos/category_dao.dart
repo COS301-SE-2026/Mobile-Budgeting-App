@@ -250,6 +250,14 @@ class CategoryDao extends DatabaseAccessor<AppDatabase>
     });
   }
 
+  /// Hard deletes all categories and their closure entries.
+  ///
+  /// Callers must remove dependants first.
+  Future<void> hardDeleteAllCategories() async {
+    await delete(categoryClosure).go();
+    await delete(categories).go();
+  }
+
   /// Restores a soft-deleted category by clearing its [deletedAt] timestamp.
   ///
   /// The category becomes visible in queries again after restoration.

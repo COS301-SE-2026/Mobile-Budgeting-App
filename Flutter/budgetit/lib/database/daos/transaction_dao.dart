@@ -353,6 +353,13 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
     )..where((t) => t.transactionId.equals(transactionId))).go();
   }
 
+  /// Deletes all transaction to category assignments
+  /// 
+  /// Does not delete transactions.
+  Future<void> deleteAllCategoryAssignments() async {
+    await delete(transactionCategoryMap).go();
+  }
+
   /// Retrieves active transactions that are mapped to the given [categoryId].
   ///
   /// Performs an inner join between [transactions] and [transactionCategoryMap]

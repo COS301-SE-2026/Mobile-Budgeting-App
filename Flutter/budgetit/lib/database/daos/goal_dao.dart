@@ -74,6 +74,16 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
     return categorizedGoalTemplates.length;
   }
 
+  /// Removes categories from all goal templates
+  /// 
+  /// Includes soft-deleted rows.
+  Future<void> uncategorizeAllGoalTemplates() async {
+    final uncategorizeGoals = update(goalTemplates);
+    await uncategorizeGoals.write(
+      const GoalTemplatesCompanion(categoryId: Value(null)),
+    );
+  }
+
   /// Returns the active goal template for the given [categoryId].
   Future<GoalTemplate?> getGoalTemplateByCategory(
     String categoryId, {
