@@ -1178,8 +1178,8 @@ class _DashboardState extends State<Dashboard> {
                             ),
                             const SizedBox(width: 7),
                             Text(
-                              _formatDashboardDate(selectedDate),
-                              style: colours.b5.copyWith(
+                              _formatDashboardDate(selectedDate).toUpperCase(),
+                              style: colours.b3.copyWith(
                                 color: colours.cardText,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 0.8,

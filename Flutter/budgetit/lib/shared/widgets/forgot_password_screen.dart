@@ -65,7 +65,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ),
             ),
           ],
-        ],
+        ),
       ),
     );
   }
@@ -124,9 +124,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       decoration: BoxDecoration(
         color: context.colours.blendedprimary,
         border: Border.all(color: _borderColor, width: 4),
-        boxShadow: [
-          BoxShadow(color: _borderColor, offset: const Offset(6, 6)),
-        ],
+        boxShadow: [BoxShadow(color: _borderColor, offset: const Offset(6, 6))],
       ),
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -309,10 +307,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             ? SizedBox(
                 height: 20,
                 width: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: _green,
-                ),
+                child: CircularProgressIndicator(strokeWidth: 2, color: _green),
               )
             : Text(
                 label,
