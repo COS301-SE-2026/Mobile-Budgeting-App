@@ -13,9 +13,9 @@ import 'package:budgetit/shared/widgets/insight_widget.dart';
 class PredictiveSpendingScreen extends StatefulWidget {
   const PredictiveSpendingScreen({super.key});
 
-    @override
-    State<PredictiveSpendingScreen> createState() => _PredictiveSpendingScreenState();
-
+  @override
+  State<PredictiveSpendingScreen> createState() =>
+      _PredictiveSpendingScreenState();
 }
 
 class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
@@ -155,12 +155,26 @@ class _PredictiveSpendingScreenState extends State<PredictiveSpendingScreen> {
       appBar: AppBar(
         backgroundColor: context.colours.background,
         elevation: 0,
-        leading: GestureDetector(
-          //icon: Icon(Icons.arrow_back_ios_rounded, color: context.colours.textPrimary),
-          onTap: () => Navigator.of(context).pop(),
-          child: Icon(
-            Icons.arrow_back_ios_rounded,
-            color: context.colours.textPrimary,
+        leadingWidth: 60,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 8, top: 6, bottom: 6),
+          child: InkWell(
+            onTap: () => Navigator.of(context).maybePop(),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: context.colours.primary,
+                border: Border.all(color: Colors.black, width: 3),
+                boxShadow: const [
+                  BoxShadow(color: Colors.black, offset: Offset(4, 4)),
+                ],
+              ),
+              child: Icon(
+                Icons.arrow_back,
+                color: context.colours.cardText,
+                size: 18,
+              ),
+            ),
           ),
         ),
         title: Text(
@@ -318,34 +332,35 @@ class _SpendingInsightsData {
 }
 */
 
-class _NeoCard extends StatelessWidget{
-    final Widget child;
-    final Color color;
-    final Color borderColor;
-    final bool shadow;
+class _NeoCard extends StatelessWidget {
+  final Widget child;
+  final Color color;
+  final Color borderColor;
+  final bool shadow;
 
-    const _NeoCard({
-        required this.child,
-        required this.color,
-        required this.borderColor,
-        required this.shadow,
-    });
+  const _NeoCard({
+    required this.child,
+    required this.color,
+    required this.borderColor,
+    required this.shadow,
+  });
 
-    @override
-    Widget build(BuildContext context) {
-        return Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-                color: color,
-                border: Border.all(color: borderColor, width: 3),
-                boxShadow: shadow ? const [BoxShadow(color: Colors.black, offset: Offset(4,4))] : null,
-            ),
-            child: child,
-        );
-    }
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: color,
+        border: Border.all(color: borderColor, width: 3),
+        boxShadow: shadow
+            ? const [BoxShadow(color: Colors.black, offset: Offset(4, 4))]
+            : null,
+      ),
+      child: child,
+    );
+  }
 }
-
 
 class _PredictionCard extends StatelessWidget {
   final SpendingPrediction? prediction;
@@ -399,234 +414,235 @@ class _PredictionCard extends StatelessWidget {
             ],
           ),
 
-                    const SizedBox(height: 20),
-                    if (prediction == null) ...[
-                        Text(
-                            'Not enough data yet',
-                            style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: cardTextColor,
-                                fontFamily: 'SpaceGrotesk',
-                            ),
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                            'Add transactions for at least 2 months to see your '
-                            'spending prediction.',
-                            style: TextStyle(
-                                fontSize: 12,
-                                color: cardTextColor.withValues(alpha: 0.75),
-                                height: 1.5,
-                                fontFamily: 'JetBrainsMono',
-                            ),
-                        ),
-                    ] else ...[
-                        Text(
-                            prediction!.label.toUpperCase(),
-                            style: TextStyle(
-                                fontSize: 11,
-                                color: cardTextColor.withValues(alpha: 0.65),
-                                letterSpacing: 1.2,
-                                fontFamily: 'JetBrainsMono',
-                            ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                            'R${prediction!.predictedAmount.toStringAsFixed(2)}',
-                            style: TextStyle(
-                                fontSize: 44,
-                                fontWeight: FontWeight.bold,
-                                color: cardTextColor,
-                                height: 1,
-                                fontFamily: 'SpaceGrotesk',
-                            ),
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                            'Range: R${prediction!.lowerBound.toStringAsFixed(0)} '
-                            '– R${prediction!.upperBound.toStringAsFixed(0)}', 
-                            style: TextStyle(
-                                fontSize: 12,
-                                color: cardTextColor.withValues(alpha: 0.75),
-                                fontFamily: 'JetBrainsMono',
-                            ),
-                        ),
-                        const SizedBox(height: 20),
-            
-                        Row(
-                            children: [
-                                Text(
-                                    'CONFIDENCE',
-                                    style: TextStyle(
-                                        fontSize: 10,
-                                        color: cardTextColor.withValues(alpha: 0.65),
-                                        letterSpacing: 1.2,
-                                        fontFamily: 'JetBrainsMono',
-                                    ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                    child: Container(
-                                        height: 8,
-                                        decoration: BoxDecoration( border: Border.all(color: Colors.black, width: 2)),
-                                    
-                                        child: FractionallySizedBox(
-                                            alignment: Alignment.centerLeft,
-                                            widthFactor: prediction!.confidence,
-                                            child: Container(color: cardTextColor),
-                                        ),
-                                    ),
-                                ),
-                                const SizedBox(width: 12),
-                                Text(
-                                    '${(prediction!.confidence * 100).toStringAsFixed(0)}%',
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700,
-                                        color: cardTextColor,
-                                        fontFamily: 'JetBrainsMono',
-                                    ),
-                                ),
-                            ],
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                            'Based on ${prediction!.monthsUsed} month'
-                            '${prediction!.monthsUsed != 1 ? 's' : ''} of history',
-                            style: TextStyle(
-                                fontSize: 11,
-                                color: cardTextColor.withValues(alpha: 0.65),
-                                fontFamily: 'JetBrainsMono',
-                            ),
-                        ),
-                    ],
-                ],
+          const SizedBox(height: 20),
+          if (prediction == null) ...[
+            Text(
+              'Not enough data yet',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: cardTextColor,
+                fontFamily: 'SpaceGrotesk',
+              ),
             ),
-        );
-    }
+            const SizedBox(height: 10),
+            Text(
+              'Add transactions for at least 2 months to see your '
+              'spending prediction.',
+              style: TextStyle(
+                fontSize: 12,
+                color: cardTextColor.withValues(alpha: 0.75),
+                height: 1.5,
+                fontFamily: 'JetBrainsMono',
+              ),
+            ),
+          ] else ...[
+            Text(
+              prediction!.label.toUpperCase(),
+              style: TextStyle(
+                fontSize: 11,
+                color: cardTextColor.withValues(alpha: 0.65),
+                letterSpacing: 1.2,
+                fontFamily: 'JetBrainsMono',
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'R${prediction!.predictedAmount.toStringAsFixed(2)}',
+              style: TextStyle(
+                fontSize: 44,
+                fontWeight: FontWeight.bold,
+                color: cardTextColor,
+                height: 1,
+                fontFamily: 'SpaceGrotesk',
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Range: R${prediction!.lowerBound.toStringAsFixed(0)} '
+              '– R${prediction!.upperBound.toStringAsFixed(0)}',
+              style: TextStyle(
+                fontSize: 12,
+                color: cardTextColor.withValues(alpha: 0.75),
+                fontFamily: 'JetBrainsMono',
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            Row(
+              children: [
+                Text(
+                  'CONFIDENCE',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: cardTextColor.withValues(alpha: 0.65),
+                    letterSpacing: 1.2,
+                    fontFamily: 'JetBrainsMono',
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Container(
+                    height: 8,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black, width: 2),
+                    ),
+
+                    child: FractionallySizedBox(
+                      alignment: Alignment.centerLeft,
+                      widthFactor: prediction!.confidence,
+                      child: Container(color: cardTextColor),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  '${(prediction!.confidence * 100).toStringAsFixed(0)}%',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: cardTextColor,
+                    fontFamily: 'JetBrainsMono',
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Based on ${prediction!.monthsUsed} month'
+              '${prediction!.monthsUsed != 1 ? 's' : ''} of history',
+              style: TextStyle(
+                fontSize: 11,
+                color: cardTextColor.withValues(alpha: 0.65),
+                fontFamily: 'JetBrainsMono',
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 }
 
-
-
 class _EmptyAnomaliesCard extends StatelessWidget {
-    final dynamic context;
-    const _EmptyAnomaliesCard({ required this.context});
+  final dynamic context;
+  const _EmptyAnomaliesCard({required this.context});
 
-    @override
-    Widget build(BuildContext context) {
-        return Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-                color: context.colours.primary,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: context.colours.textPrimary.withValues(alpha: 0.15)),
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: context.colours.primary,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: context.colours.textPrimary.withValues(alpha: 0.15),
+        ),
+      ),
+      child: Column(
+        children: [
+          Icon(
+            Icons.check_circle_outline_rounded,
+            size: 36,
+            color: context.colours.greenAccents,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'No anomalies detected',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: context.colours.textPrimary,
+              fontFamily: 'SpaceGrotesk',
             ),
-            child: Column(
-                children: [
-                    Icon(
-                        Icons.check_circle_outline_rounded,
-                        size: 36,
-                        color: context.colours.greenAccents,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                        'No anomalies detected',
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: context.colours.textPrimary,
-                            fontFamily: 'SpaceGrotesk',
-                        ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                        'Your spending looks consistent with your historical patterns.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: context.colours.textPrimary.withValues(alpha: 0.6),
-                            height: 1.5,
-                            fontFamily: 'JetBrainsMono',
-                        ),
-                    ),
-                ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Your spending looks consistent with your historical patterns.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 12,
+              color: context.colours.textPrimary.withValues(alpha: 0.6),
+              height: 1.5,
+              fontFamily: 'JetBrainsMono',
             ),
-        );
-    }
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _LoadingCard extends StatelessWidget {
-    final dynamic context;
-    const _LoadingCard({required this.context});
+  final dynamic context;
+  const _LoadingCard({required this.context});
 
-    @override
-    Widget build(BuildContext context) {
-        return Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(28),
-            decoration: BoxDecoration(
-                color: context.colours.primary,
-                borderRadius: BorderRadius.circular(16),
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(28),
+      decoration: BoxDecoration(
+        color: context.colours.primary,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          CircularProgressIndicator(
+            color: context.colours.secondary,
+            strokeWidth: 2,
+          ),
+          const SizedBox(height: 14),
+          Text(
+            'Analysing your spending',
+            style: TextStyle(
+              fontSize: 12,
+              color: context.colours.textMuted,
+              fontFamily: 'JetBrainsMono',
             ),
-            child: Column(
-                children: [
-                    CircularProgressIndicator(color: context.colours.secondary, strokeWidth: 2),
-                    const SizedBox(height: 14),
-                    Text(
-                        'Analysing your spending',
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: context.colours.textMuted,
-                            fontFamily: 'JetBrainsMono',
-                        ),
-                    ),
-                ],
-            ),
-        );
-    }
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _ErrorCard extends StatelessWidget {
-    final String error;
-    final dynamic context;
-    const _ErrorCard({ 
-        required this.error, 
-        required this.context
-    });
+  final String error;
+  final dynamic context;
+  const _ErrorCard({required this.error, required this.context});
 
-    @override
-    Widget build(BuildContext context) {
-        return Container(
-            width: double.infinity,
-            margin: const EdgeInsets.only(bottom: 16),
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-                color: context.colours.error.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: context.colours.error.withValues(alpha: 0.4)),
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: context.colours.error.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: context.colours.error.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline, color: context.colours.error, size: 18),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'Analysis error: $error',
+              style: TextStyle(
+                fontSize: 12,
+                color: context.colours.error,
+                fontFamily: 'JetBrainsMono',
+              ),
             ),
-            child: Row(
-                children: [
-                    Icon(Icons.error_outline, color: context.colours.error, size: 18),
-                    const SizedBox(width: 10),
-                    Expanded(
-                        child: Text(
-                            'Analysis error: $error',
-                            style: TextStyle(
-                                fontSize: 12,
-                                color: context.colours.error,
-                                fontFamily: 'JetBrainsMono',
-                            ),
-                        ),
-                    ),
-                ],
-            ),
-        );
-    }
+          ),
+        ],
+      ),
+    );
+  }
 }
-
 
 class _HowItWorksCard extends StatelessWidget {
   final dynamic context;
@@ -640,67 +656,70 @@ class _HowItWorksCard extends StatelessWidget {
     required this.borderColor,
   });
 
-    @override
-    Widget build(BuildContext context){
-        return Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-                color: cardColor,
-                
-                border: Border.all(color: borderColor, width: 3),
-                boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(4,4))],
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: cardColor,
+
+        border: Border.all(color: borderColor, width: 3),
+        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(4, 4))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'HOW THIS WORKS',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: cardTextColor.withValues(alpha: 0.65),
+              letterSpacing: 1.4,
+              fontFamily: 'JetBrainsMono',
             ),
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                    Text(
-                        'HOW THIS WORKS',
-                        style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: cardTextColor.withValues(alpha: 0.65),
-                            letterSpacing: 1.4,
-                            fontFamily: 'JetBrainsMono',
-                        ),
-                    ),
-                    const SizedBox(height: 14),
-                    _InfoRow(
-                        icon: Icons.storage_rounded,
-                        text: 'All analysis runs on your device — no data leaves your phone.',
-                        context: context.colours,
-                    ),
-                    const SizedBox(height: 10),
-                    _InfoRow(
-                        icon: Icons.query_stats_rounded,
-                        text: 'Anomalies are detected using z-score statistical analysis on your monthly spending history.',
-                        context: context.colours,
-                    ),
-                    const SizedBox(height: 10),
-                    _InfoRow(
-                        icon: Icons.trending_up_rounded,
-                        text: 'Predictions use linear regression on your last 6 months of data.',
-                        context: context.colours,
-                    ),
-                ],
-            ),
-        );
-    }
+          ),
+          const SizedBox(height: 14),
+          _InfoRow(
+            icon: Icons.storage_rounded,
+            text:
+                'All analysis runs on your device — no data leaves your phone.',
+            context: context.colours,
+          ),
+          const SizedBox(height: 10),
+          _InfoRow(
+            icon: Icons.query_stats_rounded,
+            text:
+                'Anomalies are detected using z-score statistical analysis on your monthly spending history.',
+            context: context.colours,
+          ),
+          const SizedBox(height: 10),
+          _InfoRow(
+            icon: Icons.trending_up_rounded,
+            text:
+                'Predictions use linear regression on your last 6 months of data.',
+            context: context.colours,
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _InfoRow extends StatelessWidget {
-    final IconData icon;
-    final String text;
-    final dynamic context;
-    const _InfoRow({
-        required this.icon,
-        required this.text,
-        required this.context,
-    });
+  final IconData icon;
+  final String text;
+  final dynamic context;
+  const _InfoRow({
+    required this.icon,
+    required this.text,
+    required this.context,
+  });
 
   @override
   Widget build(BuildContext context) {
-// AI used to help with this part
+    // AI used to help with this part
     final effectiveTextColor = Theme.of(context).brightness == Brightness.dark
         ? context.colours.secondary
         : context.colours.cardText;

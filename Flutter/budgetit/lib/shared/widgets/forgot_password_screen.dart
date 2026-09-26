@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../utils/app_colour.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -11,10 +12,10 @@ class ForgotPasswordScreen extends StatefulWidget {
 }
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
-  static const _green = Color(0xFF04240C);
-  static const _cream = Color(0xFFDDD6AE);
-  static const _glassColor = Color(0x22DDD6AE);
-  static const _glassBorder = Color(0x44DDD6AE);
+  Color get _green => context.colours.primary;
+  Color get _cream => context.colours.cardText;
+  Color get _mutedCream => _cream.withValues(alpha: 0.7);
+  Color get _borderColor => context.colours.category;
 
   // Step 0 = enter email, Step 1 = enter code + new password
   int _step = 0;
@@ -44,33 +45,47 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     return Scaffold(
       backgroundColor: _green,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 24),
-              _buildBackButton(context),
-              const SizedBox(height: 48),
-              _buildHeader(),
-              const SizedBox(height: 32),
-              _buildCard(auth),
-            ],
-          ),
+        child: Column(
+          children: [
+            _buildTopBar(context),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 48),
+                    _buildHeader(),
+                    const SizedBox(height: 32),
+                    _buildCard(auth),
+                    const SizedBox(height: 32),
+                    _buildSecureBadge(),
+                    const SizedBox(height: 32),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildBackButton(BuildContext context) {
-    return GestureDetector(
-      onTap: () => Navigator.pop(context),
-      child: const Row(
-        mainAxisSize: MainAxisSize.min,
+  Widget _buildTopBar(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(Icons.arrow_back_ios, color: Colors.white, size: 16),
-          SizedBox(width: 4),
-          Text('Back', style: TextStyle(color: Colors.white, fontSize: 14)),
+          IconButton(
+            tooltip: 'Back',
+            onPressed: () => Navigator.pop(context),
+            icon: Icon(Icons.arrow_back, color: _cream),
+          ),
+          Text(
+            'Budget IT',
+            style: context.colours.title.copyWith(color: _cream, fontSize: 20),
+          ),
+          const SizedBox(width: 48),
         ],
       ),
     );
@@ -78,12 +93,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   Widget _buildHeader() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           _step == 0 ? 'Reset Password' : 'Enter New Password',
-          style: const TextStyle(
-            color: Colors.white,
+          textAlign: TextAlign.center,
+          style: context.colours.h2.copyWith(
+            color: _cream,
             fontSize: 28,
             fontWeight: FontWeight.bold,
           ),
@@ -93,7 +108,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           _step == 0
               ? 'Enter your email and we\'ll send you a reset code.'
               : 'Enter the code sent to $_submittedEmail and choose a new password.',
-          style: const TextStyle(color: Colors.white60, fontSize: 14),
+          textAlign: TextAlign.center,
+          style: context.colours.h2.copyWith(
+            color: _mutedCream,
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ],
     );
@@ -102,9 +122,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Widget _buildCard(AppAuthProvider auth) {
     return Container(
       decoration: BoxDecoration(
-        color: _glassColor,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _glassBorder),
+        color: context.colours.blendedprimary,
+        border: Border.all(color: _borderColor, width: 4),
+        boxShadow: [BoxShadow(color: _borderColor, offset: const Offset(6, 6))],
       ),
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -204,19 +224,26 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0x1ADDD6AE),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _glassBorder),
+        color: _cream.withValues(alpha: 0.1),
+        border: Border.all(color: _borderColor, width: 4),
       ),
       child: TextField(
         controller: controller,
         keyboardType: keyboardType,
         obscureText: obscure,
         inputFormatters: inputFormatters,
-        style: const TextStyle(color: Colors.white, fontSize: 14),
+        style: context.colours.h2.copyWith(
+          color: _cream,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: const TextStyle(color: Colors.white38),
+          hintStyle: context.colours.h2.copyWith(
+            color: _mutedCream,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
           prefixIcon: Icon(icon, color: _cream, size: 20),
           suffixIcon: suffix,
           border: InputBorder.none,
@@ -235,18 +262,21 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: const Color(0x33CF6679),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: const Color(0xFFCF6679)),
+          color: context.colours.error.withValues(alpha: 0.2),
+          border: Border.all(color: context.colours.error),
         ),
         child: Row(
           children: [
-            const Icon(Icons.error_outline, color: Color(0xFFCF6679), size: 16),
+            Icon(Icons.error_outline, color: context.colours.error, size: 16),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 auth.errorMessage!,
-                style: const TextStyle(color: Color(0xFFCF6679), fontSize: 13),
+                style: context.colours.h2.copyWith(
+                  color: context.colours.error,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ],
@@ -269,27 +299,44 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           foregroundColor: _green,
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: _borderColor, width: 4),
           ),
-          disabledBackgroundColor: const Color(0x88DDD6AE),
+          disabledBackgroundColor: _cream.withValues(alpha: 0.53),
         ),
         child: isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 height: 20,
                 width: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Color(0xFF04240C),
-                ),
+                child: CircularProgressIndicator(strokeWidth: 2, color: _green),
               )
             : Text(
                 label,
-                style: const TextStyle(
+                style: context.colours.h2.copyWith(
+                  color: _green,
                   fontWeight: FontWeight.bold,
                   fontSize: 15,
                 ),
               ),
       ),
+    );
+  }
+
+  Widget _buildSecureBadge() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.lock, color: _mutedCream, size: 12),
+        const SizedBox(width: 6),
+        Text(
+          'SECURE END-TO-END ENCRYPTION',
+          style: context.colours.h2.copyWith(
+            color: _mutedCream,
+            fontSize: 10,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 1.2,
+          ),
+        ),
+      ],
     );
   }
 

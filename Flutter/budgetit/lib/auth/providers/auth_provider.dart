@@ -12,10 +12,9 @@ enum AuthStatus {
 
 class AppAuthProvider extends ChangeNotifier {
   AppAuthProvider({
-    required AuthService authService,
+    required this._authService,
     BiometricLockService? biometricLockService,
-  }) : _authService = authService,
-       _biometricLockService =
+  }) : _biometricLockService =
            biometricLockService ?? DeviceBiometricLockService() {
     initialSessionCheck = _checkCurrentSession();
   }

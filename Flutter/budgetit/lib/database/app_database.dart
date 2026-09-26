@@ -2,17 +2,17 @@ import 'package:decimal/decimal.dart';
 import 'package:drift/drift.dart';
 import 'package:drift_sqlite_async/drift_sqlite_async.dart';
 import 'package:powersync/powersync.dart' hide Table;
-import 'schema.dart';
-import 'daos/embedding_cache_dao.dart';
-import 'daos/category_dao.dart';
-import 'daos/transaction_dao.dart';
-import 'daos/budget_dao.dart';
-import 'daos/recurring_transaction_dao.dart';
-import 'daos/settings_dao.dart';
-import 'daos/schema_cache_dao.dart';
-import 'daos/goal_dao.dart';
-import 'daos/sharing_dao.dart';
-import 'daos/friends_dao.dart';
+import 'package:budgetit/database/schema.dart';
+import 'package:budgetit/database/daos/embedding_cache_dao.dart';
+import 'package:budgetit/database/daos/category_dao.dart';
+import 'package:budgetit/database/daos/transaction_dao.dart';
+import 'package:budgetit/database/daos/budget_dao.dart';
+import 'package:budgetit/database/daos/recurring_transaction_dao.dart';
+import 'package:budgetit/database/daos/settings_dao.dart';
+import 'package:budgetit/database/daos/schema_cache_dao.dart';
+import 'package:budgetit/database/daos/goal_dao.dart';
+import 'package:budgetit/database/daos/sharing_dao.dart';
+import 'package:budgetit/database/daos/friends_dao.dart';
 
 part 'app_database.g.dart';
 

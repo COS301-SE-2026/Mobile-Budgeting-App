@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../services/friend_service.dart';
 import '../../utils/app_colour.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -21,6 +23,20 @@ class ProfilePage extends StatelessWidget {
     context.read<AppAuthProvider>().backToLogin();
   }
 
+  Future<void> _toggleBiometricLock(
+    BuildContext context,
+    AppAuthProvider auth,
+  ) async {
+    final changed = await auth.setBiometricLockEnabled(
+      !auth.biometricLockEnabled,
+    );
+    if (!changed && context.mounted && auth.errorMessage != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(auth.errorMessage!)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colours = context.colours;
@@ -28,56 +44,85 @@ class ProfilePage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: colours.background,
-      appBar: AppBar(
-        backgroundColor: colours.background,
-        foregroundColor: colours.textPrimary,
-        elevation: 0,
-        title: const Text('Profile'),
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(28),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
-                width: 90,
-                height: 90,
-                decoration: BoxDecoration(
-                  color: colours.secondary,
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Icon(
-                  Icons.person_outline,
-                  size: 48,
-                  color: colours.background,
+              Row(
+                children: [
+                  InkWell(
+                    onTap: () => Navigator.of(context).maybePop(),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: colours.primary,
+                        border: Border.all(color: Colors.black, width: 3),
+                        boxShadow: const [
+                          BoxShadow(color: Colors.black, offset: Offset(4, 4)),
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.arrow_back,
+                        color: colours.cardText,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Text('PROFILE', style: colours.h2),
+                ],
+              ),
+              const SizedBox(height: 36),
+              Align(
+                child: Container(
+                  width: 96,
+                  height: 96,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: colours.primary,
+                    border: Border.all(color: Colors.black, width: 4),
+                    boxShadow: const [
+                      BoxShadow(color: Colors.black, offset: Offset(6, 6)),
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.person_outline,
+                    size: 52,
+                    color: colours.cardText,
+                  ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 26),
 
               // Identity line — email for logged-in users, guest label otherwise
               if (auth.isLoggedIn && auth.currentUser != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
+                  padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
-                    color: colours.secondary.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: colours.secondary.withValues(alpha: 0.5),
-                    ),
+                    color: colours.primary,
+                    border: Border.all(color: Colors.black, width: 4),
+                    boxShadow: const [
+                      BoxShadow(color: Colors.black, offset: Offset(6, 6)),
+                    ],
                   ),
-                  child: Text(
-                    auth.currentUser!.email.contains('@')
-                        ? auth.currentUser!.email
-                        : 'Network User',
-                    style: TextStyle(
-                      color: colours.textPrimary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'USERNAME',
+                        style: colours.h4.copyWith(color: colours.cardText),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        auth.currentUser!.email,
+                        style: colours.b1.copyWith(
+                          color: colours.cardText,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                 )
               else
@@ -92,9 +137,8 @@ class ProfilePage extends StatelessWidget {
                     const SizedBox(width: 6),
                     Text(
                       'Guest User',
-                      style: TextStyle(
+                      style: colours.b1.copyWith(
                         color: colours.textPrimary.withValues(alpha: 0.6),
-                        fontSize: 15,
                         fontStyle: FontStyle.italic,
                       ),
                     ),
@@ -102,85 +146,172 @@ class ProfilePage extends StatelessWidget {
                 ),
 
               const SizedBox(height: 20),
-              Text(
-                'Profile Coming Soon',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: colours.textPrimary,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Your profile page is still being prepared. Soon you will be able to view and manage your personal account details here.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: colours.textPrimary.withValues(alpha: 0.8),
-                  fontSize: 14,
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 30),
-
               if (auth.isLoggedIn) ...[
-                SwitchListTile(
-                  title: const Text('Biometric lock'),
-                  subtitle: const Text(
-                    'Require Android biometrics when reopening the app',
-                  ),
-                  value: auth.biometricLockEnabled,
-                  onChanged: auth.isLoading
-                      ? null
-                      : (enabled) async {
-                          final changed = await auth.setBiometricLockEnabled(
-                            enabled,
-                          );
-                          if (!changed &&
-                              context.mounted &&
-                              auth.errorMessage != null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(auth.errorMessage!)),
-                            );
-                          }
-                        },
+                FutureBuilder<String>(
+                  future: FriendService.instance.getMyFriendCode(),
+                  builder: (context, snapshot) {
+                    final code = snapshot.data;
+                    return Container(
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: colours.primary,
+                        border: Border.all(color: Colors.black, width: 4),
+                        boxShadow: const [
+                          BoxShadow(color: Colors.black, offset: Offset(6, 6)),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'YOUR FRIEND CODE',
+                            style: colours.h4.copyWith(color: colours.cardText),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  snapshot.connectionState ==
+                                          ConnectionState.waiting
+                                      ? 'LOADING...'
+                                      : code ?? 'UNAVAILABLE',
+                                  style: colours.h2.copyWith(
+                                    color: colours.cardText,
+                                    letterSpacing: 2,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                tooltip: 'Copy friend code',
+                                onPressed: code == null
+                                    ? null
+                                    : () async {
+                                        await Clipboard.setData(
+                                          ClipboardData(text: code),
+                                        );
+                                        if (!context.mounted) return;
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Friend code copied'),
+                                          ),
+                                        );
+                                      },
+                                icon: Icon(
+                                  Icons.copy,
+                                  color: code == null
+                                      ? colours.cardText.withValues(alpha: 0.4)
+                                      : colours.cardText,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (snapshot.hasError) ...[
+                            const SizedBox(height: 6),
+                            Text(
+                              'Could not load the code. Check the Friends server and try again.',
+                              style: colours.b1.copyWith(color: colours.error),
+                            ),
+                          ],
+                        ],
+                      ),
+                    );
+                  },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 28),
               ],
-
-              ElevatedButton.icon(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back),
-                label: const Text('Go Back'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colours.secondary,
-                  foregroundColor: colours.background,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 22,
-                    vertical: 14,
+              if (auth.isLoggedIn) ...[
+                Container(
+                  decoration: BoxDecoration(
+                    color: colours.primary,
+                    border: Border.all(color: Colors.black, width: 4),
+                    boxShadow: const [
+                      BoxShadow(color: Colors.black, offset: Offset(6, 6)),
+                    ],
+                  ),
+                  child: InkWell(
+                    onTap: auth.isLoading
+                        ? null
+                        : () => _toggleBiometricLock(context, auth),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'BIOMETRIC LOCK',
+                                  style: colours.h4.copyWith(
+                                    color: colours.cardText,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'Require Android biometrics when reopening the app',
+                                  style: colours.b1.copyWith(
+                                    color: colours.cardText,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 160),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 9,
+                            ),
+                            decoration: BoxDecoration(
+                              color: auth.biometricLockEnabled
+                                  ? colours.cardText
+                                  : colours.background,
+                              border: Border.all(color: Colors.black, width: 3),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black,
+                                  offset: Offset(3, 3),
+                                ),
+                              ],
+                            ),
+                            child: Text(
+                              auth.biometricLockEnabled ? 'ON' : 'OFF',
+                              style: colours.b1.copyWith(
+                                color: auth.biometricLockEnabled
+                                    ? colours.primary
+                                    : colours.cardText,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 28),
+              ],
 
               // Sign Up button — only shown for guest users, sits above Log Out
               if (auth.status == AuthStatus.skipped) ...[
                 ElevatedButton.icon(
                   onPressed: () => _handleGoToSignUp(context),
                   icon: const Icon(Icons.person_add_outlined),
-                  label: const Text(
-                    'Sign Up',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  label: const Text('Sign Up'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: colours.secondary,
-                    foregroundColor: colours.background,
+                    backgroundColor: colours.primary,
+                    foregroundColor: colours.cardText,
+                    textStyle: colours.b1.copyWith(fontWeight: FontWeight.bold),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 22,
                       vertical: 14,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      side: const BorderSide(color: Colors.black, width: 3),
                     ),
                   ),
                 ),
@@ -201,7 +332,7 @@ class ProfilePage extends StatelessWidget {
                     : const Icon(Icons.logout, color: _red),
                 label: Text(
                   'Log Out',
-                  style: TextStyle(
+                  style: colours.b1.copyWith(
                     color: auth.isLoading ? _red.withValues(alpha: 0.5) : _red,
                     fontWeight: FontWeight.w600,
                   ),
@@ -209,14 +340,13 @@ class ProfilePage extends StatelessWidget {
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(
                     color: auth.isLoading ? _red.withValues(alpha: 0.4) : _red,
+                    width: 3,
                   ),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 22,
                     vertical: 14,
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  shape: const RoundedRectangleBorder(),
                 ),
               ),
             ],
