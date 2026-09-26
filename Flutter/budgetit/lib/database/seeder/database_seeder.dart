@@ -42,7 +42,12 @@ enum SeedScope {
 /// Mutators should never be called in release builds.
 abstract interface class DatabaseSeeder {
   /// Creates a seeder that operates on [database].
-  factory DatabaseSeeder(AppDatabase database) = _DatabaseSeeder;
+  ///
+  /// Uses [JsonSeedFixtureReader] unless [fixtureReader] is supplied.
+  factory DatabaseSeeder(
+    AppDatabase database, {
+    SeedFixtureReader? fixtureReader,
+  }) = _DatabaseSeeder;
 
   /// The database used for seeding.
   AppDatabase get db;
