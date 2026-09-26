@@ -268,6 +268,12 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
     await (delete(transactions)..where((t) => t.id.equals(id))).go();
   }
 
+  /// Hard deletes all tranactions and their assigned categories.
+  Future<void> hardDeleteAllTransactions() async {
+    await deleteAllCategoryAssignments();
+    await delete(transactions).go();
+  }
+
   /// Restores a soft-deleted transaction by clearing its [deletedAt] timestamp.
   ///
   /// The transaction becomes visible in queries again after restoration.

@@ -181,6 +181,14 @@ class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
     });
   }
 
+  /// Hard deletes all budget templates and their generated periods.
+  ///
+  /// Callers must delete any linked budget members first.
+  Future<void> hardDeleteAllBudgetTemplates() async {
+    await delete(budgetPeriods).go();
+    await delete(budgetTemplates).go();
+  }
+
   /// Restores a soft-deleted budget template by clearing its [deletedAt] timestamp.
   ///
   /// The template becomes visible in queries again after restoration.

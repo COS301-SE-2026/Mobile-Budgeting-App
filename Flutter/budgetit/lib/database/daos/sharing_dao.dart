@@ -82,6 +82,12 @@ class SharingDao extends DatabaseAccessor<AppDatabase> with _$SharingDaoMixin {
     final members = await select(budgetMembers).get();
     return members.length;
   }
+
+  /// Hard deletes all budget memberships.
+  Future<void> deleteAllBudgetMembers() async {
+    await delete(budgetMembers).go();
+  }
+
   // ── Goals ──
 
   /// Adds [userId] as a co-owner of the goal template (idempotent).

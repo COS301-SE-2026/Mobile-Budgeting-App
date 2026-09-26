@@ -242,6 +242,15 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     await deleteRecurringTransactions.go();
   }
 
+  /// Hard deletes all recurring transactions templates and unlinks their generated children.
+  Future<void> hardDeleteAllRecurringTransactions() async {
+    final unlinkTransactions = update(transactions);
+    await unlinkTransactions.write(
+      const TransactionsCompanion(recurringId: Value(null)),
+    );
+    await delete(recurringTransactions).go();
+  }
+
   Future<void> restoreRecurringTransaction(String id) async {
     final now = _now();
     await (update(recurringTransactions)..where((t) => t.id.equals(id))).write(
