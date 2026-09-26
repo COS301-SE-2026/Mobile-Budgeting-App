@@ -4,6 +4,7 @@ import 'package:budgetit/services/friend_service.dart';
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:dio/dio.dart';
 import 'package:provider/provider.dart';
 
 /// Friends list: shows the user's friend code, friends, and pending requests.
@@ -24,19 +25,42 @@ class _FriendsPageState extends State<FriendsPage> {
   Map<String, String> _codeByUserId = {};
   List<FriendRequest> _incoming = [];
   List<FriendRequest> _outgoing = [];
+  bool? _wasLoggedIn;
 
   @override
   void initState() {
     super.initState();
-    _load();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final isLoggedIn = context.watch<AppAuthProvider>().isLoggedIn;
+    if (_wasLoggedIn == isLoggedIn) return;
+    _wasLoggedIn = isLoggedIn;
+
+    if (isLoggedIn) {
+      _loading = true;
+      Future<void>.microtask(_load);
+    } else {
+      FriendService.instance.clearCachedProfile();
+      _loading = false;
+      _myCode = '';
+      _currentUserId = '';
+      _friends = [];
+      _codeByUserId = {};
+      _incoming = [];
+      _outgoing = [];
+    }
   }
 
   Future<void> _load() async {
     if (!context.read<AppAuthProvider>().isLoggedIn) return;
     final db = context.read<AppDatabase>();
     try {
-      final userId = await FriendService.instance.getMyUserId();
-      final code = await FriendService.instance.getMyFriendCode();
+      final profile = await FriendService.instance.getMyProfile(refresh: true);
+      final userId = profile['user_id'] as String;
+      final code = profile['friend_code'] as String;
       final friends = await db.friendsDao.getFriends();
       final profiles = await db.friendsDao.getAllProfiles();
       final incoming = await db.friendsDao.getIncomingRequests(userId);
@@ -184,10 +208,34 @@ class _FriendsPageState extends State<FriendsPage> {
   }
 
   String _friendlyError(Object e) {
+    if (e is DioException) {
+      final status = e.response?.statusCode;
+      final data = e.response?.data;
+      if (status == 400) return _apiMessage(data) ?? 'Invalid friend request';
+      if (status == 401 || status == 403) {
+        return _apiMessage(data) ??
+            'Your session has expired. Please log in again.';
+      }
+      if (status == 404) return _apiMessage(data) ?? 'Friend code not found';
+      if (status == 409) {
+        return _apiMessage(data) ?? 'Already friends or request pending';
+      }
+      if (e.type == DioExceptionType.connectionError ||
+          e.type == DioExceptionType.connectionTimeout) {
+        return 'Cannot reach the Friends server. On a physical phone, set '
+            'API_URL to your computer\'s network address.';
+      }
+    }
     final s = e.toString();
     if (s.contains('404')) return 'Friend code not found';
     if (s.contains('409')) return 'Already friends or request pending';
     return s;
+  }
+
+  String? _apiMessage(Object? data) {
+    if (data is Map && data['detail'] is String)
+      return data['detail'] as String;
+    return null;
   }
 
   @override
