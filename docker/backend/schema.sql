@@ -193,6 +193,8 @@ CREATE TABLE goal_members (
   id uuid PRIMARY KEY,
   goal_template_id uuid NOT NULL REFERENCES goal_templates(id),
   user_id text NOT NULL,
+  status text NOT NULL DEFAULT 'accepted' CHECK (status IN ('pending', 'accepted', 'declined')),
+  invited_by text,
   created_at timestamptz NOT NULL,
   updated_at timestamptz NOT NULL,
   deleted_at timestamptz
