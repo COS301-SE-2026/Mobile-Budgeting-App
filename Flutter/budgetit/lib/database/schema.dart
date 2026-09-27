@@ -27,7 +27,6 @@ enum PeriodType { daily, weekly, monthly, yearly }
 /// The lifecycle state of a friend request.
 enum FriendRequestStatus { pending, accepted, declined }
 
-/// The lifecycle state of a shared-goal membership (an invite until accepted).
 enum GoalMemberStatus { pending, accepted, declined }
 
 /// The type of record from which an embedding was generated.
@@ -542,25 +541,19 @@ class BudgetMembers extends Table {
 }
 
 /// Lists the co-owners of a shared goal template.
-///
-/// A row starts as a [GoalMemberStatus.pending] invite and becomes a co-owner
-/// once the invitee accepts it. The template owner is identified by
-/// [GoalTemplates.userId] and has no row here.
 class GoalMembers extends Table {
   TextColumn get id => text()();
 
   /// The shared goal template.
   TextColumn get goalTemplateId => text().references(GoalTemplates, #id)();
 
-  /// The invitee / co-owner (Cognito subject).
+  /// The co-owner (Cognito subject).
   TextColumn get userId => text().nullable()();
 
-  /// Whether the invite is pending, accepted or declined.
   TextColumn get status => textEnum<GoalMemberStatus>().withDefault(
     Constant(GoalMemberStatus.accepted.name),
   )();
 
-  /// The participant who sent the invite (Cognito subject).
   TextColumn get invitedBy => text().nullable()();
 
   DateTimeColumn get createdAt => dateTime()();
