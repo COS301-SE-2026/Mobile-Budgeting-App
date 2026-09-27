@@ -134,9 +134,6 @@ CREATE INDEX IF NOT EXISTS ix_goal_contributions_template
 
 ALTER PUBLICATION powersync ADD TABLE public.goal_contributions;
 
--- 6. Shared goals: memberships start as invites that the invitee accepts.
---    Existing rows were added directly as co-owners, so they default to
---    'accepted'.
 ALTER TABLE goal_members
   ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'accepted',
   ADD COLUMN IF NOT EXISTS invited_by text;

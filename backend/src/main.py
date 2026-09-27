@@ -161,7 +161,6 @@ async def _shared_participant(db: AsyncSession, template_table: str, template_id
         member_model.user_id == user_id,
         member_model.deleted_at.is_(None),
     )
-    # Goal memberships start as invites; only accepted ones grant access.
     if hasattr(member_model, "status"):
         stmt = stmt.where(member_model.status == "accepted")
     result = await db.execute(stmt.limit(1))
@@ -179,7 +178,6 @@ async def _are_friends(db: AsyncSession, user_1: str, user_2: str) -> bool:
     return result.scalar_one_or_none() is not None
 
 
-# Columns a goal_members patch may never change (identity of the invite).
 GOAL_MEMBER_IMMUTABLE = {"goal_template_id", "user_id", "invited_by"}
 GOAL_MEMBER_TRANSITIONS = {("pending", "accepted"), ("pending", "declined")}
 
@@ -187,11 +185,8 @@ GOAL_MEMBER_TRANSITIONS = {("pending", "accepted"), ("pending", "declined")}
 async def _prepare_goal_member_put(
     db: AsyncSession, entry: CrudOp, user_id: str, data: dict
 ) -> dict:
-    """Validates a goal invite: sent by a participant, to one of their friends."""
     existing = await db.get(GoalMember, entry.id)
     if existing is not None:
-        # Re-upload of a row we already have (e.g. a retried upload): never let
-        # a put rewrite who the invite is for or its status.
         data["goal_template_id"] = existing.goal_template_id
         data["user_id"] = existing.user_id
         data["invited_by"] = existing.invited_by
@@ -215,10 +210,8 @@ async def _prepare_goal_member_put(
 async def _authorize_goal_member_patch(
     db: AsyncSession, row: GoalMember, entry: CrudOp, user_id: str
 ) -> None:
-    """Accept/decline is the invitee's call; removal is any participant's."""
     changes = entry.data
     for column in GOAL_MEMBER_IMMUTABLE:
-        # Compare as text: a patch may carry unchanged columns too.
         if column in changes and str(changes[column]) != str(getattr(row, column)):
             raise HTTPException(status_code=400, detail=f"goal_members.{column} cannot be changed")
 
@@ -236,8 +229,6 @@ async def _authorize_goal_member_patch(
     if "deleted_at" in changes:
         if changes["deleted_at"] is None and row.deleted_at is not None:
             raise HTTPException(status_code=400, detail="Send a new invite instead of restoring one")
-        # Leaving / declining is always allowed; removing someone else needs
-        # an accepted participant (owner or co-owner).
         if not is_invitee and not await _shared_participant(
             db, "goal_templates", row.goal_template_id, user_id
         ):
@@ -297,7 +288,6 @@ async def _prepare_put(db: AsyncSession, entry: CrudOp, user_id: str, table: str
         if table == "category_closure":
             data["is_default"] = getattr(parent, "is_default", False)
         elif table == "goal_contributions":
-            # On shared goals each member's money stays attributed to them.
             existing = await db.get(GoalContribution, entry.id)
             if existing is not None and existing.user_id != user_id:
                 raise forbidden(table, entry.id, "write")
@@ -406,11 +396,9 @@ async def apply_patch(db: AsyncSession, model, entry: CrudOp, user_id: str, tabl
     elif table in SHARED_TEMPLATES:
         if not await _shared_participant(db, table, entry.id, user_id):
             raise forbidden(table, entry.id, "patch")
-        # Co-owners may edit a shared goal, but only its creator deletes it.
         if (
             table == "goal_templates"
             and "deleted_at" in entry.data
-            # Only an actual delete/restore, not an unchanged deleted_at.
             and (entry.data["deleted_at"] is None) != (row.deleted_at is None)
             and row.user_id != user_id
         ):

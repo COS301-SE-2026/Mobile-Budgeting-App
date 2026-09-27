@@ -271,16 +271,11 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
     return (select(goalPeriods)..where((t) => t.id.equals(id))).getSingle();
   }
 
-  /// Hard-deletes a goal period by [id].
   Future<void> hardDeleteGoalPeriod(String id) async {
     await (delete(goalPeriods)..where((t) => t.id.equals(id))).go();
   }
 
-  /// Records a contribution towards a goal.
-  ///
-  /// [userId] is the contributor. On shared goals it attributes the money to
-  /// the right member before the row round-trips through the server (which
-  /// always stamps the uploader as the contributor).
+
   Future<GoalContribution> insertGoalContribution({
     required String templateId,
     required Decimal amount,
@@ -335,12 +330,6 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
     );
   }
 
-  /// Soft-deletes the active contributions of a goal.
-  ///
-  /// When [userId] is given only that member's contributions are cleared,
-  /// which is what releasing funds on a shared goal needs. Rows with a null
-  /// [GoalContributions.userId] were created locally by this device and have
-  /// not round-tripped yet, so they also count as the current user's.
   Future<void> clearContributionsForTemplate(
     String templateId, {
     String? userId,
