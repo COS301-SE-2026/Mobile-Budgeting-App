@@ -277,6 +277,8 @@ class GoalMember(Base):
     id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=_uuid)
     goal_template_id: Mapped[str] = mapped_column(ForeignKey("goal_templates.id"))
     user_id: Mapped[str] = mapped_column(String)
+    status: Mapped[str] = mapped_column(String, default="accepted", server_default="accepted")
+    invited_by: Mapped[str | None] = mapped_column(String, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

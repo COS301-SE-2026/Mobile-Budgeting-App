@@ -133,3 +133,18 @@ CREATE INDEX IF NOT EXISTS ix_goal_contributions_template
   WHERE deleted_at IS NULL;
 
 ALTER PUBLICATION powersync ADD TABLE public.goal_contributions;
+
+ALTER TABLE goal_members
+  ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'accepted',
+  ADD COLUMN IF NOT EXISTS invited_by text;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'goal_members_status_check'
+  ) THEN
+    ALTER TABLE goal_members
+      ADD CONSTRAINT goal_members_status_check
+      CHECK (status IN ('pending', 'accepted', 'declined'));
+  END IF;
+END $$;

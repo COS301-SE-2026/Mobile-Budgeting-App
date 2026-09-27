@@ -193,6 +193,15 @@ class CognitoAuthService implements AuthService {
     }
   }
 
+  Future<String?> getCurrentUserId() async {
+    try {
+      final user = await Amplify.Auth.getCurrentUser();
+      return user.userId;
+    } on AuthException {
+      return null;
+    }
+  }
+
   Future<String?> getJWT() async {
     try {
       final session = await Amplify.Auth.fetchAuthSession();
