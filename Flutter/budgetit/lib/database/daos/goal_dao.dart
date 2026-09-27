@@ -276,12 +276,18 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
     await (delete(goalPeriods)..where((t) => t.id.equals(id))).go();
   }
 
+  /// Records a contribution towards a goal.
+  ///
+  /// [userId] is the contributor. On shared goals it attributes the money to
+  /// the right member before the row round-trips through the server (which
+  /// always stamps the uploader as the contributor).
   Future<GoalContribution> insertGoalContribution({
     required String templateId,
     required Decimal amount,
     String? note,
     String? transactionId,
     DateTime? contributedAt,
+    String? userId,
   }) async {
     if (amount <= Decimal.zero) {
       throw ArgumentError('amount must be greater than zero');
@@ -292,6 +298,7 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
       GoalContributionsCompanion.insert(
         id: id,
         templateId: templateId,
+        userId: Value(userId),
         amount: amount,
         note: Value(note),
         transactionId: Value(transactionId),
@@ -328,10 +335,24 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
     );
   }
 
-  Future<void> clearContributionsForTemplate(String templateId) async {
+  /// Soft-deletes the active contributions of a goal.
+  ///
+  /// When [userId] is given only that member's contributions are cleared,
+  /// which is what releasing funds on a shared goal needs. Rows with a null
+  /// [GoalContributions.userId] were created locally by this device and have
+  /// not round-tripped yet, so they also count as the current user's.
+  Future<void> clearContributionsForTemplate(
+    String templateId, {
+    String? userId,
+  }) async {
     final now = _now();
     await (update(goalContributions)..where(
-          (t) => t.templateId.equals(templateId) & t.deletedAt.isNull(),
+          (t) =>
+              t.templateId.equals(templateId) &
+              t.deletedAt.isNull() &
+              (userId == null
+                  ? const Constant(true)
+                  : t.userId.equals(userId) | t.userId.isNull()),
         ))
         .write(
           GoalContributionsCompanion(

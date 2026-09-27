@@ -187,6 +187,18 @@ class CognitoAuthService implements AuthService {
     }
   }
 
+  /// The signed-in user's Cognito subject (`sub`), which the backend and
+  /// PowerSync use as `user_id`. Served from the cached session, so it also
+  /// works offline.
+  Future<String?> getCurrentUserId() async {
+    try {
+      final user = await Amplify.Auth.getCurrentUser();
+      return user.userId;
+    } on AuthException {
+      return null;
+    }
+  }
+
   Future<String?> getJWT() async {
     try {
       final session = await Amplify.Auth.fetchAuthSession();

@@ -151,6 +151,8 @@ final powerSyncSchema = Schema([
   Table('goal_members', [
     Column.text('goal_template_id'),
     Column.text('user_id'),
+    Column.text('status'),
+    Column.text('invited_by'),
     Column.text('created_at'),
     Column.text('updated_at'),
     Column.text('deleted_at'),
