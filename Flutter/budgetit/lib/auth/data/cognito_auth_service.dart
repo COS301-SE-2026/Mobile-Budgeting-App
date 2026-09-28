@@ -181,7 +181,22 @@ class CognitoAuthService implements AuthService {
   Future<AppAuthUser?> getCurrentUser() async {
     try {
       final user = await Amplify.Auth.getCurrentUser();
+      final attributes = await Amplify.Auth.fetchUserAttributes();
+      for (final attribute in attributes) {
+        if (attribute.userAttributeKey == AuthUserAttributeKey.email) {
+          return AppAuthUser(email: attribute.value);
+        }
+      }
       return AppAuthUser(email: user.username);
+    } on AuthException {
+      return null;
+    }
+  }
+
+  Future<String?> getCurrentUserId() async {
+    try {
+      final user = await Amplify.Auth.getCurrentUser();
+      return user.userId;
     } on AuthException {
       return null;
     }

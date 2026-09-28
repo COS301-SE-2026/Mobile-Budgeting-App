@@ -27,6 +27,8 @@ enum PeriodType { daily, weekly, monthly, yearly }
 /// The lifecycle state of a friend request.
 enum FriendRequestStatus { pending, accepted, declined }
 
+enum GoalMemberStatus { pending, accepted, declined }
+
 /// The type of record from which an embedding was generated.
 enum EmbeddingSourceType { transaction, category }
 
@@ -547,6 +549,12 @@ class GoalMembers extends Table {
 
   /// The co-owner (Cognito subject).
   TextColumn get userId => text().nullable()();
+
+  TextColumn get status => textEnum<GoalMemberStatus>().withDefault(
+    Constant(GoalMemberStatus.accepted.name),
+  )();
+
+  TextColumn get invitedBy => text().nullable()();
 
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();

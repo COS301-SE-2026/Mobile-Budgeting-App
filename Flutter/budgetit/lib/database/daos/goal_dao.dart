@@ -271,10 +271,10 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
     return (select(goalPeriods)..where((t) => t.id.equals(id))).getSingle();
   }
 
-  /// Hard-deletes a goal period by [id].
   Future<void> hardDeleteGoalPeriod(String id) async {
     await (delete(goalPeriods)..where((t) => t.id.equals(id))).go();
   }
+
 
   Future<GoalContribution> insertGoalContribution({
     required String templateId,
@@ -282,6 +282,7 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
     String? note,
     String? transactionId,
     DateTime? contributedAt,
+    String? userId,
   }) async {
     if (amount <= Decimal.zero) {
       throw ArgumentError('amount must be greater than zero');
@@ -292,6 +293,7 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
       GoalContributionsCompanion.insert(
         id: id,
         templateId: templateId,
+        userId: Value(userId),
         amount: amount,
         note: Value(note),
         transactionId: Value(transactionId),
@@ -328,10 +330,18 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
     );
   }
 
-  Future<void> clearContributionsForTemplate(String templateId) async {
+  Future<void> clearContributionsForTemplate(
+    String templateId, {
+    String? userId,
+  }) async {
     final now = _now();
     await (update(goalContributions)..where(
-          (t) => t.templateId.equals(templateId) & t.deletedAt.isNull(),
+          (t) =>
+              t.templateId.equals(templateId) &
+              t.deletedAt.isNull() &
+              (userId == null
+                  ? const Constant(true)
+                  : t.userId.equals(userId) | t.userId.isNull()),
         ))
         .write(
           GoalContributionsCompanion(

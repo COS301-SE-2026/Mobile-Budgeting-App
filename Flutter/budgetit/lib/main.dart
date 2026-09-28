@@ -32,6 +32,7 @@ import 'utils/app_colour.dart';
 import 'views/budget_manager/budget_manager_screen.dart';
 import 'package:budgetit/views/profile/profile_page.dart';
 import 'shared/widgets/friends_page.dart';
+import 'shared/widgets/profile_page.dart' as app_profile;
 import 'package:flutter_gemma/flutter_gemma.dart';
 //import 'package:flutter_gemma_litertlm/flutter_gemma_litertlm.dart';
 import 'package:pdfrx/pdfrx.dart';
@@ -220,8 +221,7 @@ class _BudgetAppState extends State<BudgetApp> with WidgetsBindingObserver {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
 
-      themeMode:
-          themeProvider.isDark ? ThemeMode.dark : ThemeMode.light,
+      themeMode: themeProvider.isDark ? ThemeMode.dark : ThemeMode.light,
 
       theme: ThemeData(
         brightness: Brightness.light,
@@ -235,10 +235,7 @@ class _BudgetAppState extends State<BudgetApp> with WidgetsBindingObserver {
 
       initialRoute: '/',
 
-      routes: {
-        '/transaction_manager': (context) =>
-            const TransactionManager(),
-      },
+      routes: {'/transaction_manager': (context) => const TransactionManager()},
 
       home: const AuthWrapper(),
       builder: (context, child) {
@@ -344,13 +341,13 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: MainAppbar(
-  onProfileTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const FriendsPage()),
-    );
-  },
-),
+        onProfileTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const app_profile.ProfilePage()),
+          );
+        },
+      ),
       body: _buildPages(db)[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -414,6 +411,19 @@ class _HomePageState extends State<HomePage> {
                 ),
                 label: 'Budgets',
               ),
+              NavigationDestination(
+                icon: Icon(
+                  Icons.people_outline,
+                  color: unselectedNavIconColor,
+                  size: 26,
+                ),
+                selectedIcon: Icon(
+                  Icons.people,
+                  color: selectedNavIconColor,
+                  size: 26,
+                ),
+                label: 'Friends',
+              ),
             ],
           ),
         ),
@@ -426,6 +436,7 @@ class _HomePageState extends State<HomePage> {
       Dashboard(onViewTransactions: () => _onDestinationSelected(1)),
       const TransactionManager(),
       BudgetManagerScreen(database: db),
+      const FriendsPage(showAppBar: false),
     ];
   }
 

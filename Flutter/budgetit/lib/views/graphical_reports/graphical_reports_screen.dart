@@ -509,7 +509,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
 
   Widget _datePickerButton() {
     final textColor = _filterTextColor(context);
-    final dateLabel = formatLongDate(_selectedDate);
+    final dateLabel = formatLongDate(_selectedDate).toUpperCase();
 
     return InkWell(
       onTap: _showStyledDatePicker,
@@ -523,7 +523,7 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
             const SizedBox(width: 10),
             Text(
               dateLabel,
-              style: context.colours.b5.copyWith(
+              style: context.colours.b3.copyWith(
                 color: textColor,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 0.8,

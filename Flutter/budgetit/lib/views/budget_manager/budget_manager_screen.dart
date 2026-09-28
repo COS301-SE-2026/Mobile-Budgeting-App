@@ -595,8 +595,8 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                             ),
                             const SizedBox(width: 7),
                             Text(
-                              _currentMonthYearLabel(),
-                              style: context.colours.b5.copyWith(
+                              _currentMonthYearLabel().toUpperCase(),
+                              style: context.colours.b3.copyWith(
                                 color: context.colours.cardText,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 0.8,
@@ -610,9 +610,9 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                 ),
                 const SizedBox(height: 18),
                 GestureDetector(
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const GoalsPage()),
-                  ),
+                  onTap: () => Navigator.of(
+                    context,
+                  ).push(MaterialPageRoute(builder: (_) => const GoalsPage())),
                   child: Container(
                     width: double.infinity,
                     height: 55,
