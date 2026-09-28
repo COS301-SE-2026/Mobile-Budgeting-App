@@ -15,7 +15,6 @@ import 'shared/widgets/biometric_lock_screen.dart';
 import 'auth/data/cognito_auth_service.dart';
 import 'auth/providers/auth_provider.dart';
 import 'database/app_database.dart';
-import 'database/database_seeder.dart';
 import 'database/powersync_schema.dart';
 import 'models/recurring/recurring_transaction_catch_up_result.dart';
 import 'services/analysis/background_anomaly_scanner.dart';
@@ -94,17 +93,12 @@ class _StartupAppState extends State<StartupApp> {
 Future<Widget> _initializeApp() async {
   pdfrxFlutterInitialize();
   await _configureAmplify();
-  const skipReseed = bool.fromEnvironment('SKIP_RESEED', defaultValue: false);
-  final shouldReseed = kDebugMode && !skipReseed;
-
-  final powerSyncDb = await _openPowerSyncDatabase(reset: shouldReseed);
+  final powerSyncDb = await _openPowerSyncDatabase();
   final db = AppDatabase(powerSyncDb);
 
   // Initialise the local schema before seeding, so the tables exist when the
   // seeder writes to them. Syncing is started separately once the user signs in.
   await powerSyncDb.initialize();
-
-  if (shouldReseed) await DatabaseSeeder(db).seed();
   if (kDebugMode && !kIsWeb) {
     unawaited(db.startDriftViewer(enabled: true));
   }
@@ -138,16 +132,13 @@ Future<Widget> _initializeApp() async {
   );
 }
 
-Future<PowerSyncDatabase> _openPowerSyncDatabase({required bool reset}) async {
+Future<PowerSyncDatabase> _openPowerSyncDatabase() async {
   if (kIsWeb) {
     // PowerSync stores this named database in browser storage on the web.
     return PowerSyncDatabase(schema: powerSyncSchema, path: 'budgetit.db');
   }
   final directory = await getApplicationDocumentsDirectory();
   final file = File(p.join(directory.path, 'budgetit.db'));
-  if (reset && await file.exists()) {
-    await file.delete();
-  }
   return PowerSyncDatabase(schema: powerSyncSchema, path: file.path);
 }
 
