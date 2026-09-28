@@ -328,64 +328,70 @@ class _Fake$GoalPeriodsTable_48 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
-class _Fake$BudgetMembersTable_49 extends _i1.SmartFake
+class _Fake$GoalContributionsTable_49 extends _i1.SmartFake
+    implements _i2.$GoalContributionsTable {
+  _Fake$GoalContributionsTable_49(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$BudgetMembersTable_50 extends _i1.SmartFake
     implements _i2.$BudgetMembersTable {
-  _Fake$BudgetMembersTable_49(Object parent, Invocation parentInvocation)
+  _Fake$BudgetMembersTable_50(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _Fake$GoalMembersTable_50 extends _i1.SmartFake
+class _Fake$GoalMembersTable_51 extends _i1.SmartFake
     implements _i2.$GoalMembersTable {
-  _Fake$GoalMembersTable_50(Object parent, Invocation parentInvocation)
+  _Fake$GoalMembersTable_51(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _Fake$UserProfilesTable_51 extends _i1.SmartFake
+class _Fake$UserProfilesTable_52 extends _i1.SmartFake
     implements _i2.$UserProfilesTable {
-  _Fake$UserProfilesTable_51(Object parent, Invocation parentInvocation)
+  _Fake$UserProfilesTable_52(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _Fake$FriendRequestsTable_52 extends _i1.SmartFake
+class _Fake$FriendRequestsTable_53 extends _i1.SmartFake
     implements _i2.$FriendRequestsTable {
-  _Fake$FriendRequestsTable_52(Object parent, Invocation parentInvocation)
+  _Fake$FriendRequestsTable_53(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _Fake$FriendshipsTable_53 extends _i1.SmartFake
+class _Fake$FriendshipsTable_54 extends _i1.SmartFake
     implements _i2.$FriendshipsTable {
-  _Fake$FriendshipsTable_53(Object parent, Invocation parentInvocation)
+  _Fake$FriendshipsTable_54(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _Fake$EmbeddingCacheEntriesTable_54 extends _i1.SmartFake
+class _Fake$EmbeddingCacheEntriesTable_55 extends _i1.SmartFake
     implements _i2.$EmbeddingCacheEntriesTable {
-  _Fake$EmbeddingCacheEntriesTable_54(
+  _Fake$EmbeddingCacheEntriesTable_55(
     Object parent,
     Invocation parentInvocation,
   ) : super(parent, parentInvocation);
 }
 
-class _Fake$StatementSchemaCacheTable_55 extends _i1.SmartFake
+class _Fake$StatementSchemaCacheTable_56 extends _i1.SmartFake
     implements _i2.$StatementSchemaCacheTable {
-  _Fake$StatementSchemaCacheTable_55(Object parent, Invocation parentInvocation)
+  _Fake$StatementSchemaCacheTable_56(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeGeneratedDatabase_56 extends _i1.SmartFake
+class _FakeGeneratedDatabase_57 extends _i1.SmartFake
     implements _i3.GeneratedDatabase {
-  _FakeGeneratedDatabase_56(Object parent, Invocation parentInvocation)
+  _FakeGeneratedDatabase_57(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeStreamQueryUpdateRules_57 extends _i1.SmartFake
+class _FakeStreamQueryUpdateRules_58 extends _i1.SmartFake
     implements _i3.StreamQueryUpdateRules {
-  _FakeStreamQueryUpdateRules_57(Object parent, Invocation parentInvocation)
+  _FakeStreamQueryUpdateRules_58(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeMigrator_58 extends _i1.SmartFake implements _i3.Migrator {
-  _FakeMigrator_58(Object parent, Invocation parentInvocation)
+class _FakeMigrator_59 extends _i1.SmartFake implements _i3.Migrator {
+  _FakeMigrator_59(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -5886,14 +5892,29 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
           as _i2.$GoalPeriodsTable);
 
   @override
+  _i2.$GoalContributionsTable get goalContributions =>
+      (super.noSuchMethod(
+            Invocation.getter(#goalContributions),
+            returnValue: _Fake$GoalContributionsTable_49(
+              this,
+              Invocation.getter(#goalContributions),
+            ),
+            returnValueForMissingStub: _Fake$GoalContributionsTable_49(
+              this,
+              Invocation.getter(#goalContributions),
+            ),
+          )
+          as _i2.$GoalContributionsTable);
+
+  @override
   _i2.$BudgetMembersTable get budgetMembers =>
       (super.noSuchMethod(
             Invocation.getter(#budgetMembers),
-            returnValue: _Fake$BudgetMembersTable_49(
+            returnValue: _Fake$BudgetMembersTable_50(
               this,
               Invocation.getter(#budgetMembers),
             ),
-            returnValueForMissingStub: _Fake$BudgetMembersTable_49(
+            returnValueForMissingStub: _Fake$BudgetMembersTable_50(
               this,
               Invocation.getter(#budgetMembers),
             ),
@@ -5904,11 +5925,11 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
   _i2.$GoalMembersTable get goalMembers =>
       (super.noSuchMethod(
             Invocation.getter(#goalMembers),
-            returnValue: _Fake$GoalMembersTable_50(
+            returnValue: _Fake$GoalMembersTable_51(
               this,
               Invocation.getter(#goalMembers),
             ),
-            returnValueForMissingStub: _Fake$GoalMembersTable_50(
+            returnValueForMissingStub: _Fake$GoalMembersTable_51(
               this,
               Invocation.getter(#goalMembers),
             ),
@@ -5919,11 +5940,11 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
   _i2.$UserProfilesTable get userProfiles =>
       (super.noSuchMethod(
             Invocation.getter(#userProfiles),
-            returnValue: _Fake$UserProfilesTable_51(
+            returnValue: _Fake$UserProfilesTable_52(
               this,
               Invocation.getter(#userProfiles),
             ),
-            returnValueForMissingStub: _Fake$UserProfilesTable_51(
+            returnValueForMissingStub: _Fake$UserProfilesTable_52(
               this,
               Invocation.getter(#userProfiles),
             ),
@@ -5934,11 +5955,11 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
   _i2.$FriendRequestsTable get friendRequests =>
       (super.noSuchMethod(
             Invocation.getter(#friendRequests),
-            returnValue: _Fake$FriendRequestsTable_52(
+            returnValue: _Fake$FriendRequestsTable_53(
               this,
               Invocation.getter(#friendRequests),
             ),
-            returnValueForMissingStub: _Fake$FriendRequestsTable_52(
+            returnValueForMissingStub: _Fake$FriendRequestsTable_53(
               this,
               Invocation.getter(#friendRequests),
             ),
@@ -5949,11 +5970,11 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
   _i2.$FriendshipsTable get friendships =>
       (super.noSuchMethod(
             Invocation.getter(#friendships),
-            returnValue: _Fake$FriendshipsTable_53(
+            returnValue: _Fake$FriendshipsTable_54(
               this,
               Invocation.getter(#friendships),
             ),
-            returnValueForMissingStub: _Fake$FriendshipsTable_53(
+            returnValueForMissingStub: _Fake$FriendshipsTable_54(
               this,
               Invocation.getter(#friendships),
             ),
@@ -5979,11 +6000,11 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
   _i2.$EmbeddingCacheEntriesTable get embeddingCacheEntries =>
       (super.noSuchMethod(
             Invocation.getter(#embeddingCacheEntries),
-            returnValue: _Fake$EmbeddingCacheEntriesTable_54(
+            returnValue: _Fake$EmbeddingCacheEntriesTable_55(
               this,
               Invocation.getter(#embeddingCacheEntries),
             ),
-            returnValueForMissingStub: _Fake$EmbeddingCacheEntriesTable_54(
+            returnValueForMissingStub: _Fake$EmbeddingCacheEntriesTable_55(
               this,
               Invocation.getter(#embeddingCacheEntries),
             ),
@@ -5994,11 +6015,11 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
   _i2.$StatementSchemaCacheTable get statementSchemaCache =>
       (super.noSuchMethod(
             Invocation.getter(#statementSchemaCache),
-            returnValue: _Fake$StatementSchemaCacheTable_55(
+            returnValue: _Fake$StatementSchemaCacheTable_56(
               this,
               Invocation.getter(#statementSchemaCache),
             ),
-            returnValueForMissingStub: _Fake$StatementSchemaCacheTable_55(
+            returnValueForMissingStub: _Fake$StatementSchemaCacheTable_56(
               this,
               Invocation.getter(#statementSchemaCache),
             ),
@@ -6042,11 +6063,11 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
   _i3.GeneratedDatabase get attachedDatabase =>
       (super.noSuchMethod(
             Invocation.getter(#attachedDatabase),
-            returnValue: _FakeGeneratedDatabase_56(
+            returnValue: _FakeGeneratedDatabase_57(
               this,
               Invocation.getter(#attachedDatabase),
             ),
-            returnValueForMissingStub: _FakeGeneratedDatabase_56(
+            returnValueForMissingStub: _FakeGeneratedDatabase_57(
               this,
               Invocation.getter(#attachedDatabase),
             ),
@@ -6057,11 +6078,11 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
   _i3.StreamQueryUpdateRules get streamUpdateRules =>
       (super.noSuchMethod(
             Invocation.getter(#streamUpdateRules),
-            returnValue: _FakeStreamQueryUpdateRules_57(
+            returnValue: _FakeStreamQueryUpdateRules_58(
               this,
               Invocation.getter(#streamUpdateRules),
             ),
-            returnValueForMissingStub: _FakeStreamQueryUpdateRules_57(
+            returnValueForMissingStub: _FakeStreamQueryUpdateRules_58(
               this,
               Invocation.getter(#streamUpdateRules),
             ),
@@ -6147,11 +6168,11 @@ class MockAppDatabase extends _i1.Mock implements _i2.AppDatabase {
   _i3.Migrator createMigrator() =>
       (super.noSuchMethod(
             Invocation.method(#createMigrator, []),
-            returnValue: _FakeMigrator_58(
+            returnValue: _FakeMigrator_59(
               this,
               Invocation.method(#createMigrator, []),
             ),
-            returnValueForMissingStub: _FakeMigrator_58(
+            returnValueForMissingStub: _FakeMigrator_59(
               this,
               Invocation.method(#createMigrator, []),
             ),
