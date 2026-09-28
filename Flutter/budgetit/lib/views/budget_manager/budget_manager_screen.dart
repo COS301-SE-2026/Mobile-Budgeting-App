@@ -608,7 +608,12 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 18),
+              
+                const SizedBox(height: 14),
+                _summaryCard(),
+
+                const SizedBox(height: 14),
+
                 GestureDetector(
                   onTap: () => Navigator.of(
                     context,
@@ -643,8 +648,6 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 14),
-                _summaryCard(),
 
                 const SizedBox(height: 14),
 
@@ -748,7 +751,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                               Icon(Icons.add, color: cardTextColor),
                               const SizedBox(width: 8),
                               Text(
-                                'CREATE NEW BUDGET',
+                                'CREATE NEW CATEGORY',
                                 style: colours.h2.copyWith(
                                   color: cardTextColor,
                                   fontSize: 15,
@@ -1342,14 +1345,14 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     ),
                     const SizedBox(width: 10),
                     Text(
-                      'Delete Budget',
+                      'Delete Category',
                       style: colours.h2.copyWith(color: cardTextColor),
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Are you sure you want to delete the ${budget.title} budget?',
+                  'Are you sure you want to delete the ${budget.title} category?',
                   style: colours.b1.copyWith(color: cardTextColor),
                 ),
                 const SizedBox(height: 22),
@@ -1428,7 +1431,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  '${budget.title} budget deleted',
+                  '${budget.title} category deleted',
                   style: TextStyle(
                     color: context.colours.whiteAccents,
                     fontWeight: FontWeight.w600,
@@ -1573,10 +1576,10 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     borderRadius: BorderRadius.zero,
                     side: BorderSide(color: Colors.black, width: 4),
                   ),
-                  title: Text('Budget already exists', style: colours.h2),
+                  title: Text('Category already exists', style: colours.h2),
                   content: Text(
-                    'A budget for $name already exists. Edit the existing '
-                    'budget instead.',
+                    'A category for $name already exists. Edit the existing '
+                    'category instead.',
                     style: colours.b1,
                   ),
                   actions: [
@@ -1611,7 +1614,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Create New Budget',
+                          'Create New Category',
                           style: colours.h2.copyWith(
                             color: dialogTextColor,
                             fontSize: 16,
@@ -1620,112 +1623,15 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'Choose an available category or create one that '
+                          'Create a category that '
                           'fits your budget.',
                           style: colours.b1.copyWith(
                             color: dialogTextColor.withValues(alpha: 0.8),
                           ),
                         ),
-                        const SizedBox(height: 18),
-                        DropdownButtonFormField<_BudgetCategoryOption>(
-                          initialValue: selectedCategory,
-                          isExpanded: true,
-                          dropdownColor: colours.background,
-                          style: colours.b1.copyWith(color: dialogTextColor),
-                          decoration: inputDecoration('Budget category'),
-                          items: categoryOptions.map((category) {
-                            return DropdownMenuItem<_BudgetCategoryOption>(
-                              value: category,
-                              enabled: !category.alreadyBudgeted,
-                              child: GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                onTap: category.alreadyBudgeted
-                                    ? () => showCategoryExists(category.label)
-                                    : null,
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      category.icon,
-                                      color: category.alreadyBudgeted
-                                          ? dialogTextColor.withValues(
-                                              alpha: 0.38,
-                                            )
-                                          : dialogTextColor,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: Text(
-                                        category.alreadyBudgeted
-                                            ? '${category.label} · EXISTS'
-                                            : category.label,
-                                        style: colours.b1.copyWith(
-                                          color: dialogTextColor.withValues(
-                                            alpha: category.alreadyBudgeted
-                                                ? 0.38
-                                                : 1,
-                                          ),
-                                          fontWeight: category.alreadyBudgeted
-                                              ? FontWeight.bold
-                                              : null,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            if (value == null) return;
 
-                            setDialogState(() {
-                              selectedCategory = value;
-                              createCustomCategory = false;
-                            });
-                          },
-                        ),
-
-                        const SizedBox(height: 14),
-
-                        InkWell(
-                          onTap: () => setDialogState(() {
-                            createCustomCategory = !createCustomCategory;
-                          }),
-                          child: Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              color: accentColor,
-                              border: Border.all(
-                                color: Colors.black,
-                                width: createCustomCategory ? 4 : 3,
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.add_box_outlined,
-                                  color: accentTextColor,
-                                ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  'CREATE A CUSTOM CATEGORY',
-                                  style: colours.b1.copyWith(
-                                    color: accentTextColor,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        if (createCustomCategory) ...[
-                          const SizedBox(height: 14),
+                        SizedBox(height: 14),
+                      
                           TextField(
                             onChanged: (value) => customCategoryName = value,
                             textCapitalization: TextCapitalization.words,
@@ -1779,7 +1685,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                               );
                             },
                           ),
-                        ],
+                        
 
                         const SizedBox(height: 14),
 
