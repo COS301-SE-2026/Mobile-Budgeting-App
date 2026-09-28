@@ -64,7 +64,8 @@ CREATE TABLE transactions (
   currency text NOT NULL,
   recurring_id uuid REFERENCES recurring_transactions(id),
   recurring_occurrence_date timestamptz,
-  import_id uuid REFERENCES imports(id)
+  import_id uuid REFERENCES imports(id),
+  budget_template_id uuid REFERENCES budget_templates(id),
 );
 CREATE INDEX ix_transactions_user_date
   ON transactions (user_id, transaction_date DESC);

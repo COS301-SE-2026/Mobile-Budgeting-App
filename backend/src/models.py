@@ -114,7 +114,7 @@ class Transaction(Base):
     )
     user_id: Mapped[str] = mapped_column(String)
     import_id: Mapped[str | None] = mapped_column(ForeignKey("imports.id"), nullable=True)
-
+    budget_template_id: Mapped[str | None] = mapped_column(ForeignKey("budget_templates.id"), nullable=True)
 
 class TransactionCategoryMap(Base):
     

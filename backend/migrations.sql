@@ -148,3 +148,7 @@ BEGIN
       CHECK (status IN ('pending', 'accepted', 'declined'));
   END IF;
 END $$;
+
+ALTER TABLE transactions
+     ADD COLUMN IF NOT EXISTS budget_template_id uuid REFERENCES budget_templates(id);
+
