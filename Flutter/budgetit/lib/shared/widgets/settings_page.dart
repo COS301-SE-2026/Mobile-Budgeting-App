@@ -1,3 +1,4 @@
+import 'package:budgetit/auth/providers/auth_provider.dart';
 import 'package:budgetit/database/app_database.dart';
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:budgetit/utils/theme_provider.dart';
@@ -12,9 +13,6 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  static const _currencies = ['ZAR', 'USD', 'EUR', 'GBP'];
-
-  String _currency = 'ZAR';
   bool _isLoading = true;
   bool _aiEnabled = true;
 
@@ -26,23 +24,12 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _loadSettings() async {
     final dao = context.read<AppDatabase>().settingsDao;
-    final currency = await dao.getDefaultCurrency();
     final ai = await dao.getSetting('ai_categorisation');
     if (!mounted) return;
     setState(() {
-      _currency = _currencies.contains(currency) ? currency : 'ZAR';
       _aiEnabled = ai != 'false';
       _isLoading = false;
     });
-  }
-
-  Future<void> _saveCurrency(String value) async {
-    setState(() => _currency = value);
-    await context.read<AppDatabase>().settingsDao.setDefaultCurrency(value);
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Default currency set to $value')),
-    );
   }
 
   Future<void> _saveAiEnabled(bool value) async {
@@ -53,10 +40,45 @@ class _SettingsPageState extends State<SettingsPage> {
         .setSetting('ai_categorisation', value.toString());
   }
 
+  Future<void> _confirmLogout() async {
+    final colours = context.colours;
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: colours.background,
+        shape: const RoundedRectangleBorder(
+          side: BorderSide(color: Colors.black, width: 3),
+        ),
+        title: Text('Log out', style: colours.h2),
+        content: Text('Are you sure you want to log out?', style: colours.b1),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text('Cancel', style: colours.b1),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(
+              'Log out',
+              style: colours.b1.copyWith(color: colours.error),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldLogout != true || !mounted) return;
+
+    await context.read<AppAuthProvider>().signOut();
+    if (!mounted) return;
+    Navigator.of(context).popUntil((route) => route.isFirst);
+  }
+
   @override
   Widget build(BuildContext context) {
     final colours = context.colours;
     final theme = context.watch<ThemeProvider>();
+    final auth = context.watch<AppAuthProvider>();
 
     return Scaffold(
       backgroundColor: colours.background,
@@ -124,18 +146,6 @@ class _SettingsPageState extends State<SettingsPage> {
                     const SizedBox(height: 12),
                     _card(
                       context,
-                      child: _dropdownRow(
-                        context,
-                        icon: Icons.payments_outlined,
-                        label: 'Default currency',
-                        value: _currency,
-                        options: _currencies,
-                        onChanged: _saveCurrency,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    _card(
-                      context,
                       child: Row(
                         children: [
                           Icon(Icons.auto_awesome, color: colours.cardText),
@@ -167,7 +177,42 @@ class _SettingsPageState extends State<SettingsPage> {
                           ),
                         ],
                       ),
-                    ),                    
+                    ),
+                    const SizedBox(height: 24),
+                    _sectionTitle(context, 'ACCOUNT'),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: auth.isLoading ? null : _confirmLogout,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colours.error,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: const RoundedRectangleBorder(
+                            side: BorderSide(color: Colors.black, width: 3),
+                          ),
+                          elevation: 0,
+                        ),
+                        icon: auth.isLoading
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Icon(Icons.logout),
+                        label: Text(
+                          'LOG OUT',
+                          style: colours.b1.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 24),
                   ],
                 ),
@@ -192,42 +237,6 @@ class _SettingsPageState extends State<SettingsPage> {
         ],
       ),
       child: child,
-    );
-  }
-
-  Widget _dropdownRow(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required String value,
-    required List<String> options,
-    required Future<void> Function(String) onChanged,
-  }) {
-    final colours = context.colours;
-    return Row(
-      children: [
-        Icon(icon, color: colours.cardText),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Text(
-            label,
-            style: colours.b1.copyWith(color: colours.cardText),
-          ),
-        ),
-        DropdownButton<String>(
-          value: value,
-          dropdownColor: colours.blendedprimary,
-          underline: const SizedBox.shrink(),
-          iconEnabledColor: colours.cardText,
-          style: colours.b1.copyWith(color: colours.cardText),
-          items: options
-              .map((o) => DropdownMenuItem(value: o, child: Text(o)))
-              .toList(),
-          onChanged: (v) {
-            if (v != null) onChanged(v);
-          },
-        ),
-      ],
     );
   }
 }
