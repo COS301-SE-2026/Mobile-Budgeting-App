@@ -654,126 +654,12 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     ),
                   ],
                 ),
-              
+
                 const SizedBox(height: 14),
                 _summaryCard(),
 
                 const SizedBox(height: 14),
-
-                GestureDetector(
-                  onTap: () => _showCreateBudgetDialog(context),
-                  child: Container(
-                    width: double.infinity,
-                    height: 55,
-                    decoration: BoxDecoration(
-                      color: cardColor,
-                      border: Border.all(color: Colors.black, width: 4),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black,
-                          offset: Offset(4, 4),
-                          blurRadius: 0,
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.add, color: cardTextColor),
-                        const SizedBox(width: 8),
-                        Text(
-                          'CREATE NEW BUDGET',
-                          style: colours.h2.copyWith(
-                            color: cardTextColor,
-                            fontSize: 15,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 14),
-
-                GestureDetector(
-                  onTap: () => Navigator.of(
-                    context,
-                  ).push(MaterialPageRoute(builder: (_) => const GoalsPage())),
-                  child: Container(
-                    width: double.infinity,
-                    height: 55,
-                    decoration: BoxDecoration(
-                      color: cardColor,
-                      border: Border.all(color: Colors.black, width: 4),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black,
-                          offset: Offset(4, 4),
-                          blurRadius: 0,
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.flag_outlined, color: cardTextColor),
-                        const SizedBox(width: 8),
-                        Text(
-                          'VIEW / ADD GOALS',
-                          style: colours.h2.copyWith(
-                            color: cardTextColor,
-                            fontSize: 15,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 14),
-
-                GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            FinancialReportScreen(database: widget.database),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    width: double.infinity,
-                    height: 55,
-                    decoration: BoxDecoration(
-                      color: cardColor,
-                      border: Border.all(color: Colors.black, width: 4),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black,
-                          offset: Offset(4, 4),
-                          blurRadius: 0,
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.file_download_outlined,
-                          color: cardTextColor,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'EXPORT REPORT',
-                          style: colours.h2.copyWith(
-                            color: cardTextColor,
-                            fontSize: 15,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                _budgetActionCarousel(cardColor, cardTextColor),
                 const SizedBox(height: 18),
 
                 SearchBox(
@@ -866,14 +752,15 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                           }
 
                           final categories = snapshot.data ?? [];
-                          final filteredCategories = categories
-                              .where(
-                                (category) => category.label
-                                    .toLowerCase()
-                                    .contains(_categorySearchQuery),
-                              )
-                              .toList()
-                            ..sort((a, b) => a.label.compareTo(b.label));
+                          final filteredCategories =
+                              categories
+                                  .where(
+                                    (category) => category.label
+                                        .toLowerCase()
+                                        .contains(_categorySearchQuery),
+                                  )
+                                  .toList()
+                                ..sort((a, b) => a.label.compareTo(b.label));
 
                           if (categories.isEmpty) {
                             return Padding(
@@ -926,6 +813,86 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
     );
   }
 
+  Widget _budgetActionCarousel(Color cardColor, Color cardTextColor) {
+    final actions = <({IconData icon, String label, VoidCallback onTap})>[
+      (
+        icon: Icons.add,
+        label: 'CREATE NEW BUDGET',
+        onTap: () => _showCreateBudgetDialog(context),
+      ),
+      (
+        icon: Icons.flag_outlined,
+        label: 'VIEW / ADD GOALS',
+        onTap: () => Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => const GoalsPage())),
+      ),
+      (
+        icon: Icons.file_download_outlined,
+        label: 'EXPORT REPORT',
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => FinancialReportScreen(database: widget.database),
+          ),
+        ),
+      ),
+    ];
+
+    return SizedBox(
+      height: 63,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.only(right: 6, bottom: 6),
+        itemCount: actions.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 12),
+        itemBuilder: (context, index) {
+          final action = actions[index];
+          return Semantics(
+            button: true,
+            label: action.label,
+            child: InkWell(
+              onTap: action.onTap,
+              child: Container(
+                width: 230,
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                decoration: BoxDecoration(
+                  color: cardColor,
+                  border: Border.all(color: Colors.black, width: 4),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black,
+                      offset: Offset(4, 4),
+                      blurRadius: 0,
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(action.icon, color: cardTextColor, size: 21),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        action.label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.colours.h2.copyWith(
+                          color: cardTextColor,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   Widget _summaryCard() {
     return FutureBuilder<List<_BudgetManagerItem>>(
       future: _budgetItemsFuture,
@@ -941,7 +908,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
         return Column(
           children: [
             SizedBox(
-              height: 180,
+              height: 220,
               child: PageView.builder(
                 controller: _budgetPageController,
                 itemCount: items.length,
@@ -953,11 +920,14 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                 },
                 itemBuilder: (context, index) {
                   final item = items[index];
-                  return BalanceCard(
-                    totalSpent: item.spent,
-                    totalTarget: item.limit,
-                    title: item.title,
-                    onTap: () => _showBudgetMenu(item),
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 6, bottom: 6),
+                    child: BalanceCard(
+                      totalSpent: item.spent,
+                      totalTarget: item.limit,
+                      title: item.title,
+                      onTap: () => _showBudgetMenu(item),
+                    ),
                   );
                 },
               ),
@@ -967,13 +937,18 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(items.length, (i) {
                 final active = i == _currentBudgetIndex;
-                return Container(
-                  width: active ? 22 : 10,
-                  height: 10,
-                  margin: const EdgeInsets.symmetric(horizontal: 3),
-                  color: active
-                      ? context.colours.informational
-                      : context.colours.textMuted,
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  width: active ? 11 : 9,
+                  height: active ? 11 : 9,
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  decoration: BoxDecoration(
+                    color: active
+                        ? context.colours.cardText
+                        : context.colours.cardText.withValues(alpha: 0.35),
+                    border: Border.all(color: Colors.black, width: 1.5),
+                    shape: BoxShape.circle,
+                  ),
                 );
               }),
             ),
@@ -986,45 +961,81 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
   Future<void> _showBudgetMenu(_BudgetManagerItem item) async {
     final colours = context.colours;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final sheet = isDark ? colours.blendedprimary : colours.background;
+    final dialogColor = isDark ? colours.blendedprimary : colours.background;
+    final dialogTextColor = isDark ? colours.secondary : colours.textPrimary;
 
-    await showModalBottomSheet(
+    await showDialog<void>(
       context: context,
-      backgroundColor: Colors.transparent,
-      builder: (sheetCtx) => Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: sheet,
-          border: Border.all(color: Colors.black, width: 4),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              item.title,
-              style: colours.h2.copyWith(color: colours.secondary),
-            ),
-            const SizedBox(height: 16),
-            _menuTile(sheetCtx, Icons.edit_outlined, 'EDIT BUDGET', () {
-              Navigator.pop(sheetCtx);
-              _showEditBudgetDialog(item);
-            }),
-            _menuTile(sheetCtx, Icons.group_add_outlined, 'SHARE BUDGET', () {
-              Navigator.pop(sheetCtx);
-              _showShareBudgetDialog(item);
-            }),
-            _menuTile(
-              sheetCtx,
-              Icons.delete_outline,
-              'DELETE BUDGET',
-              () {
-                Navigator.pop(sheetCtx);
-                _showDeleteBudgetDialog(item);
-              },
-              colours.error,
-            ),
-          ],
+      barrierColor: Colors.black.withValues(alpha: 0.35),
+      builder: (dialogContext) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 420),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 22),
+          decoration: BoxDecoration(
+            color: dialogColor,
+            border: Border.all(color: Colors.black, width: 4),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      item.title.toUpperCase(),
+                      style: colours.h2.copyWith(color: dialogTextColor),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  InkWell(
+                    onTap: () => Navigator.of(dialogContext).pop(),
+                    child: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: isDark ? colours.background : colours.secondary,
+                        border: Border.all(color: Colors.black, width: 3),
+                      ),
+                      child: Icon(
+                        Icons.close,
+                        color: isDark ? colours.cardText : colours.background,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              _menuTile(dialogContext, Icons.edit_outlined, 'EDIT BUDGET', () {
+                Navigator.pop(dialogContext);
+                _showEditBudgetDialog(item);
+              }),
+              const SizedBox(height: 10),
+              _menuTile(
+                dialogContext,
+                Icons.group_add_outlined,
+                'SHARE BUDGET',
+                () {
+                  Navigator.pop(dialogContext);
+                  _showShareBudgetDialog(item);
+                },
+              ),
+              const SizedBox(height: 10),
+              _menuTile(
+                dialogContext,
+                Icons.delete_outline,
+                'DELETE BUDGET',
+                () {
+                  Navigator.pop(dialogContext);
+                  _showDeleteBudgetDialog(item);
+                },
+                colours.error,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1037,32 +1048,105 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
     VoidCallback onTap, [
     Color? iconColor,
   ]) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-        decoration: BoxDecoration(
-          color: ctx.colours.background,
-          border: Border.all(color: Colors.black, width: 3),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: iconColor ?? ctx.colours.secondary),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
+    final isDark = Theme.of(ctx).brightness == Brightness.dark;
+    final buttonColor = isDark ? ctx.colours.background : ctx.colours.secondary;
+    final tileText =
+        iconColor ?? (isDark ? ctx.colours.secondary : ctx.colours.background);
+
+    return Padding(
+      padding: const EdgeInsets.only(right: 6, bottom: 6),
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          decoration: BoxDecoration(
+            color: buttonColor,
+            border: Border.all(color: Colors.black, width: 4),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black,
+                offset: Offset(6, 6),
+                blurRadius: 0,
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: tileText, size: 20),
+              const SizedBox(width: 10),
+              Text(
                 label,
                 style: ctx.colours.b1.copyWith(
-                  color: ctx.colours.secondary,
+                  color: tileText,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
-            Icon(Icons.chevron_right, color: ctx.colours.secondary),
-          ],
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  InputDecoration _budgetDialogFieldDecoration(
+    String label,
+    MyColours colours,
+  ) {
+    const border = OutlineInputBorder(
+      borderRadius: BorderRadius.zero,
+      borderSide: BorderSide(color: Colors.black, width: 3),
+    );
+    return InputDecoration(
+      labelText: label,
+      labelStyle: colours.b1.copyWith(color: colours.textPrimary),
+      filled: true,
+      fillColor: colours.background,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
+      border: border,
+      enabledBorder: border,
+      focusedBorder: const OutlineInputBorder(
+        borderRadius: BorderRadius.zero,
+        borderSide: BorderSide(color: Colors.black, width: 4),
+      ),
+    );
+  }
+
+  ButtonStyle _budgetDialogCancelStyle(
+    BuildContext dialogContext,
+    Color foreground,
+  ) {
+    if (AppDialogStyle.isDark(dialogContext)) {
+      return AppDialogStyle.cancel(dialogContext);
+    }
+    return OutlinedButton.styleFrom(
+      foregroundColor: foreground,
+      side: const BorderSide(color: Colors.black, width: 3),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      textStyle: dialogContext.colours.b1.copyWith(fontWeight: FontWeight.bold),
+    );
+  }
+
+  ButtonStyle _budgetDialogPrimaryStyle(BuildContext dialogContext) {
+    if (AppDialogStyle.isDark(dialogContext)) {
+      return AppDialogStyle.primary(dialogContext);
+    }
+    return ElevatedButton.styleFrom(
+      backgroundColor: dialogContext.colours.secondary,
+      foregroundColor: dialogContext.colours.background,
+      side: const BorderSide(color: Colors.black, width: 3),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      textStyle: dialogContext.colours.b1.copyWith(fontWeight: FontWeight.bold),
+    );
+  }
+
+  ButtonStyle _budgetDialogDeleteStyle(BuildContext dialogContext) {
+    return ElevatedButton.styleFrom(
+      backgroundColor: dialogContext.colours.error,
+      foregroundColor: dialogContext.colours.whiteAccents,
+      side: const BorderSide(color: Colors.black, width: 3),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      textStyle: dialogContext.colours.b1.copyWith(fontWeight: FontWeight.bold),
     );
   }
 
@@ -1075,44 +1159,105 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
 
     final saved = await showDialog<bool>(
       context: context,
-      builder: (dCtx) => AlertDialog(
-        backgroundColor: colours.background,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero,
-          side: const BorderSide(color: Colors.black, width: 4),
-        ),
-        title: Text('EDIT BUDGET', style: colours.h2),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameCtrl,
-              style: colours.b1,
-              decoration: const InputDecoration(labelText: 'Name'),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: amountCtrl,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              style: colours.b1,
-              decoration: const InputDecoration(labelText: 'Amount (R)'),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dCtx, false),
-            child: Text('Cancel', style: colours.b1),
+      builder: (dCtx) {
+        final isDark = Theme.of(dCtx).brightness == Brightness.dark;
+        final dialogColor = isDark
+            ? colours.blendedprimary
+            : colours.background;
+        final dialogTextColor = isDark
+            ? colours.secondary
+            : colours.textPrimary;
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 28,
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(dCtx, true),
-            child: Text(
-              'Save',
-              style: colours.b1.copyWith(color: colours.background),
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 420),
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+            decoration: BoxDecoration(
+              color: dialogColor,
+              border: Border.all(color: Colors.black, width: 4),
+              boxShadow: const [
+                BoxShadow(color: Colors.black, offset: Offset(6, 6)),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? colours.blendedprimary
+                            : colours.secondary,
+                        border: Border.all(color: Colors.black, width: 2),
+                      ),
+                      child: Icon(
+                        Icons.edit_outlined,
+                        color: isDark ? colours.cardText : colours.background,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'EDIT BUDGET',
+                      style: colours.h2.copyWith(color: dialogTextColor),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 18),
+                TextField(
+                  controller: nameCtrl,
+                  style: colours.b1.copyWith(color: colours.textPrimary),
+                  decoration: _budgetDialogFieldDecoration(
+                    'Budget name',
+                    colours,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                TextField(
+                  controller: amountCtrl,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  style: colours.b4.copyWith(
+                    color: colours.textPrimary,
+                    fontSize: 16,
+                  ),
+                  decoration: _budgetDialogFieldDecoration(
+                    'Amount (R)',
+                    colours,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    OutlinedButton(
+                      onPressed: () => Navigator.pop(dCtx, false),
+                      style: _budgetDialogCancelStyle(dCtx, dialogTextColor),
+                      child: const Text('CANCEL'),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(dCtx, true),
+                      style: _budgetDialogPrimaryStyle(dCtx),
+                      child: const Text('SAVE'),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
 
     if (saved != true) return;
@@ -1127,35 +1272,107 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
 
   Future<void> _showDeleteBudgetDialog(_BudgetManagerItem item) async {
     final colours = context.colours;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final dialogColor = isDark ? colours.blendedprimary : colours.secondary;
+    final dialogTextColor = isDark ? colours.secondary : colours.background;
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (dCtx) => AlertDialog(
-        backgroundColor: colours.background,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero,
-          side: const BorderSide(color: Colors.black, width: 4),
+      builder: (dCtx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 28),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 420),
+          padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+          decoration: BoxDecoration(
+            color: dialogColor,
+            border: Border.all(color: Colors.black, width: 4),
+            boxShadow: const [
+              BoxShadow(color: Colors.black, offset: Offset(6, 6)),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: colours.error,
+                      border: Border.all(color: Colors.black, width: 2),
+                    ),
+                    child: Icon(
+                      Icons.delete_outline,
+                      color: colours.whiteAccents,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'DELETE BUDGET',
+                    style: colours.h2.copyWith(color: dialogTextColor),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              Text(
+                'Delete "${item.title}"? This cannot be undone.',
+                style: colours.b1.copyWith(color: dialogTextColor),
+              ),
+              const SizedBox(height: 22),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  OutlinedButton(
+                    onPressed: () => Navigator.pop(dCtx, false),
+                    style: _budgetDialogCancelStyle(dCtx, dialogTextColor),
+                    child: const Text('CANCEL'),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    style: _budgetDialogDeleteStyle(dCtx),
+                    onPressed: () => Navigator.pop(dCtx, true),
+                    child: const Text('DELETE'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-        title: Text('DELETE BUDGET', style: colours.h2),
-        content: Text('Delete "${item.title}"?', style: colours.b1),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dCtx, false),
-            child: Text('Cancel', style: colours.b1),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: colours.error),
-            onPressed: () => Navigator.pop(dCtx, true),
-            child: Text(
-              'Delete',
-              style: colours.b1.copyWith(color: colours.whiteAccents),
-            ),
-          ),
-        ],
       ),
     );
     if (confirmed == true) {
       await widget.database.budgetDao.softDeleteBudgetTemplate(item.templateId);
-      if (mounted) _refreshBudgets();
+      if (!mounted) return;
+      _refreshBudgets();
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: isDark
+                ? colours.blendedprimary
+                : colours.secondary,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.zero,
+              side: BorderSide(color: Colors.black, width: 3),
+            ),
+            content: Row(
+              children: [
+                Icon(Icons.check_circle_outline, color: dialogTextColor),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    '"${item.title}" was deleted.',
+                    style: colours.b1.copyWith(color: dialogTextColor),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
     }
   }
 
@@ -1271,7 +1488,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
   Widget _categoryCard(_BudgetCategoryOption category) {
     final colours = context.colours;
     final isLight = Theme.of(context).brightness == Brightness.light;
-    final cardColor = isLight ? colours.background : colours.primary;
+    final cardColor = colours.background;
     final textColor = colours.textPrimary;
 
     return Container(
@@ -1279,38 +1496,32 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: cardColor,
-        border: Border.all(color: Colors.black, width: 4),
-        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(4, 4))],
+        border: Border.all(color: Colors.black, width: 3),
       ),
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 34,
+            height: 34,
             decoration: BoxDecoration(
-              color: colours.secondary,
+              color: isLight ? colours.secondary : colours.blendedprimary,
               border: Border.all(color: Colors.black, width: 2),
             ),
-            child: Icon(category.icon, color: colours.background, size: 20),
+            child: Icon(
+              category.icon,
+              color: isLight ? colours.background : colours.cardText,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  category.label,
-                  style: colours.b1.copyWith(
-                    color: textColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  category.subtitle,
-                  style: colours.b5.copyWith(color: colours.textMuted),
-                ),
-              ],
+            child: Text(
+              category.label,
+              style: colours.budgetheader.copyWith(
+                color: textColor,
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
           IconButton(
@@ -1334,12 +1545,19 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
       builder: (dialogContext) {
         final colours = context.colours;
         final isDark = Theme.of(context).brightness == Brightness.dark;
-        final dialogColor = isDark ? colours.blendedprimary : colours.background;
-        final dialogTextColor = isDark ? colours.secondary : colours.textPrimary;
+        final dialogColor = isDark
+            ? colours.blendedprimary
+            : colours.background;
+        final dialogTextColor = isDark
+            ? colours.secondary
+            : colours.textPrimary;
 
         return Dialog(
           backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 28),
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 28,
+          ),
           child: Container(
             constraints: const BoxConstraints(maxWidth: 420),
             padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
@@ -1373,15 +1591,24 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.zero,
-                      borderSide: const BorderSide(color: Colors.black, width: 3),
+                      borderSide: const BorderSide(
+                        color: Colors.black,
+                        width: 3,
+                      ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.zero,
-                      borderSide: const BorderSide(color: Colors.black, width: 3),
+                      borderSide: const BorderSide(
+                        color: Colors.black,
+                        width: 3,
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.zero,
-                      borderSide: const BorderSide(color: Colors.black, width: 4),
+                      borderSide: const BorderSide(
+                        color: Colors.black,
+                        width: 4,
+                      ),
                     ),
                   ),
                 ),
@@ -1391,10 +1618,15 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                   children: [
                     OutlinedButton(
                       onPressed: () => Navigator.of(dialogContext).pop(),
-                      child: const Text('Cancel'),
+                      style: _budgetDialogCancelStyle(
+                        dialogContext,
+                        dialogTextColor,
+                      ),
+                      child: const Text('CANCEL'),
                     ),
                     const SizedBox(width: 8),
                     ElevatedButton(
+                      style: _budgetDialogPrimaryStyle(dialogContext),
                       onPressed: () async {
                         final name = nameController.text.trim();
                         if (name.isEmpty) return;
@@ -1407,7 +1639,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                         }
                         _refreshBudgets();
                       },
-                      child: const Text('Save'),
+                      child: const Text('SAVE'),
                     ),
                   ],
                 ),
@@ -1424,32 +1656,126 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) {
-        return AlertDialog(
-          backgroundColor: colours.background,
-          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-          title: Text('Delete category?', style: colours.h2),
-          content: Text(
-            'This will delete "${category.label}".',
-            style: colours.b1,
+        final isDark = Theme.of(dialogContext).brightness == Brightness.dark;
+        final dialogColor = isDark
+            ? colours.blendedprimary
+            : colours.background;
+        final dialogTextColor = isDark
+            ? colours.secondary
+            : colours.textPrimary;
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 28,
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Cancel'),
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 420),
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+            decoration: BoxDecoration(
+              color: dialogColor,
+              border: Border.all(color: Colors.black, width: 4),
+              boxShadow: const [
+                BoxShadow(color: Colors.black, offset: Offset(6, 6)),
+              ],
             ),
-            TextButton(
-              onPressed: () async {
-                await widget.database.categoryDao.softDeleteCategory(
-                  category.categoryId,
-                );
-                if (dialogContext.mounted) {
-                  Navigator.of(dialogContext).pop();
-                }
-                _refreshBudgets();
-              },
-              child: Text('Delete', style: TextStyle(color: colours.error)),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: colours.error,
+                        border: Border.all(color: Colors.black, width: 2),
+                      ),
+                      child: Icon(
+                        Icons.delete_outline,
+                        color: colours.whiteAccents,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'DELETE CATEGORY',
+                        style: colours.h2.copyWith(color: dialogTextColor),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 18),
+                Text(
+                  'Delete "${category.label}"? This cannot be undone.',
+                  style: colours.b1.copyWith(color: dialogTextColor),
+                ),
+                const SizedBox(height: 22),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    OutlinedButton(
+                      onPressed: () => Navigator.of(dialogContext).pop(),
+                      style: _budgetDialogCancelStyle(
+                        dialogContext,
+                        dialogTextColor,
+                      ),
+                      child: const Text('CANCEL'),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      style: _budgetDialogDeleteStyle(dialogContext),
+                      onPressed: () async {
+                        await widget.database.categoryDao.softDeleteCategory(
+                          category.categoryId,
+                        );
+                        if (dialogContext.mounted) {
+                          Navigator.of(dialogContext).pop();
+                        }
+                        if (!mounted) return;
+                        _refreshBudgets();
+                        ScaffoldMessenger.of(context)
+                          ..hideCurrentSnackBar()
+                          ..showSnackBar(
+                            SnackBar(
+                              behavior: SnackBarBehavior.floating,
+                              backgroundColor: isDark
+                                  ? colours.blendedprimary
+                                  : colours.secondary,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero,
+                                side: BorderSide(color: Colors.black, width: 3),
+                              ),
+                              content: Row(
+                                children: [
+                                  Icon(
+                                    Icons.check_circle_outline,
+                                    color: dialogTextColor,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      '"${category.label}" was deleted.',
+                                      style: colours.b1.copyWith(
+                                        color: dialogTextColor,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                      },
+                      child: const Text('DELETE'),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );
@@ -1938,8 +2264,12 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
       builder: (dialogContext) {
         final colours = context.colours;
         final isDark = Theme.of(context).brightness == Brightness.dark;
-        final dialogColor = isDark ? colours.blendedprimary : colours.background;
-        final dialogTextColor = isDark ? colours.secondary : colours.textPrimary;
+        final dialogColor = isDark
+            ? colours.blendedprimary
+            : colours.background;
+        final dialogTextColor = isDark
+            ? colours.secondary
+            : colours.textPrimary;
 
         InputDecoration inputDecoration(String label, {String? hint}) {
           return InputDecoration(
@@ -2073,8 +2403,12 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
       builder: (dialogContext) {
         final colours = context.colours;
         final isDark = Theme.of(context).brightness == Brightness.dark;
-        final dialogColor = isDark ? colours.blendedprimary : colours.background;
-        final dialogTextColor = isDark ? colours.secondary : colours.textPrimary;
+        final dialogColor = isDark
+            ? colours.blendedprimary
+            : colours.background;
+        final dialogTextColor = isDark
+            ? colours.secondary
+            : colours.textPrimary;
 
         return Dialog(
           backgroundColor: Colors.transparent,
@@ -2096,17 +2430,50 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? colours.blendedprimary
+                            : colours.secondary,
+                        border: Border.all(color: Colors.black, width: 2),
+                      ),
+                      child: Icon(
+                        Icons.category_outlined,
+                        color: isDark ? colours.cardText : colours.background,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'NEW CATEGORY',
+                        style: colours.h2.copyWith(color: dialogTextColor),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
                 Text(
-                  'NEW CATEGORY',
-                  style: colours.h2.copyWith(color: dialogTextColor),
+                  'Create an expense category for the selected budget.',
+                  style: colours.b1.copyWith(color: dialogTextColor),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: nameController,
-                  style: colours.b1.copyWith(color: dialogTextColor),
+                  autofocus: true,
+                  textCapitalization: TextCapitalization.words,
+                  style: colours.b1.copyWith(color: colours.textPrimary),
                   decoration: InputDecoration(
                     labelText: 'Category name',
-                    labelStyle: colours.b1.copyWith(color: dialogTextColor),
+                    hintText: 'e.g. Groceries',
+                    labelStyle: colours.b1.copyWith(color: colours.textPrimary),
+                    hintStyle: colours.b1.copyWith(
+                      color: colours.textPrimary.withValues(alpha: 0.55),
+                    ),
                     filled: true,
                     fillColor: colours.background,
                     contentPadding: const EdgeInsets.symmetric(
@@ -2115,15 +2482,24 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.zero,
-                      borderSide: const BorderSide(color: Colors.black, width: 3),
+                      borderSide: const BorderSide(
+                        color: Colors.black,
+                        width: 3,
+                      ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.zero,
-                      borderSide: const BorderSide(color: Colors.black, width: 3),
+                      borderSide: const BorderSide(
+                        color: Colors.black,
+                        width: 3,
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.zero,
-                      borderSide: const BorderSide(color: Colors.black, width: 4),
+                      borderSide: const BorderSide(
+                        color: Colors.black,
+                        width: 4,
+                      ),
                     ),
                   ),
                 ),
@@ -2133,14 +2509,46 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                   children: [
                     OutlinedButton(
                       onPressed: () => Navigator.of(dialogContext).pop(),
-                      child: const Text('Cancel'),
+                      style: isDark
+                          ? AppDialogStyle.cancel(context)
+                          : OutlinedButton.styleFrom(
+                              foregroundColor: dialogTextColor,
+                              side: const BorderSide(
+                                color: Colors.black,
+                                width: 3,
+                              ),
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero,
+                              ),
+                              textStyle: colours.b1.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                      child: const Text('CANCEL'),
                     ),
                     const SizedBox(width: 8),
                     ElevatedButton(
+                      style: isDark
+                          ? AppDialogStyle.primary(context)
+                          : ElevatedButton.styleFrom(
+                              backgroundColor: colours.secondary,
+                              foregroundColor: colours.background,
+                              side: const BorderSide(
+                                color: Colors.black,
+                                width: 3,
+                              ),
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero,
+                              ),
+                              textStyle: colours.b1.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                       onPressed: () async {
                         final name = nameController.text.trim();
                         if (name.isEmpty) return;
-                        final budgetId = _selectedBudgetId ??
+                        final budgetId =
+                            _selectedBudgetId ??
                             (await widget.database.budgetDao
                                     .getOrCreateDefaultBudget())
                                 .id;
@@ -2149,14 +2557,15 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                           type: CategoryType.expense,
                           budgetTemplateId: budgetId,
                           icon: Icons.sell_outlined,
-                          color: '#137E84',
+                          color: '#137E84'
+                          ,
                         );
                         if (dialogContext.mounted) {
                           Navigator.of(dialogContext).pop();
                         }
                         _refreshBudgets();
                       },
-                      child: const Text('Create'),
+                      child: const Text('CREATE'),
                     ),
                   ],
                 ),

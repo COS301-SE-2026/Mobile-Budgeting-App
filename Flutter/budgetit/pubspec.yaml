@@ -120,6 +120,8 @@ flutter:
 
   assets:
     - assets/seeds/
+    - assets/images/
+    - assets/models/bge-small-en-v1.5/
     - assets/images/phone_mockup.jpg
     - assets/images/flow.jpg
     - assets/images/logo.png

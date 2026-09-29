@@ -15,7 +15,6 @@ import '../../../services/import/llm_schema_classifier.dart';
 import '../../../services/import/statement_parser_service.dart';
 import 'schema_confirmation_dialog.dart';
 
-
 class ImportScreen extends StatefulWidget {
   final AppDatabase db;
 
@@ -31,9 +30,7 @@ class _ImportScreenState extends State<ImportScreen> {
   late final SchemaDiscoveryService _schemaDiscovery;
   late final StatementParserService _parser;
 
-
   bool _loading = false;
-  String? _error;
 
   @override
   void initState() {
@@ -58,97 +55,280 @@ class _ImportScreenState extends State<ImportScreen> {
     _parser = StatementParserService(schemaDiscovery: _schemaDiscovery);
   }
 
+  Future<void> _pickAndParse() async {
+    var retry = false;
+    setState(() {
+      _loading = true;
+    });
 
-Future<void> _pickAndParse() async {
-  setState(() {
-    _loading = true;
-    _error = null;
-  });
+    try {
+      final result = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['csv', 'pdf'],
+        allowMultiple: false,
+      );
 
-  try {
-    final result = await FilePicker.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['csv', 'pdf'],
-      allowMultiple: false,
-    );
-
-    if (result == null || result.isEmpty) {
-      if (mounted) {
-        setState(() => _loading = false);
+      if (result == null || result.isEmpty) {
+        if (mounted) {
+          setState(() => _loading = false);
+        }
+        return;
       }
-      return;
-    }
 
-    final path = result.single.path;
+      final path = result.single.path;
 
-    if (path == null) {
+      if (path == null) {
+        throw const _ImportFileException(
+          title: 'FILE COULD NOT BE OPENED',
+          message:
+              'Budget IT could not access the selected file. Choose a '
+              'local PDF or CSV file and try again.',
+        );
+      }
+
+      debugPrint('Selected statement file: $path');
+
+      await _aiClassifier.initialize();
+
+      final orchestrator = ImportOrchestrator(
+        db: widget.db,
+        taDao: TransactionDao(widget.db),
+        categoryDao: CategoryDao(widget.db),
+        aiClassifier: _aiClassifier,
+        parser: _parser,
+      );
+
+      final preview = await orchestrator.preparePreview(
+        path,
+        onNeedsSchemaConfirmation: (proposed, sampleRows) =>
+            showSchemaConfirmationDialog(
+              context,
+              proposed: proposed,
+              sampleRows: sampleRows,
+            ),
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      if (preview.isEmpty) {
+        throw const _ImportFileException(
+          title: 'NOT A SUPPORTED STATEMENT',
+          message:
+              'No bank transactions were found. Choose a bank-issued '
+              'statement that includes transaction dates, descriptions and amounts.',
+        );
+      }
+
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ImportPreviewScreen(
+            transactions: preview,
+            orchestrator: orchestrator,
+          ),
+        ),
+      );
+    } on ImportCancelledException {
+      // The user deliberately cancelled the detection confirmation.
+    } catch (error, stackTrace) {
+      debugPrint('Statement import failed: $error');
+      debugPrintStack(stackTrace: stackTrace);
+
+      if (mounted) {
+        final friendlyError = _friendlyImportError(error);
+        retry = await _showImportErrorDialog(
+          title: friendlyError.title,
+          message: friendlyError.message,
+        );
+      }
+    } finally {
       if (mounted) {
         setState(() {
-          _error = 'The selected file could not be opened.';
+          _loading = false;
         });
       }
-      return;
     }
 
-    debugPrint('Selected statement file: $path');
-
-    await _aiClassifier.initialize();
-
-    final orchestrator = ImportOrchestrator(
-      db: widget.db,
-      taDao: TransactionDao(widget.db),
-      categoryDao: CategoryDao(widget.db),
-      aiClassifier: _aiClassifier,
-      parser: _parser,
-    );
-
-    final preview = await orchestrator.preparePreview(
-      path,
-      onNeedsSchemaConfirmation: (proposed, sampleRows) => showSchemaConfirmationDialog(
-        context,
-        proposed: proposed,
-        sampleRows: sampleRows,
-      ),
-    );
-
-
-    if (!mounted) {
-      return;
-    }
-
-    if (preview.isEmpty) {
-      setState(() {
-        _error = 'No transactions were found in this file.';
-      });
-      return;
-    }
-
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ImportPreviewScreen(
-          transactions: preview,
-          orchestrator: orchestrator,
-        ),
-      ),
-    );
-  } catch (error, stackTrace) {
-    debugPrint('Statement import failed: $error');
-    debugPrintStack(stackTrace: stackTrace);
-
-    if (mounted) {
-      setState(() {
-        _error = error.toString();
-      });
-    }
-  } finally {
-    if (mounted) {
-      setState(() {
-        _loading = false;
-      });
+    if (retry && mounted) {
+      await _pickAndParse();
     }
   }
-}
+
+  _ImportFileException _friendlyImportError(Object error) {
+    if (error is _ImportFileException) return error;
+
+    final message = error.toString().toLowerCase();
+    if (message.contains('password') || message.contains('encrypted')) {
+      return const _ImportFileException(
+        title: 'STATEMENT IS LOCKED',
+        message:
+            'This PDF is password-protected. Download an unlocked copy '
+            'from your bank, then upload that copy.',
+      );
+    }
+
+    return const _ImportFileException(
+      title: 'NOT A SUPPORTED STATEMENT',
+      message:
+          'This file does not appear to be a readable bank statement. '
+          'Choose a bank-issued PDF or CSV containing transaction dates, '
+          'descriptions and amounts.',
+    );
+  }
+
+  Future<bool> _showImportErrorDialog({
+    required String title,
+    required String message,
+  }) async {
+    final retry = await showDialog<bool>(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.35),
+      builder: (dialogContext) {
+        final colours = dialogContext.colours;
+        final isDark = Theme.of(dialogContext).brightness == Brightness.dark;
+        final surfaceColor = isDark
+            ? colours.blendedprimary
+            : colours.background;
+        final textColor = isDark ? colours.secondary : colours.textPrimary;
+        final actionColor = isDark ? colours.secondary : colours.primary;
+        final actionTextColor = isDark ? colours.background : colours.cardText;
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+          shape: const RoundedRectangleBorder(),
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: Transform.translate(
+                  offset: const Offset(6, 6),
+                  child: Container(color: Colors.black),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(22),
+                decoration: BoxDecoration(
+                  color: surfaceColor,
+                  border: Border.all(color: Colors.black, width: 4),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: colours.error,
+                            border: Border.all(color: Colors.black, width: 3),
+                          ),
+                          child: const Icon(
+                            Icons.description_outlined,
+                            color: Colors.black,
+                            size: 26,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: colours.h2.copyWith(
+                              color: textColor,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      message,
+                      style: colours.b1.copyWith(
+                        color: textColor.withValues(alpha: 0.85),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: colours.background,
+                        border: Border.all(color: Colors.black, width: 2),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.lightbulb_outline,
+                            color: textColor,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'Use the original statement downloaded from your '
+                              'bank. Scans, invoices and unrelated PDFs cannot '
+                              'be imported.',
+                              style: colours.b5.copyWith(color: textColor),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () =>
+                                Navigator.of(dialogContext).pop(false),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: textColor,
+                              side: const BorderSide(
+                                color: Colors.black,
+                                width: 3,
+                              ),
+                              shape: const RoundedRectangleBorder(),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                            ),
+                            child: const Text('CANCEL'),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () =>
+                                Navigator.of(dialogContext).pop(true),
+                            icon: const Icon(Icons.upload_file_outlined),
+                            label: const Text('SELECT FILE'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: actionColor,
+                              foregroundColor: actionTextColor,
+                              side: const BorderSide(
+                                color: Colors.black,
+                                width: 3,
+                              ),
+                              shape: const RoundedRectangleBorder(),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    return retry ?? false;
+  }
 
   @override
   void dispose() {
@@ -159,6 +339,9 @@ Future<void> _pickAndParse() async {
   @override
   Widget build(BuildContext context) {
     final colors = context.colours;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final actionColor = isDark ? colors.blendedprimary : colors.secondary;
+    final actionTextColor = isDark ? colors.cardText : colors.background;
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -178,11 +361,7 @@ Future<void> _pickAndParse() async {
                   BoxShadow(color: Colors.black, offset: Offset(4, 4)),
                 ],
               ),
-              child: Icon(
-                Icons.arrow_back,
-                color: colors.cardText,
-                size: 18,
-              ),
+              child: Icon(Icons.arrow_back, color: colors.cardText, size: 18),
             ),
           ),
         ),
@@ -241,10 +420,7 @@ Future<void> _pickAndParse() async {
               ),
             ),
             const SizedBox(height: 32),
-            Text(
-              'Supported formats',
-              style: colors.h2.copyWith(fontSize: 14),
-            ),
+            Text('Supported formats', style: colors.h2.copyWith(fontSize: 14)),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -254,57 +430,73 @@ Future<void> _pickAndParse() async {
               ],
             ),
             const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: _loading ? null : _pickAndParse,
-              icon: _loading
-                  ? SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: colors.background,
-                      ),
-                    )
-                  : const Icon(Icons.upload_file_outlined),
-              label: Text(_loading ? ' Reading file..,' : 'Upload a statement'),
-              style: FilledButton.styleFrom(
-                backgroundColor: colors.secondary,
-                foregroundColor: colors.background,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.zero,
-                  side: const BorderSide(color: Colors.black, width: 4),
+            Semantics(
+              button: true,
+              enabled: !_loading,
+              label: _loading ? 'Reading statement' : 'Upload a statement',
+              child: InkWell(
+                onTap: _loading ? null : _pickAndParse,
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 150),
+                  opacity: _loading ? 0.75 : 1,
+                  child: Container(
+                    height: 55,
+                    decoration: BoxDecoration(
+                      color: actionColor,
+                      border: Border.all(color: Colors.black, width: 4),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(4, 4),
+                          blurRadius: 0,
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (_loading)
+                          SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: actionTextColor,
+                            ),
+                          )
+                        else
+                          Icon(
+                            Icons.upload_file_outlined,
+                            color: actionTextColor,
+                            size: 21,
+                          ),
+                        const SizedBox(width: 8),
+                        Text(
+                          _loading ? 'READING FILE...' : 'UPLOAD A STATEMENT',
+                          style: colors.h2.copyWith(
+                            color: actionTextColor,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
             const SizedBox(height: 16),
-            if (_error != null) ...[
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: colors.background,
-                  border: Border.all(color: colors.error, width: 4),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.error_outline, color: colors.error, size: 18),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        _error!,
-                        style: colors.b1.copyWith(color: colors.error),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
           ],
         ),
       ),
     );
   }
+}
+
+class _ImportFileException implements Exception {
+  final String title;
+  final String message;
+
+  const _ImportFileException({required this.title, required this.message});
 }
 
 class _FormatChip extends StatelessWidget {
