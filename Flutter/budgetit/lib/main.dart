@@ -352,7 +352,7 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           border: Border(
-            top: BorderSide(color: context.colours.category, width: 4),
+            top: const BorderSide(color: Colors.black, width: 4),
           ),
         ),
         child: SafeArea(
@@ -368,7 +368,7 @@ class _HomePageState extends State<HomePage> {
             labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
             indicatorShape: RoundedRectangleBorder(
               borderRadius: BorderRadius.zero,
-              side: BorderSide(color: context.colours.category, width: 3),
+              side: const BorderSide(color: Colors.black, width: 3),
             ),
             onDestinationSelected: _onDestinationSelected,
             destinations: [

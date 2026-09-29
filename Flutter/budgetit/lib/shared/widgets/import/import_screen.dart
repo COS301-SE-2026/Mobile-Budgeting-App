@@ -165,6 +165,27 @@ Future<void> _pickAndParse() async {
       appBar: AppBar(
         backgroundColor: colors.background,
         iconTheme: IconThemeData(color: colors.textPrimary),
+        leadingWidth: 64,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16, top: 7, bottom: 7),
+          child: InkWell(
+            onTap: () => Navigator.of(context).maybePop(),
+            child: Container(
+              decoration: BoxDecoration(
+                color: colors.primary,
+                border: Border.all(color: Colors.black, width: 3),
+                boxShadow: const [
+                  BoxShadow(color: Colors.black, offset: Offset(4, 4)),
+                ],
+              ),
+              child: Icon(
+                Icons.arrow_back,
+                color: colors.cardText,
+                size: 18,
+              ),
+            ),
+          ),
+        ),
         title: Text('Import Statement', style: colors.h2),
       ),
       body: Padding(

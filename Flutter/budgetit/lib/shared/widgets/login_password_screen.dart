@@ -4,7 +4,6 @@ import '../../auth/providers/auth_provider.dart';
 import '../../utils/app_colour.dart';
 import 'verify_email_screen.dart';
 import 'forgot_password_screen.dart';
-import 'coming_soon_page.dart';
 
 class LoginRegisterScreen extends StatefulWidget {
   const LoginRegisterScreen({super.key});
@@ -31,7 +30,7 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
   Color get _softCream => _cream.withValues(alpha: 0.8);
   Color get _mutedCream => _cream.withValues(alpha: 0.6);
   Color get _faintCream => _cream.withValues(alpha: 0.4);
-  Color get _borderColor => context.colours.category;
+  Color get _borderColor => Colors.black;
 
   @override
   void dispose() {
@@ -89,21 +88,8 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
               color: _cream,
               fontSize: 20,
             ),
-          ),// i dont know if this should be placed but agile
-          IconButton(
-            icon: Icon(Icons.settings, color: _cream),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const ComingSoonPage(
-                  title: 'Settings Coming Soon',
-                  message:
-                      'App settings are still under development. Soon you will be able to customise your preferences here.',
-                  icon: Icons.settings_outlined,
-                ),
-              ),
-            ),
           ),
+          const SizedBox(width: 48),
         ],
       ),
     );

@@ -107,7 +107,7 @@ class _FriendsPageState extends State<FriendsPage> {
           backgroundColor: isDark ? colours.blendedprimary : colours.background,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.zero,
-            side: BorderSide(color: colours.category, width: 4),
+            side: const BorderSide(color: Colors.black, width: 4),
           ),
           title: Text('ADD FRIEND', style: colours.h2),
           content: TextField(
@@ -126,11 +126,11 @@ class _FriendsPageState extends State<FriendsPage> {
               fillColor: fieldColor,
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.zero,
-                borderSide: BorderSide(color: colours.category, width: 2),
+                borderSide: const BorderSide(color: Colors.black, width: 2),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.zero,
-                borderSide: BorderSide(color: colours.category, width: 3),
+                borderSide: const BorderSide(color: Colors.black, width: 3),
               ),
             ),
           ),
@@ -139,7 +139,7 @@ class _FriendsPageState extends State<FriendsPage> {
               onPressed: () => Navigator.of(dialogContext).pop(),
               style: OutlinedButton.styleFrom(
                 foregroundColor: colours.textPrimary,
-                side: BorderSide(color: colours.category, width: 3),
+                side: const BorderSide(color: Colors.black, width: 3),
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.zero,
                 ),
@@ -152,7 +152,7 @@ class _FriendsPageState extends State<FriendsPage> {
               style: OutlinedButton.styleFrom(
                 backgroundColor: isDark ? colours.cardText : colours.primary,
                 foregroundColor: isDark ? colours.primary : colours.cardText,
-                side: BorderSide(color: colours.category, width: 3),
+                side: const BorderSide(color: Colors.black, width: 3),
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.zero,
                 ),
@@ -252,6 +252,9 @@ class _FriendsPageState extends State<FriendsPage> {
               backgroundColor: colours.background,
               foregroundColor: colours.textPrimary,
               elevation: 0,
+              shape: const Border(
+                bottom: BorderSide(color: Colors.black, width: 4),
+              ),
               title: Text('Friends', style: colours.h2),
             )
           : null,
@@ -278,7 +281,7 @@ class _FriendsPageState extends State<FriendsPage> {
                       backgroundColor: cardColor,
                       foregroundColor: cardTextColor,
                       textStyle: colours.b1,
-                      side: BorderSide(color: colours.category, width: 3),
+                      side: const BorderSide(color: Colors.black, width: 3),
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.zero,
                       ),
@@ -359,7 +362,7 @@ class _FriendsPageState extends State<FriendsPage> {
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: isDark ? colours.blendedprimary : colours.primary,
-            border: Border.all(color: colours.category, width: 3),
+            border: Border.all(color: Colors.black, width: 3),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -384,7 +387,7 @@ class _FriendsPageState extends State<FriendsPage> {
                   backgroundColor: colours.cardText,
                   foregroundColor: colours.primary,
                   textStyle: colours.b1,
-                  side: BorderSide(color: colours.category, width: 3),
+                  side: const BorderSide(color: Colors.black, width: 3),
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.zero,
                   ),
@@ -415,7 +418,7 @@ class _FriendsPageState extends State<FriendsPage> {
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         color: isDark ? colours.background : colours.cardText,
-        border: Border.all(color: colours.category, width: 3),
+        border: Border.all(color: Colors.black, width: 3),
       ),
       child: ListTile(
         leading: Container(
@@ -442,7 +445,7 @@ class _FriendsPageState extends State<FriendsPage> {
         color: Theme.of(context).brightness == Brightness.dark
             ? colours.blendedprimary
             : colours.primary,
-        border: Border.all(color: colours.category, width: 3),
+        border: Border.all(color: Colors.black, width: 3),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
