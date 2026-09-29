@@ -53,12 +53,18 @@ class _RecurringTransactionCardState extends State<RecurringTransactionCard> {
     return '${local.day} ${_months[local.month - 1]} ${local.year}';
   }
 
-  @override
-  Widget build(BuildContext context) {
+@override
+Widget build(BuildContext context) {
+    final colours = context.colours;
     final rt = widget.recurringTransaction;
     final isExpense = rt.type == TransactionType.expense;
+    final isLight = Theme.of(context).brightness == Brightness.light;
     final frequency = _frequencyLabel(rt.unit, rt.intervalAmount);
     final nextDate = _dateLabel(rt.nextTransactionDate);
+    final tileTextColor = isLight ? colours.secondary : colours.cardText;
+    final moneyColor = isExpense
+        ? colours.error
+        : (isLight ? colours.blendedprimary : colours.greenAccents);
 
     return GestureDetector(
       onTap: widget.onTap,
@@ -71,9 +77,7 @@ class _RecurringTransactionCardState extends State<RecurringTransactionCard> {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.rectangle,
-          color: Theme.of(context).brightness == Brightness.dark
-              ? context.colours.background
-              : context.colours.primary,
+          color: colours.background,
           border: Border.all(color: Colors.black, width: 3),
         ),
         child: Row(
@@ -83,12 +87,12 @@ class _RecurringTransactionCardState extends State<RecurringTransactionCard> {
               width: 34,
               height: 34,
               decoration: BoxDecoration(
-                color: context.colours.secondary,
+                color: isLight ? colours.secondary : colours.blendedprimary,
                 border: Border.all(color: Colors.black, width: 2),
               ),
               child: Icon(
                 isExpense ? Icons.arrow_downward : Icons.arrow_upward,
-                color: context.colours.background,
+                color: isLight ? colours.background : colours.cardText,
                 size: 20,
               ),
             ),
@@ -100,8 +104,8 @@ class _RecurringTransactionCardState extends State<RecurringTransactionCard> {
                 children: [
                   Text(
                     rt.shortDescription,
-                    style: context.colours.budgetheader.copyWith(
-                      color: context.colours.cardText,
+                    style: colours.budgetheader.copyWith(
+                      color: tileTextColor,
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                     ),
@@ -109,8 +113,8 @@ class _RecurringTransactionCardState extends State<RecurringTransactionCard> {
                   ),
                   Text(
                     '$frequency - Next: $nextDate',
-                    style: context.colours.b5.copyWith(
-                      color: context.colours.cardText,
+                    style: colours.b5.copyWith(
+                      color: tileTextColor,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),
@@ -123,16 +127,10 @@ class _RecurringTransactionCardState extends State<RecurringTransactionCard> {
               isExpense
                   ? '- R${rt.amount.toStringAsFixed(2)}'
                   : 'R${rt.amount.toStringAsFixed(2)}',
-              style: context.colours.b4.copyWith(
+              style: colours.b4.copyWith(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
-                color: isExpense
-                    ? (_isPressed
-                          ? context.colours.background
-                          : context.colours.error)
-                    : (_isPressed
-                          ? context.colours.background
-                          : context.colours.greenAccents),
+                color: _isPressed ? tileTextColor : moneyColor,
               ),
             ),
             const SizedBox(width: 12),

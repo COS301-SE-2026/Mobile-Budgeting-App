@@ -5,6 +5,7 @@ import 'package:budgetit/utils/date_display_formatter.dart';
 import 'package:budgetit/utils/app_dialog_style.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
@@ -64,6 +65,9 @@ class _AddEditRecurringTransactionDialogState
   late final TextEditingController _descController;
   late final TextEditingController _amountController;
   late TransactionType _type;
+  String? _selectedCategoryId;
+  List<Category> _categories = [];
+  bool _loadingCategories = true;
   late DateTime _startDate;
   late _RecurrenceOption _recurrence;
   bool _saving = false;
@@ -85,11 +89,40 @@ class _AddEditRecurringTransactionDialogState
       text: existing?.amount.toStringAsFixed(2) ?? '',
     );
     _type = existing?.type ?? TransactionType.expense;
+    _selectedCategoryId = existing?.categoryId;
     _startDate = existing?.startDate ?? DateTime.now();
     _recurrence = _optionFor(
       existing?.unit ?? PeriodType.monthly,
       existing?.intervalAmount ?? 1,
     );
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    setState(() => _loadingCategories = true);
+
+    final categoryType = _type == TransactionType.income
+        ? CategoryType.income
+        : CategoryType.expense;
+
+    final categories = await context
+        .read<AppDatabase>()
+        .categoryDao
+        .getCategoriesByType(categoryType);
+
+    if (!mounted) return;
+
+    setState(() {
+      _categories = categories;
+
+      // Clear selection if it no longer matches the selected transaction type.
+      if (_selectedCategoryId != null &&
+          !_categories.any((category) => category.id == _selectedCategoryId)) {
+        _selectedCategoryId = null;
+      }
+
+      _loadingCategories = false;
+    });
   }
 
   _RecurrenceOption _optionFor(PeriodType unit, int interval) {
@@ -300,12 +333,16 @@ class _AddEditRecurringTransactionDialogState
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
+
     setState(() => _saving = true);
+
     try {
       final amount = Decimal.parse(
         double.parse(_amountController.text).toStringAsFixed(2),
       );
+
       final dao = context.read<AppDatabase>().recurringTransactionDao;
+
       if (_isEditing) {
         await dao.updateRecurringTransaction(
           widget.existing!.id,
@@ -316,6 +353,7 @@ class _AddEditRecurringTransactionDialogState
           intervalAmount: _recurrence.interval,
           startDate: _startDate,
           nextTransactionDate: _startDate,
+          categoryId: Value(_selectedCategoryId),
         );
       } else {
         await dao.insertRecurringTransaction(
@@ -326,16 +364,22 @@ class _AddEditRecurringTransactionDialogState
           unit: _recurrence.unit,
           intervalAmount: _recurrence.interval,
           startDate: _startDate,
+          categoryId: _selectedCategoryId,
         );
       }
+
       if (!mounted) return;
+
       Navigator.of(context).pop();
       widget.onSaved?.call();
     } catch (error, stackTrace) {
       if (!mounted) return;
+
       debugPrint('Could not save recurring transaction: $error');
       debugPrintStack(stackTrace: stackTrace);
+
       setState(() => _saving = false);
+
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
         const SnackBar(content: Text('Could not save recurring transaction.')),
       );
@@ -549,8 +593,16 @@ class _AddEditRecurringTransactionDialogState
                     _TypeButton(
                       label: 'Expense',
                       selected: _type == TransactionType.expense,
-                      onTap: () =>
-                          setState(() => _type = TransactionType.expense),
+                      onTap: () async {
+                        if (_type == TransactionType.expense) return;
+
+                        setState(() {
+                          _type = TransactionType.expense;
+                          _selectedCategoryId = null;
+                        });
+
+                        await _loadCategories();
+                      },
                     ),
                     const SizedBox(width: 8),
                     _TypeButton(
@@ -617,6 +669,67 @@ class _AddEditRecurringTransactionDialogState
                         : null;
                   },
                 ),
+                const SizedBox(height: 14),
+
+                if (_loadingCategories)
+                  InputDecorator(
+                    decoration: _inputDecoration(context).copyWith(
+                      labelText: 'Category',
+                      prefixIcon: Icon(
+                        Icons.category_outlined,
+                        color: colours.textPrimary,
+                      ),
+                    ),
+                    child: const SizedBox(
+                      height: 22,
+                      child: Center(child: LinearProgressIndicator()),
+                    ),
+                  )
+                else
+                  DropdownButtonFormField<String>(
+                    initialValue: _selectedCategoryId,
+                    isExpanded: true,
+                    dropdownColor: colours.background,
+                    style: colours.b1,
+                    icon: Icon(
+                      Icons.keyboard_arrow_down,
+                      color: colours.textPrimary,
+                    ),
+                    decoration: _inputDecoration(context).copyWith(
+                      labelText: 'Category',
+                      hintText: _categories.isEmpty
+                          ? 'No categories available'
+                          : 'Select category',
+                      prefixIcon: Icon(
+                        Icons.category_outlined,
+                        color: colours.textPrimary,
+                      ),
+                    ),
+                    items: _categories
+                        .map(
+                          (category) => DropdownMenuItem<String>(
+                            value: category.id,
+                            child: Text(
+                              category.name,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: _saving || _categories.isEmpty
+                        ? null
+                        : (value) {
+                            setState(() {
+                              _selectedCategoryId = value;
+                            });
+                          },
+                    validator: (value) {
+                      if (_categories.isNotEmpty && value == null) {
+                        return 'Please select a category';
+                      }
+                      return null;
+                    },
+                  ),
                 const SizedBox(height: 14),
                 DropdownButtonFormField<String>(
                   key: ValueKey(_recurrence.key),
