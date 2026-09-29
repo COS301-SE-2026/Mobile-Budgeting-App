@@ -2,5 +2,6 @@
   { "key": "default_currency",   "value": "ZAR" },
   { "key": "theme_mode",         "value": "system" },
   { "key": "date_format",        "value": "yyyy-MM-dd" },
-  { "key": "onboarding_complete","value": "false" }
+  { "key": "onboarding_complete","value": "false" },
+  { "key": "ai_categorisation", "value": "true" }
 ]
