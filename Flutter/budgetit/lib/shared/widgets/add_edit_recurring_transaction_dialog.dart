@@ -333,12 +333,16 @@ class _AddEditRecurringTransactionDialogState
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
+
     setState(() => _saving = true);
+
     try {
       final amount = Decimal.parse(
         double.parse(_amountController.text).toStringAsFixed(2),
       );
+
       final dao = context.read<AppDatabase>().recurringTransactionDao;
+
       if (_isEditing) {
         await dao.updateRecurringTransaction(
           widget.existing!.id,
@@ -349,6 +353,7 @@ class _AddEditRecurringTransactionDialogState
           intervalAmount: _recurrence.interval,
           startDate: _startDate,
           nextTransactionDate: _startDate,
+          categoryId: Value(_selectedCategoryId),
         );
       } else {
         await dao.insertRecurringTransaction(
@@ -359,16 +364,22 @@ class _AddEditRecurringTransactionDialogState
           unit: _recurrence.unit,
           intervalAmount: _recurrence.interval,
           startDate: _startDate,
+          categoryId: _selectedCategoryId,
         );
       }
+
       if (!mounted) return;
+
       Navigator.of(context).pop();
       widget.onSaved?.call();
     } catch (error, stackTrace) {
       if (!mounted) return;
+
       debugPrint('Could not save recurring transaction: $error');
       debugPrintStack(stackTrace: stackTrace);
+
       setState(() => _saving = false);
+
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
         const SnackBar(content: Text('Could not save recurring transaction.')),
       );
