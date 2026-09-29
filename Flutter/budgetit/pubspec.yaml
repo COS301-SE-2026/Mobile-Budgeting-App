@@ -100,12 +100,12 @@ flutter_launcher_icons:
   ios: true
   image_path: assets/images/Appicon.png
   remove_alpha_ios: true
-  background_color_ios: "#05230F"
+  background_color_ios: "#04240C"
   web:
     generate: true
     image_path: assets/images/Appicon.png
-    background_color: "#05230F"
-    theme_color: "#05230F"
+    background_color: "#04240C"
+    theme_color: "#04240C"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

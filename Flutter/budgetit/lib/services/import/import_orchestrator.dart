@@ -54,12 +54,14 @@ class ImportOrchestrator {
 
     final keywordClassifier = ClassificationService(nameToId);
     keywordClassifier.classifyAll(parsed);
+    _normaliseCategories(parsed, categories);
 
     if (_aiClassifier != null) {
       await _classifyUnmatchedExpensesWithAi(
         transactions: parsed,
         categories: categories,
       );
+      _normaliseCategories(parsed, categories);
     }
 
     final existing = await _buildExistingSet();
@@ -79,8 +81,10 @@ class ImportOrchestrator {
 
     final classificationCategories = [
       for (final category in categories)
+        if (category.type == CategoryType.expense)
         ClassificationCategory(id: category.id, name: category.name),
     ];
+    if (classificationCategories.isEmpty) return;
 
     for (final transaction in transactions) {
       if (transaction.categoryOverridden ||
@@ -104,6 +108,33 @@ class ImportOrchestrator {
 
       transaction.categoryId = bestMatch.categoryId;
       transaction.categoryName = bestMatch.categoryName;
+    }
+  }
+
+  void _normaliseCategories(
+    List<ParsedTransaction> transactions,
+    List<Category> categories,
+  ) {
+    final categoriesById = {
+      for (final category in categories) category.id: category,
+    };
+
+    for (final transaction in transactions) {
+      final category = transaction.categoryId == null
+          ? null
+          : categoriesById[transaction.categoryId];
+      final expectedType = transaction.isIncome
+          ? CategoryType.income
+          : CategoryType.expense;
+
+      if (category == null || category.type != expectedType) {
+        transaction.categoryId = null;
+        transaction.categoryName = null;
+        continue;
+      }
+
+      // Always use the current database name shown by Transaction Manager.
+      transaction.categoryName = category.name;
     }
   }
 
