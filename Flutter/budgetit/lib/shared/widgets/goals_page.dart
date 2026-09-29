@@ -398,13 +398,18 @@ class _GoalsPageState extends State<GoalsPage> {
 
   void _notify(String message) {
     if (!mounted) return;
+    final colours = context.colours;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final foreground = isDark ? colours.secondary : colours.background;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        backgroundColor: context.colours.primary,
-        content: Text(
-          message,
-          style: context.colours.b1.copyWith(color: context.colours.cardText),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: isDark ? colours.blendedprimary : colours.secondary,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.zero,
+          side: BorderSide(color: Colors.black, width: 3),
         ),
+        content: Text(message, style: colours.b1.copyWith(color: foreground)),
       ),
     );
   }
@@ -727,17 +732,18 @@ class _GoalsPageState extends State<GoalsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'TOTAL SAVED',
-            style: colours.b1.copyWith(color: cardTextColor),
-          ),
+          Text('TOTAL SAVED', style: colours.b1.copyWith(color: cardTextColor)),
           const SizedBox(height: 18),
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
             child: Text(
               _money(_totalSaved),
-              style: colours.bigDisplay.copyWith(color: cardTextColor),
+              style: colours.h1.copyWith(
+                color: cardTextColor,
+                fontSize: 34,
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ),
           const SizedBox(height: 18),
@@ -859,9 +865,7 @@ class _GoalsPageState extends State<GoalsPage> {
             runSpacing: 8,
             children: [
               TextButton(
-                onPressed: _busy
-                    ? null
-                    : () => _respondToInvite(invite, false),
+                onPressed: _busy ? null : () => _respondToInvite(invite, false),
                 child: Text(
                   'Decline',
                   style: colours.b1.copyWith(color: cardTextColor),
@@ -957,36 +961,60 @@ class _GoalsPageState extends State<GoalsPage> {
   Widget _viewBar() {
     final colours = context.colours;
     final isLight = Theme.of(context).brightness == Brightness.light;
-    final cardColor = isLight ? colours.secondary : colours.blendedprimary;
-    final cardTextColor = isLight ? colours.background : colours.secondary;
+    final isActive = _view != _GoalView.progress;
+    final foreground = isLight ? colours.secondary : colours.cardText;
+    final background = isLight
+        ? colours.cardText
+        : isActive
+        ? colours.informational
+        : colours.searchBar;
 
-    return Row(
-      children: [
-        for (final view in _GoalView.values) ...[
-          Expanded(
-            child: InkWell(
-              onTap: () => setState(() => _view = view),
-              child: Container(
-                height: 30,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: _view == view ? cardColor : colours.background,
-                  border: Border.all(color: Colors.black, width: 2),
-                ),
-                child: Text(
-                  _viewLabel(view),
-                  style: colours.b5.copyWith(
-                    color: _view == view ? cardTextColor : colours.textPrimary,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.4,
+    return Container(
+      height: 48,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      decoration: BoxDecoration(
+        color: background,
+        border: Border.all(color: Colors.black, width: 4),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<_GoalView>(
+          value: _view,
+          isExpanded: true,
+          dropdownColor: isLight ? colours.cardText : colours.searchBar,
+          iconEnabledColor: foreground,
+          style: colours.b1.copyWith(color: foreground),
+          items: _GoalView.values
+              .map(
+                (view) => DropdownMenuItem<_GoalView>(
+                  value: view,
+                  child: Row(
+                    children: [
+                      Icon(
+                        view == _GoalView.reached
+                            ? Icons.check_circle_outline
+                            : view == _GoalView.newest
+                            ? Icons.schedule
+                            : Icons.trending_up,
+                        size: 18,
+                        color: foreground,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _viewLabel(view),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ),
-          ),
-          if (view != _GoalView.values.last) const SizedBox(width: 8),
-        ],
-      ],
+              )
+              .toList(),
+          onChanged: (view) {
+            if (view != null) setState(() => _view = view);
+          },
+        ),
+      ),
     );
   }
 
@@ -1001,12 +1029,12 @@ class _GoalsPageState extends State<GoalsPage> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: cardColor,
-        border: Border.all(color: colours.secondary, width: 1),
+        border: Border.all(color: Colors.black, width: 4),
       ),
       child: Text(
         message,
         textAlign: TextAlign.center,
-        style: TextStyle(color: colours.textPrimary, fontSize: 13),
+        style: colours.b1.copyWith(color: colours.textPrimary),
       ),
     );
   }
@@ -1017,9 +1045,9 @@ class _GoalsPageState extends State<GoalsPage> {
       color: background,
       child: Text(
         label,
-        style: TextStyle(
+        style: context.colours.b5.copyWith(
           color: foreground,
-          fontSize: 8,
+          fontSize: 10,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -1084,12 +1112,14 @@ class _GoalsPageState extends State<GoalsPage> {
                       width: 34,
                       height: 34,
                       decoration: BoxDecoration(
-                        color: colours.secondary,
+                        color: isLight
+                            ? colours.secondary
+                            : colours.blendedprimary,
                         border: Border.all(color: Colors.black, width: 2),
                       ),
                       child: Icon(
                         goal.icon,
-                        color: colours.background,
+                        color: isLight ? colours.background : colours.cardText,
                         size: 20,
                       ),
                     ),
@@ -1127,7 +1157,7 @@ class _GoalsPageState extends State<GoalsPage> {
                       children: [
                         Text(
                           'R${goal.saved.toInt()} / R${goal.target.toInt()}',
-                          style: colours.h2.copyWith(
+                          style: colours.b4.copyWith(
                             color: cardTextColor,
                             fontSize: 18,
                             fontWeight: FontWeight.w800,

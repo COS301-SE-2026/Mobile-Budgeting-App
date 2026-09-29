@@ -37,7 +37,7 @@ class BiometricLockScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Verify your Android biometrics to continue.',
+                    'Verify your biometrics to continue by clicking the unlock button first.',
                     textAlign: TextAlign.center,
                     style: colours.b1.copyWith(color: colours.cardText),
                   ),

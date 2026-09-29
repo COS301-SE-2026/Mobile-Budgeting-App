@@ -712,7 +712,7 @@ class _DashboardState extends State<Dashboard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'DAILY SPENDING FOR ${_formatDashboardDate(selectedDate)}',
+            'DAILY SPENDING FOR ${_formatDashboardDate(selectedDate).toUpperCase()}',
             style: colours.h2.copyWith(
               color: cardTextColor,
               fontSize: 16,
