@@ -40,9 +40,12 @@ part 'app_database.g.dart';
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(PowerSyncDatabase powerSyncDb)
-      : super(_openConnection(powerSyncDb));
+    : _isTesting = false,
+      super(_openConnection(powerSyncDb));
 
-  AppDatabase.forTesting(super.e);
+  AppDatabase.forTesting(super.e) : _isTesting = true;
+
+  final bool _isTesting;
 
   @override
   int get schemaVersion => 3;
@@ -50,6 +53,10 @@ class AppDatabase extends _$AppDatabase {
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) async {
+      if (_isTesting) {
+        await m.createAll();
+        return;
+      }
       await m.createTable(appSettings);
       await m.createTable(embeddingCacheEntries);
       await m.createTable(statementSchemaCache);
@@ -68,8 +75,8 @@ class AppDatabase extends _$AppDatabase {
 
   late final CategoryDao categoryDao = CategoryDao(this);
 
-/// Accessor for locally cached AI embeddings.
-late final EmbeddingCacheDao embeddingCacheDao = EmbeddingCacheDao(this);
+  /// Accessor for locally cached AI embeddings.
+  late final EmbeddingCacheDao embeddingCacheDao = EmbeddingCacheDao(this);
 
   /// Accessor for transaction operations.
   late final TransactionDao transactionDao = TransactionDao(this);
