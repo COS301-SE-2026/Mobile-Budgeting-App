@@ -6,6 +6,7 @@ import 'package:crypto/crypto.dart';
 import '../../database/app_database.dart';
 import '../../database/daos/category_dao.dart';
 import '../../database/daos/transaction_dao.dart';
+import '../../database/daos/budget_dao.dart';
 import '../../models/import/import_result.dart';
 import '../../models/import/parsed_transaction.dart';
 import '../ai/transaction_classifier/transaction_classification_service.dart';
@@ -17,6 +18,7 @@ import 'schema_discovery_service.dart';
 class ImportOrchestrator {
   final TransactionDao _taDao;
   final CategoryDao _categoryDao;
+  final BudgetDao _budgetDao;
   final StatementParserService _parser;
   final TransactionClassificationService? _aiClassifier;
 
@@ -27,6 +29,7 @@ class ImportOrchestrator {
     TransactionClassificationService? aiClassifier, StatementParserService? parser,
   }) : _taDao = taDao,
        _categoryDao = categoryDao,
+       _budgetDao = db.budgetDao,
        _aiClassifier = aiClassifier,
        _parser = parser ?? StatementParserService();
 
@@ -133,6 +136,8 @@ class ImportOrchestrator {
     var failed = 0;
     final errors = <String, String>{};
 
+    final defaultBudget = await _budgetDao.getOrCreateDefaultBudget();
+
     for (final transaction in transactions) {
       if (transaction.isDuplicate && !forceAll) {
         duplicatesSkipped++;
@@ -149,6 +154,7 @@ class ImportOrchestrator {
           longDescription: transaction.longDescription,
           transactionDate: transaction.date,
           source: TransactionSource.import,
+          budgetTemplateId: defaultBudget.id,
         );
 
         if (transaction.categoryId != null) {

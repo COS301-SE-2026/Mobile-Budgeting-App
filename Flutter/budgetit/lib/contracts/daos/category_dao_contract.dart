@@ -28,6 +28,7 @@ abstract interface class CategoryDaoContract {
   Future<Category> insertCategory({
     required String name,
     required CategoryType type,
+    required String budgetTemplateId,
     IconData? icon,
     String? color,
     bool isDefault = false,

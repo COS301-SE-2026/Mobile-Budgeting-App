@@ -39,6 +39,7 @@ abstract interface class TransactionDaoContract {
     String? longDescription,
     String currency = 'ZAR',
     String? recurringId,
+    required String budgetTemplateId,
   });
 
   /// Retrieves a single transaction by [id].
