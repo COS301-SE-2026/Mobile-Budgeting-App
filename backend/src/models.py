@@ -75,6 +75,7 @@ class Category(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     user_id: Mapped[str] = mapped_column(String)
+    budget_template_id: Mapped[str] = mapped_column(ForeignKey("budget_templates.id"))
 
 
 class CategoryClosure(Base):
@@ -114,7 +115,7 @@ class Transaction(Base):
     )
     user_id: Mapped[str] = mapped_column(String)
     import_id: Mapped[str | None] = mapped_column(ForeignKey("imports.id"), nullable=True)
-    budget_template_id: Mapped[str | None] = mapped_column(ForeignKey("budget_templates.id"), nullable=True)
+    budget_template_id: Mapped[str] = mapped_column(ForeignKey("budget_templates.id"))
 
 class TransactionCategoryMap(Base):
     
