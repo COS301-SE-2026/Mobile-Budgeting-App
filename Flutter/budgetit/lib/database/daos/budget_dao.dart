@@ -55,16 +55,18 @@ class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
     required Decimal amount,
     required PeriodType periodType,
     String currency = 'ZAR',
+    String? name,
   }) async {
     final id = _uuid.v4();
     final now = _now();
     await into(budgetTemplates).insert(
       BudgetTemplatesCompanion.insert(
         id: id,
-        categoryId: categoryId,
+        categoryId: Value(categoryId),
         amount: amount,
         periodType: periodType,
         currency: Value(currency),
+        name: Value(name),
         createdAt: now,
         updatedAt: now,
       ),
@@ -133,11 +135,13 @@ class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
     Decimal? amount,
     PeriodType? periodType,
     String? currency,
+    String? name,
   }) async {
     final companion = BudgetTemplatesCompanion(
       amount: amount != null ? Value(amount) : const Value.absent(),
       periodType: periodType != null ? Value(periodType) : const Value.absent(),
       currency: currency != null ? Value(currency) : const Value.absent(),
+      name: name != null ? Value(name) : const Value.absent(),
       updatedAt: Value(_now()),
     );
     await (update(
@@ -205,6 +209,8 @@ class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
       BudgetPeriodsCompanion.insert(
         id: id,
         templateId: templateId,
+        periodKey:
+            '${startDate.year}-${startDate.month.toString().padLeft(2, '0')}',
         startDate: startDate,
         endDate: endDate,
         budgetedAmount: budgetedAmount,

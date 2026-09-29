@@ -1,0 +1,125 @@
+bucket_definitions:
+  global_categories:
+    data:
+      - SELECT * FROM categories
+        WHERE is_default = true AND deleted_at IS NULL
+
+  user_data:
+    parameters: SELECT request.user_id() AS user_id
+    data:
+      - SELECT * FROM categories
+        WHERE user_id = bucket.user_id
+          AND is_default = false
+          AND deleted_at IS NULL
+
+      - SELECT * FROM transactions
+        WHERE user_id = bucket.user_id
+          AND deleted_at IS NULL
+
+      - SELECT * FROM recurring_transactions
+        WHERE user_id = bucket.user_id
+          AND deleted_at IS NULL
+
+      - SELECT * FROM imports
+        WHERE user_id = bucket.user_id
+          AND deleted_at IS NULL
+
+      - SELECT * FROM transaction_category_map
+        WHERE user_id = bucket.user_id
+          AND deleted_at IS NULL
+
+      - SELECT * FROM category_closure
+        WHERE user_id = bucket.user_id
+          AND is_default = false
+
+      - SELECT * FROM user_profiles
+        WHERE user_id = bucket.user_id
+
+      # Friend requests sent or received.
+      - SELECT * FROM friend_requests
+        WHERE requester_id = bucket.user_id
+          AND deleted_at IS NULL
+      - SELECT * FROM friend_requests
+        WHERE addressee_id = bucket.user_id
+          AND deleted_at IS NULL
+
+      # Friendships involving this user.
+      - SELECT * FROM friendships
+        WHERE user_a = bucket.user_id
+          AND deleted_at IS NULL
+      - SELECT * FROM friendships
+        WHERE user_b = bucket.user_id
+          AND deleted_at IS NULL
+
+      - SELECT * FROM goal_members
+        WHERE user_id = bucket.user_id
+          AND deleted_at IS NULL
+
+  related_profiles:
+    parameters:
+      - SELECT user_b AS other_user_id FROM friendships
+        WHERE user_a = request.user_id() AND deleted_at IS NULL
+      - SELECT user_a AS other_user_id FROM friendships
+        WHERE user_b = request.user_id() AND deleted_at IS NULL
+      - SELECT addressee_id AS other_user_id FROM friend_requests
+        WHERE requester_id = request.user_id() AND deleted_at IS NULL
+      - SELECT requester_id AS other_user_id FROM friend_requests
+        WHERE addressee_id = request.user_id() AND deleted_at IS NULL
+    data:
+      - SELECT * FROM user_profiles
+        WHERE user_id = bucket.other_user_id
+
+  budget_access:
+    parameters:
+      - SELECT id AS budget_id FROM budget_templates
+        WHERE user_id = request.user_id()
+      - SELECT budget_template_id AS budget_id FROM budget_members
+        WHERE user_id = request.user_id() AND deleted_at IS NULL
+    data:
+      - SELECT * FROM budget_templates
+        WHERE id = bucket.budget_id
+          AND deleted_at IS NULL
+      - SELECT * FROM budget_members
+        WHERE budget_template_id = bucket.budget_id
+          AND deleted_at IS NULL
+      - SELECT * FROM budget_periods
+        WHERE template_id = bucket.budget_id
+          AND deleted_at IS NULL
+
+  goal_access:
+    parameters:
+      - SELECT id AS goal_id FROM goal_templates
+        WHERE user_id = request.user_id()
+      - SELECT goal_template_id AS goal_id FROM goal_members
+        WHERE user_id = request.user_id()
+          AND status = 'accepted'
+          AND deleted_at IS NULL
+    data:
+      - SELECT * FROM goal_templates
+        WHERE id = bucket.goal_id
+          AND deleted_at IS NULL
+      - SELECT * FROM goal_members
+        WHERE goal_template_id = bucket.goal_id
+          AND deleted_at IS NULL
+      - SELECT * FROM goal_periods
+        WHERE template_id = bucket.goal_id
+          AND deleted_at IS NULL
+      - SELECT * FROM goal_contributions
+        WHERE template_id = bucket.goal_id
+          AND deleted_at IS NULL
+
+  goal_invites:
+    parameters:
+      - SELECT goal_template_id AS goal_id FROM goal_members
+        WHERE user_id = request.user_id()
+          AND status = 'pending'
+          AND deleted_at IS NULL
+    data:
+      - SELECT * FROM goal_templates
+        WHERE id = bucket.goal_id
+          AND deleted_at IS NULL
+
+  global_category_closure:
+    data:
+      - SELECT * FROM category_closure
+        WHERE is_default = true

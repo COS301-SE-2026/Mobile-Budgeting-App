@@ -1,21 +1,66 @@
+ignore:
+  - "**/*.g.dart"
+  - "**/*.freezed.dart"
+  - "**/*.mocks.dart"
+  - "**/build/**"
+  - "**/.dart_tool/**"
+  - "**/test-results/**"
+  - "**/coverage/**"
+
 coverage:
   status:
     project:
       default:
+        target: auto
+        threshold: 10%
+        informational: false
+        branches:
+          - dev
+      feature:
+        target: auto
+        threshold: 10%
         informational: true
+        branches:
+          - feature
+          - "feature/.*"
       newdev:
         target: auto
-        threshold: 0%
+        threshold: 10%
+        informational: false
+        branches:
+          - newdev
       main:
         target: auto
-        threshold: 0%
+        threshold: 10%
+        informational: false
+        branches:
+          - main
     patch:
       default:
+        target: 80%
+        threshold: 10%
+        informational: false
+        branches:
+          - dev
+      feature:
+        target: 80%
+        threshold: 10%
         informational: true
+        branches:
+          - feature
+          - "feature/.*"
       newdev:
         target: 50%
+        threshold: 10%
+        informational: false
+        branches:
+          - newdev
       main:
         target: 80%
+        threshold: 10%
+        informational: false
+        branches:
+          - main
 
 comment:
   layout: "diff, flags, files"

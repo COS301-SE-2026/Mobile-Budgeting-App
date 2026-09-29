@@ -1,0 +1,24 @@
+services:
+  backend-api:
+    env_file:
+      - .env.prod
+    restart: unless-stopped
+
+  powersync:
+    env_file:
+      - .env.prod
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy-data:/data
+    networks:
+      - budgetit-net
+
+volumes:
+  caddy-data:

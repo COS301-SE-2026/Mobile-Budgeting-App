@@ -31,7 +31,7 @@ void main() {
         'Groceries': 'pav-groceries',
         'Dining Out': 'pav-dining',
       });
-      final tx = _pt('REAL PLACE', isIncome: false);
+      final tx = _pt('CHECKERS', isIncome: false);
 
       service.classifyAll([tx]);
 
@@ -41,35 +41,43 @@ void main() {
 
     test('picks the first matching keyword rule', () {
       final service = ClassificationService({
-        'Clothing': 'PAVAN-Clothing',
-        'Dining Out': 'pav-dining',
+        'Groceries': 'pav-groceries',
+        'Clothing': 'pav-clothing',
       });
-      final tx = _pt('PAVS PLACE');
+
+      final tx = _pt('WOOLWORTHS FOOD PURCHASE');
+
       service.classifyAll([tx]);
 
-      expect(tx.categoryName, equals('Clothing'));
-      expect(tx.categoryId, equals('PAVAN-Clothing'));
+      expect(tx.categoryName, equals('Groceries'));
+      expect(tx.categoryId, equals('pav-groceries'));
     });
 
     test('keyword matches but category id map lacks the category', () {
       final service = ClassificationService({'Dining Out': 'pav-dining'});
-      final tx = _pt('PAVS PLACE', isIncome: false, categoryId: 'stale-id', categoryName: 'Stale Category');
+      final tx = _pt(
+        'CHECKERS',
+        isIncome: false,
+        categoryId: 'stale-id',
+        categoryName: 'Stale Category',
+      );
       service.classifyAll([tx]);
       expect(tx.categoryId, isNull);
       expect(tx.categoryName, isNull);
     });
 
     test('no keyword match, income transaction, other income known', () {
-      final service = ClassificationService({'Other Income': 'pav-other-income'});
+      final service = ClassificationService({
+        'Other Income': 'pav-other-income',
+      });
       final tx = _pt('PAVS PLACE', isIncome: true);
       service.classifyAll([tx]);
       expect(tx.categoryId, equals('pav-other-income'));
       expect(tx.categoryName, equals('Other Income'));
-
     });
 
     test('no keyword match, expense transaction, other income not known', () {
-      final service = ClassificationService({'Groceries':'pav-groceries'});
+      final service = ClassificationService({'Groceries': 'pav-groceries'});
       final tx = _pt('PAVS OTHER PLACE', isIncome: false);
       service.classifyAll([tx]);
       expect(tx.categoryId, isNull);
@@ -77,16 +85,25 @@ void main() {
     });
 
     test('no keyword match, expense transaction, reset to null', () {
-      final service = ClassificationService({'Groceries':'pav-groceries'});
-      final tx = _pt('PAVS OTHER PLACE', isIncome: false, categoryId: 'old-id', categoryName: 'Old Category');
+      final service = ClassificationService({'Groceries': 'pav-groceries'});
+      final tx = _pt(
+        'PAVS OTHER PLACE',
+        isIncome: false,
+        categoryId: 'old-id',
+        categoryName: 'Old Category',
+      );
       service.classifyAll([tx]);
       expect(tx.categoryId, isNull);
       expect(tx.categoryName, isNull);
-
     });
     test('categoryOverriden transactions are skipped entirely', () {
-      final service = ClassificationService({'Groceries':'pav-groceries'});
-      final tx = _pt('PAVS OTHER PLACE', categoryId: 'manual-id', categoryName: 'Manually Chosen', categoryOverridden: true);
+      final service = ClassificationService({'Groceries': 'pav-groceries'});
+      final tx = _pt(
+        'PAVS OTHER PLACE',
+        categoryId: 'manual-id',
+        categoryName: 'Manually Chosen',
+        categoryOverridden: true,
+      );
       service.classifyAll([tx]);
       expect(tx.categoryId, equals('manual-id'));
       expect(tx.categoryName, equals('Manually Chosen'));
@@ -98,16 +115,21 @@ void main() {
         'Salary': 'pav-salary',
       });
 
-      final overridden = _pt('ANYTHING', categoryOverridden: true, categoryId: 'manual', categoryName: 'Manual');
-      final groceries = _pt('REAL PLACE');
-      final salary = _pt('PAYDAY', isIncome: true);
-      final unmatched = _pt('TRANSFER', isIncome: false); 
+      final overridden = _pt(
+        'ANYTHING',
+        categoryOverridden: true,
+        categoryId: 'manual',
+        categoryName: 'Manual',
+      );
+      final groceries = _pt('CHECKERS');
+      final salary = _pt('PAYROLL', isIncome: true);
+      final unmatched = _pt('TRANSFER', isIncome: false);
       service.classifyAll([unmatched, groceries, salary, overridden]);
 
       expect(overridden.categoryName, equals('Manual'));
       expect(groceries.categoryName, equals('Groceries'));
       expect(salary.categoryName, equals('Salary'));
-      expect(unmatched.categoryName, isNull);      
+      expect(unmatched.categoryName, isNull);
     });
 
     group('classificationRate', () {
@@ -116,7 +138,7 @@ void main() {
         expect(service.classificationRate([]), equals(0.0));
       });
 
-            test('returns 1.0 when all transactions are classified', () {
+      test('returns 1.0 when all transactions are classified', () {
         final service = ClassificationService({'Groceries': 'pav-groceries'});
         final txs = [_pt('CHECKERS'), _pt('SPAR')];
         service.classifyAll(txs);
@@ -143,13 +165,6 @@ void main() {
         expect(rate, equals(1.0));
         expect(tx.categoryId, equals('preset-id'));
       });
-
     });
-
-
-
-
-
-
   });
 }

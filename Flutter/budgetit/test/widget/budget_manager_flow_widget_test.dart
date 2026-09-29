@@ -62,6 +62,6 @@ void main() {
 
     // 5. Confirm dialog opened.
     expect(find.textContaining('Create'), findsWidgets);
-    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.byType(Dialog), findsOneWidget);
   });
 }

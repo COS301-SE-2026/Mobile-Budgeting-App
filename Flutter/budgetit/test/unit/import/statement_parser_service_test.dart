@@ -140,9 +140,9 @@ void main() {
   });
 
   group('_parsePDFLines', () {
-    test('parses line with mm-dd date and dollar amount', () {
+    test('parses line with mm-dd date and dollar amount', () async {
       final lines = ['Deposit Ref Nbr: 10000000 05-15 1,000.00'];
-      final results = parser.testParsePdfLines(lines);
+      final results = await parser.testParsePdfLines(lines);
       expect(results, isNotEmpty);
       expect(results.first.amount, equals(Decimal.parse('1000.00')));
       expect(results.first.isIncome, isFalse);
@@ -150,39 +150,39 @@ void main() {
       expect(results.first.date.day, equals(15));
     });
 
-    test('parse line with yyyy-mm-dd date', () {
+    test('parse line with yyyy-mm-dd date', () async {
       final lines = ['2026-05-15 CHECKERS SOMEWHERE 450.00'];
-      final results = parser.testParsePdfLines(lines);
+      final results = await parser.testParsePdfLines(lines);
       expect(results, isNotEmpty);
       expect(results.first.date, equals(DateTime(2026, 5, 15)));
     });
 
-    test('slips lines containing skip keywords', () {
+    test('slips lines containing skip keywords', () async{
       final lines = [
         'Total Deposits \$1,000.00',
         'Beginning Balance \$5,000.00',
         '05-15 Valid Transavtion 100.00',
       ];
-      final results = parser.testParsePdfLines(lines);
+      final results = await parser.testParsePdfLines(lines);
       expect(results.length, equals(1));
       expect(results.first.amount, equals(Decimal.parse('100.00')));
     });
 
-    test('skips empty lines', () {
+    test('skips empty lines', ()async {
       final lines = ['', '  ', '05-15 Deposit 200.00'];
-      final results = parser.testParsePdfLines(lines);
+      final results = await parser.testParsePdfLines(lines);
       expect(results.length, equals(1));
     });
 
-    test('skip lines with 0 amount', () {
+    test('skip lines with 0 amount', () async {
       final lines = ['05-15 visa purchase 0.00'];
-      final results = parser.testParsePdfLines(lines);
+      final results = await parser.testParsePdfLines(lines);
       expect(results, isEmpty);
     });
 
-    test('accumulates pending lines for description context', () {
+    test('accumulates pending lines for description context', () async {
       final lines = ['ATM withdrawal', '100 somehwere st', '05-15 05-16 20.00'];
-      final results = parser.testParsePdfLines(lines);
+      final results = await parser.testParsePdfLines(lines);
       expect(results, isNotEmpty);
       expect(
         results.first.finalDescription.toLowerCase(),
@@ -190,25 +190,25 @@ void main() {
       );
     });
 
-    test('negative amount mark transaction as expense', () {
+    test('negative amount mark transaction as expense', () async{
       final lines = ['05-15 ATM withdrawal -100.00'];
-      final results = parser.testParsePdfLines(lines);
+      final results = await parser.testParsePdfLines(lines);
       expect(results, isNotEmpty);
       expect(results.first.isIncome, isFalse);
     });
 
-    test('returns empty list for lines with no parsable transaction', () {
+    test('returns empty list for lines with no parsable transaction', () async{
       final lines = [
         'This Text',
         'No dates or amounts',
         'Acount # 1738ayeImLikeHeyWhatsupHello',
       ];
-      final results = parser.testParsePdfLines(lines);
+      final results = await parser.testParsePdfLines(lines);
       expect(results, isEmpty);
     });
-    test('deduplication hash is nonEmpty', () {
+    test('deduplication hash is nonEmpty', () async{
       final lines = ['05-15 Here 100.00'];
-      final results = parser.testParsePdfLines(lines);
+      final results = await parser.testParsePdfLines(lines);
       expect(results, isNotEmpty);
       expect(results.first.deduplicationHash, isNotEmpty);
       expect(results.first.deduplicationHash.length, equals(16));
@@ -226,14 +226,14 @@ void main() {
       await tempDir.delete(recursive: true);
     });
 
-    Future<File> _writeCsv(String name, String content) async {
+    Future<File> writeCsv(String name, String content) async {
       final file = File('${tempDir.path}/$name.csv');
       await file.writeAsString(content);
       return file;
     }
 
     test('parses single-amount column CSV correctly', () async {
-      final file = await _writeCsv(
+      final file = await writeCsv(
         'single',
         'Date, Description, Amount \n2026-05-01,ExpenseHere,-400.00 \n2026-05-02, ThisIsIncome, 25000.00 \n2026-05-03, ExpenseThere,-100.00 ',
       );
@@ -248,7 +248,7 @@ void main() {
     });
 
     test('parses credit/debit column CSV correctly', () async {
-      final file = await _writeCsv(
+      final file = await writeCsv(
         'debitcredit',
         'Date, Description, Debit, Credit \n01/05/2026, Shops, 100.00, \n02/05/2026, Invoice, ,5000.00 \n03/05/2026, Scam, 678.00,',
       );
@@ -262,7 +262,7 @@ void main() {
     });
 
     test('skips empty rows', () async {
-      final file = await _writeCsv(
+      final file = await writeCsv(
         'emptyRows',
         'Date, Description,Amount \n 2026-05-01, Here, 100.00 \n'
             '\n 2026-05-03, There, -100.00 ',
@@ -272,7 +272,7 @@ void main() {
     });
 
     test('skips malformed rows without thrwoing', () async {
-      final file = await _writeCsv(
+      final file = await writeCsv(
         'malformed',
         'Date,Description,Amount \n2026-05-01, Valid, -100.00 \nnot-so-valid, NotValid, pol \n2026-05-03, AlsoValid, -200.00',
       );
@@ -281,7 +281,7 @@ void main() {
     });
 
     test('throws formatexception when no date colunm found', () async {
-      final file = await _writeCsv(
+      final file = await writeCsv(
         'nodate',
         'Reference,Description,Amount \n REF001, Here, -400.00',
       );
@@ -292,7 +292,7 @@ void main() {
     });
 
     test('throws formatexception when no decsription column found', () async {
-      final file = await _writeCsv(
+      final file = await writeCsv(
         'nodesc',
         'Date,Memo,Amount \n2026-05-01,Here,-100.00',
       );
@@ -303,7 +303,7 @@ void main() {
     });
 
     test('throws Formatexception when csv has no data rows', () async {
-      final file = await _writeCsv('empty', 'Date, Description,Amount\n');
+      final file = await writeCsv('empty', 'Date, Description,Amount\n');
       expect(
         () async => await parser.parse(file.path),
         throwsA(isA<FormatException>()),
@@ -311,7 +311,7 @@ void main() {
     });
 
     test('parses dd/mm/yyyy date format', () async {
-      final file = await _writeCsv(
+      final file = await writeCsv(
         'ddmmyyyy',
         'Date,Description,Amount \n15-05-2026,Here, -100.00',
       );
@@ -321,7 +321,7 @@ void main() {
     });
 
     test('parses dd-mm-yyyy date format', () async {
-      final file = await _writeCsv(
+      final file = await writeCsv(
         'ddmmyyyy_dash',
         'Date,Description,Amount \n 15-05-2026, There, -50.00',
       );
@@ -331,7 +331,7 @@ void main() {
     });
 
     test('parses dd/mm/yy', () async {
-      final file = await _writeCsv(
+      final file = await writeCsv(
         'ddmmyy',
         'Date,Description,Amount \n 15/05/26, Something, -100.00',
       );
@@ -341,7 +341,7 @@ void main() {
     });
 
     test('deduplication hash is 16 characters for each resut', () async {
-      final file = await _writeCsv(
+      final file = await writeCsv(
         'hash',
         'Date,Description,Amount \n2026-05-01, This, -100.00 \n2026-05-02, That, 10000.00',
       );
@@ -352,7 +352,7 @@ void main() {
     });
 
     test('different transaction produce different hashes', () async {
-      final file = await _writeCsv(
+      final file = await writeCsv(
         'uniquehash',
         'Date,Description,Amount \n2026-05-01, This, -100.00 \n2026-05-02,That,-200.00',
       );
@@ -365,7 +365,7 @@ void main() {
 
     test('shortDescription trims to 100 chars', () async {
       final longDesc = 'A' * 120;
-      final file = await _writeCsv(
+      final file = await writeCsv(
         'longdesc',
         'Date,Description,Amount \n2026-05-01,$longDesc, -100.00',
       );
@@ -376,17 +376,17 @@ void main() {
 
     test('longDescription contains overflow beyond chars', () async {
       final longDesc = 'A' * 120;
-      final file = await _writeCsv(
+      final file = await writeCsv(
         'longdesc2',
         'Date,Description,Amount \n2026-05-01, $longDesc, -100.00',
       );
       final results = await parser.parse(file.path);
       expect(results.first.longDescription, isNotNull);
-      expect(results.first.longDescription!.length, equals(20));
+      expect(results.first.longDescription.length, equals(20));
     });
 
     test('positive amount in single column marks as income', () async {
-      final file = await _writeCsv(
+      final file = await writeCsv(
         'income',
         'Date,Description,Amount \n 2026-05-01,thisisincome, 10000.00',
       );
@@ -395,7 +395,7 @@ void main() {
     });
 
     test('negative amount single column marks as expense', () async {
-      final file = await _writeCsv(
+      final file = await writeCsv(
         'expense',
         'Date,Description,Amount \n2026-05-01, ExpensiveExpense, -1000.00',
       );
@@ -404,7 +404,7 @@ void main() {
     });
 
     test('amount is always stored as abs vals', () async {
-      final file = await _writeCsv(
+      final file = await writeCsv(
         'absolute',
         'Date,Description,Amount \n 2026-05-01, This, -1000.00',
       );
@@ -414,7 +414,7 @@ void main() {
     });
 
     test('rawData map contains all column headhers', () async {
-      final file = await _writeCsv(
+      final file = await writeCsv(
         'rawdata',
         'Date,Description,Amount \n2026-05-01, tHis, -1000.00',
       );
@@ -425,7 +425,7 @@ void main() {
     });
 
     test('handles transaction date column header variant', () async {
-      final file = await _writeCsv(
+      final file = await writeCsv(
         'txdate',
         'Transaction Date, Description, Amount \n 2026-05-01, Here, -100.00',
       );
@@ -434,7 +434,7 @@ void main() {
     });
 
     test('handles narration column header variant', () async {
-      final file = await _writeCsv(
+      final file = await writeCsv(
         'narration',
         'Date,Narration,Amount \n 2026-05-01, This, -100.00',
       );
@@ -476,8 +476,8 @@ class _TestableParser extends StatementParserService {
   Decimal testParseAmount(String raw) => parseAmount(raw);
   int testFindCol(List<String> headers, List<String> candidates) =>
       findCol(headers, candidates);
-  List<_TestParsedLine> testParsePdfLines(List<String> lines) {
-    final results = parsePdfLines(lines);
+  Future<List<_TestParsedLine>> testParsePdfLines(List<String> lines) async {
+    final results = await parsePdfLines(lines);
     return results
         .map(
           (r) => _TestParsedLine(

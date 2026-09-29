@@ -1,0 +1,101 @@
+name: APK Candidate Deploy
+
+on:
+  workflow_call:
+    inputs:
+      artifact-name:
+        description: APK artifact to publish
+        required: true
+        type: string
+      source-sha:
+        description: Source commit
+        required: true
+        type: string
+      pull-request-number:
+        description: Candidate PR number
+        required: true
+        type: string
+    secrets:
+      RELEASE_TOKEN:
+        required: false
+
+permissions: {}
+
+jobs:
+  validate-inputs:
+    name: Check APK candidate inputs
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Check inputs
+        shell: bash
+        env:
+          ARTIFACT_NAME: ${{ inputs.artifact-name }}
+          SOURCE_SHA: ${{ inputs.source-sha }}
+          PR_NUMBER: ${{ inputs.pull-request-number }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "$ARTIFACT_NAME" ] || [ -z "$SOURCE_SHA" ] || [ -z "$PR_NUMBER" ]; then
+            echo 'APK candidate requires artifact-name, source-sha, and pull-request-number.' >&2
+            exit 1
+          fi
+
+  publish:
+    name: Publish APK candidate
+    needs: validate-inputs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download APK
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: dist
+
+      - name: Check APK file
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -d '' apk_files < <(find dist -type f -name '*.apk' -print0)
+          if [ "${#apk_files[@]}" -ne 1 ]; then
+            echo "Expected one APK, found ${#apk_files[@]}." >&2
+            exit 1
+          fi
+
+          printf 'APK_PATH=%s\n' "${apk_files[0]}" >> "$GITHUB_ENV"
+
+      - name: Publish candidate
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN || github.token }}
+          SOURCE_SHA: ${{ inputs.source-sha }}
+          CANDIDATE_TAG: candidate-apk-${{ inputs.source-sha }}
+          PR_NUMBER: ${{ inputs.pull-request-number }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          candidate_notes=$(printf 'Candidate PR: #%s\nRelease candidate for source %s.' "$PR_NUMBER" "$SOURCE_SHA")
+
+          if ! gh release view "$CANDIDATE_TAG" --repo "$REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$CANDIDATE_TAG" \
+              --repo "$REPOSITORY" \
+              --target "$SOURCE_SHA" \
+              --title "BudgetIt APK $CANDIDATE_TAG" \
+              --notes "$candidate_notes" \
+              --prerelease \
+              --latest=false
+          fi
+
+          gh release edit "$CANDIDATE_TAG" \
+            --repo "$REPOSITORY" \
+            --notes "$candidate_notes" \
+            --prerelease \
+            --latest=false
+
+          gh release upload "$CANDIDATE_TAG" "$APK_PATH" \
+            --repo "$REPOSITORY" \
+            --clobber

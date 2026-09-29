@@ -1,0 +1,94 @@
+name: Generated Dart
+
+on:
+  workflow_call:
+    inputs:
+      source-ref:
+        description: Source ref to use; defaults to the event ref
+        required: false
+        default: ''
+        type: string
+    outputs:
+      artifact-name:
+        description: Generated Dart artifact for later jobs
+        value: ${{ jobs.prepare.outputs.artifact-name }}
+      source-sha:
+        description: Source SHA for the artifact
+        value: ${{ jobs.prepare.outputs.source-sha }}
+
+jobs:
+  prepare:
+    name: Generate Dart
+    runs-on:
+      - self-hosted
+      - linux
+      - flutter-3.47.1
+    permissions:
+      contents: read
+    outputs:
+      artifact-name: ${{ steps.source.outputs.artifact-name }}
+      source-sha: ${{ steps.source.outputs.source-sha }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.source-ref }}
+
+      - name: Get source commit
+        id: source
+        shell: bash
+        run: |
+          source_sha="$(git rev-parse HEAD)"
+          echo "source-sha=${source_sha}" >> "${GITHUB_OUTPUT}"
+          echo "artifact-name=generated-dart-${source_sha}-${GITHUB_RUN_ID}" >> "${GITHUB_OUTPUT}"
+
+      - name: Set up Flutter
+        uses: ./.github/actions/flutter-ci-setup
+
+      - name: Restore Dart build cache
+        id: dart-build-cache
+        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684
+        with:
+          path: |
+            Flutter/budgetit/.dart_tool/build
+            Flutter/budgetit/lib/**/*.g.dart
+            Flutter/budgetit/lib/**/*.freezed.dart
+            Flutter/budgetit/lib/**/*.mocks.dart
+            Flutter/budgetit/test/**/*.g.dart
+            Flutter/budgetit/test/**/*.freezed.dart
+            Flutter/budgetit/test/**/*.mocks.dart
+         
+          key: dart-build-runner-flutter-3.47.1-${{ github.head_ref || github.ref_name }}-${{ github.run_id }}
+          restore-keys: |
+            dart-build-runner-flutter-3.47.1-${{ github.head_ref || github.ref_name }}-
+
+      - name: Generate Dart
+        working-directory: Flutter/budgetit
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Save Dart build cache
+        if: success() && steps.dart-build-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684
+        with:
+          path: |
+            Flutter/budgetit/.dart_tool/build
+            Flutter/budgetit/lib/**/*.g.dart
+            Flutter/budgetit/lib/**/*.freezed.dart
+            Flutter/budgetit/lib/**/*.mocks.dart
+            Flutter/budgetit/test/**/*.g.dart
+            Flutter/budgetit/test/**/*.freezed.dart
+            Flutter/budgetit/test/**/*.mocks.dart
+          key: ${{ steps.dart-build-cache.outputs.cache-primary-key }}
+
+      - name: Upload generated Dart
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: ${{ steps.source.outputs.artifact-name }}
+          path: |
+            Flutter/budgetit/lib/**/*.g.dart
+            Flutter/budgetit/lib/**/*.freezed.dart
+            Flutter/budgetit/lib/**/*.mocks.dart
+            Flutter/budgetit/test/**/*.g.dart
+            Flutter/budgetit/test/**/*.freezed.dart
+            Flutter/budgetit/test/**/*.mocks.dart
+          if-no-files-found: error

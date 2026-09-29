@@ -15,9 +15,10 @@ Widget _wrap() {
   return MaterialApp(
     debugShowCheckedModeBanner: false,
     theme: ThemeData(
-      brightness: Brightness.light,
-      extensions: [MyColours.lightTheme],
+      brightness: Brightness.dark,
+      extensions: [MyColours.darkTheme],
     ),
+    home: const LandingPage(),
   );
 }
 
@@ -70,7 +71,7 @@ void main() {
       await tester.pumpWidget(_wrap());
       await tester.pump();
 
-      expect(find.byType(Stack), findsOneWidget);
+      expect(find.byType(Stack), findsWidgets);
       final navBarTop = tester.getTopLeft(find.byType(CustomAppBar)).dy;
       expect(navBarTop, equals(0.0));
     });

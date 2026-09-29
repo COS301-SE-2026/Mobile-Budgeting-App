@@ -1,184 +1,396 @@
 import 'package:flutter/material.dart';
 import '../../../utils/app_colour.dart';
+import 'landing_responsive.dart';
+import 'landing_motion.dart';
+import 'feature_chip.dart';
 
 class HeroSection extends StatefulWidget {
-  final VoidCallback? onGetStarted; 
-
-  const HeroSection({super.key, this.onGetStarted});
+  const HeroSection({super.key});
 
   @override
   State<HeroSection> createState() => _HeroSectionState();
 }
-  class _HeroSectionState extends State<HeroSection> {
-  
-    @override
-    Widget build(BuildContext context) {
+
+class _HeroSectionState extends State<HeroSection> {
+  static const double _wideLayoutBreakpoint = 900;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final wide = constraints.maxWidth >= _wideLayoutBreakpoint;
+        return wide ? _buildWideLayout(context) : _buildCompactLayout(context);
+      },
+    );
+  }
+
+  Widget _buildWideLayout(BuildContext context) {
+    final colours = context.colours;
+
     return Container(
       width: double.infinity,
       constraints: const BoxConstraints(minHeight: 1000),
-      color: context.colours.background,
+      color: colours.background,
       padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 80),
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-         
           Positioned(
             top: -40,
             left: 20,
-            child: _Circle(
-                    size: 100, 
-                    color: context.colours.primary, 
-                    duration: const Duration(seconds: 3),
-                    amplitude: 10,
-                  ),
+            child: Parallax(
+              factor: 0.20,
+              child: _Circle(
+                size: 100,
+                color: colours.primary,
+                duration: const Duration(seconds: 3),
+                amplitude: 10,
+              ),
+            ),
           ),
           Positioned(
             top: 40,
             right: 30,
-            child: _Circle(
-                    size: 220, 
-                    color: context.colours.secondary,
-                    duration: const Duration(seconds: 6),
-                    amplitude: 25,
-                  ),
+            child: Parallax(
+              factor: 0.24,
+              child: _Circle(
+                size: 220,
+                color: colours.secondary,
+                duration: const Duration(seconds: 6),
+                amplitude: 25,
+              ),
+            ),
           ),
           Positioned(
             top: 320,
             left: 30,
-            child: _Circle(
-              size: 120,
-              color: context.colours.secondary,
-              duration: const Duration(seconds: 6),
-              amplitude: 25,
+            child: Parallax(
+              factor: 0.16,
+              child: _Circle(
+                size: 120,
+                color: colours.secondary,
+                duration: const Duration(seconds: 6),
+                amplitude: 25,
+              ),
             ),
           ),
           Positioned(
             bottom: -60,
             left: 60,
-            child: _Circle(
-                    size: 220, 
-                    color: context.colours.secondary,
-                    duration: const Duration(seconds: 4),
-                    amplitude: 18,),
+            child: Parallax(
+              factor: 0.22,
+              child: _Circle(
+                size: 220,
+                color: colours.secondary,
+                duration: const Duration(seconds: 4),
+                amplitude: 18,
+              ),
+            ),
           ),
           Positioned(
             top: 500,
             right: 250,
-            child: _Circle(
-              size: 90,
-              color: context.colours.primary,
-              duration: const Duration(seconds: 4),
-              amplitude: 15,
+            child: Parallax(
+              factor: 0.12,
+              child: _Circle(
+                size: 90,
+                color: colours.primary,
+                duration: const Duration(seconds: 4),
+                amplitude: 15,
+              ),
             ),
           ),
-
           Positioned(
             top: 560,
             left: 120,
-            child: _Circle(
-              size: 60,
-              color: Color.fromARGB(255, 252, 213, 85),
-              duration: const Duration(seconds: 5),
-              amplitude: 12,
+            child: const Parallax(
+              factor: 0.08,
+              child: _Circle(
+                size: 60,
+                color: kCream,
+                duration: Duration(seconds: 5),
+                amplitude: 12,
+              ),
             ),
           ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                flex: 5,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Welcome to Budget IT",
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 252, 213, 85),
-                        fontSize: 44,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Georgia', 
-                      ),
+          Positioned(
+            bottom: 120,
+            right: 90,
+            child: Parallax(
+              factor: 0.18,
+              child: _Circle(
+                size: 140,
+                color: colours.primary,
+                duration: const Duration(seconds: 7),
+                amplitude: 20,
+              ),
+            ),
+          ),
+          Center(
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 900),
+              padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 40),
+              color: colours.background,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    "Welcome to BudgetIT",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: colours.informational,
+                      fontSize: 44,
+                      height: 1.1,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'SpaceGrotesk',
                     ),
-                    const SizedBox(height: 20),
-                    Text(
-                      "Nerf your expenses with a budgeting app\nthat works anywhere.",
-                      style: TextStyle(
-                        color: context.colours.whiteAccents,
-                        fontSize: 18,
-                        fontFamily: 'Courier', 
-                      ),
-                    ),
-                    const SizedBox(height: 40),
-                    Center(
-                      child:  Image.asset(
-                          'assets/images/phone_mockup.jpg',
-                          width: 400,
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                  ],
+                  ),
+                const SizedBox(height: 20),
+                Text(
+                  "Nerf your expenses with a budgeting app\nthat works anywhere.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: colours.whiteAccents,
+                    fontSize: 18,
+                    height: 1.5,
+                    fontFamily: 'JetBrainsMono',
+                  ),
+                ),
+              
+              const SizedBox(height: 28),
+              const _HeroStats(),
+              const SizedBox(height: 16),
+              Text(
+                "No account needed — continue as a guest.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: colours.whiteAccents.withValues(alpha: 0.6),
+                  fontSize: 13,
+                  fontFamily: 'JetBrainsMono',
                 ),
               ),
-              
+              const SizedBox(height: 40),
+              Image.asset(
+                'assets/images/dashboard.jpg',
+                width: 400,
+                fit: BoxFit.contain,
+              ),
             ],
           ),
-          Positioned(
-            right: 120,
-            top: 560,
-            child: SizedBox(
-              width: 280,
-              height: 60,
-              child: OutlinedButton(
-                onPressed: () {},
-                style: OutlinedButton.styleFrom(
-                  backgroundColor: context.colours.background,
-                  side: BorderSide(
-                    color: context.colours.whiteAccents,
-                    width: 2,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-               ),
-                child: Text(
-                  "Login",
-                  style: TextStyle(
-                    color: context.colours.whiteAccents,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          Positioned(
-            right: 120,
-            top: 640,
-            child: SizedBox(
-              width: 280,
-              height: 60,
-              child: ElevatedButton(
-                onPressed: widget.onGetStarted,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: context.colours.whiteAccents,
-                  foregroundColor: context.colours.background,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  "Get Started",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
+        ),
+      ],
       ),
+    );
+  }
+
+  Widget _buildCompactLayout(BuildContext context) {
+    final colours = context.colours;
+    final hPad = context.sectionHPadding;
+
+    return Container(
+      width: double.infinity,
+      color: colours.background,
+      child: ClipRect(
+        child: Stack(
+          clipBehavior: Clip.hardEdge,
+          children: [
+            Positioned(
+              top: -30,
+              right: -20,
+              child: Parallax(
+                factor: 0.20,
+                child: _Circle(
+                    size: 120,
+                    color: colours.secondary,
+                    duration: const Duration(seconds: 6),
+                    amplitude: 14),
+              ),
+            ),
+            Positioned(
+              top: 60,
+              left: -30,
+              child: Parallax(
+                factor: 0.10,
+                child: _Circle(
+                    size: 90,
+                    color: colours.primary,
+                    duration: const Duration(seconds: 4),
+                    amplitude: 10),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(hPad, 48, hPad, 48),
+              child: Container(
+                width: double.infinity,
+                color: colours.background,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    "Welcome to Budget IT",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: colours.informational,
+                      fontSize: context.isSmallMobile ? 30 : 36,
+                      height: 1.1,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'SpaceGrotesk',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    "Nerf your expenses with a budgeting app that works anywhere.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: colours.whiteAccents,
+                      fontSize: 16,
+                      fontFamily: 'JetBrainsMono',
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  const _HeroStats(),
+                  const SizedBox(height: 32),
+                  Text(
+                    "No Account Needed - continue as guest.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: colours.whiteAccents.withValues(alpha:0.6),
+                      fontSize: 13,
+                      fontFamily: 'JetBrainsMono',
+                    ),
+                  ),
+                  const SizedBox(height:32),
+                  Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 320),
+                      child: Image.asset(
+                        'assets/images/phone_mockup.jpg',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                  /*const SizedBox(height: 32),
+                  _AuthPanel(
+                    onLogin: widget.onLogin,
+                    onGetStarted: widget.onGetStarted,
+                    stretch: true,
+                  ),*/
+                ],
+              ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+class _HeroStats extends StatelessWidget {
+  const _HeroStats();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Wrap(
+      spacing: 12,
+      runSpacing: 12,
+      alignment: WrapAlignment.center,
+      children: [
+        FeatureChip(value: "100%", label: "offline"),
+        FeatureChip(value: "0", label: "spreadsheets"),
+        FeatureChip(value: "3", label: "step setup"),
+      ],
+    );
+  }
+}
+
+class _AuthPanel extends StatelessWidget {
+  final VoidCallback? onLogin;
+  final VoidCallback? onGetStarted;
+  final bool stretch;
+
+  const _AuthPanel({this.onLogin, this.onGetStarted, this.stretch = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final colours = context.colours;
+
+    final buttons = <Widget>[
+      SizedBox(
+        width: stretch ? double.infinity : 280,
+        height: 56,
+        child: ElevatedButton(
+          onPressed: onGetStarted,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: colours.whiteAccents,
+            foregroundColor: colours.background,
+            elevation: 4,
+            shadowColor: Colors.black.withValues(alpha: 0.3),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+          child: const Text(
+            "Get Started",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'SpaceGrotesk',
+            ),
+          ),
+        ),
+      ),
+      const SizedBox(height: 14),
+      SizedBox(
+        width: stretch ? double.infinity : 280,
+        height: 56,
+        child: OutlinedButton(
+          onPressed: onLogin,
+          style: OutlinedButton.styleFrom(
+            backgroundColor: colours.background,
+            side: BorderSide(
+                color: colours.whiteAccents.withValues(alpha: 0.45), width: 2),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+          child: Text(
+            "Login",
+            style: TextStyle(
+              color: colours.whiteAccents,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'SpaceGrotesk',
+            ),
+          ),
+        ),
+      ),
+    ];
+
+    if (stretch) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: buttons,
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        ...buttons,
+        const SizedBox(height: 16),
+        Text(
+          "No account needed — continue as a guest.",
+          textAlign: TextAlign.right,
+          style: TextStyle(
+            color: colours.whiteAccents.withValues(alpha: 0.6),
+            fontSize: 13,
+            fontFamily: 'JetBrainsMono',
+          ),
+        ),
+      ],
     );
   }
 }
@@ -188,24 +400,25 @@ class _Circle extends StatefulWidget {
   final Color color;
   final Duration duration;
   final double amplitude;
-  const _Circle({required this.size, required this.color,this.duration = const Duration(seconds: 5),this.amplitude = 20,});
+  const _Circle({
+    required this.size,
+    required this.color,
+    this.duration = const Duration(seconds: 5),
+    this.amplitude = 20,
+  });
+
   @override
   State<_Circle> createState() => _CircleState();
 }
 
-class _CircleState extends State<_Circle>
-    with SingleTickerProviderStateMixin {
-
+class _CircleState extends State<_Circle> with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-
-    _controller = AnimationController(
-      vsync: this,
-      duration: widget.duration,
-    )..repeat(reverse: true);
+    _controller = AnimationController(vsync: this, duration: widget.duration)
+      ..repeat(reverse: true);
   }
 
   @override
@@ -218,21 +431,24 @@ class _CircleState extends State<_Circle>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _controller,
-      builder: (context, child){
-        final offset = widget.amplitude*(_controller.value - 0.510);
-        return Transform.translate(offset: Offset(0,offset),child: child,);
+      builder: (context, child) {
+        final offset = widget.amplitude * (_controller.value - 0.510);
+        return Transform.translate(offset: Offset(0, offset), child: child);
       },
-      child: Container(width: widget.size,
-                        height: widget.size,
-                        decoration: BoxDecoration(color: widget.color,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-   );
+      child: Container(
+        width: widget.size,
+        height: widget.size,
+        decoration: BoxDecoration(
+          color: widget.color,
+          shape: BoxShape.rectangle,
+          border: Border.all(color: Colors.black, width: 3),
+        ),
+      ),
+    );
   }
 }
 
-class _ActionButton extends StatelessWidget {
+/*class _ActionButton extends StatelessWidget {
   final String label;
   final IconData icon;
   final Color background;
@@ -368,4 +584,4 @@ class _BudgetBar extends StatelessWidget {
       ),
     );
   }
-}
+}*/

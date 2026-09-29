@@ -9,9 +9,10 @@ class GraphicalReportService {
   final AppDatabase database;
 
   Future<GraphicalReportData> generateReport(
-    ReportingPeriod reportingPeriod,
-  ) async {
-    final now = DateTime.now();
+    ReportingPeriod reportingPeriod, {
+    DateTime? anchorDate,
+  }) async {
+    final now = anchorDate ?? DateTime.now();
 
     final startDate = _periodStart(
       reportingPeriod,
@@ -143,10 +144,10 @@ Future<List<CategorySpendingData>> _buildCategorySpending(
     final results = <BudgetComparisonData>[];
 
     for (final template in templates) {
-      final category =
-          await database.categoryDao.getCategoryById(
-        template.categoryId,
-      );
+      final categoryId = template.categoryId;
+      if (categoryId == null) continue;
+
+      final category = await database.categoryDao.getCategoryById(categoryId);
 
       if (category == null) continue;
 

@@ -1,6 +1,8 @@
 import 'package:budgetit/database/app_database.dart';
 import 'package:budgetit/database/schema.dart';
 import 'package:budgetit/utils/app_colour.dart';
+import 'package:budgetit/utils/date_display_formatter.dart';
+import 'package:budgetit/utils/app_dialog_style.dart';
 import 'package:budgetit/utils/icon_mapper.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
@@ -9,8 +11,19 @@ import 'package:provider/provider.dart';
 
 class AddTransactionDialog extends StatefulWidget {
   final VoidCallback? onAdded;
+  final TransactionType initialType;
+  final String? initialCategoryId;
+  final bool lockType;
+  final bool lockCategory;
 
-  const AddTransactionDialog({super.key, this.onAdded});
+  const AddTransactionDialog({
+    super.key,
+    this.onAdded,
+    this.initialType = TransactionType.expense,
+    this.initialCategoryId,
+    this.lockType = false,
+    this.lockCategory = false,
+  });
 
   @override
   State<AddTransactionDialog> createState() => _AddTransactionDialogState();
@@ -20,31 +33,35 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
   final _formKey = GlobalKey<FormState>();
   final _descController = TextEditingController();
   final _amountController = TextEditingController();
-  TransactionType _type = TransactionType.expense;
+  final _customCategoryController = TextEditingController();
+  late TransactionType _type;
   DateTime _date = DateTime.now();
   List<Category> _categories = [];
   Category? _selectedCategory;
   bool _loadingCategories = true;
   bool _saving = false;
+  bool _creatingCustomCategory = false;
+  IconData _customCategoryIcon = Icons.sell_outlined;
 
-  static const _months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
+  static const _customCategoryIcons = <IconData>[
+    Icons.sell_outlined,
+    Icons.shopping_bag_outlined,
+    Icons.restaurant_outlined,
+    Icons.directions_car_outlined,
+    Icons.home_outlined,
+    Icons.pets_outlined,
+    Icons.health_and_safety_outlined,
+    Icons.school_outlined,
+    Icons.sports_esports_outlined,
+    Icons.flight_outlined,
+    Icons.card_giftcard_outlined,
+    Icons.savings_outlined,
   ];
 
   @override
   void initState() {
     super.initState();
+    _type = widget.initialType;
     _loadCategories();
   }
 
@@ -52,6 +69,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
   void dispose() {
     _descController.dispose();
     _amountController.dispose();
+    _customCategoryController.dispose();
     super.dispose();
   }
 
@@ -64,30 +82,223 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
         : CategoryType.expense;
     final categories = await db.categoryDao.getCategoriesByType(categoryType);
     categories.sort((a, b) => a.name.compareTo(b.name));
+    final initialCategoryId = widget.initialCategoryId;
+    //ai was used to fix this selectedcategory
+    final selectedCategory = initialCategoryId == null
+        ? (categories.isNotEmpty ? categories.first : null)
+        : categories
+              .where((category) => category.id == initialCategoryId)
+              .cast<Category?>()
+              .firstWhere((category) => category != null, orElse: () => null);
+
     if (!mounted || transactionType != _type) return;
     setState(() {
       _categories = categories;
-      _selectedCategory = categories.isNotEmpty ? categories.first : null;
+      _selectedCategory = selectedCategory;
       _loadingCategories = false;
     });
   }
 
   void _setType(TransactionType type) {
+    if (widget.lockType) return;
     if (_type == type) return;
     setState(() {
       _type = type;
       _categories = [];
       _selectedCategory = null;
+      _creatingCustomCategory = false;
+      _customCategoryController.clear();
     });
     _loadCategories();
   }
 
   Future<void> _pickDate() async {
-    final picked = await showDatePicker(
+    final colours = context.colours;
+    var draftDate = _date;
+
+    final picked = await showDialog<DateTime>(
       context: context,
-      initialDate: _date,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+          final cardColor = isDark ? colours.blendedprimary : colours.secondary;
+          final cardTextColor = isDark ? colours.secondary : colours.background;
+
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 430),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: cardColor,
+                border: Border.all(color: Colors.black, width: 4),
+                boxShadow: const [
+                  BoxShadow(color: Colors.black, offset: Offset(6, 6)),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'SELECT TRANSACTION DATE',
+                    style: colours.h2.copyWith(color: cardTextColor),
+                  ),
+                  const SizedBox(height: 12),
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      colorScheme: ColorScheme.fromSeed(
+                        seedColor: cardTextColor,
+                        primary: colours.background,
+                        onPrimary: colours.secondary,
+                        surface: cardColor,
+                        onSurface: cardTextColor,
+                        brightness: Theme.of(context).brightness,
+                      ),
+                      datePickerTheme: DatePickerThemeData(
+                        backgroundColor: cardColor,
+                        headerBackgroundColor: cardColor,
+                        headerForegroundColor: cardTextColor,
+                        toggleButtonTextStyle: colours.b5.copyWith(
+                          color: cardTextColor,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.8,
+                        ),
+                        subHeaderForegroundColor: cardTextColor,
+                        weekdayStyle: colours.b5.copyWith(
+                          color: cardTextColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        dayStyle: colours.b5.copyWith(
+                          color: cardTextColor,
+                          fontSize: 14,
+                        ),
+                        dayForegroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? colours.cardText
+                              : isDark
+                              ? null
+                              : colours.secondary,
+                        ),
+                        dayBackgroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? (isDark ? colours.background : colours.primary)
+                              : isDark
+                              ? null
+                              : colours.background,
+                        ),
+                        todayForegroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? colours.cardText
+                              : isDark
+                              ? null
+                              : colours.secondary,
+                        ),
+                        todayBackgroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? (isDark ? colours.background : colours.primary)
+                              : isDark
+                              ? null
+                              : colours.background,
+                        ),
+                        yearStyle: colours.b5.copyWith(
+                          color: cardTextColor,
+                          fontSize: 14,
+                        ),
+                        yearForegroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? colours.cardText
+                              : isDark
+                              ? null
+                              : colours.secondary,
+                        ),
+                        yearBackgroundColor: WidgetStateProperty.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? (isDark ? colours.background : colours.primary)
+                              : isDark
+                              ? null
+                              : colours.background,
+                        ),
+                        dayShape: WidgetStateProperty.resolveWith((states) {
+                          return RoundedRectangleBorder(
+                            borderRadius: BorderRadius.zero,
+                            side: states.contains(WidgetState.selected)
+                                ? BorderSide(
+                                    color: Colors.black,
+                                    width: isDark ? 3 : 2,
+                                  )
+                                : BorderSide.none,
+                          );
+                        }),
+                        todayBorder: BorderSide(
+                          color: isDark ? Colors.black : cardTextColor,
+                          width: isDark ? 3 : 2,
+                        ),
+                      ),
+                    ),
+                    child: CalendarDatePicker(
+                      initialDate: draftDate,
+                      firstDate: DateTime(2024),
+                      lastDate: DateTime(2035, 12, 31),
+                      onDateChanged: (date) =>
+                          setDialogState(() => draftDate = date),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                        style: AppDialogStyle.isDark(context)
+                            ? AppDialogStyle.cancel(context)
+                            : TextButton.styleFrom(
+                                foregroundColor: cardTextColor,
+                                side: const BorderSide(
+                                  color: Colors.black,
+                                  width: 3,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                        child: Text(
+                          'Cancel',
+                          style: colours.b1.copyWith(color: cardTextColor),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: () =>
+                            Navigator.of(dialogContext).pop(draftDate),
+                        style: AppDialogStyle.isDark(context)
+                            ? AppDialogStyle.primary(context)
+                            : ElevatedButton.styleFrom(
+                                backgroundColor: cardTextColor,
+                                foregroundColor: cardColor,
+                                textStyle: colours.b1.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.zero,
+                                  side: BorderSide(
+                                    color: Colors.black,
+                                    width: 3,
+                                  ),
+                                ),
+                              ),
+                        child: const Text('Apply'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
     if (picked != null && mounted) setState(() => _date = picked);
   }
@@ -96,10 +307,24 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _saving = true);
     try {
+      final db = context.read<AppDatabase>();
+      Category? category = _selectedCategory;
+      if (_creatingCustomCategory) {
+        final categoryType = _type == TransactionType.income
+            ? CategoryType.income
+            : CategoryType.expense;
+        category = await db.categoryDao.insertCategory(
+          name: _customCategoryController.text.trim(),
+          type: categoryType,
+          icon: _customCategoryIcon,
+          color: '#137E84',
+        );
+      }
+
       final amount = Decimal.parse(
         double.parse(_amountController.text).toStringAsFixed(2),
       );
-      final dao = context.read<AppDatabase>().transactionDao;
+      final dao = db.transactionDao;
       final transaction = await dao.insertTransaction(
         amount: amount,
         type: _type,
@@ -107,7 +332,6 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
         transactionDate: _date,
         source: TransactionSource.manual,
       );
-      final category = _selectedCategory;
       if (category != null) {
         await dao.assignCategory(
           transactionId: transaction.id,
@@ -128,24 +352,25 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
   @override
   Widget build(BuildContext context) {
     final colours = context.colours;
-    final cardColor = colours.background;
+    final cardColor = AppDialogStyle.isDark(context)
+        ? AppDialogStyle.surface(context)
+        : colours.background;
     final cardTextColor = colours.textPrimary;
-    final dateLabel = '${_date.day} ${_months[_date.month - 1]} ${_date.year}';
-
-    return AlertDialog(
-      backgroundColor: colours.background,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(color: Colors.black, width: 4),
-      ),
-      title: Text(
-        'Add Transaction',
-        style: TextStyle(
-          color: colours.textPrimary,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      content: ConstrainedBox(
+    final dateLabel = formatLongDate(_date);
+    //still to be fixed
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 28),
+      child: Container(
         constraints: const BoxConstraints(maxWidth: 420),
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+        decoration: BoxDecoration(
+          color: cardColor,
+          border: Border.all(color: Colors.black, width: 4),
+          boxShadow: const [
+            BoxShadow(color: Colors.black, offset: Offset(6, 6), blurRadius: 0),
+          ],
+        ),
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -153,6 +378,14 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(
+                  'Add Transaction',
+                  style: colours.h2.copyWith(
+                    color: colours.textPrimary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 18),
                 Row(
                   children: [
                     _TypeButton(
@@ -160,9 +393,6 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                       selected: _type == TransactionType.expense,
                       onTap: () => _setType(TransactionType.expense),
                       colours: colours,
-                      cardColor: cardColor,
-                      cardTextColor: cardTextColor,
-                      borderColor: colours.secondary,
                     ),
                     const SizedBox(width: 8),
                     _TypeButton(
@@ -170,9 +400,6 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                       selected: _type == TransactionType.income,
                       onTap: () => _setType(TransactionType.income),
                       colours: colours,
-                      cardColor: cardColor,
-                      cardTextColor: cardTextColor,
-                      borderColor: colours.secondary,
                     ),
                   ],
                 ),
@@ -180,7 +407,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
 
                 TextFormField(
                   controller: _descController,
-                  style: TextStyle(color: colours.textPrimary),
+                  style: colours.b1.copyWith(color: colours.textPrimary),
                   decoration:
                       _inputDecoration(
                         'e.g. Grocery run',
@@ -208,9 +435,13 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                         cardTextColor,
                       ).copyWith(
                         labelText: 'Amount',
-                        labelStyle: TextStyle(color: colours.textPrimary),
+                        labelStyle: colours.b1.copyWith(
+                          color: colours.textPrimary,
+                        ),
                         prefixText: 'R ',
-                        prefixStyle: TextStyle(color: colours.textPrimary),
+                        prefixStyle: colours.b1.copyWith(
+                          color: colours.textPrimary,
+                        ),
                       ),
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
@@ -242,7 +473,9 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                           cardTextColor,
                         ).copyWith(
                           labelText: 'Date',
-                          labelStyle: TextStyle(color: colours.textPrimary),
+                          labelStyle: colours.b1.copyWith(
+                            color: colours.textPrimary,
+                          ),
                         ),
                     child: Row(
                       children: [
@@ -254,7 +487,11 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                         const SizedBox(width: 10),
                         Text(
                           dateLabel,
-                          style: TextStyle(color: colours.textPrimary),
+                          style: colours.b5.copyWith(
+                            color: colours.textPrimary,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.8,
+                          ),
                         ),
                       ],
                     ),
@@ -267,7 +504,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                   initialValue: _selectedCategory,
                   isExpanded: true,
                   dropdownColor: colours.background,
-                  style: TextStyle(color: colours.textPrimary),
+                  style: colours.b1.copyWith(color: colours.textPrimary),
                   decoration:
                       _inputDecoration(
                         'Category',
@@ -276,7 +513,9 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                         cardTextColor,
                       ).copyWith(
                         labelText: 'Category',
-                        labelStyle: TextStyle(color: colours.textPrimary),
+                        labelStyle: colours.b1.copyWith(
+                          color: colours.textPrimary,
+                        ),
                       ),
                   items: _categories
                       .map(
@@ -290,16 +529,26 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                                 size: 20,
                               ),
                               const SizedBox(width: 10),
-                              Expanded(child: Text(category.name)),
+                              Expanded(
+                                child: Text(
+                                  category.name,
+                                  style: colours.b1.copyWith(
+                                    color: colours.textPrimary,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ),
                       )
                       .toList(),
-                  onChanged: _loadingCategories
+                  onChanged: _loadingCategories || widget.lockCategory
                       ? null
                       : (category) {
-                          setState(() => _selectedCategory = category);
+                          setState(() {
+                            _selectedCategory = category;
+                            _creatingCustomCategory = false;
+                          });
                         },
                   icon: _loadingCategories
                       ? SizedBox(
@@ -317,37 +566,193 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                         : 'No categories available',
                     style: TextStyle(
                       color: colours.textPrimary.withValues(alpha: 0.6),
+                      fontFamily: 'JetBrainsMono',
+                      fontSize: 14,
                     ),
                   ),
+                ),
+
+                if (!widget.lockCategory) ...[
+                  const SizedBox(height: 14),
+                  InkWell(
+                    onTap: () => setState(() {
+                      _creatingCustomCategory = !_creatingCustomCategory;
+                    }),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colours.background,
+                        border: Border.all(
+                          color: Colors.black,
+                          width: _creatingCustomCategory ? 4 : 3,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.add_box_outlined,
+                            color: colours.textPrimary,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'CREATE A CUSTOM CATEGORY',
+                              style: colours.b1.copyWith(
+                                color: colours.textPrimary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (_creatingCustomCategory) ...[
+                    const SizedBox(height: 14),
+                    TextFormField(
+                      controller: _customCategoryController,
+                      textCapitalization: TextCapitalization.words,
+                      style: colours.b1.copyWith(color: colours.textPrimary),
+                      decoration:
+                          _inputDecoration(
+                            'e.g. Pet care',
+                            context,
+                            cardColor,
+                            cardTextColor,
+                          ).copyWith(
+                            labelText: 'Custom category name',
+                            labelStyle: colours.b1.copyWith(
+                              color: colours.textPrimary,
+                            ),
+                          ),
+                      validator: (value) {
+                        if (!_creatingCustomCategory) return null;
+                        final name = value?.trim() ?? '';
+                        if (name.isEmpty) return 'Category name is required';
+                        final alreadyExists = _categories.any(
+                          (category) =>
+                              category.name.toLowerCase() == name.toLowerCase(),
+                        );
+                        if (alreadyExists) {
+                          return 'This category already exists';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'CHOOSE AN ICON',
+                      style: colours.b5.copyWith(
+                        color: colours.textPrimary,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 6,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                          ),
+                      itemCount: _customCategoryIcons.length,
+                      itemBuilder: (context, index) {
+                        final icon = _customCategoryIcons[index];
+                        final selected = icon == _customCategoryIcon;
+                        return InkWell(
+                          onTap: () =>
+                              setState(() => _customCategoryIcon = icon),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: colours.background,
+                              border: Border.all(
+                                color: Colors.black,
+                                width: selected ? 3 : 2,
+                              ),
+                            ),
+                            child: Icon(
+                              icon,
+                              size: 21,
+                              color: colours.secondary,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ],
+                const SizedBox(height: 18),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: _saving
+                          ? null
+                          : () => Navigator.of(context).pop(),
+                      style: AppDialogStyle.isDark(context)
+                          ? AppDialogStyle.cancel(context)
+                          : TextButton.styleFrom(
+                              foregroundColor: colours.secondary,
+                              side: const BorderSide(
+                                color: Colors.black,
+                                width: 3,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                      child: Text(
+                        'Cancel',
+                        style: colours.b1.copyWith(color: colours.textPrimary),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: _saving ? null : _save,
+                      style: AppDialogStyle.isDark(context)
+                          ? AppDialogStyle.primary(context)
+                          : ElevatedButton.styleFrom(
+                              backgroundColor: colours.secondary,
+                              foregroundColor: colours.background,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero,
+                                side: BorderSide(color: Colors.black, width: 3),
+                              ),
+                              textStyle: colours.b1.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                      child: _saving
+                          ? SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                color: colours.background,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Text(
+                              'Add',
+                              style: colours.b1.copyWith(
+                                color: colours.background,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: _saving ? null : () => Navigator.of(context).pop(),
-          child: Text('Cancel', style: TextStyle(color: colours.textPrimary)),
-        ),
-        ElevatedButton(
-          onPressed: _saving ? null : _save,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: colours.secondary,
-            foregroundColor: colours.background,
-          ),
-          child: _saving
-              ? SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(
-                    color: colours.background,
-                    strokeWidth: 2,
-                  ),
-                )
-              : const Text('Add'),
-        ),
-      ],
     );
   }
 }
@@ -357,37 +762,36 @@ class _TypeButton extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
   final MyColours colours;
-  final Color cardColor;
-  final Color cardTextColor;
-  final Color borderColor;
   // defining the colours for the different modes of the buttons
   const _TypeButton({
     required this.label,
     required this.selected,
     required this.onTap,
     required this.colours,
-    required this.cardColor,
-    required this.cardTextColor,
-    required this.borderColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            color: selected ? cardTextColor : cardColor,
-            border: Border.all(color: borderColor, width: selected ? 2 : 1),
+            color: selected
+                ? (isDark ? colours.blendedprimary : colours.secondary)
+                : colours.background,
+            border: Border.all(color: Colors.black, width: selected ? 3 : 2),
           ),
           alignment: Alignment.center,
           child: Text(
             label,
             style: colours.h2.copyWith(
-              color: selected ? cardColor : cardTextColor,
-              fontWeight: FontWeight.w500,
+              color: selected && !isDark
+                  ? colours.background
+                  : colours.secondary,
+              fontWeight: selected ? FontWeight.bold : FontWeight.w500,
               fontSize: 14,
             ),
           ),
@@ -411,19 +815,19 @@ InputDecoration _inputDecoration(
     fontWeight: FontWeight.w500,
   ),
   filled: true,
-  fillColor: fillColor,
+  fillColor: context.colours.background,
   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
   border: OutlineInputBorder(
     borderRadius: BorderRadius.zero,
-    borderSide: BorderSide(color: context.colours.secondary),
+    borderSide: const BorderSide(color: Colors.black, width: 3),
   ),
   enabledBorder: OutlineInputBorder(
     borderRadius: BorderRadius.zero,
-    borderSide: BorderSide(color: context.colours.secondary),
+    borderSide: const BorderSide(color: Colors.black, width: 3),
   ),
   focusedBorder: OutlineInputBorder(
     borderRadius: BorderRadius.zero,
-    borderSide: BorderSide(color: context.colours.secondary, width: 2),
+    borderSide: const BorderSide(color: Colors.black, width: 4),
   ),
   errorBorder: OutlineInputBorder(
     borderRadius: BorderRadius.zero,

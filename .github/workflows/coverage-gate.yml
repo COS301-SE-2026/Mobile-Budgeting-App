@@ -1,0 +1,84 @@
+name: Coverage
+
+on:
+  workflow_call:
+    inputs:
+      blocking:
+        description: Fail the workflow when coverage upload fails
+        required: false
+        default: true
+        type: boolean
+      unit-coverage-artifact:
+        description: Unit test LCOV artifact
+        required: true
+        type: string
+      widget-coverage-artifact:
+        description: Widget test LCOV artifact
+        required: true
+        type: string
+      source-ref:
+        description: Source commit
+        required: true
+        type: string
+    secrets:
+      CODECOV_TOKEN:
+        description: Codecov upload token
+        required: false
+
+jobs:
+  coverage:
+    name: Coverage
+    if: always()
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ !inputs.blocking }}
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.source-ref }}
+
+      - name: Download unit coverage
+        id: download-unit
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: ${{ inputs.unit-coverage-artifact }}
+          path: coverage/unit
+
+      - name: Download widget coverage
+        id: download-widget
+        if: always()
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: ${{ inputs.widget-coverage-artifact }}
+          path: coverage/widget
+
+      - name: Check unit LCOV
+        id: verify-unit
+        if: always()
+        shell: bash
+        run: test -s coverage/unit/lcov.info
+
+      - name: Check widget LCOV
+        id: verify-widget
+        if: always()
+        shell: bash
+        run: test -s coverage/widget/lcov.info
+
+      - name: Upload coverage to Codecov
+        if: >-
+          ${{
+            always() &&
+            steps.download-unit.outcome == 'success' &&
+            steps.download-widget.outcome == 'success' &&
+            steps.verify-unit.outcome == 'success' &&
+            steps.verify-widget.outcome == 'success'
+          }}
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage/unit/lcov.info,coverage/widget/lcov.info
+          fail_ci_if_error: ${{ inputs.blocking }}
+          verbose: true

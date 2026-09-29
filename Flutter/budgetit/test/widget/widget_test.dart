@@ -1,4 +1,3 @@
-import 'package:budgetit/main.dart';
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:budgetit/views/budget_manager/budget_manager_screen.dart';
 import 'package:flutter/material.dart';
@@ -90,6 +89,6 @@ void main() {
     await tester.tap(find.text('CREATE NEW BUDGET'));
     await tester.pumpAndSettle();
 
-    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.byType(Dialog), findsOneWidget);
   });
 }

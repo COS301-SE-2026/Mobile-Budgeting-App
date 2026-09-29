@@ -1,0 +1,92 @@
+name: APK Production Deploy
+
+on:
+  workflow_call:
+    inputs:
+      source-sha:
+        description: Source commit
+        required: true
+        type: string
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: false
+      AWS_SECRET_ACCESS_KEY:
+        required: false
+
+permissions: {}
+
+jobs:
+  validate-inputs:
+    name: Check APK production inputs
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Check inputs
+        shell: bash
+        env:
+          SOURCE_SHA: ${{ inputs.source-sha }}
+        run: |
+          if [ -z "$SOURCE_SHA" ]; then
+            echo 'source-sha is missing.' >&2
+            exit 1
+          fi
+
+  deploy:
+    name: Deploy APK
+    needs: validate-inputs
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout release
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Find candidate
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./.github/CI-scripts/validate-release-candidate.sh "${GITHUB_REF_NAME}" apk "${GITHUB_ENV}"
+
+      - name: Download candidate APK
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p dist
+          gh release download "$CANDIDATE_RELEASE_TAG" \
+            --repo "$REPOSITORY" \
+            --pattern '*.apk' \
+            --dir dist
+
+      - name: Check APK file
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -d '' apk_files < <(find dist -type f -name '*.apk' -print0)
+          if [ "${#apk_files[@]}" -ne 1 ]; then
+            echo "Expected one APK, found ${#apk_files[@]}." >&2
+            exit 1
+          fi
+
+          printf 'APK_PATH=%s\n' "${apk_files[0]}" >> "$GITHUB_ENV"
+
+      - name: Upload APK to S3
+        shell: bash
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: eu-north-1
+        run: |
+          set -euo pipefail
+
+          aws s3 cp "$APK_PATH" \
+            s3://budgetit-apk-releases/apk-releases/latest.apk

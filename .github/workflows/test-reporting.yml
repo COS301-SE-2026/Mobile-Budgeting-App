@@ -1,0 +1,70 @@
+name: Test Report
+
+on:
+  workflow_call:
+    inputs:
+      report-artifact:
+        description: Flutter JSON report artifact
+        required: true
+        type: string
+      report-path:
+        description: Report path in the artifact
+        required: true
+        type: string
+      report-name:
+        description: GitHub check name
+        required: true
+        type: string
+      source-ref:
+        description: Source commit used by the test
+        required: true
+        type: string
+      blocking:
+        description: Fail the workflow when reporting fails
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  report:
+    name: ${{ inputs.report-name }}
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ !inputs.blocking }}
+    permissions:
+      actions: read
+      contents: read
+      checks: write
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.source-ref }}
+          persist-credentials: false
+
+      - name: Download test report
+        id: download-report
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: ${{ inputs.report-artifact }}
+          path: test-results
+
+      - name: Check test report
+        id: verify-report
+        if: always()
+        shell: bash
+        run: |
+          report="test-results/${{ inputs.report-path }}"
+          if [[ ! -s "${report}" ]]; then
+            echo "Missing or empty test report: ${report}" >&2
+            exit 1
+          fi
+
+      - name: Publish test report
+        if: ${{ always() && steps.verify-report.outcome == 'success' }}
+        uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2
+        with:
+          name: ${{ inputs.report-name }}
+          path: test-results/${{ inputs.report-path }}
+          reporter: flutter-json
+          fail-on-error: ${{ inputs.blocking }}
+          fail-on-empty: true

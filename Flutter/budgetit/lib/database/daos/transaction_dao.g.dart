@@ -7,6 +7,7 @@ mixin _$TransactionDaoMixin on DatabaseAccessor<AppDatabase> {
   $CategoriesTable get categories => attachedDatabase.categories;
   $RecurringTransactionsTable get recurringTransactions =>
       attachedDatabase.recurringTransactions;
+  $ImportsTable get imports => attachedDatabase.imports;
   $TransactionsTable get transactions => attachedDatabase.transactions;
   $TransactionCategoryMapTable get transactionCategoryMap =>
       attachedDatabase.transactionCategoryMap;
@@ -23,6 +24,8 @@ class TransactionDaoManager {
         _db.attachedDatabase,
         _db.recurringTransactions,
       );
+  $$ImportsTableTableManager get imports =>
+      $$ImportsTableTableManager(_db.attachedDatabase, _db.imports);
   $$TransactionsTableTableManager get transactions =>
       $$TransactionsTableTableManager(_db.attachedDatabase, _db.transactions);
   $$TransactionCategoryMapTableTableManager get transactionCategoryMap =>

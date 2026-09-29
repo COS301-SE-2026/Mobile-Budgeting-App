@@ -25,7 +25,8 @@ void main() {
       expect(find.text('Import Bank Statement'), findsOneWidget);
       expect(
         find.text(
-          'Transactions are extracted and categorized on your device. No data is sent to any server.',
+          'Transactions are extracted and categorised on your device. '
+          'No data is sent to a server.',
         ),
         findsOneWidget,
       );
@@ -34,7 +35,7 @@ void main() {
     testWidgets('shows supported formats', (tester) async {
       await tester.pumpWidget(_wrap());
 
-      expect(find.text('Supported Formats'), findsOneWidget);
+      expect(find.text('Supported formats'), findsOneWidget);
       expect(find.text('CSV'), findsOneWidget);
       expect(find.text('PDF'), findsOneWidget);
       expect(find.byIcon(Icons.table_chart_outlined), findsOneWidget);
@@ -44,7 +45,7 @@ void main() {
     testWidgets('shows choose file button', (tester) async {
       await tester.pumpWidget(_wrap());
 
-      expect(find.byIcon(Icons.upload_file_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.upload_file_outlined), findsNWidgets(2));
       expect(find.text('Choose File.'), findsOneWidget);
     });
   });

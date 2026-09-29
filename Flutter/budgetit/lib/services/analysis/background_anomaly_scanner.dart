@@ -29,10 +29,10 @@ class BackgroundAnomalyScanner extends ChangeNotifier {
   String? _lastError;
   String? get lastError => _lastError;
 
-  BackgroundAnomalyScanner(this._db)
-    : _historyService = TransactionHistoryService(_db),
-      _anomalyService = AnomalyDetectionService() {}
-  // _predictionService = PredictiveSpendingService();
+    BackgroundAnomalyScanner(this._db)
+        : _historyService = TransactionHistoryService(_db),
+          _anomalyService = AnomalyDetectionService()
+;         // _predictionService = PredictiveSpendingService();
 
   Future<void> scan() async {
     if (_scanning) return;

@@ -24,6 +24,14 @@ enum AssignmentSource { manual, ai, import }
 /// The period type used by budget templates.
 enum PeriodType { daily, weekly, monthly, yearly }
 
+/// The lifecycle state of a friend request.
+enum FriendRequestStatus { pending, accepted, declined }
+
+enum GoalMemberStatus { pending, accepted, declined }
+
+/// The type of record from which an embedding was generated.
+enum EmbeddingSourceType { transaction, category }
+
 /// SQLite does not have a built-in decimal type.
 /// Dart uses custom column types to automatically convert [Decimal] values
 /// to and from SQLite's TEXT type.
@@ -73,6 +81,7 @@ class Categories extends Table {
 
   /// When the category was soft-deleted (null if active).
   DateTimeColumn get deletedAt => dateTime().nullable()();
+  TextColumn get userId => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -83,17 +92,27 @@ class Categories extends Table {
 /// This enables efficient queries for ancestors, descendants, and subtree
 /// traversal in a tree structure.
 class CategoryClosure extends Table {
+  TextColumn get id => text()();
   /// Ancestor category ID.
   TextColumn get ancestorId => text().references(Categories, #id)();
 
   /// Descendant category ID.
   TextColumn get descendantId => text().references(Categories, #id)();
 
+  TextColumn get userId => text().nullable()();
+
+  BoolColumn get isDefault => boolean()();
+
   /// Distance from ancestor to descendant (0 = self, 1 = direct child, etc.).
   IntColumn get depth => integer()();
 
   @override
-  Set<Column> get primaryKey => {ancestorId, descendantId};
+  Set<Column> get primaryKey => {id};
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+        {ancestorId, descendantId},
+      ];
 }
 
 /// Stores individual income and expense transactions.
@@ -137,6 +156,13 @@ class Transactions extends Table {
   TextColumn get recurringId =>
       text().references(RecurringTransactions, #id).nullable()();
 
+  /// The occurrence date this transaction was generated for (recurring transactions only).
+  DateTimeColumn get recurringOccurrenceDate => dateTime().nullable()();
+
+  TextColumn get userId => text().nullable()();
+
+  TextColumn get importId => text().references(Imports, #id).nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -146,20 +172,32 @@ class Transactions extends Table {
 /// Each transaction can be assigned one category, with metadata about
 /// how the assignment was made.
 class TransactionCategoryMap extends Table {
+  TextColumn get id => text()();
   /// The transaction this category is assigned to.
   TextColumn get transactionId => text().references(Transactions, #id)();
 
   /// The assigned category.
   TextColumn get categoryId => text().references(Categories, #id)();
 
+  TextColumn get userId => text().nullable()();
+
   /// When the assignment was made.
   DateTimeColumn get assignedAt => dateTime()();
+
+  DateTimeColumn get updatedAt => dateTime()();
+
+  DateTimeColumn get deletedAt => dateTime().nullable()();
 
   /// How the assignment was determined (manual, AI, import).
   TextColumn get assignmentSource => textEnum<AssignmentSource>()();
 
   @override
-  Set<Column> get primaryKey => {transactionId};
+  Set<Column> get primaryKey => {id};
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+        {transactionId},
+      ];
 }
 
 /// Defines a recurring budget amount for a category over a time period.
@@ -170,8 +208,11 @@ class BudgetTemplates extends Table {
   /// Unique identifier for the template.
   TextColumn get id => text()();
 
+  /// Optional human-readable label to distinguish multiple budgets.
+  TextColumn get name => text().nullable()();
+
   /// The category this budget applies to.
-  TextColumn get categoryId => text().references(Categories, #id)();
+  TextColumn get categoryId => text().references(Categories, #id).nullable()();
 
   /// The budget amount per period.
   TextColumn get amount => text().map(DecimalConverter())();
@@ -191,6 +232,8 @@ class BudgetTemplates extends Table {
   /// When the template was soft-deleted (null if active).
   DateTimeColumn get deletedAt => dateTime().nullable()();
 
+  TextColumn get userId => text().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -204,6 +247,10 @@ class BudgetPeriods extends Table {
 
   /// The template this period belongs to.
   TextColumn get templateId => text().references(BudgetTemplates, #id)();
+
+  TextColumn get userId => text().nullable()();
+
+  TextColumn get periodKey => text()();
 
   /// Start of the budgeting period.
   DateTimeColumn get startDate => dateTime()();
@@ -222,6 +269,8 @@ class BudgetPeriods extends Table {
 
   /// When the period was last modified.
   DateTimeColumn get updatedAt => dateTime()();
+
+  DateTimeColumn get deletedAt => dateTime().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -275,8 +324,47 @@ class RecurringTransactions extends Table {
   /// (Nullable) category for recurring transactions , inherited by generated children.
   TextColumn get categoryId => text().references(Categories, #id).nullable()();
 
+  TextColumn get userId => text().nullable()();
+
+  DateTimeColumn get recurringOccurrenceDate => dateTime().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
+}
+
+/// Stores locally generated embeddings for transactions and categories.
+///
+/// Embeddings are derived data and are separated by model version and input
+/// hash so vectors produced by different models are never mixed.
+class EmbeddingCacheEntries extends Table {
+  /// Unique identifier for this cache entry.
+  TextColumn get id => text()();
+
+  /// Whether the embedding belongs to a transaction or category.
+  TextColumn get sourceType => textEnum<EmbeddingSourceType>()();
+
+  /// ID of the source transaction or category.
+  TextColumn get sourceId => text()();
+
+  /// Version of the model that generated this vector.
+  TextColumn get modelVersion => text()();
+
+  /// Hash of the exact text supplied to the model.
+  TextColumn get inputHash => text()();
+
+  /// Serialized Float32 embedding.
+  BlobColumn get embedding => blob()();
+
+  /// When this cache entry was generated.
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {sourceType, sourceId, modelVersion, inputHash},
+  ];
 }
 
 /// Stores key-value settings for the application.
@@ -294,4 +382,240 @@ class AppSettings extends Table {
 
   @override
   Set<Column> get primaryKey => {key};
+}
+
+
+class StatementSchemaCache extends Table {
+  TextColumn get fingerprint => text()();
+
+  TextColumn get signConvention => text()();
+
+  TextColumn get skipLinePatterns => text()();
+
+  DateTimeColumn get createdAt => dateTime()();
+
+  DateTimeColumn get updatedAt => dateTime()();
+
+
+  @override
+  Set<Column> get primaryKey => {fingerprint};
+}
+
+enum ImportFileType {pdf,csv}
+class Imports extends Table{
+  TextColumn get id => text()();
+  TextColumn get userId => text().nullable()();
+  TextColumn get fileSha256 => text()();
+  TextColumn get originalFilename => text()();
+  TextColumn get fileType => textEnum<ImportFileType>()();
+  TextColumn get accountIdentifier => text().nullable()();
+  DateTimeColumn get importedAt => dateTime()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Defines a recurring income target for a category over a time period.
+///
+/// Mirrors [BudgetTemplates], but for income. [GoalPeriods] are generated from
+/// a template and track actual target amounts for each period.
+class GoalTemplates extends Table {
+  /// Unique identifier for the goal template.
+  TextColumn get id => text()();
+
+  /// Optional human-readable label to distinguish multiple goals.
+  TextColumn get name => text().nullable()();
+
+  /// The (income) category this goal applies to.
+  TextColumn get categoryId => text().references(Categories, #id).nullable()();
+
+  /// The income target amount per period.
+  TextColumn get targetAmount => text().map(DecimalConverter())();
+
+  /// How often the goal repeats (daily, weekly, monthly, yearly).
+  TextColumn get periodType => textEnum<PeriodType>()();
+
+  /// Currency code (defaults to 'ZAR').
+  TextColumn get currency => text().withDefault(const Constant('ZAR'))();
+
+  /// When the template was created.
+  DateTimeColumn get createdAt => dateTime()();
+
+  /// When the template was last modified.
+  DateTimeColumn get updatedAt => dateTime()();
+
+  /// When the template was soft-deleted (null if active).
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  TextColumn get userId => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Represents a specific goal period generated from a [GoalTemplates] template.
+class GoalPeriods extends Table {
+  /// Unique identifier for the period.
+  TextColumn get id => text()();
+
+  /// The template this period belongs to.
+  TextColumn get templateId => text().references(GoalTemplates, #id)();
+
+  TextColumn get userId => text().nullable()();
+
+  TextColumn get periodKey => text()();
+
+  /// Start of the goal period.
+  DateTimeColumn get startDate => dateTime()();
+
+  /// End of the goal period.
+  DateTimeColumn get endDate => dateTime()();
+
+  /// The income target for this period.
+  TextColumn get targetAmount => text().map(DecimalConverter())();
+
+  /// Whether this period's target has been manually overridden.
+  BoolColumn get isOverridden => boolean()();
+
+  /// When the period was created.
+  DateTimeColumn get createdAt => dateTime()();
+
+  /// When the period was last modified.
+  DateTimeColumn get updatedAt => dateTime()();
+
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class GoalContributions extends Table {
+  TextColumn get id => text()();
+
+  TextColumn get templateId => text().references(GoalTemplates, #id)();
+
+  TextColumn get userId => text().nullable()();
+
+  TextColumn get amount => text().map(DecimalConverter())();
+
+  TextColumn get note => text().nullable()();
+
+  TextColumn get transactionId =>
+      text().references(Transactions, #id).nullable()();
+
+  DateTimeColumn get contributedAt => dateTime()();
+
+  DateTimeColumn get createdAt => dateTime()();
+
+  DateTimeColumn get updatedAt => dateTime()();
+
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Lists the co-owners of a shared budget template.
+///
+/// The template owner is identified by [BudgetTemplates.userId]; these rows
+/// hold the additional participants (equal co-owners).
+class BudgetMembers extends Table {
+  TextColumn get id => text()();
+
+  /// The shared budget template.
+  TextColumn get budgetTemplateId =>
+      text().references(BudgetTemplates, #id)();
+
+  /// The co-owner (Cognito subject).
+  TextColumn get userId => text().nullable()();
+
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Lists the co-owners of a shared goal template.
+class GoalMembers extends Table {
+  TextColumn get id => text()();
+
+  /// The shared goal template.
+  TextColumn get goalTemplateId => text().references(GoalTemplates, #id)();
+
+  /// The co-owner (Cognito subject).
+  TextColumn get userId => text().nullable()();
+
+  TextColumn get status => textEnum<GoalMemberStatus>().withDefault(
+    Constant(GoalMemberStatus.accepted.name),
+  )();
+
+  TextColumn get invitedBy => text().nullable()();
+
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// One row per registered user; holds the shareable friend code.
+class UserProfiles extends Table {
+  TextColumn get id => text()();
+
+  /// Cognito subject this profile belongs to.
+  TextColumn get userId => text().nullable()();
+
+  /// Short shareable code used to send friend requests.
+  TextColumn get friendCode => text()();
+
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// A friend request from [requesterId] to [addresseeId].
+class FriendRequests extends Table {
+  TextColumn get id => text()();
+
+  /// The sender's Cognito subject.
+  TextColumn get requesterId => text()();
+
+  /// The recipient's Cognito subject.
+  TextColumn get addresseeId => text()();
+
+  /// Current state of the request.
+  TextColumn get status => textEnum<FriendRequestStatus>()();
+
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// An accepted friendship between two users (stored as user_a < user_b).
+class Friendships extends Table {
+  TextColumn get id => text()();
+
+  /// The lexicographically smaller Cognito subject.
+  TextColumn get userA => text()();
+
+  /// The lexicographically larger Cognito subject.
+  TextColumn get userB => text()();
+
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
 }
