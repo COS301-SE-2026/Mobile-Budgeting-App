@@ -26,6 +26,7 @@ part 'transaction_dao.g.dart';
 ///   shortDescription: 'Groceries',
 ///   transactionDate: DateTime.now(),
 ///   source: TransactionSource.manual,
+/// 
 /// );
 /// ```
 @DriftAccessor(tables: [Transactions, TransactionCategoryMap])
@@ -61,6 +62,7 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
     required TransactionSource source,
     String currency = 'ZAR',
     String? recurringId,
+    required String budgetTemplateId,
   }) async {
     if (shortDescription.length > 100) {
       throw ArgumentError('shortDescription must be 100 characters or fewer');
@@ -82,6 +84,7 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
         updatedAt: now,
         source: source,
         currency: Value(currency),
+        budgetTemplateId: budgetTemplateId,
       ).copyWith(recurringId: Value(recurringId)),
     );
     return (select(transactions)..where((t) => t.id.equals(id))).getSingle();
@@ -177,6 +180,7 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
     DateTime? transactionDate,
     TransactionSource? source,
     String? currency,
+    String? budgetTemplateId,
   }) async {
     if (shortDescription != null && shortDescription.length > 100) {
       throw ArgumentError('shortDescription must be 100 characters or fewer');
@@ -197,6 +201,9 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
           : const Value.absent(),
       source: source != null ? Value(source) : const Value.absent(),
       currency: currency != null ? Value(currency) : const Value.absent(),
+      budgetTemplateId: budgetTemplateId != null
+          ? Value(budgetTemplateId)
+          : const Value.absent(),
       updatedAt: Value(_now()),
     );
     await (update(
@@ -327,5 +334,13 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
     query.where(transactionCategoryMap.categoryId.equals(categoryId));
     query.where(transactions.deletedAt.isNull());
     return query.map((row) => row.readTable(transactions)).get();
+  }
+
+  Future<List<Transaction>> getTransactionsByBudget(String budgetTemplateId) {
+    return (select(transactions)
+          ..where((t) => t.budgetTemplateId.equals(budgetTemplateId))
+          ..where((t) => t.deletedAt.isNull())
+          ..orderBy([(t) => OrderingTerm.desc(t.transactionDate)]))
+        .get();
   }
 }

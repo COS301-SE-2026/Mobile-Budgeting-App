@@ -82,6 +82,9 @@ bucket_definitions:
       - SELECT * FROM budget_members
         WHERE budget_template_id = bucket.budget_id
           AND deleted_at IS NULL
+      - SELECT * FROM categories
+        WHERE budget_template_id = bucket.budget_id
+          AND deleted_at IS NULL
       - SELECT * FROM budget_periods
         WHERE template_id = bucket.budget_id
           AND deleted_at IS NULL

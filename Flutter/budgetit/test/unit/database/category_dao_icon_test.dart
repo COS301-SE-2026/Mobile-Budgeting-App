@@ -25,6 +25,7 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Dining',
         type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
         icon: Icons.restaurant,
       );
 
@@ -36,6 +37,7 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Transport',
         type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
       );
 
       expect(cat.icon, isNull);
@@ -46,6 +48,7 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Groceries',
         type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
         icon: Icons.shopping_bag_outlined,
       );
 
@@ -61,6 +64,7 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Savings',
         type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
       );
 
       final updated = await dao.updateCategory(
@@ -78,6 +82,7 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Rent',
         type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
         icon: Icons.home_outlined,
       );
 
@@ -90,6 +95,7 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Health',
         type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
         icon: Icons.local_hospital_outlined,
       );
 

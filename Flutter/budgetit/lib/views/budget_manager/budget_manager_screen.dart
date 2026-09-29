@@ -10,6 +10,7 @@ import '../../shared/widgets/balance_card.dart';
 import '../../shared/widgets/searchbox.dart';
 import 'budget_detail_screen.dart';
 import '../../shared/widgets/goals_page.dart';
+import 'package:budgetit/services/friend_service.dart';
 
 class BudgetManagerScreen extends StatefulWidget {
   final AppDatabase database;
@@ -84,6 +85,10 @@ enum _BudgetSort {
 class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
   String _categorySearchQuery = '';
   _BudgetSort _budgetSort = _BudgetSort.defaultOrder;
+  int _currentBudgetIndex = 0;
+  final PageController _budgetPageController = PageController();
+  String? _selectedBudgetId;
+  late Future<List<_BudgetCategoryOption>> _selectedCategoriesFuture;
 
   static const _customCategoryIcons = <IconData>[
     Icons.sell_outlined,
@@ -313,12 +318,12 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
     _refreshBudgets();
   }
 
-  Future<double> _calculateSpentForCategory(
-    String categoryId,
+  Future<double> _calculateSpentForBudget(
+    String templateId,
     PeriodType periodType,
   ) async {
     final transactions = await widget.database.transactionDao
-        .getTransactionsByCategory(categoryId);
+        .getTransactionsByBudget(templateId);
 
     final now = DateTime.now();
     final anchorDay =
@@ -401,35 +406,45 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
   }
 
   Future<List<_BudgetManagerItem>> _loadBudgetItems() async {
-    final templates = await widget.database.budgetDao.getAllBudgetTemplates();
+    final all = await widget.database.budgetDao.getAllBudgetTemplates();
+
+    bool isLegacy(BudgetTemplate t) =>
+        t.categoryId != null || (t.name?.isEmpty ?? true);
+
+    // Legacy category-linked or unnamed templates are categories, not budgets.
+    for (final legacy in all.where(isLegacy)) {
+      await widget.database.budgetDao.softDeleteBudgetTemplate(legacy.id);
+    }
+
+    var templates = all.where((t) => !isLegacy(t)).toList();
+    if (templates.isEmpty) {
+      await widget.database.budgetDao.insertBudgetTemplate(
+        amount: Decimal.zero,
+        periodType: PeriodType.monthly,
+        name: 'Main Budget',
+      );
+      templates = await widget.database.budgetDao.getAllBudgetTemplates();
+      templates = templates.where((t) => !isLegacy(t)).toList();
+    }
 
     final items = <_BudgetManagerItem>[];
 
     for (final template in templates) {
-      final categoryId = template.categoryId;
-      if (categoryId == null) continue;
-
-      final category = await widget.database.categoryDao.getCategoryById(
-        categoryId,
-      );
-
-      if (category == null) continue;
-
-      final spent = await _calculateSpentForCategory(
-        category.id,
+      final spent = await _calculateSpentForBudget(
+        template.id,
         template.periodType,
       );
 
       items.add(
         _BudgetManagerItem(
           templateId: template.id,
-          categoryId: category.id,
-          title: template.name ?? category.name,
+          categoryId: '',
+          title: template.name ?? 'Main Budget',
           subtitle: _periodTypeLabel(template.periodType),
           spent: spent,
           limit: template.amount.toDouble(),
-          icon: category.iconData ?? Icons.category_outlined,
-          progressColor: _colorFromHex(category.color),
+          icon: Icons.account_balance_wallet_outlined,
+          progressColor: _colorFromHex(null),
           periodType: template.periodType,
         ),
       );
@@ -458,11 +473,6 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
     final categories = await widget.database.categoryDao.getCategoriesByType(
       CategoryType.expense,
     );
-    final existingBudgets = await widget.database.budgetDao
-        .getAllBudgetTemplates();
-    final budgetedCategoryIds = existingBudgets
-        .map((budget) => budget.categoryId)
-        .toSet();
 
     return categories.map((category) {
       return _BudgetCategoryOption(
@@ -471,9 +481,33 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
         subtitle: 'Expense category',
         icon: category.iconData ?? Icons.category_outlined,
         progressColor: _colorFromHex(category.color),
-        alreadyBudgeted: budgetedCategoryIds.contains(category.id),
       );
     }).toList();
+  }
+
+  Future<List<_BudgetCategoryOption>> _loadCategoriesForBudget(
+    String budgetTemplateId,
+  ) async {
+    final categories = await widget.database.categoryDao.getCategoriesByBudget(
+      budgetTemplateId,
+    );
+    return categories.map((category) {
+      return _BudgetCategoryOption(
+        categoryId: category.id,
+        label: category.name,
+        subtitle: 'Expense category',
+        icon: category.iconData ?? Icons.category_outlined,
+        progressColor: _colorFromHex(category.color),
+      );
+    }).toList();
+  }
+
+  void _selectBudget(String budgetId) {
+    if (_selectedBudgetId == budgetId) return;
+    setState(() {
+      _selectedBudgetId = budgetId;
+      _selectedCategoriesFuture = _loadCategoriesForBudget(budgetId);
+    });
   }
 
   String _periodTypeLabel(PeriodType periodType) {
@@ -517,6 +551,16 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
       _categoryOptionsFuture = _loadCategoryOptions();
       _budgetSummaryFuture = _loadBudgetSummary();
     });
+    _selectFirstBudget();
+  }
+
+  void _selectFirstBudget() {
+    _budgetItemsFuture.then((budgets) {
+      if (budgets.isNotEmpty && mounted) {
+        final index = _currentBudgetIndex.clamp(0, budgets.length - 1);
+        _selectBudget(budgets[index].templateId);
+      }
+    });
   }
 
   late Future<List<_BudgetManagerItem>> _budgetItemsFuture;
@@ -531,6 +575,8 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
     _budgetItemsFuture = _loadBudgetItems();
     _categoryOptionsFuture = _loadCategoryOptions();
     _budgetSummaryFuture = _loadBudgetSummary();
+    _selectedCategoriesFuture = Future.value(const []);
+    _selectFirstBudget();
   }
 
   @override
@@ -608,7 +654,47 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 18),
+              
+                const SizedBox(height: 14),
+                _summaryCard(),
+
+                const SizedBox(height: 14),
+
+                GestureDetector(
+                  onTap: () => _showCreateBudgetDialog(context),
+                  child: Container(
+                    width: double.infinity,
+                    height: 55,
+                    decoration: BoxDecoration(
+                      color: cardColor,
+                      border: Border.all(color: Colors.black, width: 4),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(4, 4),
+                          blurRadius: 0,
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.add, color: cardTextColor),
+                        const SizedBox(width: 8),
+                        Text(
+                          'CREATE NEW BUDGET',
+                          style: colours.h2.copyWith(
+                            color: cardTextColor,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 14),
+
                 GestureDetector(
                   onTap: () => Navigator.of(
                     context,
@@ -643,8 +729,6 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 14),
-                _summaryCard(),
 
                 const SizedBox(height: 14),
 
@@ -699,7 +783,6 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                _budgetSortFilter(),
 
                 const SizedBox(height: 18),
 
@@ -727,7 +810,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                       ),
                       const SizedBox(height: 12),
                       GestureDetector(
-                        onTap: () => _showCreateBudgetDialog(context),
+                        onTap: () => _showCreateCategoryDialog(context),
                         child: Container(
                           width: double.infinity,
                           height: 55,
@@ -748,7 +831,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                               Icon(Icons.add, color: cardTextColor),
                               const SizedBox(width: 8),
                               Text(
-                                'CREATE NEW BUDGET',
+                                'CREATE NEW CATEGORY',
                                 style: colours.h2.copyWith(
                                   color: cardTextColor,
                                   fontSize: 15,
@@ -759,8 +842,8 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                         ),
                       ),
                       const SizedBox(height: 18),
-                      FutureBuilder<List<_BudgetManagerItem>>(
-                        future: _budgetItemsFuture,
+                      FutureBuilder<List<_BudgetCategoryOption>>(
+                        future: _selectedCategoriesFuture,
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
@@ -774,7 +857,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
 
                           if (snapshot.hasError) {
                             return Text(
-                              'Could not load budgets.',
+                              'Could not load categories.',
                               style: TextStyle(
                                 color: cardTextColor,
                                 fontSize: 13,
@@ -782,78 +865,32 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                             );
                           }
 
-                          final budgets = snapshot.data ?? [];
-                          final filteredBudgets = budgets
+                          final categories = snapshot.data ?? [];
+                          final filteredCategories = categories
                               .where(
-                                (budget) => budget.title.toLowerCase().contains(
-                                  _categorySearchQuery,
-                                ),
+                                (category) => category.label
+                                    .toLowerCase()
+                                    .contains(_categorySearchQuery),
                               )
-                              .toList();
-                          switch (_budgetSort) {
-                            case _BudgetSort.defaultOrder:
-                              break;
-                            case _BudgetSort.nameAZ:
-                              filteredBudgets.sort(
-                                (a, b) => a.title.compareTo(b.title),
-                              );
-                              break;
-                            case _BudgetSort.nameZA:
-                              filteredBudgets.sort(
-                                (a, b) => b.title.compareTo(a.title),
-                              );
-                              break;
-                            case _BudgetSort.spentHigh:
-                              filteredBudgets.sort(
-                                (a, b) => b.spent.compareTo(a.spent),
-                              );
-                              break;
-                            case _BudgetSort.spentLow:
-                              filteredBudgets.sort(
-                                (a, b) => a.spent.compareTo(b.spent),
-                              );
-                              break;
-                            case _BudgetSort.limitHigh:
-                              filteredBudgets.sort(
-                                (a, b) => b.limit.compareTo(a.limit),
-                              );
-                              break;
-                            case _BudgetSort.limitLow:
-                              filteredBudgets.sort(
-                                (a, b) => a.limit.compareTo(b.limit),
-                              );
-                              break;
-                          }
+                              .toList()
+                            ..sort((a, b) => a.label.compareTo(b.label));
 
-                          if (budgets.isEmpty) {
-                            final cardColor =
-                                Theme.of(context).brightness == Brightness.light
-                                ? context.colours.background
-                                : context.colours.primary;
-
-                            return Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(18),
-                              decoration: BoxDecoration(
-                                color: cardColor,
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  color: context.colours.secondary,
-                                  width: 1,
-                                ),
-                              ),
-                              child: Text(
-                                'No budgets created yet. Use the button above to create one.',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: context.colours.textPrimary,
-                                  fontSize: 13,
+                          if (categories.isEmpty) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 24),
+                              child: Center(
+                                child: Text(
+                                  'No categories yet.',
+                                  textAlign: TextAlign.center,
+                                  style: context.colours.b1.copyWith(
+                                    color: cardTextColor.withValues(alpha: 0.7),
+                                  ),
                                 ),
                               ),
                             );
                           }
 
-                          if (filteredBudgets.isEmpty) {
+                          if (filteredCategories.isEmpty) {
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 24),
                               child: Center(
@@ -870,18 +907,8 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
 
                           return Column(
                             children: [
-                              for (final budget in filteredBudgets) ...[
-                                _budgetCard(
-                                  icon: budget.icon,
-                                  title: budget.title,
-                                  subtitle: budget.subtitle,
-                                  spent: budget.spent,
-                                  limit: budget.limit,
-                                  isOverLimit: budget.isOverLimit,
-                                  onTap: () => _showBudgetInsights(budget),
-
-                                  onDelete: () => _confirmDeleteBudget(budget),
-                                ),
+                              for (final category in filteredCategories) ...[
+                                _categoryCard(category),
                                 const SizedBox(height: 14),
                               ],
                             ],
@@ -900,16 +927,290 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
   }
 
   Widget _summaryCard() {
-    return FutureBuilder<_BudgetSummary>(
-      future: _budgetSummaryFuture,
+    return FutureBuilder<List<_BudgetManagerItem>>(
+      future: _budgetItemsFuture,
       builder: (context, snapshot) {
-        final summary = snapshot.data;
-        final totalSpent = summary?.totalSpent ?? 0;
-        final totalTarget = summary?.totalTarget ?? 0;
-
-        return BalanceCard(totalSpent: totalSpent, totalTarget: totalTarget);
+        final items = snapshot.data ?? [];
+        if (items.isEmpty) {
+          return const BalanceCard(
+            totalSpent: 0,
+            totalTarget: 0,
+            title: 'NO BUDGETS YET',
+          );
+        }
+        return Column(
+          children: [
+            SizedBox(
+              height: 180,
+              child: PageView.builder(
+                controller: _budgetPageController,
+                itemCount: items.length,
+                onPageChanged: (i) {
+                  setState(() => _currentBudgetIndex = i);
+                  if (i < items.length) {
+                    _selectBudget(items[i].templateId);
+                  }
+                },
+                itemBuilder: (context, index) {
+                  final item = items[index];
+                  return BalanceCard(
+                    totalSpent: item.spent,
+                    totalTarget: item.limit,
+                    title: item.title,
+                    onTap: () => _showBudgetMenu(item),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(items.length, (i) {
+                final active = i == _currentBudgetIndex;
+                return Container(
+                  width: active ? 22 : 10,
+                  height: 10,
+                  margin: const EdgeInsets.symmetric(horizontal: 3),
+                  color: active
+                      ? context.colours.informational
+                      : context.colours.textMuted,
+                );
+              }),
+            ),
+          ],
+        );
       },
     );
+  }
+
+  Future<void> _showBudgetMenu(_BudgetManagerItem item) async {
+    final colours = context.colours;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final sheet = isDark ? colours.blendedprimary : colours.background;
+
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetCtx) => Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: sheet,
+          border: Border.all(color: Colors.black, width: 4),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              item.title,
+              style: colours.h2.copyWith(color: colours.secondary),
+            ),
+            const SizedBox(height: 16),
+            _menuTile(sheetCtx, Icons.edit_outlined, 'EDIT BUDGET', () {
+              Navigator.pop(sheetCtx);
+              _showEditBudgetDialog(item);
+            }),
+            _menuTile(sheetCtx, Icons.group_add_outlined, 'SHARE BUDGET', () {
+              Navigator.pop(sheetCtx);
+              _showShareBudgetDialog(item);
+            }),
+            _menuTile(
+              sheetCtx,
+              Icons.delete_outline,
+              'DELETE BUDGET',
+              () {
+                Navigator.pop(sheetCtx);
+                _showDeleteBudgetDialog(item);
+              },
+              colours.error,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _menuTile(
+    BuildContext ctx,
+    IconData icon,
+    String label,
+    VoidCallback onTap, [
+    Color? iconColor,
+  ]) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        decoration: BoxDecoration(
+          color: ctx.colours.background,
+          border: Border.all(color: Colors.black, width: 3),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: iconColor ?? ctx.colours.secondary),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                label,
+                style: ctx.colours.b1.copyWith(
+                  color: ctx.colours.secondary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Icon(Icons.chevron_right, color: ctx.colours.secondary),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showEditBudgetDialog(_BudgetManagerItem item) async {
+    final colours = context.colours;
+    final nameCtrl = TextEditingController(text: item.title);
+    final amountCtrl = TextEditingController(
+      text: item.limit.toStringAsFixed(2),
+    );
+
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (dCtx) => AlertDialog(
+        backgroundColor: colours.background,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.zero,
+          side: const BorderSide(color: Colors.black, width: 4),
+        ),
+        title: Text('EDIT BUDGET', style: colours.h2),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameCtrl,
+              style: colours.b1,
+              decoration: const InputDecoration(labelText: 'Name'),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: amountCtrl,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              style: colours.b1,
+              decoration: const InputDecoration(labelText: 'Amount (R)'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dCtx, false),
+            child: Text('Cancel', style: colours.b1),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(dCtx, true),
+            child: Text(
+              'Save',
+              style: colours.b1.copyWith(color: colours.background),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (saved != true) return;
+    final amount = Decimal.tryParse(amountCtrl.text.trim()) ?? Decimal.zero;
+    await widget.database.budgetDao.updateBudgetTemplate(
+      item.templateId,
+      name: nameCtrl.text.trim().isEmpty ? null : nameCtrl.text.trim(),
+      amount: amount,
+    );
+    if (mounted) _refreshBudgets();
+  }
+
+  Future<void> _showDeleteBudgetDialog(_BudgetManagerItem item) async {
+    final colours = context.colours;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dCtx) => AlertDialog(
+        backgroundColor: colours.background,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.zero,
+          side: const BorderSide(color: Colors.black, width: 4),
+        ),
+        title: Text('DELETE BUDGET', style: colours.h2),
+        content: Text('Delete "${item.title}"?', style: colours.b1),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dCtx, false),
+            child: Text('Cancel', style: colours.b1),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: colours.error),
+            onPressed: () => Navigator.pop(dCtx, true),
+            child: Text(
+              'Delete',
+              style: colours.b1.copyWith(color: colours.whiteAccents),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await widget.database.budgetDao.softDeleteBudgetTemplate(item.templateId);
+      if (mounted) _refreshBudgets();
+    }
+  }
+
+  Future<void> _showShareBudgetDialog(_BudgetManagerItem item) async {
+    final db = widget.database;
+    final colours = context.colours;
+    final me = await FriendService.instance.getMyUserId();
+    final friends = await db.friendsDao.getFriends();
+    final profiles = await db.friendsDao.getAllProfiles();
+    final codeByUser = {
+      for (final p in profiles)
+        if (p.userId != null) p.userId!: p.friendCode,
+    };
+
+    final chosen = await showDialog<String>(
+      context: context,
+      builder: (dCtx) => AlertDialog(
+        backgroundColor: colours.background,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.zero,
+          side: const BorderSide(color: Colors.black, width: 4),
+        ),
+        title: Text('SHARE BUDGET', style: colours.h2),
+        content: friends.isEmpty
+            ? Text('No friends yet.', style: colours.b1)
+            : SizedBox(
+                width: double.maxFinite,
+                child: ListView(
+                  shrinkWrap: true,
+                  children: friends.map((f) {
+                    final otherId = f.userA == me ? f.userB : f.userA;
+                    return ListTile(
+                      title: Text(
+                        codeByUser[otherId] ?? 'Friend',
+                        style: colours.b1,
+                      ),
+                      onTap: () => Navigator.pop(dCtx, otherId),
+                    );
+                  }).toList(),
+                ),
+              ),
+      ),
+    );
+
+    if (chosen != null) {
+      await db.sharingDao.addBudgetMember(
+        budgetTemplateId: item.templateId,
+        userId: chosen,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Budget shared')));
+      }
+    }
   }
 
   Widget _budgetSortFilter() {
@@ -964,6 +1265,193 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
           },
         ),
       ),
+    );
+  }
+
+  Widget _categoryCard(_BudgetCategoryOption category) {
+    final colours = context.colours;
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final cardColor = isLight ? colours.background : colours.primary;
+    final textColor = colours.textPrimary;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: cardColor,
+        border: Border.all(color: Colors.black, width: 4),
+        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(4, 4))],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: colours.secondary,
+              border: Border.all(color: Colors.black, width: 2),
+            ),
+            child: Icon(category.icon, color: colours.background, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  category.label,
+                  style: colours.b1.copyWith(
+                    color: textColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  category.subtitle,
+                  style: colours.b5.copyWith(color: colours.textMuted),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            onPressed: () => _showEditCategoryDialog(category),
+            icon: Icon(Icons.edit_outlined, color: textColor, size: 20),
+          ),
+          IconButton(
+            onPressed: () => _confirmDeleteCategory(category),
+            icon: Icon(Icons.delete_outline, color: colours.error, size: 20),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditCategoryDialog(_BudgetCategoryOption category) {
+    final nameController = TextEditingController(text: category.label);
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        final colours = context.colours;
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final dialogColor = isDark ? colours.blendedprimary : colours.background;
+        final dialogTextColor = isDark ? colours.secondary : colours.textPrimary;
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 28),
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 420),
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+            decoration: BoxDecoration(
+              color: dialogColor,
+              border: Border.all(color: Colors.black, width: 4),
+              boxShadow: const [
+                BoxShadow(color: Colors.black, offset: Offset(6, 6)),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'EDIT CATEGORY',
+                  style: colours.h2.copyWith(color: dialogTextColor),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: nameController,
+                  style: colours.b1.copyWith(color: dialogTextColor),
+                  decoration: InputDecoration(
+                    labelText: 'Category name',
+                    labelStyle: colours.b1.copyWith(color: dialogTextColor),
+                    filled: true,
+                    fillColor: colours.background,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.zero,
+                      borderSide: const BorderSide(color: Colors.black, width: 3),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.zero,
+                      borderSide: const BorderSide(color: Colors.black, width: 3),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.zero,
+                      borderSide: const BorderSide(color: Colors.black, width: 4),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    OutlinedButton(
+                      onPressed: () => Navigator.of(dialogContext).pop(),
+                      child: const Text('Cancel'),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final name = nameController.text.trim();
+                        if (name.isEmpty) return;
+                        await widget.database.categoryDao.updateCategory(
+                          category.categoryId,
+                          name: name,
+                        );
+                        if (dialogContext.mounted) {
+                          Navigator.of(dialogContext).pop();
+                        }
+                        _refreshBudgets();
+                      },
+                      child: const Text('Save'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _confirmDeleteCategory(_BudgetCategoryOption category) {
+    final colours = context.colours;
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: colours.background,
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+          title: Text('Delete category?', style: colours.h2),
+          content: Text(
+            'This will delete "${category.label}".',
+            style: colours.b1,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await widget.database.categoryDao.softDeleteCategory(
+                  category.categoryId,
+                );
+                if (dialogContext.mounted) {
+                  Navigator.of(dialogContext).pop();
+                }
+                _refreshBudgets();
+              },
+              child: Text('Delete', style: TextStyle(color: colours.error)),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -1342,14 +1830,14 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     ),
                     const SizedBox(width: 10),
                     Text(
-                      'Delete Budget',
+                      'Delete Category',
                       style: colours.h2.copyWith(color: cardTextColor),
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Are you sure you want to delete the ${budget.title} budget?',
+                  'Are you sure you want to delete the ${budget.title} category?',
                   style: colours.b1.copyWith(color: cardTextColor),
                 ),
                 const SizedBox(height: 22),
@@ -1428,7 +1916,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  '${budget.title} budget deleted',
+                  '${budget.title} category deleted',
                   style: TextStyle(
                     color: context.colours.whiteAccents,
                     fontWeight: FontWeight.w600,
@@ -1442,608 +1930,239 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
   }
 
   void _showCreateBudgetDialog(BuildContext context) {
-    var limitText = '';
+    final nameController = TextEditingController();
+    final amountController = TextEditingController();
 
     showDialog(
       context: context,
       builder: (dialogContext) {
+        final colours = context.colours;
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final dialogColor = isDark ? colours.blendedprimary : colours.background;
+        final dialogTextColor = isDark ? colours.secondary : colours.textPrimary;
+
+        InputDecoration inputDecoration(String label, {String? hint}) {
+          return InputDecoration(
+            labelText: label,
+            labelStyle: colours.b1.copyWith(color: dialogTextColor),
+            hintText: hint,
+            filled: true,
+            fillColor: colours.background,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.zero,
+              borderSide: const BorderSide(color: Colors.black, width: 3),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.zero,
+              borderSide: const BorderSide(color: Colors.black, width: 3),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.zero,
+              borderSide: const BorderSide(color: Colors.black, width: 4),
+            ),
+          );
+        }
+
         return FutureBuilder<List<_BudgetCategoryOption>>(
           future: _categoryOptionsFuture,
           builder: (context, snapshot) {
-            final colours = context.colours;
-            final isDark = Theme.of(context).brightness == Brightness.dark;
-            final dialogColor = isDark
-                ? colours.blendedprimary
-                : colours.background;
-            final dialogTextColor = isDark
-                ? colours.secondary
-                : colours.textPrimary;
-            final accentColor = colours.background;
-            final accentTextColor = colours.secondary;
-
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Dialog(
-                backgroundColor: Colors.transparent,
-                insetPadding: const EdgeInsets.symmetric(
-                  horizontal: 18,
-                  vertical: 28,
-                ),
-                child: Container(
-                  constraints: const BoxConstraints(maxWidth: 420),
-                  padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
-                  decoration: BoxDecoration(
-                    color: dialogColor,
-                    border: Border.all(color: Colors.black, width: 4),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black,
-                        offset: Offset(6, 6),
-                        blurRadius: 0,
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    heightFactor: 2,
-                    child: CircularProgressIndicator(color: colours.secondary),
-                  ),
-                ),
-              );
-            }
-
-            final categoryOptions = snapshot.data ?? [];
-
-            InputDecoration inputDecoration(String label, {String? hint}) {
-              return InputDecoration(
-                labelText: label,
-                labelStyle: colours.b1.copyWith(color: dialogTextColor),
-                hintText: hint,
-                hintStyle: colours.h2.copyWith(
-                  color: dialogTextColor.withValues(alpha: 0.55),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-                filled: true,
-                fillColor: colours.background,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.zero,
-                  borderSide: const BorderSide(color: Colors.black, width: 3),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.zero,
-                  borderSide: const BorderSide(color: Colors.black, width: 3),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.zero,
-                  borderSide: const BorderSide(color: Colors.black, width: 4),
-                ),
-                errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.zero,
-                  borderSide: BorderSide(color: colours.error, width: 4),
-                ),
-                focusedErrorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.zero,
-                  borderSide: BorderSide(color: colours.error, width: 4),
-                ),
-              );
-            }
-
-            Widget dialogShell(Widget child) {
-              return Dialog(
-                backgroundColor: Colors.transparent,
-                insetPadding: const EdgeInsets.symmetric(
-                  horizontal: 18,
-                  vertical: 28,
-                ),
-                child: Container(
-                  constraints: const BoxConstraints(maxWidth: 420),
-                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
-                  decoration: BoxDecoration(
-                    color: dialogColor,
-                    border: Border.all(color: Colors.black, width: 4),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black,
-                        offset: Offset(6, 6),
-                        blurRadius: 0,
-                      ),
-                    ],
-                  ),
-                  child: child,
-                ),
-              );
-            }
-
-            _BudgetCategoryOption? selectedCategory = categoryOptions
-                .where((category) => !category.alreadyBudgeted)
-                .firstOrNull;
-            var createCustomCategory = false;
-            var customCategoryName = '';
-            var customCategoryIcon = Icons.sell_outlined;
-
-            void showCategoryExists(String name) {
-              showDialog<void>(
-                context: context,
-                builder: (messageContext) => AlertDialog(
-                  backgroundColor: dialogColor,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.zero,
-                    side: BorderSide(color: Colors.black, width: 4),
-                  ),
-                  title: Text('Budget already exists', style: colours.h2),
-                  content: Text(
-                    'A budget for $name already exists. Edit the existing '
-                    'budget instead.',
-                    style: colours.b1,
-                  ),
-                  actions: [
-                    ElevatedButton(
-                      onPressed: () => Navigator.of(messageContext).pop(),
-                      style: isDark
-                          ? AppDialogStyle.primary(context)
-                          : ElevatedButton.styleFrom(
-                              backgroundColor: colours.secondary,
-                              foregroundColor: colours.background,
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.zero,
-                                side: BorderSide(color: Colors.black, width: 3),
-                              ),
-                              textStyle: colours.b1.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                      child: const Text('OK'),
-                    ),
-                  ],
-                ),
-              );
-            }
+            final categories = snapshot.data ?? [];
 
             return StatefulBuilder(
               builder: (context, setDialogState) {
-                return dialogShell(
-                  SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Create New Budget',
-                          style: colours.h2.copyWith(
-                            color: dialogTextColor,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
+                return Dialog(
+                  backgroundColor: Colors.transparent,
+                  insetPadding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 28,
+                  ),
+                  child: Container(
+                    constraints: const BoxConstraints(maxWidth: 420),
+                    padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+                    decoration: BoxDecoration(
+                      color: dialogColor,
+                      border: Border.all(color: Colors.black, width: 4),
+                      boxShadow: const [
+                        BoxShadow(color: Colors.black, offset: Offset(6, 6)),
+                      ],
+                    ),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            'NEW BUDGET',
+                            style: colours.h2.copyWith(color: dialogTextColor),
                           ),
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          'Choose an available category or create one that '
-                          'fits your budget.',
-                          style: colours.b1.copyWith(
-                            color: dialogTextColor.withValues(alpha: 0.8),
-                          ),
-                        ),
-                        const SizedBox(height: 18),
-                        DropdownButtonFormField<_BudgetCategoryOption>(
-                          initialValue: selectedCategory,
-                          isExpanded: true,
-                          dropdownColor: colours.background,
-                          style: colours.b1.copyWith(color: dialogTextColor),
-                          decoration: inputDecoration('Budget category'),
-                          items: categoryOptions.map((category) {
-                            return DropdownMenuItem<_BudgetCategoryOption>(
-                              value: category,
-                              enabled: !category.alreadyBudgeted,
-                              child: GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                onTap: category.alreadyBudgeted
-                                    ? () => showCategoryExists(category.label)
-                                    : null,
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      category.icon,
-                                      color: category.alreadyBudgeted
-                                          ? dialogTextColor.withValues(
-                                              alpha: 0.38,
-                                            )
-                                          : dialogTextColor,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: Text(
-                                        category.alreadyBudgeted
-                                            ? '${category.label} · EXISTS'
-                                            : category.label,
-                                        style: colours.b1.copyWith(
-                                          color: dialogTextColor.withValues(
-                                            alpha: category.alreadyBudgeted
-                                                ? 0.38
-                                                : 1,
-                                          ),
-                                          fontWeight: category.alreadyBudgeted
-                                              ? FontWeight.bold
-                                              : null,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            if (value == null) return;
-
-                            setDialogState(() {
-                              selectedCategory = value;
-                              createCustomCategory = false;
-                            });
-                          },
-                        ),
-
-                        const SizedBox(height: 14),
-
-                        InkWell(
-                          onTap: () => setDialogState(() {
-                            createCustomCategory = !createCustomCategory;
-                          }),
-                          child: Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              color: accentColor,
-                              border: Border.all(
-                                color: Colors.black,
-                                width: createCustomCategory ? 4 : 3,
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.add_box_outlined,
-                                  color: accentTextColor,
-                                ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  'CREATE A CUSTOM CATEGORY',
-                                  style: colours.b1.copyWith(
-                                    color: accentTextColor,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        if (createCustomCategory) ...[
-                          const SizedBox(height: 14),
+                          const SizedBox(height: 16),
                           TextField(
-                            onChanged: (value) => customCategoryName = value,
-                            textCapitalization: TextCapitalization.words,
+                            controller: nameController,
                             style: colours.b1.copyWith(color: dialogTextColor),
                             decoration: inputDecoration(
-                              'Custom category name',
-                              hint: 'e.g. Pet care',
+                              'Budget name',
+                              hint: 'e.g. Main Budget',
                             ),
                           ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'CHOOSE AN ICON',
-                            style: colours.b5.copyWith(
-                              color: colours.textPrimary,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.8,
+                          const SizedBox(height: 14),
+                          TextField(
+                            controller: amountController,
+                            keyboardType: TextInputType.number,
+                            style: colours.b1.copyWith(color: dialogTextColor),
+                            decoration: inputDecoration(
+                              'Budget limit',
+                              hint: 'e.g. 5000',
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          GridView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 6,
-                                  crossAxisSpacing: 8,
-                                  mainAxisSpacing: 8,
-                                ),
-                            itemCount: _customCategoryIcons.length,
-                            itemBuilder: (context, index) {
-                              final icon = _customCategoryIcons[index];
-                              final selected = icon == customCategoryIcon;
-                              return InkWell(
-                                onTap: () => setDialogState(
-                                  () => customCategoryIcon = icon,
-                                ),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: accentColor,
-                                    border: Border.all(
-                                      color: Colors.black,
-                                      width: selected ? 3 : 2,
-                                    ),
-                                  ),
-                                  child: Icon(
-                                    icon,
-                                    size: 21,
-                                    color: accentTextColor,
-                                  ),
-                                ),
-                              );
-                            },
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              OutlinedButton(
+                                onPressed: () =>
+                                    Navigator.of(dialogContext).pop(),
+                                child: const Text('Cancel'),
+                              ),
+                              const SizedBox(width: 8),
+                              ElevatedButton(
+                                onPressed: () async {
+                                  final name = nameController.text.trim();
+                                  final amount = double.tryParse(
+                                    amountController.text,
+                                  );
+                                  if (name.isEmpty || amount == null) return;
+                                  await widget.database.budgetDao
+                                      .insertBudgetTemplate(
+                                        amount: Decimal.parse(
+                                          amount.toStringAsFixed(2),
+                                        ),
+                                        periodType: PeriodType.monthly,
+                                        name: name,
+                                      );
+                                  if (dialogContext.mounted) {
+                                    Navigator.of(dialogContext).pop();
+                                  }
+                                  _refreshBudgets();
+                                },
+                                child: const Text('Create'),
+                              ),
+                            ],
                           ),
                         ],
-
-                        const SizedBox(height: 14),
-
-                        TextField(
-                          onChanged: (value) => limitText = value,
-                          keyboardType: TextInputType.number,
-                          style: colours.b1.copyWith(color: dialogTextColor),
-                          decoration:
-                              inputDecoration(
-                                'Budget limit',
-                                hint: 'e.g. 500',
-                              ).copyWith(
-                                prefixText: 'R ',
-                                prefixStyle: colours.b1.copyWith(
-                                  color: dialogTextColor,
-                                ),
-                              ),
-                        ),
-                        const SizedBox(height: 18),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            OutlinedButton(
-                              onPressed: () {
-                                Navigator.of(dialogContext).pop();
-                              },
-                              style: isDark
-                                  ? AppDialogStyle.cancel(context)
-                                  : OutlinedButton.styleFrom(
-                                      foregroundColor: dialogTextColor,
-                                      side: const BorderSide(
-                                        color: Colors.black,
-                                        width: 3,
-                                      ),
-                                      shape: const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.zero,
-                                      ),
-                                      textStyle: colours.b1.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                              child: const Text('Cancel'),
-                            ),
-                            const SizedBox(width: 8),
-                            ElevatedButton(
-                              onPressed: () async {
-                                final double? limit = double.tryParse(
-                                  limitText.trim(),
-                                );
-
-                                if (limit == null || limit <= 0) {
-                                  ScaffoldMessenger.of(context)
-                                    ..hideCurrentSnackBar()
-                                    ..showSnackBar(
-                                      SnackBar(
-                                        behavior: SnackBarBehavior.floating,
-                                        backgroundColor: colours.error,
-                                        margin: const EdgeInsets.symmetric(
-                                          horizontal: 18,
-                                          vertical: 16,
-                                        ),
-                                        shape: const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.zero,
-                                          side: BorderSide(
-                                            color: Colors.black,
-                                            width: 3,
-                                          ),
-                                        ),
-                                        content: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.error_outline,
-                                              color: colours.whiteAccents,
-                                            ),
-                                            const SizedBox(width: 12),
-                                            Expanded(
-                                              child: Text(
-                                                'Please enter a valid budget limit.',
-                                                style: TextStyle(
-                                                  color: colours.whiteAccents,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  return;
-                                }
-
-                                final customName = customCategoryName.trim();
-                                if (createCustomCategory &&
-                                    customName.isEmpty) {
-                                  ScaffoldMessenger.of(context)
-                                    ..hideCurrentSnackBar()
-                                    ..showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Enter a custom category name.',
-                                        ),
-                                      ),
-                                    );
-                                  return;
-                                }
-
-                                final matchingCategory = categoryOptions
-                                    .where(
-                                      (category) =>
-                                          category.label.toLowerCase() ==
-                                          customName.toLowerCase(),
-                                    )
-                                    .firstOrNull;
-                                if (createCustomCategory &&
-                                    matchingCategory != null) {
-                                  if (matchingCategory.alreadyBudgeted) {
-                                    showCategoryExists(matchingCategory.label);
-                                  } else {
-                                    ScaffoldMessenger.of(context)
-                                      ..hideCurrentSnackBar()
-                                      ..showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            '${matchingCategory.label} already '
-                                            'exists. Select it above.',
-                                          ),
-                                        ),
-                                      );
-                                  }
-                                  return;
-                                }
-
-                                if (!createCustomCategory &&
-                                    selectedCategory == null) {
-                                  ScaffoldMessenger.of(context)
-                                    ..hideCurrentSnackBar()
-                                    ..showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Select an available category or '
-                                          'create a custom one.',
-                                        ),
-                                      ),
-                                    );
-                                  return;
-                                }
-
-                                final category = createCustomCategory
-                                    ? await widget.database.categoryDao
-                                          .insertCategory(
-                                            name: customName,
-                                            type: CategoryType.expense,
-                                            icon: customCategoryIcon,
-                                            color: '#137E84',
-                                          )
-                                    : null;
-                                final categoryId =
-                                    category?.id ??
-                                    selectedCategory!.categoryId;
-                                final categoryLabel =
-                                    category?.name ?? selectedCategory!.label;
-                                final categoryIcon =
-                                    category?.iconData ??
-                                    selectedCategory!.icon;
-
-                                await widget.database.budgetDao
-                                    .insertBudgetTemplate(
-                                      categoryId: categoryId,
-                                      amount: Decimal.parse(limit.toString()),
-                                      periodType: PeriodType.monthly,
-                                      name: categoryLabel,
-                                    );
-
-                                if (!mounted) return;
-                                if (!dialogContext.mounted) return;
-
-                                Navigator.of(dialogContext).pop();
-
-                                _refreshBudgets();
-
-                                ScaffoldMessenger.of(this.context)
-                                  ..hideCurrentSnackBar()
-                                  ..showSnackBar(
-                                    SnackBar(
-                                      behavior: SnackBarBehavior.floating,
-                                      backgroundColor: isDark
-                                          ? colours.blendedprimary
-                                          : colours.secondary,
-                                      elevation: 8,
-                                      margin: const EdgeInsets.symmetric(
-                                        horizontal: 18,
-                                        vertical: 16,
-                                      ),
-                                      shape: const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.zero,
-                                        side: BorderSide(
-                                          color: Colors.black,
-                                          width: 3,
-                                        ),
-                                      ),
-                                      duration: const Duration(seconds: 3),
-                                      content: Row(
-                                        children: [
-                                          Container(
-                                            width: 34,
-                                            height: 34,
-                                            decoration: BoxDecoration(
-                                              color: colours.background,
-                                              border: Border.all(
-                                                color: Colors.black,
-                                                width: 2,
-                                              ),
-                                            ),
-                                            child: Icon(
-                                              categoryIcon,
-                                              color: colours.secondary,
-                                              size: 20,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 12),
-                                          Expanded(
-                                            child: Text(
-                                              '$categoryLabel budget created successfully',
-                                              style: TextStyle(
-                                                color: isDark
-                                                    ? colours.secondary
-                                                    : colours.background,
-                                                fontWeight: FontWeight.w700,
-                                                fontSize: 13,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                              },
-                              style: isDark
-                                  ? AppDialogStyle.primary(context)
-                                  : ElevatedButton.styleFrom(
-                                      backgroundColor: colours.secondary,
-                                      foregroundColor: colours.background,
-                                      shape: const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.zero,
-                                        side: BorderSide(
-                                          color: Colors.black,
-                                          width: 3,
-                                        ),
-                                      ),
-                                      textStyle: colours.b1.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                              child: const Text('Create'),
-                            ),
-                          ],
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 );
               },
             );
           },
+        );
+      },
+    );
+  }
+
+  void _showCreateCategoryDialog(BuildContext context) {
+    final nameController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        final colours = context.colours;
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final dialogColor = isDark ? colours.blendedprimary : colours.background;
+        final dialogTextColor = isDark ? colours.secondary : colours.textPrimary;
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 28,
+          ),
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 420),
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+            decoration: BoxDecoration(
+              color: dialogColor,
+              border: Border.all(color: Colors.black, width: 4),
+              boxShadow: const [
+                BoxShadow(color: Colors.black, offset: Offset(6, 6)),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'NEW CATEGORY',
+                  style: colours.h2.copyWith(color: dialogTextColor),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: nameController,
+                  style: colours.b1.copyWith(color: dialogTextColor),
+                  decoration: InputDecoration(
+                    labelText: 'Category name',
+                    labelStyle: colours.b1.copyWith(color: dialogTextColor),
+                    filled: true,
+                    fillColor: colours.background,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.zero,
+                      borderSide: const BorderSide(color: Colors.black, width: 3),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.zero,
+                      borderSide: const BorderSide(color: Colors.black, width: 3),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.zero,
+                      borderSide: const BorderSide(color: Colors.black, width: 4),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    OutlinedButton(
+                      onPressed: () => Navigator.of(dialogContext).pop(),
+                      child: const Text('Cancel'),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final name = nameController.text.trim();
+                        if (name.isEmpty) return;
+                        final budgetId = _selectedBudgetId ??
+                            (await widget.database.budgetDao
+                                    .getOrCreateDefaultBudget())
+                                .id;
+                        await widget.database.categoryDao.insertCategory(
+                          name: name,
+                          type: CategoryType.expense,
+                          budgetTemplateId: budgetId,
+                          icon: Icons.sell_outlined,
+                          color: '#137E84',
+                        );
+                        if (dialogContext.mounted) {
+                          Navigator.of(dialogContext).pop();
+                        }
+                        _refreshBudgets();
+                      },
+                      child: const Text('Create'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         );
       },
     );

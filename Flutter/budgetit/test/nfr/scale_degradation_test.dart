@@ -33,6 +33,7 @@ void main() {
             createdAt: date,
             updatedAt: date,
             source: TransactionSource.import,
+            budgetTemplateId: 'scale-budget',
           ),
         );
       }
