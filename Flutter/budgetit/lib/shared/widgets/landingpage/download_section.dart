@@ -55,13 +55,13 @@ class DownloadSection extends StatelessWidget {
                       url:
                           'https://budgetit-apk-releases.s3.eu-north-1.amazonaws.com/apk-releases/budgetit-manual-test.apk',
                     ),
-                    SizedBox(height: 14),
-                    _DownloadButton(
-                      label: "Download bsg",
-                      url:
-                          'https://budgetit-apk-releases.s3.eu-north-1.amazonaws.com/apk-releases/budgetit-bsg.apk',
-                      outlined: true,
-                    ),
+                    // SizedBox(height: 14),
+                    // _DownloadButton(
+                    //   label: "Download bsg",
+                    //   url:
+                    //       'https://budgetit-apk-releases.s3.eu-north-1.amazonaws.com/apk-releases/budgetit-bsg.apk',
+                    //   outlined: true,
+                    // ),
                   ],
                 )
               : Row(
