@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from typing import Annotated
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, Depends, HTTPException, Header
+from fastapi import FastAPI, Depends, HTTPException, Header, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy import delete as sa_delete, select as sa_select, and_, or_
@@ -33,6 +33,9 @@ from models import (
 from schema import UploadPayload, CrudOp, FriendRequestIn, FriendRequestIdIn
 import jwt
 from jwt import PyJWKClient
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 load_dotenv()
 
@@ -40,6 +43,10 @@ app = FastAPI(
     title=os.getenv("APP_TITLE", "Budgetit API"),
     version=os.getenv("APP_VERSION", "0.1.0"),
 )
+
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 tables = {
     "categories": Category,
@@ -479,6 +486,7 @@ async def apply_delete(db: AsyncSession, model, entry: CrudOp, user_id: str, tab
     await db.execute(sa_delete(model).where(model.id == entry.id))
 
 
+@limiter.limit("600/minute")
 @app.post(
     "/powersync/upload",
     tags=["PowerSync"],
@@ -491,6 +499,7 @@ async def apply_delete(db: AsyncSession, model, entry: CrudOp, user_id: str, tab
     },
 )
 async def upload(
+    request: Request,
     payload: UploadPayload,
     db: Annotated[AsyncSession, Depends(get_db)],
     user_id: Annotated[str, Depends(get_current_user)],
@@ -536,8 +545,10 @@ async def _generate_unique_friend_code(db: AsyncSession) -> str:
     raise HTTPException(status_code=500, detail="Could not generate a unique friend code")
 
 
+@limiter.limit("60/minute")
 @app.get("/me/profile", tags=["Friends"])
 async def get_my_profile(
+    request: Request,
     db: Annotated[AsyncSession, Depends(get_db)],
     user_id: Annotated[str, Depends(get_current_user)],
 ):
@@ -567,8 +578,10 @@ async def get_my_profile(
     }
 
 
+@limiter.limit("20/minute")
 @app.post("/friends/request", tags=["Friends"])
 async def send_friend_request(
+    request: Request,
     payload: FriendRequestIn,
     db: Annotated[AsyncSession, Depends(get_db)],
     user_id: Annotated[str, Depends(get_current_user)],
@@ -634,8 +647,10 @@ async def send_friend_request(
     return {"request_id": request.id, "status": request.status, "addressee_id": request.addressee_id}
 
 
+@limiter.limit("30/minute")
 @app.post("/friends/accept", tags=["Friends"])
 async def accept_friend_request(
+    request: Request,
     payload: FriendRequestIdIn,
     db: Annotated[AsyncSession, Depends(get_db)],
     user_id: Annotated[str, Depends(get_current_user)],
@@ -674,8 +689,10 @@ async def accept_friend_request(
     return {"status": "accepted"}
 
 
+@limiter.limit("30/minute")
 @app.post("/friends/decline", tags=["Friends"])
 async def decline_friend_request(
+    request: Request,
     payload: FriendRequestIdIn,
     db: Annotated[AsyncSession, Depends(get_db)],
     user_id: Annotated[str, Depends(get_current_user)],
