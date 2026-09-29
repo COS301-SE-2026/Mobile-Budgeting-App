@@ -582,8 +582,16 @@ class _AddEditRecurringTransactionDialogState
                     _TypeButton(
                       label: 'Expense',
                       selected: _type == TransactionType.expense,
-                      onTap: () =>
-                          setState(() => _type = TransactionType.expense),
+                      onTap: () async {
+                        if (_type == TransactionType.expense) return;
+
+                        setState(() {
+                          _type = TransactionType.expense;
+                          _selectedCategoryId = null;
+                        });
+
+                        await _loadCategories();
+                      },
                     ),
                     const SizedBox(width: 8),
                     _TypeButton(
