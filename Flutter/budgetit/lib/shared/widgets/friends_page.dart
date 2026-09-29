@@ -470,11 +470,7 @@ class _FriendsPageState extends State<FriendsPage> {
             : colours.primary,
         border: Border.all(color: Colors.black, width: 4),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.black,
-            offset: Offset(6, 6),
-            blurRadius: 0,
-          ),
+          BoxShadow(color: Colors.black, offset: Offset(6, 6), blurRadius: 0),
         ],
       ),
       child: Column(
