@@ -1,7 +1,12 @@
+import 'dart:async';
+
+import 'package:budgetit/auth/data/cognito_auth_service.dart';
 import 'package:budgetit/database/app_database.dart';
+import 'package:budgetit/services/friend_service.dart';
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:budgetit/utils/icon_mapper.dart';
 import 'package:decimal/decimal.dart';
+import 'package:drift/drift.dart' show TableUpdate, TableUpdateQuery;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -25,6 +30,12 @@ class _GoalItem {
   final Decimal savedAmount;
   final List<GoalContribution> contributions;
 
+  final List<GoalMember> members;
+
+  final bool isOwner;
+
+  final Decimal mySavedAmount;
+
   const _GoalItem({
     required this.template,
     required this.title,
@@ -32,9 +43,24 @@ class _GoalItem {
     required this.icon,
     required this.savedAmount,
     required this.contributions,
+    required this.members,
+    required this.isOwner,
+    required this.mySavedAmount,
   });
 
+  List<GoalMember> get acceptedMembers => members
+      .where((member) => member.status == GoalMemberStatus.accepted)
+      .toList();
+
+  List<GoalMember> get pendingMembers => members
+      .where((member) => member.status == GoalMemberStatus.pending)
+      .toList();
+
+  bool get isShared => members.isNotEmpty;
+
   double get saved => savedAmount.toDouble();
+
+  double get mySaved => mySavedAmount.toDouble();
 
   double get target => template.targetAmount.toDouble();
 
@@ -47,6 +73,18 @@ class _GoalItem {
   bool get isComplete => target > 0 && saved >= target;
 }
 
+class _GoalInvite {
+  final GoalMember membership;
+  final GoalTemplate template;
+  final String title;
+
+  const _GoalInvite({
+    required this.membership,
+    required this.template,
+    required this.title,
+  });
+}
+
 class _GoalsPageState extends State<GoalsPage> {
   static const _savingsCategoryName = 'Goals & Savings';
   static const _releaseCategoryName = 'Goal Release';
@@ -57,22 +95,39 @@ class _GoalsPageState extends State<GoalsPage> {
   final TextEditingController _allocateAmountController =
       TextEditingController();
   final TextEditingController _allocateNoteController = TextEditingController();
+  StreamSubscription<Set<TableUpdate>>? _updatesSub;
+  Timer? _reloadDebounce;
   bool _loading = true;
   bool _busy = false;
   String _searchQuery = '';
   _GoalView _view = _GoalView.progress;
   List<_GoalItem> _goals = const [];
+  List<_GoalInvite> _invites = const [];
   List<Category> _categories = const [];
+  String? _currentUserId;
+  List<String> _friendIds = const [];
+  Map<String, String> _codeByUserId = const {};
 
   @override
   void initState() {
     super.initState();
     _db = context.read<AppDatabase>();
+    _updatesSub = _db
+        .tableUpdates(
+          TableUpdateQuery.onAllTables([
+            _db.goalTemplates,
+            _db.goalContributions,
+            _db.goalMembers,
+          ]),
+        )
+        .listen((_) => _scheduleReload());
     _load();
   }
 
   @override
   void dispose() {
+    _updatesSub?.cancel();
+    _reloadDebounce?.cancel();
     _goalNameController.dispose();
     _goalTargetController.dispose();
     _allocateAmountController.dispose();
@@ -80,12 +135,63 @@ class _GoalsPageState extends State<GoalsPage> {
     super.dispose();
   }
 
+  void _scheduleReload() {
+    _reloadDebounce?.cancel();
+    _reloadDebounce = Timer(const Duration(milliseconds: 300), () {
+      if (mounted) _load();
+    });
+  }
+
+  Future<String?> _resolveCurrentUserId() async {
+    final cached = _currentUserId;
+    if (cached != null) return cached;
+    final fromSession = await CognitoAuthService().getCurrentUserId();
+    if (fromSession != null) return fromSession;
+    try {
+      return await FriendService.instance.getMyUserId();
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<void> _load() async {
+    final me = await _resolveCurrentUserId();
     final templates = await _db.goalDao.getAllGoalTemplates();
     final categories = await _db.categoryDao.getAllCategories();
+    final membersByGoal = await _db.sharingDao.getGoalMembersForTemplates(
+      templates.map((template) => template.id),
+    );
+    final friendships = await _db.friendsDao.getFriends();
+    final profiles = await _db.friendsDao.getAllProfiles();
+
     final items = <_GoalItem>[];
+    final invites = <_GoalInvite>[];
 
     for (final template in templates) {
+      final members = membersByGoal[template.id] ?? const <GoalMember>[];
+      final isOwner = template.userId == null || template.userId == me;
+      GoalMember? myMembership;
+      for (final member in members) {
+        if (member.userId == me) myMembership = member;
+      }
+
+      final title = _titleFor(template, categories);
+
+      if (!isOwner) {
+        if (myMembership == null) continue;
+        if (myMembership.status == GoalMemberStatus.pending) {
+          invites.add(
+            _GoalInvite(
+              membership: myMembership,
+              template: template,
+              title: title,
+            ),
+          );
+          continue;
+        }
+        if (myMembership.status != GoalMemberStatus.accepted) continue;
+      }
+
       final contributions = await _db.goalDao.getContributionsForTemplate(
         template.id,
       );
@@ -93,39 +199,79 @@ class _GoalsPageState extends State<GoalsPage> {
         Decimal.zero,
         (sum, row) => sum + row.amount,
       );
-
-      var icon = Icons.flag_outlined;
-      var title = template.name ?? 'Goal';
-
-      final categoryId = template.categoryId;
-      if (categoryId != null) {
-        for (final category in categories) {
-          if (category.id != categoryId) continue;
-          icon = category.iconData ?? icon;
-          if (template.name == null) title = category.name;
-          break;
-        }
-      }
+      final mySaved = contributions
+          .where((row) => _isMine(row, me))
+          .fold<Decimal>(Decimal.zero, (sum, row) => sum + row.amount);
 
       items.add(
         _GoalItem(
           template: template,
           title: title,
-          subtitle: '${_periodLabel(template.periodType)} Goal',
-          icon: icon,
+          subtitle: members.isEmpty
+              ? '${_periodLabel(template.periodType)} Goal'
+              : '${_periodLabel(template.periodType)} · Shared Goal',
+          icon: _iconFor(template, categories),
           savedAmount: saved,
           contributions: contributions,
+          members: members,
+          isOwner: isOwner,
+          mySavedAmount: mySaved,
         ),
       );
     }
 
     if (!mounted) return;
     setState(() {
+      _currentUserId = me;
       _goals = items;
+      _invites = invites;
       _categories = categories;
+      _friendIds = [
+        for (final friendship in friendships)
+          if (me != null)
+            friendship.userA == me ? friendship.userB : friendship.userA,
+      ];
+      _codeByUserId = {
+        for (final profile in profiles)
+          if (profile.userId != null) profile.userId!: profile.friendCode,
+      };
       _loading = false;
     });
   }
+
+  String _titleFor(GoalTemplate template, List<Category> categories) {
+    final name = template.name;
+    if (name != null) return name;
+    final categoryId = template.categoryId;
+    for (final category in categories) {
+      if (category.id == categoryId) return category.name;
+    }
+    return 'Goal';
+  }
+
+  IconData _iconFor(GoalTemplate template, List<Category> categories) {
+    final categoryId = template.categoryId;
+    for (final category in categories) {
+      if (category.id == categoryId) {
+        return category.iconData ?? Icons.flag_outlined;
+      }
+    }
+    return Icons.flag_outlined;
+  }
+
+  bool _isMine(GoalContribution contribution, [String? me]) {
+    final userId = contribution.userId;
+    return userId == null || userId == (me ?? _currentUserId);
+  }
+
+  String _nameFor(String? userId) {
+    if (userId == null || userId == _currentUserId) return 'You';
+    final code = _codeByUserId[userId];
+    return code == null ? 'Member' : 'Friend $code';
+  }
+
+  String? _ownerIdOf(_GoalItem goal) =>
+      goal.isOwner ? _currentUserId : goal.template.userId;
 
   double get _totalSaved =>
       _goals.fold<double>(0, (sum, goal) => sum + goal.saved);
@@ -216,10 +362,13 @@ class _GoalsPageState extends State<GoalsPage> {
         '${local.month.toString().padLeft(2, '0')}/${local.year}';
   }
 
-  String _contributionLabel(GoalContribution contribution) {
-    final date = _formatDate(contribution.contributedAt);
-    final note = contribution.note;
-    return note == null ? date : '$date · $note';
+  String _contributionLabel(GoalContribution contribution, bool shared) {
+    final parts = [
+      if (shared) _nameFor(contribution.userId),
+      _formatDate(contribution.contributedAt),
+      if (contribution.note != null) contribution.note!,
+    ];
+    return parts.join(' · ');
   }
 
   String _clip(String value) =>
@@ -236,9 +385,11 @@ class _GoalsPageState extends State<GoalsPage> {
         return category.id;
       }
     }
+    final defaultBudget = await _db.budgetDao.getOrCreateDefaultBudget();
     final created = await _db.categoryDao.insertCategory(
       name: name,
       type: type,
+      budgetTemplateId: defaultBudget.id,
       icon: icon,
       color: '#137E84',
     );
@@ -266,6 +417,7 @@ class _GoalsPageState extends State<GoalsPage> {
         CategoryType.expense,
         Icons.savings_outlined,
       );
+      final defaultBudget = await _db.budgetDao.getOrCreateDefaultBudget();
       final transaction = await _db.transactionDao.insertTransaction(
         amount: amount,
         type: TransactionType.expense,
@@ -274,6 +426,7 @@ class _GoalsPageState extends State<GoalsPage> {
         transactionDate: DateTime.now(),
         source: TransactionSource.manual,
         currency: goal.template.currency,
+        budgetTemplateId: defaultBudget.id,
       );
       await _db.transactionDao.assignCategory(
         transactionId: transaction.id,
@@ -285,6 +438,7 @@ class _GoalsPageState extends State<GoalsPage> {
         amount: amount,
         note: note,
         transactionId: transaction.id,
+        userId: _currentUserId,
       );
       await _load();
       _notify('${_money(amount.toDouble())} allocated to ${goal.title}.');
@@ -294,6 +448,10 @@ class _GoalsPageState extends State<GoalsPage> {
   }
 
   Future<void> _undoContribution(GoalContribution contribution) async {
+    if (!_isMine(contribution)) {
+      _notify('Only the member who made an allocation can undo it.');
+      return;
+    }
     setState(() => _busy = true);
     try {
       final transactionId = contribution.transactionId;
@@ -308,43 +466,139 @@ class _GoalsPageState extends State<GoalsPage> {
     }
   }
 
+  Future<Decimal> _releaseMyFunds(_GoalItem goal) async {
+    final amount = goal.isShared ? goal.mySavedAmount : goal.savedAmount;
+    if (amount <= Decimal.zero) return Decimal.zero;
+
+    final categoryId = await _ensureCategoryId(
+      _releaseCategoryName,
+      CategoryType.income,
+      Icons.undo,
+    );
+    final defaultBudget = await _db.budgetDao.getOrCreateDefaultBudget();
+    final transaction = await _db.transactionDao.insertTransaction(
+      amount: amount,
+      type: TransactionType.income,
+      shortDescription: _clip('Goal released: ${goal.title}'),
+      longDescription: goal.isComplete
+          ? 'Completed goal released back into available income.'
+          : 'Cancelled goal released back into available income.',
+      transactionDate: DateTime.now(),
+      source: TransactionSource.manual,
+      currency: goal.template.currency,
+      budgetTemplateId: defaultBudget.id,
+    );
+    await _db.transactionDao.assignCategory(
+      transactionId: transaction.id,
+      categoryId: categoryId,
+      assignmentSource: AssignmentSource.manual,
+    );
+    await _db.goalDao.clearContributionsForTemplate(
+      goal.template.id,
+      userId: goal.isShared ? _currentUserId : null,
+    );
+    return amount;
+  }
+
   Future<void> _releaseGoal(_GoalItem goal, {required bool delete}) async {
     setState(() => _busy = true);
     try {
-      if (goal.saved > 0) {
-        final categoryId = await _ensureCategoryId(
-          _releaseCategoryName,
-          CategoryType.income,
-          Icons.undo,
-        );
-        final transaction = await _db.transactionDao.insertTransaction(
-          amount: goal.savedAmount,
-          type: TransactionType.income,
-          shortDescription: _clip('Goal released: ${goal.title}'),
-          longDescription: goal.isComplete
-              ? 'Completed goal released back into available income.'
-              : 'Cancelled goal released back into available income.',
-          transactionDate: DateTime.now(),
-          source: TransactionSource.manual,
-          currency: goal.template.currency,
-        );
-        await _db.transactionDao.assignCategory(
-          transactionId: transaction.id,
-          categoryId: categoryId,
-          assignmentSource: AssignmentSource.manual,
-        );
-        await _db.goalDao.clearContributionsForTemplate(goal.template.id);
-      }
+      final released = await _releaseMyFunds(goal);
 
       if (delete) {
+        for (final pending in goal.pendingMembers) {
+          final userId = pending.userId;
+          if (userId != null) {
+            await _db.sharingDao.removeGoalMember(goal.template.id, userId);
+          }
+        }
         await _db.goalDao.softDeleteGoalTemplate(goal.template.id);
       }
 
       await _load();
       _notify(
-        goal.saved > 0
-            ? '${_money(goal.saved)} returned to income.'
-            : 'Goal deleted.',
+        released > Decimal.zero
+            ? '${_money(released.toDouble())} returned to income.'
+            : delete
+            ? 'Goal deleted.'
+            : 'Nothing of yours to release.',
+      );
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _inviteFriends(_GoalItem goal, List<String> friendIds) async {
+    final me = _currentUserId;
+    if (me == null) {
+      _notify('Sign in again to share goals.');
+      return;
+    }
+    for (final friendId in friendIds) {
+      await _db.sharingDao.inviteToGoal(
+        goalTemplateId: goal.template.id,
+        inviteeId: friendId,
+        invitedBy: me,
+      );
+    }
+  }
+
+  Future<void> _respondToInvite(_GoalInvite invite, bool accept) async {
+    setState(() => _busy = true);
+    try {
+      await _db.sharingDao.respondToGoalInvite(
+        invite.membership.id,
+        accept: accept,
+      );
+      await _load();
+      _notify(
+        accept
+            ? 'You joined "${invite.title}".'
+            : 'Invite to "${invite.title}" declined.',
+      );
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _leaveGoal(_GoalItem goal) async {
+    final me = _currentUserId;
+    if (me == null) return;
+    setState(() => _busy = true);
+    try {
+      final released = await _releaseMyFunds(goal);
+      await _db.sharingDao.removeGoalMember(goal.template.id, me);
+      await _load();
+      _notify(
+        released > Decimal.zero
+            ? 'You left "${goal.title}". '
+                  '${_money(released.toDouble())} returned to income.'
+            : 'You left "${goal.title}".',
+      );
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _removeMember(_GoalItem goal, GoalMember member) async {
+    final userId = member.userId;
+    if (userId == null) return;
+    final hasContributions = goal.contributions.any((c) => c.userId == userId);
+    if (hasContributions) {
+      _notify(
+        '${_nameFor(userId)} still has money in this goal. They need to '
+        'release it or leave the goal themselves.',
+      );
+      return;
+    }
+    setState(() => _busy = true);
+    try {
+      await _db.sharingDao.removeGoalMember(goal.template.id, userId);
+      await _load();
+      _notify(
+        member.status == GoalMemberStatus.pending
+            ? 'Invite cancelled.'
+            : '${_nameFor(userId)} removed from the goal.',
       );
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -379,6 +633,15 @@ class _GoalsPageState extends State<GoalsPage> {
                       _overviewCard(),
                       const SizedBox(height: 14),
                       _createGoalButton(),
+                      if (_invites.isNotEmpty) ...[
+                        const SizedBox(height: 18),
+                        Text('GOAL INVITES', style: colours.h2),
+                        const SizedBox(height: 12),
+                        for (final invite in _invites) ...[
+                          _inviteCard(invite),
+                          const SizedBox(height: 14),
+                        ],
+                      ],
                       const SizedBox(height: 18),
                       Text('YOUR GOALS', style: colours.h2),
                       const SizedBox(height: 12),
@@ -547,6 +810,78 @@ class _GoalsPageState extends State<GoalsPage> {
     );
   }
 
+  Widget _inviteCard(_GoalInvite invite) {
+    final colours = context.colours;
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final cardColor = isLight ? colours.secondary : colours.blendedprimary;
+    final cardTextColor = isLight ? colours.background : colours.secondary;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: cardColor,
+        border: Border.all(color: Colors.black, width: 4),
+        boxShadow: const [BoxShadow(offset: Offset(6, 6), blurRadius: 0)],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.group_add_outlined, color: cardTextColor, size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  invite.title,
+                  style: colours.budgetheader.copyWith(
+                    color: cardTextColor,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '${_nameFor(invite.membership.invitedBy)} invited you to save '
+            'towards ${_money(invite.template.targetAmount.toDouble())} '
+            'together.',
+            style: colours.b5.copyWith(color: cardTextColor, fontSize: 12),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            alignment: WrapAlignment.end,
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              TextButton(
+                onPressed: _busy
+                    ? null
+                    : () => _respondToInvite(invite, false),
+                child: Text(
+                  'Decline',
+                  style: colours.b1.copyWith(color: cardTextColor),
+                ),
+              ),
+              _dialogAction(
+                label: 'Join goal',
+                background: cardTextColor,
+                foreground: cardColor,
+                onPressed: () {
+                  if (!_busy) _respondToInvite(invite, true);
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _goalList() {
     final colours = context.colours;
 
@@ -676,6 +1011,21 @@ class _GoalsPageState extends State<GoalsPage> {
     );
   }
 
+  Widget _tag(String label, Color background, Color foreground) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      color: background,
+      child: Text(
+        label,
+        style: TextStyle(
+          color: foreground,
+          fontSize: 8,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
   Widget _goalCard(_GoalItem goal) {
     final colours = context.colours;
     final isLight = Theme.of(context).brightness == Brightness.light;
@@ -687,6 +1037,7 @@ class _GoalsPageState extends State<GoalsPage> {
         : goal.saved <= 0
         ? colours.cardText
         : colours.blue;
+    final memberCount = goal.acceptedMembers.length + 1;
 
     return InkWell(
       onTap: () => _showGoalDetails(goal),
@@ -706,23 +1057,25 @@ class _GoalsPageState extends State<GoalsPage> {
             ),
             child: Column(
               children: [
-                if (goal.isComplete)
+                if (goal.isComplete || goal.isShared)
                   Align(
                     alignment: Alignment.centerRight,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
-                      color: colours.greenAccents,
-                      child: Text(
-                        'GOAL REACHED',
-                        style: TextStyle(
-                          color: colours.category,
-                          fontSize: 8,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                    child: Wrap(
+                      spacing: 6,
+                      children: [
+                        if (goal.isShared)
+                          _tag(
+                            'SHARED · $memberCount',
+                            colours.blue,
+                            colours.whiteAccents,
+                          ),
+                        if (goal.isComplete)
+                          _tag(
+                            'GOAL REACHED',
+                            colours.greenAccents,
+                            colours.category,
+                          ),
+                      ],
                     ),
                   ),
                 Row(
@@ -782,11 +1135,17 @@ class _GoalsPageState extends State<GoalsPage> {
                         ),
                         const SizedBox(width: 10),
                         InkWell(
-                          onTap: _busy ? null : () => _confirmDeleteGoal(goal),
+                          onTap: _busy
+                              ? null
+                              : () => goal.isOwner
+                                    ? _confirmDeleteGoal(goal)
+                                    : _confirmLeaveGoal(goal),
                           child: Padding(
                             padding: const EdgeInsets.all(4),
                             child: Icon(
-                              Icons.delete_outline,
+                              goal.isOwner
+                                  ? Icons.delete_outline
+                                  : Icons.logout,
                               color: colours.error,
                               size: 20,
                             ),
@@ -959,6 +1318,39 @@ class _GoalsPageState extends State<GoalsPage> {
     );
   }
 
+  Widget _friendPicker({
+    required List<String> friendIds,
+    required Set<String> selected,
+    required Color textColor,
+    required void Function(void Function()) setDialogState,
+  }) {
+    final colours = context.colours;
+    return Column(
+      children: [
+        for (final friendId in friendIds)
+          CheckboxListTile(
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+            value: selected.contains(friendId),
+            activeColor: textColor,
+            checkColor: Colors.black,
+            side: BorderSide(color: textColor, width: 2),
+            title: Text(
+              _nameFor(friendId),
+              style: colours.b1.copyWith(color: textColor),
+            ),
+            onChanged: (checked) => setDialogState(() {
+              if (checked ?? false) {
+                selected.add(friendId);
+              } else {
+                selected.remove(friendId);
+              }
+            }),
+          ),
+      ],
+    );
+  }
+
   Future<void> _showGoalFormDialog({_GoalItem? existing}) async {
     final colours = context.colours;
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -976,6 +1368,7 @@ class _GoalsPageState extends State<GoalsPage> {
         !pickable.any((category) => category.id == categoryId)) {
       categoryId = null;
     }
+    final shareWith = <String>{};
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -1054,6 +1447,24 @@ class _GoalsPageState extends State<GoalsPage> {
               ],
               onChanged: (value) => setDialogState(() => categoryId = value),
             ),
+            if (existing == null && _friendIds.isNotEmpty) ...[
+              const SizedBox(height: 20),
+              Text(
+                'SHARE WITH FRIENDS (OPTIONAL)',
+                style: colours.b5.copyWith(
+                  color: cardTextColor,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              const SizedBox(height: 6),
+              _friendPicker(
+                friendIds: _friendIds,
+                selected: shareWith,
+                textColor: cardTextColor,
+                setDialogState: setDialogState,
+              ),
+            ],
           ],
           actions: [
             _dialogCancel(dialogContext, cardTextColor),
@@ -1078,12 +1489,29 @@ class _GoalsPageState extends State<GoalsPage> {
     }
 
     if (existing == null) {
-      await _db.goalDao.insertGoalTemplate(
+      final template = await _db.goalDao.insertGoalTemplate(
         name: name.isEmpty ? null : name,
         targetAmount: amount,
         periodType: period,
         categoryId: categoryId,
       );
+      if (shareWith.isNotEmpty) {
+        final me = _currentUserId;
+        if (me != null) {
+          for (final friendId in shareWith) {
+            await _db.sharingDao.inviteToGoal(
+              goalTemplateId: template.id,
+              inviteeId: friendId,
+              invitedBy: me,
+            );
+          }
+          _notify(
+            shareWith.length == 1
+                ? 'Goal created. Invite sent.'
+                : 'Goal created. ${shareWith.length} invites sent.',
+          );
+        }
+      }
     } else {
       await _db.goalDao.updateGoalTemplate(
         existing.template.id,
@@ -1096,6 +1524,77 @@ class _GoalsPageState extends State<GoalsPage> {
       );
     }
     await _load();
+  }
+
+  Future<void> _showInviteDialog(_GoalItem goal) async {
+    final colours = context.colours;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark ? colours.blendedprimary : colours.secondary;
+    final cardTextColor = isDark ? colours.secondary : colours.background;
+
+    final ownerId = _ownerIdOf(goal);
+    final alreadyIn = {
+      ?ownerId,
+      for (final member in goal.members) ?member.userId,
+    };
+    final candidates = _friendIds
+        .where((friendId) => !alreadyIn.contains(friendId))
+        .toList();
+    final selected = <String>{};
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (builderContext, setDialogState) => _dialogShell(
+          title: 'SHARE ${goal.title.toUpperCase()}',
+          children: [
+            Text(
+              candidates.isEmpty
+                  ? (_friendIds.isEmpty
+                        ? 'Add friends first (Profile › Friends) to share '
+                              'goals with them.'
+                        : 'All your friends are already on this goal.')
+                  : 'Invited friends can allocate towards this goal once '
+                        'they accept. Everyone sees the shared progress.',
+              style: colours.b1.copyWith(color: cardTextColor),
+            ),
+            if (candidates.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              _friendPicker(
+                friendIds: candidates,
+                selected: selected,
+                textColor: cardTextColor,
+                setDialogState: setDialogState,
+              ),
+            ],
+          ],
+          actions: [
+            _dialogCancel(dialogContext, cardTextColor),
+            if (candidates.isNotEmpty)
+              _dialogAction(
+                label: 'Send invites',
+                background: cardTextColor,
+                foreground: cardColor,
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+              ),
+          ],
+        ),
+      ),
+    );
+
+    if (confirmed != true || !mounted || selected.isEmpty) return;
+    setState(() => _busy = true);
+    try {
+      await _inviteFriends(goal, selected.toList());
+      await _load();
+      _notify(
+        selected.length == 1
+            ? 'Invite sent.'
+            : '${selected.length} invites sent.',
+      );
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
   Future<void> _showAllocateDialog(_GoalItem goal) async {
@@ -1162,11 +1661,54 @@ class _GoalsPageState extends State<GoalsPage> {
     await _allocate(goal, amount, note.isEmpty ? null : note);
   }
 
+  Widget _memberRow({
+    required String label,
+    required Color textColor,
+    String? tag,
+    VoidCallback? onRemove,
+    String removeTooltip = 'Remove',
+  }) {
+    final colours = context.colours;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        children: [
+          Icon(Icons.person_outline, size: 18, color: textColor),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              label,
+              style: colours.b1.copyWith(color: textColor),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (tag != null)
+            Text(
+              tag,
+              style: colours.b5.copyWith(
+                color: textColor,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.8,
+              ),
+            ),
+          if (onRemove != null)
+            IconButton(
+              tooltip: removeTooltip,
+              visualDensity: VisualDensity.compact,
+              icon: Icon(Icons.close, size: 16, color: textColor),
+              onPressed: onRemove,
+            ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _showGoalDetails(_GoalItem goal) async {
     final colours = context.colours;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = isDark ? colours.blendedprimary : colours.secondary;
     final cardTextColor = isDark ? colours.secondary : colours.background;
+    final canRelease = goal.isShared ? goal.mySaved > 0 : goal.saved > 0;
 
     await showDialog<void>(
       context: context,
@@ -1175,6 +1717,8 @@ class _GoalsPageState extends State<GoalsPage> {
         children: [
           _detailRow('Target', _money(goal.target), cardTextColor),
           _detailRow('Saved', _money(goal.saved), cardTextColor),
+          if (goal.isShared)
+            _detailRow('Saved by you', _money(goal.mySaved), cardTextColor),
           _detailRow('Left to save', _money(goal.remaining), cardTextColor),
           _detailRow('Progress', '${goal.percent}%', cardTextColor),
           if (_paceValue(goal) != null)
@@ -1184,6 +1728,36 @@ class _GoalsPageState extends State<GoalsPage> {
             _periodLabel(goal.template.periodType),
             cardTextColor,
           ),
+          const SizedBox(height: 18),
+          Text(
+            'MEMBERS',
+            style: colours.b5.copyWith(
+              color: cardTextColor,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+            ),
+          ),
+          const SizedBox(height: 10),
+          _memberRow(
+            label: _nameFor(_ownerIdOf(goal)),
+            tag: 'OWNER',
+            textColor: cardTextColor,
+          ),
+          for (final member in goal.members)
+            _memberRow(
+              label: _nameFor(member.userId),
+              tag: member.status == GoalMemberStatus.pending ? 'INVITED' : null,
+              textColor: cardTextColor,
+              removeTooltip: member.status == GoalMemberStatus.pending
+                  ? 'Cancel invite'
+                  : 'Remove member',
+              onRemove: goal.isOwner
+                  ? () {
+                      Navigator.of(dialogContext).pop();
+                      _removeMember(goal, member);
+                    }
+                  : null,
+            ),
           const SizedBox(height: 18),
           Text(
             'ALLOCATION HISTORY',
@@ -1230,7 +1804,10 @@ class _GoalsPageState extends State<GoalsPage> {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    _contributionLabel(contribution),
+                                    _contributionLabel(
+                                      contribution,
+                                      goal.isShared,
+                                    ),
                                     style: colours.b5.copyWith(
                                       color: cardTextColor,
                                     ),
@@ -1240,18 +1817,19 @@ class _GoalsPageState extends State<GoalsPage> {
                                 ],
                               ),
                             ),
-                            IconButton(
-                              tooltip: 'Undo this allocation',
-                              icon: Icon(
-                                Icons.undo,
-                                size: 18,
-                                color: cardTextColor,
+                            if (_isMine(contribution))
+                              IconButton(
+                                tooltip: 'Undo this allocation',
+                                icon: Icon(
+                                  Icons.undo,
+                                  size: 18,
+                                  color: cardTextColor,
+                                ),
+                                onPressed: () {
+                                  Navigator.of(dialogContext).pop();
+                                  _undoContribution(contribution);
+                                },
                               ),
-                              onPressed: () {
-                                Navigator.of(dialogContext).pop();
-                                _undoContribution(contribution);
-                              },
-                            ),
                           ],
                         ),
                       ),
@@ -1261,7 +1839,28 @@ class _GoalsPageState extends State<GoalsPage> {
             ),
         ],
         actions: [
-          if (goal.saved > 0)
+          if (!goal.isOwner)
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                _confirmLeaveGoal(goal);
+              },
+              child: Text(
+                'Leave',
+                style: colours.b1.copyWith(color: cardTextColor),
+              ),
+            ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              _showInviteDialog(goal);
+            },
+            child: Text(
+              'Share',
+              style: colours.b1.copyWith(color: cardTextColor),
+            ),
+          ),
+          if (canRelease)
             TextButton(
               onPressed: () {
                 Navigator.of(dialogContext).pop();
@@ -1325,8 +1924,12 @@ class _GoalsPageState extends State<GoalsPage> {
         title: 'RELEASE FUNDS',
         children: [
           Text(
-            '${_money(goal.saved)} will be booked back as income and the goal '
-            'will reset to zero. The goal itself is kept.',
+            goal.isShared
+                ? 'The ${_money(goal.mySaved)} you put in will be booked back '
+                      'as income. Other members keep their allocations and '
+                      'the goal itself is kept.'
+                : '${_money(goal.saved)} will be booked back as income and '
+                      'the goal will reset to zero. The goal itself is kept.',
             style: colours.b1.copyWith(color: cardTextColor),
           ),
         ],
@@ -1347,7 +1950,7 @@ class _GoalsPageState extends State<GoalsPage> {
     }
   }
 
-  Future<void> _confirmDeleteGoal(_GoalItem goal) async {
+  Future<void> _confirmLeaveGoal(_GoalItem goal) async {
     final colours = context.colours;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardTextColor = isDark ? colours.secondary : colours.background;
@@ -1355,11 +1958,56 @@ class _GoalsPageState extends State<GoalsPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => _dialogShell(
+        title: 'LEAVE GOAL',
+        children: [
+          Text(
+            goal.mySaved > 0
+                ? 'Leave "${goal.title}"? The ${_money(goal.mySaved)} you put '
+                      'in will be booked back as income.'
+                : 'Leave "${goal.title}"? You will need a new invite to '
+                      'rejoin.',
+            style: colours.b1.copyWith(color: cardTextColor),
+          ),
+        ],
+        actions: [
+          _dialogCancel(dialogContext, cardTextColor),
+          _dialogAction(
+            label: 'Leave',
+            background: colours.error,
+            foreground: colours.whiteAccents,
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      await _leaveGoal(goal);
+    }
+  }
+
+  Future<void> _confirmDeleteGoal(_GoalItem goal) async {
+    if (goal.acceptedMembers.isNotEmpty) {
+      _notify(
+        'Other members are still on this goal. Remove them (or ask them to '
+        'leave) before deleting it.',
+      );
+      return;
+    }
+
+    final colours = context.colours;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardTextColor = isDark ? colours.secondary : colours.background;
+    final releasable = goal.isShared ? goal.mySaved : goal.saved;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => _dialogShell(
         title: 'DELETE GOAL',
         children: [
           Text(
-            goal.saved > 0
-                ? 'Delete "${goal.title}"? The ${_money(goal.saved)} set '
+            releasable > 0
+                ? 'Delete "${goal.title}"? The ${_money(releasable)} set '
                       'aside will be booked back as income.'
                 : 'Delete "${goal.title}"?',
             style: colours.b1.copyWith(color: cardTextColor),

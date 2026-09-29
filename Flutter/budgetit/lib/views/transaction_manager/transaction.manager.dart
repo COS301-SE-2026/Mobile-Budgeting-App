@@ -26,6 +26,8 @@ class _TransactionManagerState extends State<TransactionManager> {
   Map<String, String> _transactionCategoryNames = {};
   Map<String, IconData> _transactionCategoryIcons = {};
   bool _isLoading = true;
+  List<BudgetTemplate> _budgets = [];
+  String? _selectedBudgetId;
 
   static const _monthNames = [
     'Jan',
@@ -69,6 +71,22 @@ class _TransactionManagerState extends State<TransactionManager> {
   void initState() {
     super.initState();
     _loadTransactions();
+    _loadBudgets();
+  }
+
+  Future<void> _loadBudgets() async {
+    final db = context.read<AppDatabase>();
+    final all = await db.budgetDao.getAllBudgetTemplates();
+    final budgets = all
+        .where((b) => b.categoryId == null && (b.name?.isNotEmpty ?? false))
+        .toList();
+    if (!mounted) return;
+    setState(() {
+      _budgets = budgets;
+      if (_selectedBudgetId == null && budgets.isNotEmpty) {
+        _selectedBudgetId = budgets.first.id;
+      }
+    });
   }
 
   Future<void> _loadTransactions() async {
@@ -121,7 +139,10 @@ class _TransactionManagerState extends State<TransactionManager> {
       final matchesCategory =
           _selectedCategory == TransactionFilterBar.allCategories ||
           category == _selectedCategory;
-      return matchesSearch && matchesCategory;
+      final matchesBudget =
+          _selectedBudgetId == null ||
+          transaction.budgetTemplateId == _selectedBudgetId;
+      return matchesSearch && matchesCategory && matchesBudget;
     }).toList();
 
     filtered.sort(
@@ -280,6 +301,47 @@ class _TransactionManagerState extends State<TransactionManager> {
                 ),
               ),
               Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: colours.background,
+                    border: Border.all(color: Colors.black, width: 3),
+                  ),
+                  child: DropdownButton<String>(
+                    value: _selectedBudgetId ?? '',
+                    isExpanded: true,
+                    underline: const SizedBox.shrink(),
+                    dropdownColor: colours.background,
+                    style: colours.b1.copyWith(color: colours.textPrimary),
+                    items: [
+                      DropdownMenuItem<String>(
+                        value: '',
+                        child: Text(
+                          'All budgets',
+                          style: colours.b1.copyWith(color: colours.textPrimary),
+                        ),
+                      ),
+                      for (final budget in _budgets)
+                        DropdownMenuItem<String>(
+                          value: budget.id,
+                          child: Text(
+                            budget.name ?? 'Budget',
+                            style: colours.b1.copyWith(
+                              color: colours.textPrimary,
+                            ),
+                          ),
+                        ),
+                    ],
+                    onChanged: (value) => setState(
+                      () => _selectedBudgetId =
+                          (value == null || value.isEmpty) ? null : value,
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 5,
@@ -423,7 +485,10 @@ class _TransactionManagerState extends State<TransactionManager> {
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(right: 12),
-        child: FAB(onTransactionAdded: _loadTransactions),
+        child: FAB(
+          onTransactionAdded: _loadTransactions,
+          initialBudgetId: _selectedBudgetId,
+        ),
       ),
     );
   }

@@ -4,6 +4,7 @@ part of 'transaction_dao.dart';
 
 // ignore_for_file: type=lint
 mixin _$TransactionDaoMixin on DatabaseAccessor<AppDatabase> {
+  $BudgetTemplatesTable get budgetTemplates => attachedDatabase.budgetTemplates;
   $CategoriesTable get categories => attachedDatabase.categories;
   $RecurringTransactionsTable get recurringTransactions =>
       attachedDatabase.recurringTransactions;
@@ -17,6 +18,11 @@ mixin _$TransactionDaoMixin on DatabaseAccessor<AppDatabase> {
 class TransactionDaoManager {
   final _$TransactionDaoMixin _db;
   TransactionDaoManager(this._db);
+  $$BudgetTemplatesTableTableManager get budgetTemplates =>
+      $$BudgetTemplatesTableTableManager(
+        _db.attachedDatabase,
+        _db.budgetTemplates,
+      );
   $$CategoriesTableTableManager get categories =>
       $$CategoriesTableTableManager(_db.attachedDatabase, _db.categories);
   $$RecurringTransactionsTableTableManager get recurringTransactions =>

@@ -27,6 +27,8 @@ enum PeriodType { daily, weekly, monthly, yearly }
 /// The lifecycle state of a friend request.
 enum FriendRequestStatus { pending, accepted, declined }
 
+enum GoalMemberStatus { pending, accepted, declined }
+
 /// The type of record from which an embedding was generated.
 enum EmbeddingSourceType { transaction, category }
 
@@ -80,6 +82,10 @@ class Categories extends Table {
   /// When the category was soft-deleted (null if active).
   DateTimeColumn get deletedAt => dateTime().nullable()();
   TextColumn get userId => text().nullable()();
+
+  /// The budget this category belongs to.
+  TextColumn get budgetTemplateId =>
+      text().references(BudgetTemplates, #id)();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -161,6 +167,7 @@ class Transactions extends Table {
 
   TextColumn get importId => text().references(Imports, #id).nullable()();
 
+  TextColumn get budgetTemplateId => text().references(BudgetTemplates, #id)();
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -547,6 +554,12 @@ class GoalMembers extends Table {
 
   /// The co-owner (Cognito subject).
   TextColumn get userId => text().nullable()();
+
+  TextColumn get status => textEnum<GoalMemberStatus>().withDefault(
+    Constant(GoalMemberStatus.accepted.name),
+  )();
+
+  TextColumn get invitedBy => text().nullable()();
 
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();

@@ -6,10 +6,14 @@ class BalanceCard extends StatelessWidget {
     super.key,
     required this.totalSpent,
     required this.totalTarget,
+    this.title = 'MONTHLY BUDGET OVERVIEW',
+    this.onTap,
   });
 
   final double totalSpent;
   final double totalTarget;
+  final String title;
+  final VoidCallback? onTap;
 
   String _formatCurrency(double amount) => 'R${amount.toStringAsFixed(2)}';
 
@@ -23,43 +27,46 @@ class BalanceCard extends StatelessWidget {
         ? context.colours.background
         : context.colours.secondary;
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        color: cardColor,
-        border: Border.all(color: Colors.black, width: 4),
-        boxShadow: const [BoxShadow(offset: Offset(6, 6), blurRadius: 0)],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'MONTHLY BUDGET OVERVIEW',
-            style: context.colours.h2.copyWith(
-              color: cardTextColor,
-              fontSize: 14,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(22),
+        decoration: BoxDecoration(
+          color: cardColor,
+          border: Border.all(color: Colors.black, width: 4),
+          boxShadow: const [BoxShadow(offset: Offset(6, 6), blurRadius: 0)],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: context.colours.h2.copyWith(
+                color: cardTextColor,
+                fontSize: 14,
+              ),
             ),
-          ),
-          const SizedBox(height: 18),
-          Text(
-            _formatCurrency(totalSpent),
-            style: context.colours.h2.copyWith(
-              color: cardTextColor,
-              fontSize: 40,
-              letterSpacing: -1.2,
+            const SizedBox(height: 18),
+            Text(
+              _formatCurrency(totalSpent),
+              style: context.colours.h2.copyWith(
+                color: cardTextColor,
+                fontSize: 40,
+                letterSpacing: -1.2,
+              ),
             ),
-          ),
-          const SizedBox(height: 18),
-          Text(
-            'Budget target: ${_formatCurrency(totalTarget)}',
-            style: context.colours.h2.copyWith(
-              color: cardTextColor,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
+            const SizedBox(height: 18),
+            Text(
+              'Budget target: ${_formatCurrency(totalTarget)}',
+              style: context.colours.h2.copyWith(
+                color: cardTextColor,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

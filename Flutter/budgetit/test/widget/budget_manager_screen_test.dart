@@ -104,6 +104,7 @@ void main() {
       await database.categoryDao.insertCategory(
         name: 'Groceries',
         type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
       );
 
       await tester.pumpWidget(wrapBudgetManager(database));

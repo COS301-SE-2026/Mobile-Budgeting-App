@@ -15,6 +15,7 @@ class AddTransactionDialog extends StatefulWidget {
   final String? initialCategoryId;
   final bool lockType;
   final bool lockCategory;
+  final String? initialBudgetId;
 
   const AddTransactionDialog({
     super.key,
@@ -23,6 +24,7 @@ class AddTransactionDialog extends StatefulWidget {
     this.initialCategoryId,
     this.lockType = false,
     this.lockCategory = false,
+    this.initialBudgetId,
   });
 
   @override
@@ -33,43 +35,27 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
   final _formKey = GlobalKey<FormState>();
   final _descController = TextEditingController();
   final _amountController = TextEditingController();
-  final _customCategoryController = TextEditingController();
   late TransactionType _type;
   DateTime _date = DateTime.now();
   List<Category> _categories = [];
   Category? _selectedCategory;
   bool _loadingCategories = true;
   bool _saving = false;
-  bool _creatingCustomCategory = false;
-  IconData _customCategoryIcon = Icons.sell_outlined;
-
-  static const _customCategoryIcons = <IconData>[
-    Icons.sell_outlined,
-    Icons.shopping_bag_outlined,
-    Icons.restaurant_outlined,
-    Icons.directions_car_outlined,
-    Icons.home_outlined,
-    Icons.pets_outlined,
-    Icons.health_and_safety_outlined,
-    Icons.school_outlined,
-    Icons.sports_esports_outlined,
-    Icons.flight_outlined,
-    Icons.card_giftcard_outlined,
-    Icons.savings_outlined,
-  ];
+  List<BudgetTemplate> _budgets = [];
+  BudgetTemplate? _selectedBudget;
+  bool _loadingTargets = true;
 
   @override
   void initState() {
     super.initState();
     _type = widget.initialType;
-    _loadCategories();
+    _loadTargets();
   }
 
   @override
   void dispose() {
     _descController.dispose();
     _amountController.dispose();
-    _customCategoryController.dispose();
     super.dispose();
   }
 
@@ -81,22 +67,42 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
         ? CategoryType.income
         : CategoryType.expense;
     final categories = await db.categoryDao.getCategoriesByType(categoryType);
-    categories.sort((a, b) => a.name.compareTo(b.name));
+    final budgetId = _selectedBudget?.id;
+    final filtered = budgetId == null
+        ? categories
+        : categories.where((c) => c.budgetTemplateId == budgetId).toList();
+    filtered.sort((a, b) => a.name.compareTo(b.name));
     final initialCategoryId = widget.initialCategoryId;
-    //ai was used to fix this selectedcategory
     final selectedCategory = initialCategoryId == null
-        ? (categories.isNotEmpty ? categories.first : null)
-        : categories
+        ? (filtered.isNotEmpty ? filtered.first : null)
+        : filtered
               .where((category) => category.id == initialCategoryId)
               .cast<Category?>()
               .firstWhere((category) => category != null, orElse: () => null);
 
     if (!mounted || transactionType != _type) return;
     setState(() {
-      _categories = categories;
+      _categories = filtered;
       _selectedCategory = selectedCategory;
       _loadingCategories = false;
     });
+  }
+
+  Future<void> _loadTargets() async {
+    setState(() => _loadingTargets = true);
+    final db = context.read<AppDatabase>();
+    _budgets = await db.budgetDao.getAllBudgetTemplates();
+    if (!mounted) return;
+    setState(() {
+      _loadingTargets = false;
+      if (_budgets.isNotEmpty) {
+        _selectedBudget = _budgets.firstWhere(
+          (b) => b.id == widget.initialBudgetId,
+          orElse: () => _budgets.first,
+        );
+      }
+    });
+    await _loadCategories();
   }
 
   void _setType(TransactionType type) {
@@ -106,8 +112,6 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
       _type = type;
       _categories = [];
       _selectedCategory = null;
-      _creatingCustomCategory = false;
-      _customCategoryController.clear();
     });
     _loadCategories();
   }
@@ -308,18 +312,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
     setState(() => _saving = true);
     try {
       final db = context.read<AppDatabase>();
-      Category? category = _selectedCategory;
-      if (_creatingCustomCategory) {
-        final categoryType = _type == TransactionType.income
-            ? CategoryType.income
-            : CategoryType.expense;
-        category = await db.categoryDao.insertCategory(
-          name: _customCategoryController.text.trim(),
-          type: categoryType,
-          icon: _customCategoryIcon,
-          color: '#137E84',
-        );
-      }
+      final category = _selectedCategory;
 
       final amount = Decimal.parse(
         double.parse(_amountController.text).toStringAsFixed(2),
@@ -331,6 +324,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
         shortDescription: _descController.text.trim(),
         transactionDate: _date,
         source: TransactionSource.manual,
+        budgetTemplateId: _selectedBudget?.id ?? '',
       );
       if (category != null) {
         await dao.assignCategory(
@@ -547,7 +541,6 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                       : (category) {
                           setState(() {
                             _selectedCategory = category;
-                            _creatingCustomCategory = false;
                           });
                         },
                   icon: _loadingCategories
@@ -572,122 +565,50 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                   ),
                 ),
 
-                if (!widget.lockCategory) ...[
-                  const SizedBox(height: 14),
-                  InkWell(
-                    onTap: () => setState(() {
-                      _creatingCustomCategory = !_creatingCustomCategory;
-                    }),
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colours.background,
-                        border: Border.all(
-                          color: Colors.black,
-                          width: _creatingCustomCategory ? 4 : 3,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.add_box_outlined,
-                            color: colours.textPrimary,
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              'CREATE A CUSTOM CATEGORY',
-                              style: colours.b1.copyWith(
-                                color: colours.textPrimary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                const SizedBox(height: 14),
+                DropdownButtonFormField<String>(
+                  key: ValueKey('target-budget-${_selectedBudget?.id ?? 'none'}'),
+                  initialValue: _selectedBudget?.id,
+                  isExpanded: true,
+                  dropdownColor: colours.background,
+                  style: colours.b1.copyWith(color: colours.textPrimary),
+                  decoration: _inputDecoration(
+                    '',
+                    context,
+                    cardColor,
+                    cardTextColor,
+                  ).copyWith(
+                    labelText: 'Budget',
+                    labelStyle: colours.b1.copyWith(color: colours.textPrimary),
                   ),
-                  if (_creatingCustomCategory) ...[
-                    const SizedBox(height: 14),
-                    TextFormField(
-                      controller: _customCategoryController,
-                      textCapitalization: TextCapitalization.words,
-                      style: colours.b1.copyWith(color: colours.textPrimary),
-                      decoration:
-                          _inputDecoration(
-                            'e.g. Pet care',
-                            context,
-                            cardColor,
-                            cardTextColor,
-                          ).copyWith(
-                            labelText: 'Custom category name',
-                            labelStyle: colours.b1.copyWith(
+                  items: _budgets
+                      .map(
+                        (b) => DropdownMenuItem<String>(
+                          value: b.id,
+                          child: Text(
+                            b.name ?? 'Budget',
+                            style: colours.b1.copyWith(
                               color: colours.textPrimary,
                             ),
                           ),
-                      validator: (value) {
-                        if (!_creatingCustomCategory) return null;
-                        final name = value?.trim() ?? '';
-                        if (name.isEmpty) return 'Category name is required';
-                        final alreadyExists = _categories.any(
-                          (category) =>
-                              category.name.toLowerCase() == name.toLowerCase(),
-                        );
-                        if (alreadyExists) {
-                          return 'This category already exists';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'CHOOSE AN ICON',
-                      style: colours.b5.copyWith(
-                        color: colours.textPrimary,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.8,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 6,
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 8,
-                          ),
-                      itemCount: _customCategoryIcons.length,
-                      itemBuilder: (context, index) {
-                        final icon = _customCategoryIcons[index];
-                        final selected = icon == _customCategoryIcon;
-                        return InkWell(
-                          onTap: () =>
-                              setState(() => _customCategoryIcon = icon),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: colours.background,
-                              border: Border.all(
-                                color: Colors.black,
-                                width: selected ? 3 : 2,
-                              ),
-                            ),
-                            child: Icon(
-                              icon,
-                              size: 21,
-                              color: colours.secondary,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ],
+                        ),
+                      )
+                      .toList(),
+                  onChanged: _loadingTargets
+                      ? null
+                      : (v) {
+                          setState(() {
+                            _selectedBudget = _budgets.firstWhere(
+                              (b) => b.id == v,
+                            );
+                            _selectedCategory = null;
+                          });
+                          _loadCategories();
+                        },
+                  validator: (v) =>
+                      (v == null || v.isEmpty) ? 'Select a budget' : null,
+                ),
+
                 const SizedBox(height: 18),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,

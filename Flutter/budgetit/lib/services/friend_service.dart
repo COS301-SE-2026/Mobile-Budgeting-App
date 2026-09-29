@@ -40,6 +40,12 @@ class FriendService {
   Future<String> getMyFriendCode() async =>
       (await getMyProfile())['friend_code'] as String;
 
+  /// Clears the in-memory profile cache (e.g. on logout), so the next
+  /// [getMyProfile] call re-fetches from the server.
+  void clearCachedProfile() {
+    _myProfile = null;
+  }
+
   Future<Map<String, dynamic>> _post(
     String path,
     Map<String, dynamic> body,

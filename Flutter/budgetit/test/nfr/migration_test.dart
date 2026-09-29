@@ -59,6 +59,7 @@ void main() {
     await first.transactionDao.insertTransaction(
       amount: Decimal.parse('123.45'),
       type: TransactionType.expense,
+      budgetTemplateId: 'test-budget',
       shortDescription: 'Pre-migration row',
       transactionDate: DateTime(2026, 5, 1),
       source: TransactionSource.manual,

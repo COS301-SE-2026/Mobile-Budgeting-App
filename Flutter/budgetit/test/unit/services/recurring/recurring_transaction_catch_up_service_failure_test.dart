@@ -48,6 +48,7 @@ void main() {
         transactionDao.insertTransaction(
           amount: Decimal.parse('10.00'),
           type: TransactionType.expense,
+          budgetTemplateId: 'test-budget',
           shortDescription: 'Broken rent',
           longDescription: null,
           transactionDate: testToday,
@@ -93,6 +94,7 @@ void main() {
         transactionDao.insertTransaction(
           amount: Decimal.parse('10.00'),
           type: TransactionType.expense,
+          budgetTemplateId: 'test-budget',
           shortDescription: 'Broken rent',
           longDescription: null,
           transactionDate: testToday,
@@ -150,6 +152,7 @@ void main() {
         transactionDao.insertTransaction(
           amount: Decimal.parse('18.50'),
           type: TransactionType.expense,
+          budgetTemplateId: 'test-budget',
           shortDescription: 'Lunch',
           longDescription: null,
           transactionDate: testToday,
@@ -202,6 +205,7 @@ void main() {
         transactionDao.insertTransaction(
           amount: Decimal.parse('18.50'),
           type: TransactionType.expense,
+          budgetTemplateId: 'test-budget',
           shortDescription: 'Lunch',
           longDescription: null,
           transactionDate: testToday,
@@ -253,6 +257,7 @@ void main() {
         transactionDao.insertTransaction(
           amount: Decimal.parse('25.00'),
           type: TransactionType.expense,
+          budgetTemplateId: 'test-budget',
           shortDescription: 'Gym membership',
           longDescription: null,
           transactionDate: testToday,
@@ -301,6 +306,7 @@ void main() {
         transactionDao.insertTransaction(
           amount: Decimal.parse('25.00'),
           type: TransactionType.expense,
+          budgetTemplateId: 'test-budget',
           shortDescription: 'Gym membership',
           longDescription: null,
           transactionDate: testToday,
@@ -364,6 +370,7 @@ void main() {
           transactionDao.insertTransaction(
             amount: failedRecurring.amount,
             type: failedRecurring.type,
+            budgetTemplateId: 'test-budget',
             shortDescription: failedRecurring.shortDescription,
             longDescription: failedRecurring.longDescription,
             transactionDate: testToday,
@@ -376,6 +383,7 @@ void main() {
           transactionDao.insertTransaction(
             amount: successfulRecurring.amount,
             type: successfulRecurring.type,
+            budgetTemplateId: 'test-budget',
             shortDescription: successfulRecurring.shortDescription,
             longDescription: successfulRecurring.longDescription,
             transactionDate: testToday,

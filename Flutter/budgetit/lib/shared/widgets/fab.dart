@@ -8,8 +8,9 @@ import 'package:budgetit/database/app_database.dart';
 
 class FAB extends StatefulWidget {
   final VoidCallback? onTransactionAdded;
+  final String? initialBudgetId;
 
-  const FAB({super.key, this.onTransactionAdded});
+  const FAB({super.key, this.onTransactionAdded, this.initialBudgetId});
 
   @override
   State<FAB> createState() => _FABState();
@@ -45,8 +46,10 @@ class _FABState extends State<FAB> {
             Navigator.of(dialogContext).pop();
             showDialog<void>(
               context: outerContext,
-              builder: (_) =>
-                  AddTransactionDialog(onAdded: widget.onTransactionAdded),
+              builder: (_) => AddTransactionDialog(
+                onAdded: widget.onTransactionAdded,
+                initialBudgetId: widget.initialBudgetId,
+              ),
             );
           },
           onImportStatement: _navigateToImport,
