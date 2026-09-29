@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:saropa_drift_advisor/saropa_drift_advisor.dart';
 import 'amplifyconfiguration.dart';
 import 'shared/widgets/biometric_lock_screen.dart';
+import 'shared/widgets/biometric_enrollment_dialog.dart';
 import 'auth/data/cognito_auth_service.dart';
 import 'auth/providers/auth_provider.dart';
 import 'database/app_database.dart';
@@ -284,6 +285,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+  bool _biometricPromptScheduled = false;
 
   @override
   void initState() {
@@ -295,6 +297,40 @@ class _HomePageState extends State<HomePage> {
         unawaited(BgeModelDownloader.ensureModelDownloaded());
       }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final auth = context.watch<AppAuthProvider>();
+    if (!auth.shouldOfferBiometricEnrollment || _biometricPromptScheduled) {
+      return;
+    }
+    _biometricPromptScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(_showBiometricEnrollmentPrompt());
+    });
+  }
+
+  Future<void> _showBiometricEnrollmentPrompt() async {
+    if (!mounted) return;
+    final enable = await showBiometricEnrollmentDialog(context);
+    if (!mounted) return;
+
+    final auth = context.read<AppAuthProvider>();
+    auth.dismissBiometricEnrollmentOffer();
+    if (!enable) return;
+
+    final enabled = await auth.setBiometricLockEnabled(true);
+    if (!enabled && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            auth.errorMessage ?? 'Biometric lock could not be enabled.',
+          ),
+        ),
+      );
+    }
   }
 
   Future<void> _runRecurringTransactionCatchUp() async {
@@ -351,9 +387,7 @@ class _HomePageState extends State<HomePage> {
       body: _buildPages(db)[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(color: context.colours.category, width: 4),
-          ),
+          border: Border(top: const BorderSide(color: Colors.black, width: 4)),
         ),
         child: SafeArea(
           top: false,
@@ -368,7 +402,7 @@ class _HomePageState extends State<HomePage> {
             labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
             indicatorShape: RoundedRectangleBorder(
               borderRadius: BorderRadius.zero,
-              side: BorderSide(color: context.colours.category, width: 3),
+              side: const BorderSide(color: Colors.black, width: 3),
             ),
             onDestinationSelected: _onDestinationSelected,
             destinations: [

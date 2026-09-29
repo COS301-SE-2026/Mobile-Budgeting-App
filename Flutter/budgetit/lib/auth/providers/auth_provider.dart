@@ -28,6 +28,7 @@ class AppAuthProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool _needsVerification = false;
   bool _biometricLockEnabled = false;
+  bool _shouldOfferBiometricEnrollment = false;
 
   // Getters — screens read these to know what to show
   AuthStatus get status => _status;
@@ -37,6 +38,7 @@ class AppAuthProvider extends ChangeNotifier {
   bool get isLoggedIn => _status == AuthStatus.loggedIn;
   bool get needsVerification => _needsVerification;
   bool get biometricLockEnabled => _biometricLockEnabled;
+  bool get shouldOfferBiometricEnrollment => _shouldOfferBiometricEnrollment;
 
   // Called on app launch — checks if user is already logged in
   Future<void> _checkCurrentSession() async {
@@ -134,6 +136,7 @@ class AppAuthProvider extends ChangeNotifier {
         _biometricLockEnabled = false;
       }
       _status = AuthStatus.loggedIn;
+      _shouldOfferBiometricEnrollment = !_biometricLockEnabled;
     } else {
       _errorMessage = result.errorMessage;
       _needsVerification = result.needsVerification;
@@ -148,6 +151,7 @@ class AppAuthProvider extends ChangeNotifier {
     _setLoading(true);
     await _authService.signOut();
     _biometricLockEnabled = false;
+    _shouldOfferBiometricEnrollment = false;
     _currentUser = null;
     _biometricLockEnabled = false;
     _status = AuthStatus.guest;
@@ -169,6 +173,7 @@ class AppAuthProvider extends ChangeNotifier {
       }
       await _biometricLockService.setEnabled(user.email, enabled);
       _biometricLockEnabled = enabled;
+      if (enabled) _shouldOfferBiometricEnrollment = false;
       notifyListeners();
       return true;
     } catch (_) {
@@ -176,6 +181,11 @@ class AppAuthProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  void dismissBiometricEnrollmentOffer() {
+    _shouldOfferBiometricEnrollment = false;
+    notifyListeners();
   }
 
   void lock() {

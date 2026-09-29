@@ -641,7 +641,15 @@ class _AddEditRecurringTransactionDialogState
                   decoration: _inputDecoration(context).copyWith(
                     labelText: 'Amount',
                     hintText: '0.00',
+                    hintStyle: colours.b4.copyWith(
+                      color: colours.textPrimary.withValues(alpha: 0.55),
+                      fontSize: 16,
+                    ),
                     prefixText: 'R ',
+                    prefixStyle: colours.b4.copyWith(
+                      color: colours.textPrimary,
+                      fontSize: 16,
+                    ),
                   ),
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,

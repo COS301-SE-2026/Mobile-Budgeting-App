@@ -31,7 +31,7 @@ class BalanceCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(22),
+        padding: const EdgeInsets.all(28),
         decoration: BoxDecoration(
           color: cardColor,
           border: Border.all(color: Colors.black, width: 4),
@@ -44,25 +44,33 @@ class BalanceCard extends StatelessWidget {
               title,
               style: context.colours.h2.copyWith(
                 color: cardTextColor,
-                fontSize: 14,
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+                letterSpacing: 1.2,
               ),
             ),
-            const SizedBox(height: 18),
-            Text(
-              _formatCurrency(totalSpent),
-              style: context.colours.h2.copyWith(
-                color: cardTextColor,
-                fontSize: 40,
-                letterSpacing: -1.2,
+            const SizedBox(height: 20),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                _formatCurrency(totalSpent),
+                maxLines: 1,
+                style: context.colours.h2.copyWith(
+                  color: cardTextColor,
+                  fontSize: 52,
+                  fontWeight: FontWeight.bold,
+                  height: 1,
+                ),
               ),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 25),
             Text(
               'Budget target: ${_formatCurrency(totalTarget)}',
               style: context.colours.h2.copyWith(
-                color: cardTextColor,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
+                color: cardTextColor.withValues(alpha: 0.8),
+                fontSize: 20,
+                fontWeight: FontWeight.w400,
               ),
             ),
           ],

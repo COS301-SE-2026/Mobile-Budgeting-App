@@ -173,6 +173,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                         subHeaderForegroundColor: cardTextColor,
                         weekdayStyle: colours.b5.copyWith(
                           color: cardTextColor,
+                          fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
                         dayStyle: colours.b5.copyWith(
@@ -481,10 +482,9 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                         const SizedBox(width: 10),
                         Text(
                           dateLabel,
-                          style: colours.b5.copyWith(
+                          style: colours.b1.copyWith(
                             color: colours.textPrimary,
                             fontWeight: FontWeight.bold,
-                            letterSpacing: 0.8,
                           ),
                         ),
                       ],

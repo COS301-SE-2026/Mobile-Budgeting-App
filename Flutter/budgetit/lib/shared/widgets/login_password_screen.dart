@@ -4,7 +4,6 @@ import '../../auth/providers/auth_provider.dart';
 import '../../utils/app_colour.dart';
 import 'verify_email_screen.dart';
 import 'forgot_password_screen.dart';
-import 'coming_soon_page.dart';
 
 class LoginRegisterScreen extends StatefulWidget {
   const LoginRegisterScreen({super.key});
@@ -24,14 +23,13 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
 
   bool _passwordVisible = false;
   bool _confirmPasswordVisible = false;
-// using the app colours we defined in app colour file..
+  // using the app colours we defined in app colour file..
   Color get _green => context.colours.primary;
   Color get _cream => context.colours.cardText;
-  Color get _glassColor => context.colours.cardText.withValues(alpha: 0.13);
   Color get _softCream => _cream.withValues(alpha: 0.8);
   Color get _mutedCream => _cream.withValues(alpha: 0.6);
   Color get _faintCream => _cream.withValues(alpha: 0.4);
-  Color get _borderColor => context.colours.category;
+  Color get _borderColor => Colors.black;
 
   @override
   void dispose() {
@@ -61,8 +59,6 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
                     const SizedBox(height: 32),
                     _buildCard(auth),
                     const SizedBox(height: 32),
-                    _buildBiometricRow(),
-                    const SizedBox(height: 16),
                     _buildSecureBadge(),
                     const SizedBox(height: 32),
                   ],
@@ -85,31 +81,15 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
           const SizedBox(width: 48),
           Text(
             'Budget IT',
-            style: context.colours.title.copyWith(
-              color: _cream,
-              fontSize: 20,
-            ),
-          ),// i dont know if this should be placed but agile
-          IconButton(
-            icon: Icon(Icons.settings, color: _cream),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const ComingSoonPage(
-                  title: 'Settings Coming Soon',
-                  message:
-                      'App settings are still under development. Soon you will be able to customise your preferences here.',
-                  icon: Icons.settings_outlined,
-                ),
-              ),
-            ),
+            style: context.colours.title.copyWith(color: _cream, fontSize: 20),
           ),
+          const SizedBox(width: 48),
         ],
       ),
     );
   }
 
-  //Header 
+  //Header
   Widget _buildHeader() {
     return Column(
       children: [
@@ -140,9 +120,7 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
       decoration: BoxDecoration(
         color: context.colours.blendedprimary,
         border: Border.all(color: _borderColor, width: 4),
-        boxShadow: [
-          BoxShadow(color: _borderColor, offset: const Offset(6, 6)),
-        ],
+        boxShadow: [BoxShadow(color: _borderColor, offset: const Offset(6, 6))],
       ),
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -315,7 +293,7 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
           MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
         ),
         child: Text(
-          'Forgot?',
+          'Forgot Password?',
           style: context.colours.h2.copyWith(
             color: _cream,
             fontSize: 13,
@@ -377,10 +355,7 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
             ? SizedBox(
                 height: 20,
                 width: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: _green,
-                ),
+                child: CircularProgressIndicator(strokeWidth: 2, color: _green),
               )
             : Text(
                 label,
@@ -441,32 +416,6 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
     );
   }
 
-  // --- Biometric Row ---
-  Widget _buildBiometricRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildBiometricIcon(Icons.fingerprint),
-        const SizedBox(width: 24),
-        _buildBiometricIcon(Icons.face_outlined),
-      ],
-    );
-  }
-
-  Widget _buildBiometricIcon(IconData icon) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: _glassColor,
-        border: Border.all(color: _borderColor, width: 4),
-        boxShadow: [
-          BoxShadow(color: _borderColor, offset: const Offset(6, 6)),
-        ],
-      ),
-      child: Icon(icon, color: _cream, size: 28),
-    );
-  }
-
   // --- Secure Badge ---
   Widget _buildSecureBadge() {
     return Row(
@@ -509,7 +458,9 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
         auth.clearNeedsVerification();
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => VerifyEmailScreen(email: email)),
+          MaterialPageRoute(
+            builder: (_) => VerifyEmailScreen(email: email, password: password),
+          ),
         );
       }
     } else {
@@ -534,7 +485,9 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
         auth.clearNeedsVerification();
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => VerifyEmailScreen(email: email)),
+          MaterialPageRoute(
+            builder: (_) => VerifyEmailScreen(email: email, password: password),
+          ),
         );
       }
     }
