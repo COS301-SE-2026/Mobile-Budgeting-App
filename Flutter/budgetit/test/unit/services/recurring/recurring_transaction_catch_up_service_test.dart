@@ -300,6 +300,7 @@ void main() {
       final category = await db.categoryDao.insertCategory(
         name: 'Food',
         type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
       );
       final recurring = await insertRecurringFixture(
         fixture: recurringTransactionFixture(

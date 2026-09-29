@@ -108,50 +108,50 @@ class _Fake$AppDatabaseManager_11 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
-class _Fake$CategoriesTable_12 extends _i1.SmartFake
-    implements _i13.$CategoriesTable {
-  _Fake$CategoriesTable_12(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _Fake$CategoryClosureTable_13 extends _i1.SmartFake
-    implements _i13.$CategoryClosureTable {
-  _Fake$CategoryClosureTable_13(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _Fake$RecurringTransactionsTable_14 extends _i1.SmartFake
-    implements _i13.$RecurringTransactionsTable {
-  _Fake$RecurringTransactionsTable_14(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(parent, parentInvocation);
-}
-
-class _Fake$ImportsTable_15 extends _i1.SmartFake
-    implements _i13.$ImportsTable {
-  _Fake$ImportsTable_15(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _Fake$TransactionsTable_16 extends _i1.SmartFake
-    implements _i13.$TransactionsTable {
-  _Fake$TransactionsTable_16(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _Fake$TransactionCategoryMapTable_17 extends _i1.SmartFake
-    implements _i13.$TransactionCategoryMapTable {
-  _Fake$TransactionCategoryMapTable_17(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(parent, parentInvocation);
-}
-
-class _Fake$BudgetTemplatesTable_18 extends _i1.SmartFake
+class _Fake$BudgetTemplatesTable_12 extends _i1.SmartFake
     implements _i13.$BudgetTemplatesTable {
-  _Fake$BudgetTemplatesTable_18(Object parent, Invocation parentInvocation)
+  _Fake$BudgetTemplatesTable_12(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
+}
+
+class _Fake$CategoriesTable_13 extends _i1.SmartFake
+    implements _i13.$CategoriesTable {
+  _Fake$CategoriesTable_13(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$CategoryClosureTable_14 extends _i1.SmartFake
+    implements _i13.$CategoryClosureTable {
+  _Fake$CategoryClosureTable_14(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$RecurringTransactionsTable_15 extends _i1.SmartFake
+    implements _i13.$RecurringTransactionsTable {
+  _Fake$RecurringTransactionsTable_15(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(parent, parentInvocation);
+}
+
+class _Fake$ImportsTable_16 extends _i1.SmartFake
+    implements _i13.$ImportsTable {
+  _Fake$ImportsTable_16(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$TransactionsTable_17 extends _i1.SmartFake
+    implements _i13.$TransactionsTable {
+  _Fake$TransactionsTable_17(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$TransactionCategoryMapTable_18 extends _i1.SmartFake
+    implements _i13.$TransactionCategoryMapTable {
+  _Fake$TransactionCategoryMapTable_18(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(parent, parentInvocation);
 }
 
 class _Fake$BudgetPeriodsTable_19 extends _i1.SmartFake
@@ -502,10 +502,21 @@ class MockAppDatabase extends _i1.Mock implements _i13.AppDatabase {
           as _i13.$AppDatabaseManager);
 
   @override
+  _i13.$BudgetTemplatesTable get budgetTemplates =>
+      (super.noSuchMethod(
+            Invocation.getter(#budgetTemplates),
+            returnValue: _Fake$BudgetTemplatesTable_12(
+              this,
+              Invocation.getter(#budgetTemplates),
+            ),
+          )
+          as _i13.$BudgetTemplatesTable);
+
+  @override
   _i13.$CategoriesTable get categories =>
       (super.noSuchMethod(
             Invocation.getter(#categories),
-            returnValue: _Fake$CategoriesTable_12(
+            returnValue: _Fake$CategoriesTable_13(
               this,
               Invocation.getter(#categories),
             ),
@@ -516,7 +527,7 @@ class MockAppDatabase extends _i1.Mock implements _i13.AppDatabase {
   _i13.$CategoryClosureTable get categoryClosure =>
       (super.noSuchMethod(
             Invocation.getter(#categoryClosure),
-            returnValue: _Fake$CategoryClosureTable_13(
+            returnValue: _Fake$CategoryClosureTable_14(
               this,
               Invocation.getter(#categoryClosure),
             ),
@@ -527,7 +538,7 @@ class MockAppDatabase extends _i1.Mock implements _i13.AppDatabase {
   _i13.$RecurringTransactionsTable get recurringTransactions =>
       (super.noSuchMethod(
             Invocation.getter(#recurringTransactions),
-            returnValue: _Fake$RecurringTransactionsTable_14(
+            returnValue: _Fake$RecurringTransactionsTable_15(
               this,
               Invocation.getter(#recurringTransactions),
             ),
@@ -538,7 +549,7 @@ class MockAppDatabase extends _i1.Mock implements _i13.AppDatabase {
   _i13.$ImportsTable get imports =>
       (super.noSuchMethod(
             Invocation.getter(#imports),
-            returnValue: _Fake$ImportsTable_15(
+            returnValue: _Fake$ImportsTable_16(
               this,
               Invocation.getter(#imports),
             ),
@@ -549,7 +560,7 @@ class MockAppDatabase extends _i1.Mock implements _i13.AppDatabase {
   _i13.$TransactionsTable get transactions =>
       (super.noSuchMethod(
             Invocation.getter(#transactions),
-            returnValue: _Fake$TransactionsTable_16(
+            returnValue: _Fake$TransactionsTable_17(
               this,
               Invocation.getter(#transactions),
             ),
@@ -560,23 +571,12 @@ class MockAppDatabase extends _i1.Mock implements _i13.AppDatabase {
   _i13.$TransactionCategoryMapTable get transactionCategoryMap =>
       (super.noSuchMethod(
             Invocation.getter(#transactionCategoryMap),
-            returnValue: _Fake$TransactionCategoryMapTable_17(
+            returnValue: _Fake$TransactionCategoryMapTable_18(
               this,
               Invocation.getter(#transactionCategoryMap),
             ),
           )
           as _i13.$TransactionCategoryMapTable);
-
-  @override
-  _i13.$BudgetTemplatesTable get budgetTemplates =>
-      (super.noSuchMethod(
-            Invocation.getter(#budgetTemplates),
-            returnValue: _Fake$BudgetTemplatesTable_18(
-              this,
-              Invocation.getter(#budgetTemplates),
-            ),
-          )
-          as _i13.$BudgetTemplatesTable);
 
   @override
   _i13.$BudgetPeriodsTable get budgetPeriods =>
@@ -1402,10 +1402,21 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
           as _i2.DatabaseConnectionUser);
 
   @override
+  _i13.$BudgetTemplatesTable get budgetTemplates =>
+      (super.noSuchMethod(
+            Invocation.getter(#budgetTemplates),
+            returnValue: _Fake$BudgetTemplatesTable_12(
+              this,
+              Invocation.getter(#budgetTemplates),
+            ),
+          )
+          as _i13.$BudgetTemplatesTable);
+
+  @override
   _i13.$CategoriesTable get categories =>
       (super.noSuchMethod(
             Invocation.getter(#categories),
-            returnValue: _Fake$CategoriesTable_12(
+            returnValue: _Fake$CategoriesTable_13(
               this,
               Invocation.getter(#categories),
             ),
@@ -1416,7 +1427,7 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
   _i13.$RecurringTransactionsTable get recurringTransactions =>
       (super.noSuchMethod(
             Invocation.getter(#recurringTransactions),
-            returnValue: _Fake$RecurringTransactionsTable_14(
+            returnValue: _Fake$RecurringTransactionsTable_15(
               this,
               Invocation.getter(#recurringTransactions),
             ),
@@ -1427,7 +1438,7 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
   _i13.$ImportsTable get imports =>
       (super.noSuchMethod(
             Invocation.getter(#imports),
-            returnValue: _Fake$ImportsTable_15(
+            returnValue: _Fake$ImportsTable_16(
               this,
               Invocation.getter(#imports),
             ),
@@ -1438,7 +1449,7 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
   _i13.$TransactionsTable get transactions =>
       (super.noSuchMethod(
             Invocation.getter(#transactions),
-            returnValue: _Fake$TransactionsTable_16(
+            returnValue: _Fake$TransactionsTable_17(
               this,
               Invocation.getter(#transactions),
             ),
@@ -1449,7 +1460,7 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
   _i13.$TransactionCategoryMapTable get transactionCategoryMap =>
       (super.noSuchMethod(
             Invocation.getter(#transactionCategoryMap),
-            returnValue: _Fake$TransactionCategoryMapTable_17(
+            returnValue: _Fake$TransactionCategoryMapTable_18(
               this,
               Invocation.getter(#transactionCategoryMap),
             ),
@@ -1477,6 +1488,7 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
     required _i19.TransactionSource? source,
     String? currency = 'ZAR',
     String? recurringId,
+    required String? budgetTemplateId,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#insertTransaction, [], {
@@ -1488,6 +1500,7 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
               #source: source,
               #currency: currency,
               #recurringId: recurringId,
+              #budgetTemplateId: budgetTemplateId,
             }),
             returnValue: _i16.Future<_i13.Transaction>.value(
               _FakeTransaction_50(
@@ -1501,6 +1514,7 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
                   #source: source,
                   #currency: currency,
                   #recurringId: recurringId,
+                  #budgetTemplateId: budgetTemplateId,
                 }),
               ),
             ),
@@ -1581,6 +1595,7 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
     DateTime? transactionDate,
     _i19.TransactionSource? source,
     String? currency,
+    String? budgetTemplateId,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
@@ -1594,6 +1609,7 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
                 #transactionDate: transactionDate,
                 #source: source,
                 #currency: currency,
+                #budgetTemplateId: budgetTemplateId,
               },
             ),
             returnValue: _i16.Future<_i13.Transaction>.value(
@@ -1610,6 +1626,7 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
                     #transactionDate: transactionDate,
                     #source: source,
                     #currency: currency,
+                    #budgetTemplateId: budgetTemplateId,
                   },
                 ),
               ),
@@ -1707,6 +1724,18 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#getTransactionsByCategory, [categoryId]),
+            returnValue: _i16.Future<List<_i13.Transaction>>.value(
+              <_i13.Transaction>[],
+            ),
+          )
+          as _i16.Future<List<_i13.Transaction>>);
+
+  @override
+  _i16.Future<List<_i13.Transaction>> getTransactionsByBudget(
+    String? budgetTemplateId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getTransactionsByBudget, [budgetTemplateId]),
             returnValue: _i16.Future<List<_i13.Transaction>>.value(
               <_i13.Transaction>[],
             ),
@@ -2247,10 +2276,21 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
           as _i2.DatabaseConnectionUser);
 
   @override
+  _i13.$BudgetTemplatesTable get budgetTemplates =>
+      (super.noSuchMethod(
+            Invocation.getter(#budgetTemplates),
+            returnValue: _Fake$BudgetTemplatesTable_12(
+              this,
+              Invocation.getter(#budgetTemplates),
+            ),
+          )
+          as _i13.$BudgetTemplatesTable);
+
+  @override
   _i13.$CategoriesTable get categories =>
       (super.noSuchMethod(
             Invocation.getter(#categories),
-            returnValue: _Fake$CategoriesTable_12(
+            returnValue: _Fake$CategoriesTable_13(
               this,
               Invocation.getter(#categories),
             ),
@@ -2261,7 +2301,7 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
   _i13.$CategoryClosureTable get categoryClosure =>
       (super.noSuchMethod(
             Invocation.getter(#categoryClosure),
-            returnValue: _Fake$CategoryClosureTable_13(
+            returnValue: _Fake$CategoryClosureTable_14(
               this,
               Invocation.getter(#categoryClosure),
             ),
@@ -2272,7 +2312,7 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
   _i13.$RecurringTransactionsTable get recurringTransactions =>
       (super.noSuchMethod(
             Invocation.getter(#recurringTransactions),
-            returnValue: _Fake$RecurringTransactionsTable_14(
+            returnValue: _Fake$RecurringTransactionsTable_15(
               this,
               Invocation.getter(#recurringTransactions),
             ),
@@ -2283,7 +2323,7 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
   _i13.$ImportsTable get imports =>
       (super.noSuchMethod(
             Invocation.getter(#imports),
-            returnValue: _Fake$ImportsTable_15(
+            returnValue: _Fake$ImportsTable_16(
               this,
               Invocation.getter(#imports),
             ),
@@ -2294,7 +2334,7 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
   _i13.$TransactionsTable get transactions =>
       (super.noSuchMethod(
             Invocation.getter(#transactions),
-            returnValue: _Fake$TransactionsTable_16(
+            returnValue: _Fake$TransactionsTable_17(
               this,
               Invocation.getter(#transactions),
             ),
@@ -2305,23 +2345,12 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
   _i13.$TransactionCategoryMapTable get transactionCategoryMap =>
       (super.noSuchMethod(
             Invocation.getter(#transactionCategoryMap),
-            returnValue: _Fake$TransactionCategoryMapTable_17(
+            returnValue: _Fake$TransactionCategoryMapTable_18(
               this,
               Invocation.getter(#transactionCategoryMap),
             ),
           )
           as _i13.$TransactionCategoryMapTable);
-
-  @override
-  _i13.$BudgetTemplatesTable get budgetTemplates =>
-      (super.noSuchMethod(
-            Invocation.getter(#budgetTemplates),
-            returnValue: _Fake$BudgetTemplatesTable_18(
-              this,
-              Invocation.getter(#budgetTemplates),
-            ),
-          )
-          as _i13.$BudgetTemplatesTable);
 
   @override
   _i13.$BudgetPeriodsTable get budgetPeriods =>
@@ -2349,6 +2378,7 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
   _i16.Future<_i13.Category> insertCategory({
     required String? name,
     required _i19.CategoryType? type,
+    required String? budgetTemplateId,
     _i20.IconData? icon,
     String? color,
     bool? isDefault = false,
@@ -2357,6 +2387,7 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
             Invocation.method(#insertCategory, [], {
               #name: name,
               #type: type,
+              #budgetTemplateId: budgetTemplateId,
               #icon: icon,
               #color: color,
               #isDefault: isDefault,
@@ -2367,6 +2398,7 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
                 Invocation.method(#insertCategory, [], {
                   #name: name,
                   #type: type,
+                  #budgetTemplateId: budgetTemplateId,
                   #icon: icon,
                   #color: color,
                   #isDefault: isDefault,
@@ -2416,6 +2448,18 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
               [type],
               {#includeDeleted: includeDeleted},
             ),
+            returnValue: _i16.Future<List<_i13.Category>>.value(
+              <_i13.Category>[],
+            ),
+          )
+          as _i16.Future<List<_i13.Category>>);
+
+  @override
+  _i16.Future<List<_i13.Category>> getCategoriesByBudget(
+    String? budgetTemplateId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getCategoriesByBudget, [budgetTemplateId]),
             returnValue: _i16.Future<List<_i13.Category>>.value(
               <_i13.Category>[],
             ),
