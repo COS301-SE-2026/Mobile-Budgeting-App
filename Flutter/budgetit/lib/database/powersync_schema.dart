@@ -11,6 +11,7 @@ final powerSyncSchema = Schema([
     Column.text('updated_at'),
     Column.text('deleted_at'),
     Column.text('user_id'),
+    Column.text('budget_template_id'),
   ]),
 
   Table('category_closure', [
@@ -36,6 +37,7 @@ final powerSyncSchema = Schema([
     Column.text('recurring_occurrence_date'),
     Column.text('user_id'),
     Column.text('import_id'),
+    Column.text('budget_template_id'),
   ]),
 
   Table('transaction_category_map', [
