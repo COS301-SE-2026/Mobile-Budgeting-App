@@ -5,6 +5,7 @@ import 'package:budgetit/utils/date_display_formatter.dart';
 import 'package:budgetit/utils/app_dialog_style.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
@@ -64,6 +65,9 @@ class _AddEditRecurringTransactionDialogState
   late final TextEditingController _descController;
   late final TextEditingController _amountController;
   late TransactionType _type;
+  String? _selectedCategoryId;
+  List<Category> _categories = [];
+  bool _loadingCategories = true;
   late DateTime _startDate;
   late _RecurrenceOption _recurrence;
   bool _saving = false;
@@ -85,11 +89,40 @@ class _AddEditRecurringTransactionDialogState
       text: existing?.amount.toStringAsFixed(2) ?? '',
     );
     _type = existing?.type ?? TransactionType.expense;
+    _selectedCategoryId = existing?.categoryId;
     _startDate = existing?.startDate ?? DateTime.now();
     _recurrence = _optionFor(
       existing?.unit ?? PeriodType.monthly,
       existing?.intervalAmount ?? 1,
     );
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    setState(() => _loadingCategories = true);
+
+    final categoryType = _type == TransactionType.income
+        ? CategoryType.income
+        : CategoryType.expense;
+
+    final categories = await context
+        .read<AppDatabase>()
+        .categoryDao
+        .getCategoriesByType(categoryType);
+
+    if (!mounted) return;
+
+    setState(() {
+      _categories = categories;
+
+      // Clear selection if it no longer matches the selected transaction type.
+      if (_selectedCategoryId != null &&
+          !_categories.any((category) => category.id == _selectedCategoryId)) {
+        _selectedCategoryId = null;
+      }
+
+      _loadingCategories = false;
+    });
   }
 
   _RecurrenceOption _optionFor(PeriodType unit, int interval) {
