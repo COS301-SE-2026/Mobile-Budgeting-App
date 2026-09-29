@@ -385,9 +385,11 @@ class _GoalsPageState extends State<GoalsPage> {
         return category.id;
       }
     }
+    final defaultBudget = await _db.budgetDao.getOrCreateDefaultBudget();
     final created = await _db.categoryDao.insertCategory(
       name: name,
       type: type,
+      budgetTemplateId: defaultBudget.id,
       icon: icon,
       color: '#137E84',
     );
@@ -415,6 +417,7 @@ class _GoalsPageState extends State<GoalsPage> {
         CategoryType.expense,
         Icons.savings_outlined,
       );
+      final defaultBudget = await _db.budgetDao.getOrCreateDefaultBudget();
       final transaction = await _db.transactionDao.insertTransaction(
         amount: amount,
         type: TransactionType.expense,
@@ -423,6 +426,7 @@ class _GoalsPageState extends State<GoalsPage> {
         transactionDate: DateTime.now(),
         source: TransactionSource.manual,
         currency: goal.template.currency,
+        budgetTemplateId: defaultBudget.id,
       );
       await _db.transactionDao.assignCategory(
         transactionId: transaction.id,
@@ -471,6 +475,7 @@ class _GoalsPageState extends State<GoalsPage> {
       CategoryType.income,
       Icons.undo,
     );
+    final defaultBudget = await _db.budgetDao.getOrCreateDefaultBudget();
     final transaction = await _db.transactionDao.insertTransaction(
       amount: amount,
       type: TransactionType.income,
@@ -481,6 +486,7 @@ class _GoalsPageState extends State<GoalsPage> {
       transactionDate: DateTime.now(),
       source: TransactionSource.manual,
       currency: goal.template.currency,
+      budgetTemplateId: defaultBudget.id,
     );
     await _db.transactionDao.assignCategory(
       transactionId: transaction.id,
