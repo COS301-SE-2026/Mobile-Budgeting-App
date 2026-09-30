@@ -151,7 +151,9 @@ class _ImportScreenState extends State<ImportScreen> {
       if (mounted) {
         setState(() {
           _loading = false;
+        });
       }
+    }
 
 
     if (retry && mounted) {

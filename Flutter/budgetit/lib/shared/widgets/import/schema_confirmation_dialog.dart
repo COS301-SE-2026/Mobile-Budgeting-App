@@ -147,6 +147,8 @@ class _SchemaConfirmationDialogState extends State<_SchemaConfirmationDialog> {
                               ),
                             ),
                           ),
+                        ],
+                      ),
                       const SizedBox(height: 12),
                       Text(
                         'Choose how your bank statement identifies money coming '
@@ -270,6 +272,7 @@ class _SchemaConfirmationDialogState extends State<_SchemaConfirmationDialog> {
                           .withValues(alpha: 0.78),
                     ),
                   ),
+                ],
               ),
             ),
           ],

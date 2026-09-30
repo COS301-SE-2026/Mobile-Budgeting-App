@@ -11,9 +11,11 @@ void main() {
 
   late AppDatabase db;
   late SpendingFeatureService service;
+  late BudgetTemplate budget;
 
-  setUp(() {
+  setUp(() async {
     db = openTestDatabase();
+    budget = await db.budgetDao.getOrCreateDefaultBudget();
     service = SpendingFeatureService(db.transactionDao);
   });
 
@@ -31,6 +33,7 @@ void main() {
       shortDescription: description,
       transactionDate: date,
       source: TransactionSource.manual,
+      budgetTemplateId: budget.id,
     );
   }
 

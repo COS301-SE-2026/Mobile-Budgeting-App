@@ -1,3 +1,4 @@
+import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:budgetit/database/app_database.dart';
 import 'package:budgetit/database/schema.dart';
 import 'package:budgetit/shared/widgets/goals_page.dart';
@@ -7,7 +8,6 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../support/fake_auth_plugin.dart';
 import '../support/mock_db.dart';
 
 const me = 'user-me';
@@ -15,14 +15,28 @@ const friend = 'user-friend';
 const stranger = 'user-stranger';
 const friendCode = 'FRIEND01';
 
+class _FakeAuthUser extends Fake implements AuthUser {
+  @override
+  String get userId => me;
+}
+
+class _FakeAuthPlugin extends AuthPluginInterface {
+  @override
+  Future<AuthUser> getCurrentUser({GetCurrentUserOptions? options}) async =>
+      _FakeAuthUser();
+}
+
 void main() {
-  setUpAll(() => signInAs(me));
+  setUpAll(() => Amplify.addPlugin(_FakeAuthPlugin()));
+  tearDownAll(() => Amplify.reset());
 
   late AppDatabase db;
+  late BudgetTemplate budget;
 
   setUp(() async {
     db = AppDatabase.forTesting(NativeDatabase.memory());
     await db.createMigrator().createAll();
+    budget = await db.budgetDao.getOrCreateDefaultBudget();
   });
 
   tearDown(() => db.close());
@@ -77,7 +91,7 @@ void main() {
     final transaction = await db.transactionDao.insertTransaction(
       amount: Decimal.parse(amount),
       type: TransactionType.expense,
-      budgetTemplateId: 'test-budget',
+      budgetTemplateId: budget.id,
       shortDescription: 'Goal: ${goal.name}',
       transactionDate: DateTime.utc(2026),
       source: TransactionSource.manual,

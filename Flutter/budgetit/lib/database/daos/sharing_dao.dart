@@ -121,12 +121,21 @@ class SharingDao extends DatabaseAccessor<AppDatabase> with _$SharingDaoMixin {
   }
 
   Future<GoalMember?> getGoalMember(String goalTemplateId, String userId) {
+    return (select(goalMembers)
+          ..where(
+            (t) =>
+                t.goalTemplateId.equals(goalTemplateId) &
+                t.userId.equals(userId) &
+                t.deletedAt.isNull(),
           )
           ..limit(1))
         .getSingleOrNull();
   }
 
   Future<List<GoalMember>> getGoalMembers(String goalTemplateId) {
+    return (select(goalMembers)
+          ..where(
+            (t) =>
                 t.goalTemplateId.equals(goalTemplateId) & t.deletedAt.isNull(),
           )
           ..orderBy([(t) => OrderingTerm.asc(t.createdAt)]))

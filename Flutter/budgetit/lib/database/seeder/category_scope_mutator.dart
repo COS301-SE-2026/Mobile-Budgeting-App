@@ -76,7 +76,9 @@ class _CategoryScopeMutator implements _SeedScopeMutator {
       color = _getRequiredFixtureText(category, 'color');
     }
 
+    final budget = await _db.budgetDao.getOrCreateDefaultBudget();
     await _db.categoryDao.insertCategory(
+      budgetTemplateId: budget.id,
       name: _getRequiredFixtureText(category, 'name'),
       type: _getFixtureEnumValue(CategoryType.values, category, 'type'),
       icon: icon,

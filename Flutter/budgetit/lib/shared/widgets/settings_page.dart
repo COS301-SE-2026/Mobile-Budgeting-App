@@ -16,7 +16,6 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-
   bool _isLoading = true;
   bool _aiEnabled = true;
   bool _seedActionBusy = false;
@@ -33,26 +32,19 @@ class _SettingsPageState extends State<SettingsPage> {
     final ai = await dao.getSetting('ai_categorisation');
     if (!mounted) return;
     setState(() {
-
       _aiEnabled = ai != 'false';
       _isLoading = false;
     });
   }
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Default currency set to $value')));
   Future<void> _saveAiEnabled(bool value) async {
     setState(() => _aiEnabled = value);
     await context.read<AppDatabase>().settingsDao.setSetting(
       'ai_categorisation',
       value.toString(),
+    );
   }
 
-    await context.read<AppDatabase>().settingsDao.setSetting(
-      'ai_categorisation',
-      value.toString(),
-    );
   Future<void> _toggleBiometricLock(
     BuildContext context,
     AppAuthProvider auth,
@@ -691,5 +683,4 @@ class _SettingsPageState extends State<SettingsPage> {
       child: child,
     );
   }
-
 }

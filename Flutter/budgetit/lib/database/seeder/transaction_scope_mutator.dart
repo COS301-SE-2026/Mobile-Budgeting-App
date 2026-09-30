@@ -43,8 +43,13 @@ class _TransactionScopeMutator implements _SeedScopeMutator {
     Map<String, String> categoryIds,
   ) async {
     final categoryId = _getCategoryId(categoryIds, transaction);
+    final category = await _db.categoryDao.getCategoryById(categoryId);
+    if (category == null) {
+      throw StateError('Missing category "$categoryId" for seed fixture');
+    }
     final currency = _getFixtureCurrency(transaction);
     final insertedTransaction = await _db.transactionDao.insertTransaction(
+      budgetTemplateId: category.budgetTemplateId,
       amount: _getFixtureAmount(transaction),
       type: _getFixtureEnumValue(TransactionType.values, transaction, 'type'),
       shortDescription: _getRequiredFixtureText(
