@@ -100,14 +100,6 @@ curl http://localhost:8000/health
 
 ![group](https://shieldcn.dev/group/github/open-issues/COS301-SE-2026/Mobile-Budgeting-App.png+/github/closed-issues/COS301-SE-2026/Mobile-Budgeting-App.png?variant=secondary)
 
----
-
-### Build Status
-
-| Branch   | Status |
-| -------- | ------ |
-| **Main** | 1,2    |
-| **Dev**  | 2,2    |
 
 ---
 
@@ -323,23 +315,5 @@ time (docker compose -f docker-compose.yml -f docker-compose.prod.yml pull && \
   (in practice this should be seconds-to-minutes).
 
 
-## CI/CD 
->>>>>>> d9ddc4c8cbdd98f90f00eb0356188f5277f36676
-
-### Feature Branches
-
-![Feature Branch CI](docs/assets/diagrams/CI-CD/CI-CD-FEATURE.png)
-
-### Dev Branch
-
-![Dev Branch CI](docs/assets/diagrams/CI-CD/CI-CD-DEV.png)
-
-### Main Branch
-
-![Main Branch](docs/assets/diagrams/CI-CD/CI-CD-MAIN.png)
-
-### Full Flow
-
-![Full Flow](docs/assets/diagrams/CI-CD/CI-CD-FULL.png)
 
 ---
