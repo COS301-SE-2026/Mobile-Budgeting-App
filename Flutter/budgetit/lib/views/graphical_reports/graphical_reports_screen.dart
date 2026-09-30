@@ -1120,6 +1120,30 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
           padding: const EdgeInsets.only(right: 12),
           child: LineChart(
             LineChartData(
+              lineTouchData: LineTouchData(
+                touchTooltipData: LineTouchTooltipData(
+                  getTooltipColor: (_) => context.colours.primary,
+                  tooltipPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  tooltipMargin: 10,
+                  tooltipBorder: BorderSide(
+                    color: context.colours.cardText,
+                    width: 2,
+                  ),
+                  getTooltipItems: (touchedSpots) => touchedSpots.map((spot) {
+                    return LineTooltipItem(
+                      _formatCurrency(spot.y),
+                      context.colours.b1.copyWith(
+                        color: context.colours.cardText,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
               lineBarsData: [
                 LineChartBarData(
                   spots: spots,

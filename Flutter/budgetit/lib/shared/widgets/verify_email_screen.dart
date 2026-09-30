@@ -6,7 +6,9 @@ import '../../utils/app_colour.dart';
 
 class VerifyEmailScreen extends StatefulWidget {
   final String email;
-  const VerifyEmailScreen({super.key, required this.email});
+  final String? password;
+
+  const VerifyEmailScreen({super.key, required this.email, this.password});
 
   @override
   State<VerifyEmailScreen> createState() => _VerifyEmailScreenState();
@@ -278,7 +280,14 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     }
     final success = await auth.confirmSignUp(widget.email, code);
     if (success && mounted) {
-      // Verification done — go back to login
+      final password = widget.password;
+      if (password != null && await auth.signIn(widget.email, password)) {
+        if (!mounted) return;
+        Navigator.popUntil(context, (route) => route.isFirst);
+        return;
+      }
+
+      // Verification succeeded, but automatic sign-in was unavailable.
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Email verified! Please log in.'),

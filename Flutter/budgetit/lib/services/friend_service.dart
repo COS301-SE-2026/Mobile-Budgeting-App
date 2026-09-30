@@ -17,6 +17,11 @@ class FriendService {
 
   Map<String, dynamic>? _myProfile;
 
+  /// Clears profile data that belongs to the previously authenticated user.
+  void clearCachedProfile() {
+    _myProfile = null;
+  }
+
   /// Returns the caller's profile, creating it (with a friend code) on the
   /// server if it does not yet exist. Cached in memory.
   Future<Map<String, dynamic>> getMyProfile({bool refresh = false}) async {

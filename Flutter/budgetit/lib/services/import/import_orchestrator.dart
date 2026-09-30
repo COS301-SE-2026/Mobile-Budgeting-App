@@ -6,6 +6,7 @@ import 'package:crypto/crypto.dart';
 import '../../database/app_database.dart';
 import '../../database/daos/category_dao.dart';
 import '../../database/daos/transaction_dao.dart';
+import '../../database/daos/budget_dao.dart';
 import '../../models/import/import_result.dart';
 import '../../models/import/parsed_transaction.dart';
 import '../ai/transaction_classifier/transaction_classification_service.dart';
@@ -17,6 +18,7 @@ import 'schema_discovery_service.dart';
 class ImportOrchestrator {
   final TransactionDao _taDao;
   final CategoryDao _categoryDao;
+  final BudgetDao _budgetDao;
   final StatementParserService _parser;
   final TransactionClassificationService? _aiClassifier;
 
@@ -27,6 +29,7 @@ class ImportOrchestrator {
     TransactionClassificationService? aiClassifier, StatementParserService? parser,
   }) : _taDao = taDao,
        _categoryDao = categoryDao,
+       _budgetDao = db.budgetDao,
        _aiClassifier = aiClassifier,
        _parser = parser ?? StatementParserService();
 
@@ -51,12 +54,14 @@ class ImportOrchestrator {
 
     final keywordClassifier = ClassificationService(nameToId);
     keywordClassifier.classifyAll(parsed);
+    _normaliseCategories(parsed, categories);
 
     if (_aiClassifier != null) {
       await _classifyUnmatchedExpensesWithAi(
         transactions: parsed,
         categories: categories,
       );
+      _normaliseCategories(parsed, categories);
     }
 
     final existing = await _buildExistingSet();
@@ -76,8 +81,10 @@ class ImportOrchestrator {
 
     final classificationCategories = [
       for (final category in categories)
+        if (category.type == CategoryType.expense)
         ClassificationCategory(id: category.id, name: category.name),
     ];
+    if (classificationCategories.isEmpty) return;
 
     for (final transaction in transactions) {
       if (transaction.categoryOverridden ||
@@ -101,6 +108,33 @@ class ImportOrchestrator {
 
       transaction.categoryId = bestMatch.categoryId;
       transaction.categoryName = bestMatch.categoryName;
+    }
+  }
+
+  void _normaliseCategories(
+    List<ParsedTransaction> transactions,
+    List<Category> categories,
+  ) {
+    final categoriesById = {
+      for (final category in categories) category.id: category,
+    };
+
+    for (final transaction in transactions) {
+      final category = transaction.categoryId == null
+          ? null
+          : categoriesById[transaction.categoryId];
+      final expectedType = transaction.isIncome
+          ? CategoryType.income
+          : CategoryType.expense;
+
+      if (category == null || category.type != expectedType) {
+        transaction.categoryId = null;
+        transaction.categoryName = null;
+        continue;
+      }
+
+      // Always use the current database name shown by Transaction Manager.
+      transaction.categoryName = category.name;
     }
   }
 
@@ -133,6 +167,8 @@ class ImportOrchestrator {
     var failed = 0;
     final errors = <String, String>{};
 
+    final defaultBudget = await _budgetDao.getOrCreateDefaultBudget();
+
     for (final transaction in transactions) {
       if (transaction.isDuplicate && !forceAll) {
         duplicatesSkipped++;
@@ -149,6 +185,7 @@ class ImportOrchestrator {
           longDescription: transaction.longDescription,
           transactionDate: transaction.date,
           source: TransactionSource.import,
+          budgetTemplateId: defaultBudget.id,
         );
 
         if (transaction.categoryId != null) {

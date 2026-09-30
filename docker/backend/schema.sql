@@ -8,7 +8,8 @@ CREATE TABLE categories (
   is_default boolean NOT NULL,
   created_at timestamptz NOT NULL,
   updated_at timestamptz NOT NULL,
-  deleted_at timestamptz
+  deleted_at timestamptz,
+  budget_template_id uuid NOT NULL REFERENCES budget_templates(id)
 );
 CREATE INDEX ix_categories_user ON categories (user_id);
 
@@ -64,7 +65,8 @@ CREATE TABLE transactions (
   currency text NOT NULL,
   recurring_id uuid REFERENCES recurring_transactions(id),
   recurring_occurrence_date timestamptz,
-  import_id uuid REFERENCES imports(id)
+  import_id uuid REFERENCES imports(id),
+  budget_template_id uuid NOT NULL REFERENCES budget_templates(id),
 );
 CREATE INDEX ix_transactions_user_date
   ON transactions (user_id, transaction_date DESC);

@@ -77,6 +77,7 @@ void main() {
     final transaction = await db.transactionDao.insertTransaction(
       amount: Decimal.parse(amount),
       type: TransactionType.expense,
+      budgetTemplateId: 'test-budget',
       shortDescription: 'Goal: ${goal.name}',
       transactionDate: DateTime.utc(2026),
       source: TransactionSource.manual,

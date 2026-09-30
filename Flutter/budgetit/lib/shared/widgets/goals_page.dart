@@ -107,6 +107,7 @@ class _GoalsPageState extends State<GoalsPage> {
   String? _currentUserId;
   List<String> _friendIds = const [];
   Map<String, String> _codeByUserId = const {};
+  Decimal _surplus = Decimal.zero;
 
   @override
   void initState() {
@@ -118,6 +119,7 @@ class _GoalsPageState extends State<GoalsPage> {
             _db.goalTemplates,
             _db.goalContributions,
             _db.goalMembers,
+            _db.transactions,
           ]),
         )
         .listen((_) => _scheduleReload());
@@ -154,6 +156,27 @@ class _GoalsPageState extends State<GoalsPage> {
     }
   }
 
+  Future<Decimal> _calculateSurplus() async {
+    final transactions = await _db.transactionDao.getAllTransactions();
+    return transactions.fold<Decimal>(
+      Decimal.zero,
+      (sum, row) => row.type == TransactionType.income
+          ? sum + row.amount
+          : sum - row.amount,
+    );
+  }
+
+  bool get _hasSurplus => _surplus > Decimal.zero;
+
+  String _signedMoney(Decimal amount) {
+    final value = amount.toDouble();
+    return value < 0 ? '-${_money(value.abs())}' : _money(value);
+  }
+
+  String _surplusLimitMessage(Decimal surplus) => surplus <= Decimal.zero
+      ? 'You have no surplus to allocate. Add income first.'
+      : 'You only have ${_money(surplus.toDouble())} surplus available.';
+
   Future<void> _load() async {
     final me = await _resolveCurrentUserId();
     final templates = await _db.goalDao.getAllGoalTemplates();
@@ -163,6 +186,7 @@ class _GoalsPageState extends State<GoalsPage> {
     );
     final friendships = await _db.friendsDao.getFriends();
     final profiles = await _db.friendsDao.getAllProfiles();
+    final surplus = await _calculateSurplus();
 
     final items = <_GoalItem>[];
     final invites = <_GoalInvite>[];
@@ -235,6 +259,7 @@ class _GoalsPageState extends State<GoalsPage> {
         for (final profile in profiles)
           if (profile.userId != null) profile.userId!: profile.friendCode,
       };
+      _surplus = surplus;
       _loading = false;
     });
   }
@@ -385,9 +410,11 @@ class _GoalsPageState extends State<GoalsPage> {
         return category.id;
       }
     }
+    final defaultBudget = await _db.budgetDao.getOrCreateDefaultBudget();
     final created = await _db.categoryDao.insertCategory(
       name: name,
       type: type,
+      budgetTemplateId: defaultBudget.id,
       icon: icon,
       color: '#137E84',
     );
@@ -396,13 +423,18 @@ class _GoalsPageState extends State<GoalsPage> {
 
   void _notify(String message) {
     if (!mounted) return;
+    final colours = context.colours;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final foreground = isDark ? colours.secondary : colours.background;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        backgroundColor: context.colours.primary,
-        content: Text(
-          message,
-          style: context.colours.b1.copyWith(color: context.colours.cardText),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: isDark ? colours.blendedprimary : colours.secondary,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.zero,
+          side: BorderSide(color: Colors.black, width: 3),
         ),
+        content: Text(message, style: colours.b1.copyWith(color: foreground)),
       ),
     );
   }
@@ -410,11 +442,18 @@ class _GoalsPageState extends State<GoalsPage> {
   Future<void> _allocate(_GoalItem goal, Decimal amount, String? note) async {
     setState(() => _busy = true);
     try {
+      final surplus = await _calculateSurplus();
+      if (amount > surplus) {
+        if (mounted) setState(() => _surplus = surplus);
+        _notify(_surplusLimitMessage(surplus));
+        return;
+      }
       final categoryId = await _ensureCategoryId(
         _savingsCategoryName,
         CategoryType.expense,
         Icons.savings_outlined,
       );
+      final defaultBudget = await _db.budgetDao.getOrCreateDefaultBudget();
       final transaction = await _db.transactionDao.insertTransaction(
         amount: amount,
         type: TransactionType.expense,
@@ -423,6 +462,7 @@ class _GoalsPageState extends State<GoalsPage> {
         transactionDate: DateTime.now(),
         source: TransactionSource.manual,
         currency: goal.template.currency,
+        budgetTemplateId: defaultBudget.id,
       );
       await _db.transactionDao.assignCategory(
         transactionId: transaction.id,
@@ -471,6 +511,7 @@ class _GoalsPageState extends State<GoalsPage> {
       CategoryType.income,
       Icons.undo,
     );
+    final defaultBudget = await _db.budgetDao.getOrCreateDefaultBudget();
     final transaction = await _db.transactionDao.insertTransaction(
       amount: amount,
       type: TransactionType.income,
@@ -481,6 +522,7 @@ class _GoalsPageState extends State<GoalsPage> {
       transactionDate: DateTime.now(),
       source: TransactionSource.manual,
       currency: goal.template.currency,
+      budgetTemplateId: defaultBudget.id,
     );
     await _db.transactionDao.assignCategory(
       transactionId: transaction.id,
@@ -626,6 +668,8 @@ class _GoalsPageState extends State<GoalsPage> {
                       const SizedBox(height: 18),
                       _overviewCard(),
                       const SizedBox(height: 14),
+                      _surplusCard(),
+                      const SizedBox(height: 14),
                       _createGoalButton(),
                       if (_invites.isNotEmpty) ...[
                         const SizedBox(height: 18),
@@ -723,7 +767,10 @@ class _GoalsPageState extends State<GoalsPage> {
         children: [
           Text(
             'TOTAL SAVED',
-            style: colours.b1.copyWith(color: cardTextColor),
+            style: colours.h2.copyWith(
+              color: cardTextColor,
+              fontSize: 14,
+            ),
           ),
           const SizedBox(height: 18),
           FittedBox(
@@ -731,13 +778,17 @@ class _GoalsPageState extends State<GoalsPage> {
             alignment: Alignment.centerLeft,
             child: Text(
               _money(_totalSaved),
-              style: colours.bigDisplay.copyWith(color: cardTextColor),
+              style: colours.h2.copyWith(
+                color: cardTextColor,
+                fontSize: 40,
+                letterSpacing: -1.2,
+              ),
             ),
           ),
           const SizedBox(height: 18),
           Container(
             decoration: BoxDecoration(
-              border: Border.all(color: cardTextColor, width: 1.5),
+              border: Border.all(color: Colors.black, width: 1.5),
             ),
             child: LinearProgressIndicator(
               value: progress,
@@ -749,12 +800,20 @@ class _GoalsPageState extends State<GoalsPage> {
           const SizedBox(height: 14),
           Text(
             'Goal target: ${_money(_totalTarget)}',
-            style: colours.b1.copyWith(color: cardTextColor),
+            style: colours.h2.copyWith(
+              color: cardTextColor,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           const SizedBox(height: 6),
           Text(
             'Left to save: ${_money(_totalRemaining)}',
-            style: colours.b1.copyWith(color: cardTextColor),
+            style: colours.h2.copyWith(
+              color: cardTextColor,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           if (_goals.isNotEmpty) ...[
             const SizedBox(height: 12),
@@ -762,7 +821,7 @@ class _GoalsPageState extends State<GoalsPage> {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
               decoration: BoxDecoration(
                 color: cardColor,
-                border: Border.all(color: cardTextColor, width: 2),
+                border: Border.all(color: Colors.black, width: 2),
               ),
               child: Text(
                 '$_reachedCount OF ${_goals.length} GOALS REACHED',
@@ -774,6 +833,84 @@ class _GoalsPageState extends State<GoalsPage> {
               ),
             ),
           ],
+        ],
+      ),
+    );
+  }
+
+  Widget _surplusCard() {
+    final colours = context.colours;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark ? colours.blendedprimary : colours.secondary;
+    final cardTextColor = isDark ? colours.secondary : colours.background;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: cardColor,
+        border: Border.all(color: Colors.black, width: 4),
+        boxShadow: const [BoxShadow(offset: Offset(6, 6), blurRadius: 0)],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: isDark ? colours.background : colours.cardText,
+              border: Border.all(color: Colors.black, width: 2),
+            ),
+            child: Icon(
+              Icons.account_balance_wallet_outlined,
+              color: isDark ? colours.cardText : cardColor,
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'AVAILABLE SURPLUS',
+                  style: colours.h2.copyWith(
+                    color: cardTextColor,
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _hasSurplus
+                      ? 'What you can still allocate to goals'
+                      : 'Add income to start allocating',
+                  style: colours.b5.copyWith(
+                    color: cardTextColor,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerRight,
+              child: Text(
+                _signedMoney(_surplus),
+                maxLines: 1,
+                style: colours.h2.copyWith(
+                  color: _hasSurplus ? colours.greenAccents : colours.error,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -853,9 +990,7 @@ class _GoalsPageState extends State<GoalsPage> {
             runSpacing: 8,
             children: [
               TextButton(
-                onPressed: _busy
-                    ? null
-                    : () => _respondToInvite(invite, false),
+                onPressed: _busy ? null : () => _respondToInvite(invite, false),
                 child: Text(
                   'Decline',
                   style: colours.b1.copyWith(color: cardTextColor),
@@ -951,36 +1086,60 @@ class _GoalsPageState extends State<GoalsPage> {
   Widget _viewBar() {
     final colours = context.colours;
     final isLight = Theme.of(context).brightness == Brightness.light;
-    final cardColor = isLight ? colours.secondary : colours.blendedprimary;
-    final cardTextColor = isLight ? colours.background : colours.secondary;
+    final isActive = _view != _GoalView.progress;
+    final foreground = isLight ? colours.secondary : colours.cardText;
+    final background = isLight
+        ? colours.cardText
+        : isActive
+        ? colours.informational
+        : colours.searchBar;
 
-    return Row(
-      children: [
-        for (final view in _GoalView.values) ...[
-          Expanded(
-            child: InkWell(
-              onTap: () => setState(() => _view = view),
-              child: Container(
-                height: 30,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: _view == view ? cardColor : colours.background,
-                  border: Border.all(color: Colors.black, width: 2),
-                ),
-                child: Text(
-                  _viewLabel(view),
-                  style: colours.b5.copyWith(
-                    color: _view == view ? cardTextColor : colours.textPrimary,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.4,
+    return Container(
+      height: 48,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      decoration: BoxDecoration(
+        color: background,
+        border: Border.all(color: Colors.black, width: 4),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<_GoalView>(
+          value: _view,
+          isExpanded: true,
+          dropdownColor: isLight ? colours.cardText : colours.searchBar,
+          iconEnabledColor: foreground,
+          style: colours.b1.copyWith(color: foreground),
+          items: _GoalView.values
+              .map(
+                (view) => DropdownMenuItem<_GoalView>(
+                  value: view,
+                  child: Row(
+                    children: [
+                      Icon(
+                        view == _GoalView.reached
+                            ? Icons.check_circle_outline
+                            : view == _GoalView.newest
+                            ? Icons.schedule
+                            : Icons.trending_up,
+                        size: 18,
+                        color: foreground,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _viewLabel(view),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ),
-          ),
-          if (view != _GoalView.values.last) const SizedBox(width: 8),
-        ],
-      ],
+              )
+              .toList(),
+          onChanged: (view) {
+            if (view != null) setState(() => _view = view);
+          },
+        ),
+      ),
     );
   }
 
@@ -995,12 +1154,12 @@ class _GoalsPageState extends State<GoalsPage> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: cardColor,
-        border: Border.all(color: colours.secondary, width: 1),
+        border: Border.all(color: Colors.black, width: 4),
       ),
       child: Text(
         message,
         textAlign: TextAlign.center,
-        style: TextStyle(color: colours.textPrimary, fontSize: 13),
+        style: colours.b1.copyWith(color: colours.textPrimary),
       ),
     );
   }
@@ -1011,9 +1170,9 @@ class _GoalsPageState extends State<GoalsPage> {
       color: background,
       child: Text(
         label,
-        style: TextStyle(
+        style: context.colours.b5.copyWith(
           color: foreground,
-          fontSize: 8,
+          fontSize: 10,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -1078,12 +1237,14 @@ class _GoalsPageState extends State<GoalsPage> {
                       width: 34,
                       height: 34,
                       decoration: BoxDecoration(
-                        color: colours.secondary,
+                        color: isLight
+                            ? colours.secondary
+                            : colours.blendedprimary,
                         border: Border.all(color: Colors.black, width: 2),
                       ),
                       child: Icon(
                         goal.icon,
-                        color: colours.background,
+                        color: isLight ? colours.background : colours.cardText,
                         size: 20,
                       ),
                     ),
@@ -1121,7 +1282,7 @@ class _GoalsPageState extends State<GoalsPage> {
                       children: [
                         Text(
                           'R${goal.saved.toInt()} / R${goal.target.toInt()}',
-                          style: colours.h2.copyWith(
+                          style: colours.b4.copyWith(
                             color: cardTextColor,
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
@@ -1152,7 +1313,7 @@ class _GoalsPageState extends State<GoalsPage> {
                 const SizedBox(height: 12),
                 Container(
                   decoration: BoxDecoration(
-                    border: Border.all(color: trackColor, width: 1.5),
+                    border: Border.all(color: Colors.black, width: 1.5),
                   ),
                   child: LinearProgressIndicator(
                     value: goal.progress,
@@ -1177,31 +1338,34 @@ class _GoalsPageState extends State<GoalsPage> {
                       ),
                     ),
                     const SizedBox(width: 10),
-                    InkWell(
-                      onTap: _busy ? null : () => _showAllocateDialog(goal),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 7,
-                        ),
-                        decoration: BoxDecoration(
-                          color: cardTextColor,
-                          border: Border.all(color: Colors.black, width: 2),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.add, size: 14, color: cardColor),
-                            const SizedBox(width: 6),
-                            Text(
-                              'ALLOCATE',
-                              style: colours.b5.copyWith(
-                                color: cardColor,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.8,
+                    Opacity(
+                      opacity: _hasSurplus ? 1 : 0.45,
+                      child: InkWell(
+                        onTap: _busy ? null : () => _showAllocateDialog(goal),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 7,
+                          ),
+                          decoration: BoxDecoration(
+                            color: cardTextColor,
+                            border: Border.all(color: Colors.black, width: 2),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.add, size: 14, color: cardColor),
+                              const SizedBox(width: 6),
+                              Text(
+                                'ALLOCATE',
+                                style: colours.b5.copyWith(
+                                  color: cardColor,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.8,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -1592,6 +1756,11 @@ class _GoalsPageState extends State<GoalsPage> {
   }
 
   Future<void> _showAllocateDialog(_GoalItem goal) async {
+    if (!_hasSurplus) {
+      _notify(_surplusLimitMessage(_surplus));
+      return;
+    }
+
     final colours = context.colours;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = isDark ? colours.blendedprimary : colours.secondary;
@@ -1610,7 +1779,13 @@ class _GoalsPageState extends State<GoalsPage> {
             'expense, so it leaves your spendable balance immediately.',
             style: colours.b1.copyWith(color: cardTextColor),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 14),
+          _detailRow(
+            'Available surplus',
+            _money(_surplus.toDouble()),
+            cardTextColor,
+          ),
+          const SizedBox(height: 8),
           TextField(
             controller: _allocateAmountController,
             autofocus: true,
@@ -1620,8 +1795,10 @@ class _GoalsPageState extends State<GoalsPage> {
               'Amount',
               cardTextColor,
               helper: goal.isComplete
-                  ? 'This goal has already been reached.'
-                  : 'Left to save: ${_money(goal.remaining)}',
+                  ? 'This goal has already been reached. '
+                        'Max ${_money(_surplus.toDouble())}.'
+                  : 'Left to save: ${_money(goal.remaining)} · '
+                        'Max ${_money(_surplus.toDouble())}',
             ),
           ),
           const SizedBox(height: 20),
@@ -1649,6 +1826,10 @@ class _GoalsPageState extends State<GoalsPage> {
     if (confirmed != true || !mounted) return;
     if (amount == null) {
       _notify('Enter an amount greater than zero.');
+      return;
+    }
+    if (amount > _surplus) {
+      _notify(_surplusLimitMessage(_surplus));
       return;
     }
 

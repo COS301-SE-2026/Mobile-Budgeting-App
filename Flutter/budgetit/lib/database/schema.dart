@@ -83,6 +83,10 @@ class Categories extends Table {
   DateTimeColumn get deletedAt => dateTime().nullable()();
   TextColumn get userId => text().nullable()();
 
+  /// The budget this category belongs to.
+  TextColumn get budgetTemplateId =>
+      text().references(BudgetTemplates, #id)();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -163,6 +167,7 @@ class Transactions extends Table {
 
   TextColumn get importId => text().references(Imports, #id).nullable()();
 
+  TextColumn get budgetTemplateId => text().references(BudgetTemplates, #id)();
   @override
   Set<Column> get primaryKey => {id};
 }

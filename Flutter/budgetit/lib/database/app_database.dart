@@ -61,6 +61,16 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(statementSchemaCache);
       }
     },
+    beforeOpen: (details) async {
+      // Remove legacy rows created before budget_template_id became NOT NULL.
+      // These crash the drift reader (null check) and fail to upload.
+      await customStatement(
+        'DELETE FROM transactions WHERE budget_template_id IS NULL',
+      );
+      await customStatement(
+        'DELETE FROM categories WHERE budget_template_id IS NULL',
+      );
+    },
   );
 
   static QueryExecutor _openConnection(PowerSyncDatabase powerSyncDb) {

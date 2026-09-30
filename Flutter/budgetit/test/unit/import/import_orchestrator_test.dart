@@ -113,7 +113,7 @@ void main() {
     });
 
     test('assigns category with AssignmentSource.ai when not manually overridden', () async {
-      final category = await categoryDao.insertCategory( name: 'Groceries', type: CategoryType.expense);
+      final category = await categoryDao.insertCategory( name: 'Groceries', type: CategoryType.expense, budgetTemplateId: 'test-budget',);
       final transactions = [
         _parsed(
           description: 'Checkers groceries',
@@ -133,7 +133,7 @@ void main() {
 
 
     test('assigns category with AssignmentSource.manual when categoryOverridden is true', () async {
-      final category = await categoryDao.insertCategory( name: 'Groceries', type: CategoryType.expense);
+      final category = await categoryDao.insertCategory( name: 'Groceries', type: CategoryType.expense, budgetTemplateId: 'test-budget',);
       final transactions = [
         _parsed(
           description: 'Checkers groceries',

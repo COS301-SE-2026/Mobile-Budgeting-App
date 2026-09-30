@@ -1,3 +1,4 @@
+import 'package:budgetit/auth/providers/auth_provider.dart';
 import 'package:budgetit/database/app_database.dart';
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:budgetit/utils/theme_provider.dart';
@@ -12,9 +13,6 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  static const _currencies = ['ZAR', 'USD', 'EUR', 'GBP'];
-
-  String _currency = 'ZAR';
   bool _isLoading = true;
   bool _aiEnabled = true;
 
@@ -26,23 +24,12 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _loadSettings() async {
     final dao = context.read<AppDatabase>().settingsDao;
-    final currency = await dao.getDefaultCurrency();
     final ai = await dao.getSetting('ai_categorisation');
     if (!mounted) return;
     setState(() {
-      _currency = _currencies.contains(currency) ? currency : 'ZAR';
       _aiEnabled = ai != 'false';
       _isLoading = false;
     });
-  }
-
-  Future<void> _saveCurrency(String value) async {
-    setState(() => _currency = value);
-    await context.read<AppDatabase>().settingsDao.setDefaultCurrency(value);
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Default currency set to $value')),
-    );
   }
 
   Future<void> _saveAiEnabled(bool value) async {
@@ -53,10 +40,25 @@ class _SettingsPageState extends State<SettingsPage> {
         .setSetting('ai_categorisation', value.toString());
   }
 
+  Future<void> _toggleBiometricLock(
+    BuildContext context,
+    AppAuthProvider auth,
+  ) async {
+    final changed = await auth.setBiometricLockEnabled(
+      !auth.biometricLockEnabled,
+    );
+    if (!changed && context.mounted && auth.errorMessage != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(auth.errorMessage!)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colours = context.colours;
     final theme = context.watch<ThemeProvider>();
+    final auth = context.watch<AppAuthProvider>();
 
     return Scaffold(
       backgroundColor: colours.background,
@@ -124,18 +126,6 @@ class _SettingsPageState extends State<SettingsPage> {
                     const SizedBox(height: 12),
                     _card(
                       context,
-                      child: _dropdownRow(
-                        context,
-                        icon: Icons.payments_outlined,
-                        label: 'Default currency',
-                        value: _currency,
-                        options: _currencies,
-                        onChanged: _saveCurrency,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    _card(
-                      context,
                       child: Row(
                         children: [
                           Icon(Icons.auto_awesome, color: colours.cardText),
@@ -167,8 +157,90 @@ class _SettingsPageState extends State<SettingsPage> {
                           ),
                         ],
                       ),
-                    ),                    
+                    ),
                     const SizedBox(height: 24),
+                    if (auth.isLoggedIn) ...[
+                      _sectionTitle(context, 'SECURITY'),
+                      const SizedBox(height: 12),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: colours.primary,
+                          border: Border.all(color: Colors.black, width: 4),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(6, 6),
+                            ),
+                          ],
+                        ),
+                        child: InkWell(
+                          onTap: auth.isLoading
+                              ? null
+                              : () => _toggleBiometricLock(context, auth),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'BIOMETRIC LOCK',
+                                        style: colours.h4.copyWith(
+                                          color: colours.cardText,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        'Require Android biometrics when reopening the app',
+                                        style: colours.b1.copyWith(
+                                          color: colours.cardText,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 14),
+                                AnimatedContainer(
+                                  duration: const Duration(milliseconds: 160),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 9,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: auth.biometricLockEnabled
+                                        ? colours.cardText
+                                        : colours.background,
+                                    border: Border.all(
+                                      color: Colors.black,
+                                      width: 3,
+                                    ),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Colors.black,
+                                        offset: Offset(3, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Text(
+                                    auth.biometricLockEnabled ? 'ON' : 'OFF',
+                                    style: colours.b1.copyWith(
+                                      color: auth.biometricLockEnabled
+                                          ? colours.primary
+                                          : colours.cardText,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
                   ],
                 ),
               ),
@@ -192,42 +264,6 @@ class _SettingsPageState extends State<SettingsPage> {
         ],
       ),
       child: child,
-    );
-  }
-
-  Widget _dropdownRow(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required String value,
-    required List<String> options,
-    required Future<void> Function(String) onChanged,
-  }) {
-    final colours = context.colours;
-    return Row(
-      children: [
-        Icon(icon, color: colours.cardText),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Text(
-            label,
-            style: colours.b1.copyWith(color: colours.cardText),
-          ),
-        ),
-        DropdownButton<String>(
-          value: value,
-          dropdownColor: colours.blendedprimary,
-          underline: const SizedBox.shrink(),
-          iconEnabledColor: colours.cardText,
-          style: colours.b1.copyWith(color: colours.cardText),
-          items: options
-              .map((o) => DropdownMenuItem(value: o, child: Text(o)))
-              .toList(),
-          onChanged: (v) {
-            if (v != null) onChanged(v);
-          },
-        ),
-      ],
     );
   }
 }

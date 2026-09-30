@@ -28,6 +28,7 @@ Transaction transactionFixture({
     deletedAt: deletedAt,
     source: source,
     currency: currency,
+    budgetTemplateId: 'budget-1',
   );
 }
 
@@ -53,6 +54,7 @@ Category categoryFixture({
     createdAt: createdAt ?? now,
     updatedAt: updatedAt ?? now,
     deletedAt: deletedAt,
+    budgetTemplateId: 'budget-1',
   );
 }
 

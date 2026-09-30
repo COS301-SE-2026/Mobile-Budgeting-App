@@ -712,7 +712,7 @@ class _DashboardState extends State<Dashboard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'DAILY SPENDING FOR ${_formatDashboardDate(selectedDate)}',
+            'DAILY SPENDING FOR ${_formatDashboardDate(selectedDate).toUpperCase()}',
             style: colours.h2.copyWith(
               color: cardTextColor,
               fontSize: 16,
@@ -751,30 +751,34 @@ class _DashboardState extends State<Dashboard> {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: Row(
-        children: [
-          Expanded(
-            child: _incomeExpenseCard(
-              colours: colours,
-              title:
-                  'TOTAL INCOME\n${_monthName(selectedDate.month).toUpperCase()}',
-              amount: health.totalIncome,
-              icon: Icons.arrow_upward,
-              amountColor: colours.greenAccents,
+      //SAME HEIGHT
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: _incomeExpenseCard(
+                colours: colours,
+                title:
+                    'TOTAL INCOME\n${_monthName(selectedDate.month).toUpperCase()}',
+                amount: health.totalIncome,
+                icon: Icons.arrow_upward,
+                amountColor: colours.greenAccents,
+              ),
             ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: _incomeExpenseCard(
-              colours: colours,
-              title:
-                  'TOTAL EXPENSES\n${_monthName(selectedDate.month).toUpperCase()}',
-              amount: health.totalExpenses,
-              icon: Icons.arrow_downward,
-              amountColor: colours.error,
+            const SizedBox(width: 14),
+            Expanded(
+              child: _incomeExpenseCard(
+                colours: colours,
+                title:
+                    'TOTAL EXPENSES\n${_monthName(selectedDate.month).toUpperCase()}',
+                amount: health.totalExpenses,
+                icon: Icons.arrow_downward,
+                amountColor: colours.error,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -827,6 +831,7 @@ class _DashboardState extends State<Dashboard> {
               ),
             ],
           ),
+          const Spacer(),
           const SizedBox(height: 14),
           FittedBox(
             fit: BoxFit.scaleDown,

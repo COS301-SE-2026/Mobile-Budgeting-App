@@ -100,17 +100,46 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
 
     return Scaffold(
       backgroundColor: background,
-      appBar: AppBar(
-        title: const Text('Financial Reports'),
-        backgroundColor: context.colours.background,
-        foregroundColor: context.colours.cardText,
-        elevation: 0,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 22),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  InkWell(
+                    onTap: () => Navigator.of(context).maybePop(),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: context.colours.primary,
+                        border: Border.all(color: Colors.black, width: 3),
+                        boxShadow: const [
+                          BoxShadow(color: Colors.black, offset: Offset(4, 4)),
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.arrow_back,
+                        color: context.colours.cardText,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'FINANCIAL REPORTS',
+                        style: context.colours.h2,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
@@ -194,6 +223,7 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
             ],
           ],
         ),
+      ),
       ),
     );
   }

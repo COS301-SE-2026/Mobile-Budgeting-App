@@ -26,6 +26,8 @@ class RecurringTransactionCatchUpService {
     try {
       await _database.transaction(() async {
         try {
+          final defaultBudget = await _database.budgetDao
+              .getOrCreateDefaultBudget();
           insertedTransaction = await _database.transactionDao
               .insertTransaction(
                 amount: recurringTransaction.amount,
@@ -36,6 +38,7 @@ class RecurringTransactionCatchUpService {
                 source: TransactionSource.recurring,
                 currency: recurringTransaction.currency,
                 recurringId: recurringTransaction.id,
+                budgetTemplateId: defaultBudget.id,
               );
         } catch (error, stackTrace) {
           occurrenceFailure = CatchUpFailure(

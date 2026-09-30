@@ -40,6 +40,7 @@ class DatabaseSeeder {
     final raw = await rootBundle.loadString('assets/seeds/categories.json');
     final entries = (jsonDecode(raw) as List).cast<Map<String, dynamic>>();
     final ids = <String, String>{};
+    final defaultBudget = await db.budgetDao.getOrCreateDefaultBudget();
     for (final entry in entries) {
       final typeStr = entry['type'] as String;
       final type = typeStr == 'income'
@@ -52,6 +53,7 @@ class DatabaseSeeder {
         icon: iconStr != null ? iconFromDb(iconStr) : null,
         color: entry['color'] as String?,
         isDefault: true,
+        budgetTemplateId: defaultBudget.id,
       );
       ids[category.name] = category.id;
     }
@@ -82,6 +84,7 @@ class DatabaseSeeder {
   Future<void> _seedTransactions(Map<String, String> categoryIds) async {
     final raw = await rootBundle.loadString('assets/seeds/transactions.json');
     final entries = (jsonDecode(raw) as List).cast<Map<String, dynamic>>();
+    final defaultBudget = await db.budgetDao.getOrCreateDefaultBudget();
     for (final entry in entries) {
       final typeStr = entry['type'] as String;
       final type = typeStr == 'income'
@@ -94,6 +97,7 @@ class DatabaseSeeder {
         transactionDate: DateTime.parse(entry['transaction_date'] as String),
         source: TransactionSource.manual,
         currency: (entry['currency'] as String?) ?? 'ZAR',
+        budgetTemplateId: defaultBudget.id,
       );
       final categoryId = categoryIds[entry['category_name'] as String];
       if (categoryId != null) {
