@@ -396,10 +396,10 @@ class _AddEditRecurringTransactionDialogState
       context: context,
       builder: (dialogContext) {
         final cardColor = Theme.of(context).brightness == Brightness.light
-            ? colours.secondary
+            ? colours.background
             : colours.blendedprimary;
         final cardTextColor = Theme.of(context).brightness == Brightness.light
-            ? colours.background
+            ? colours.textPrimary
             : colours.secondary;
 
         return Dialog(
@@ -460,6 +460,7 @@ class _AddEditRecurringTransactionDialogState
                       style: AppDialogStyle.isDark(context)
                           ? AppDialogStyle.cancel(context)
                           : OutlinedButton.styleFrom(
+                              backgroundColor: colours.background,
                               foregroundColor: cardTextColor,
                               side: const BorderSide(
                                 color: Colors.black,
