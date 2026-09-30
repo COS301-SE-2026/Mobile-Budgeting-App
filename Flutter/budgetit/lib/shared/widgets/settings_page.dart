@@ -44,17 +44,17 @@ class _SettingsPageState extends State<SettingsPage> {
     setState(() => _currency = value);
     await context.read<AppDatabase>().settingsDao.setDefaultCurrency(value);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Default currency set to $value')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Default currency set to $value')));
   }
 
   Future<void> _saveAiEnabled(bool value) async {
     setState(() => _aiEnabled = value);
-    await context
-        .read<AppDatabase>()
-        .settingsDao
-        .setSetting('ai_categorisation', value.toString());
+    await context.read<AppDatabase>().settingsDao.setSetting(
+      'ai_categorisation',
+      value.toString(),
+    );
   }
 
   @override
@@ -72,12 +72,12 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       body: SafeArea(
         child: _isLoading
-            ? Center(
-                child: CircularProgressIndicator(color: colours.secondary),
-              )
+            ? Center(child: CircularProgressIndicator(color: colours.secondary))
             : SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 18, vertical: 22),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 22,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -100,15 +100,17 @@ class _SettingsPageState extends State<SettingsPage> {
                               children: [
                                 Text(
                                   theme.isDark ? 'Dark mode' : 'Light mode',
-                                  style: colours.b1
-                                      .copyWith(color: colours.cardText),
+                                  style: colours.b1.copyWith(
+                                    color: colours.cardText,
+                                  ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   'Resets to dark each time the app starts.',
                                   style: colours.b2.copyWith(
-                                    color: colours.cardText
-                                        .withValues(alpha: 0.7),
+                                    color: colours.cardText.withValues(
+                                      alpha: 0.7,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -150,15 +152,17 @@ class _SettingsPageState extends State<SettingsPage> {
                               children: [
                                 Text(
                                   'AI categorisation',
-                                  style: colours.b1
-                                      .copyWith(color: colours.cardText),
+                                  style: colours.b1.copyWith(
+                                    color: colours.cardText,
+                                  ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   'Suggest categories for imported transactions. Runs on this device.',
                                   style: colours.b2.copyWith(
-                                    color: colours.cardText
-                                        .withValues(alpha: 0.7),
+                                    color: colours.cardText.withValues(
+                                      alpha: 0.7,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -171,15 +175,60 @@ class _SettingsPageState extends State<SettingsPage> {
                           ),
                         ],
                       ),
-                    ),                    
+                    ),
                     const SizedBox(height: 24),
                     if (kDebugMode) ...[
                       _sectionTitle(context, 'SEED DATA'),
                       const SizedBox(height: 12),
-                      Text(
-                        'Changes to synced data will upload when connected, including changes made offline.',
-                        style: colours.b2,
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: colours.background,
+                          border: Border.all(color: colours.warning, width: 3),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.cloud_upload_outlined,
+                              color: colours.warning,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Changes to synced data upload when connected, including changes made offline.',
+                                style: colours.b1.copyWith(
+                                  color: colours.textPrimary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+                      if (_seedActionBusy) ...[
+                        const SizedBox(height: 12),
+                        Semantics(
+                          liveRegion: true,
+                          label: 'Seed operation in progress',
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  color: colours.secondary,
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Seed operation in progress',
+                                style: colours.b1,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                       const SizedBox(height: 12),
                       _card(
                         context,
@@ -192,15 +241,17 @@ class _SettingsPageState extends State<SettingsPage> {
                                 color: colours.cardText,
                               ),
                             ),
+                            const SizedBox(height: 12),
                             FilledButton(
                               onPressed: _createSeedAction(() {
                                 final db = context.read<AppDatabase>();
                                 final seeder = DatabaseSeeder(db);
-                                return _applySeedChange(
-                                  seeder.resetSettings,
-                                  'Settings restored to defaults',
-                                );
+                                return _applySeedChange(() async {
+                                  await seeder.resetSettings();
+                                  await _loadSettings();
+                                }, 'Settings restored to defaults');
                               }),
+                              style: _seedButtonStyle(colours),
                               child: const Text('Reset settings to defaults'),
                             ),
                           ],
@@ -219,19 +270,23 @@ class _SettingsPageState extends State<SettingsPage> {
                                   color: colours.cardText,
                                 ),
                               ),
+                              const SizedBox(height: 12),
                               Wrap(
                                 spacing: 8,
+                                runSpacing: 8,
                                 children: [
                                   FilledButton(
                                     onPressed: _createSeedAction(
                                       () => _seedScope(scope),
                                     ),
+                                    style: _seedButtonStyle(colours),
                                     child: Text('Seed ${scope.label}'),
                                   ),
                                   OutlinedButton(
                                     onPressed: _createSeedAction(
                                       () => _deleteScope(scope),
                                     ),
+                                    style: _deleteSeedButtonStyle(colours),
                                     child: Text('Delete all ${scope.label}'),
                                   ),
                                 ],
@@ -252,15 +307,19 @@ class _SettingsPageState extends State<SettingsPage> {
                                 color: colours.cardText,
                               ),
                             ),
+                            const SizedBox(height: 12),
                             Wrap(
                               spacing: 8,
+                              runSpacing: 8,
                               children: [
                                 FilledButton(
                                   onPressed: _createSeedAction(_seedAll),
+                                  style: _seedButtonStyle(colours),
                                   child: const Text('Seed all'),
                                 ),
                                 OutlinedButton(
                                   onPressed: _createSeedAction(_deleteAll),
+                                  style: _deleteSeedButtonStyle(colours),
                                   child: const Text('Delete all'),
                                 ),
                               ],
@@ -268,8 +327,6 @@ class _SettingsPageState extends State<SettingsPage> {
                           ],
                         ),
                       ),
-                      if (_seedActionBusy)
-                        const Center(child: CircularProgressIndicator()),
                     ],
                   ],
                 ),
@@ -323,19 +380,39 @@ class _SettingsPageState extends State<SettingsPage> {
     required String title,
     required String details,
     required String action,
+    required bool destructive,
   }) async {
+    final colours = context.colours;
+    ButtonStyle confirmButtonStyle = _seedButtonStyle(colours);
+    if (destructive) {
+      confirmButtonStyle = _deleteConfirmButtonStyle(colours);
+    }
+
     return await showDialog<bool>(
           context: context,
           builder: (dialogContext) => AlertDialog(
-            title: Text(title),
-            content: SingleChildScrollView(child: Text(details)),
+            backgroundColor: colours.background,
+            surfaceTintColor: Colors.transparent,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.zero,
+              side: BorderSide(color: Colors.black, width: 4),
+            ),
+            title: Text(title, style: colours.h2),
+            content: SingleChildScrollView(
+              child: Text(details, style: colours.b1),
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(dialogContext, false),
+                style: TextButton.styleFrom(
+                  foregroundColor: colours.textPrimary,
+                  textStyle: colours.b1,
+                ),
                 child: const Text('Cancel'),
               ),
               FilledButton(
                 onPressed: () => Navigator.pop(dialogContext, true),
+                style: confirmButtonStyle,
                 child: Text(action),
               ),
             ],
@@ -355,7 +432,8 @@ class _SettingsPageState extends State<SettingsPage> {
         title: '${scope.label} already contains data',
         details:
             '${existing[scope]} rows exist (including deleted records). Seeding cannot run while ${scope.label} contains data. Use Delete all ${scope.label} first.',
-        action: 'Delete all ${scope.label}',
+        action: 'Review deletion',
+        destructive: false,
       );
       final confirmedWhileMounted = proceed && mounted;
       if (confirmedWhileMounted) {
@@ -382,6 +460,7 @@ class _SettingsPageState extends State<SettingsPage> {
         title: 'Required categories are missing',
         details: details,
         action: 'Replace and seed categories',
+        destructive: true,
       );
       final cancelledOrDisposed = !proceed || !mounted;
       if (cancelledOrDisposed) {
@@ -417,6 +496,7 @@ class _SettingsPageState extends State<SettingsPage> {
       title: 'Delete all ${scope.label}?',
       details: details,
       action: 'Delete all ${scope.label}',
+      destructive: true,
     );
     final cancelledOrDisposed = !proceed || !mounted;
     if (cancelledOrDisposed) return;
@@ -444,6 +524,7 @@ class _SettingsPageState extends State<SettingsPage> {
         details:
             'These scopes contain data (including deleted records): $conflictLabels. Use their Delete all buttons or the confirmed Delete all action first.',
         action: 'OK',
+        destructive: false,
       );
       return;
     }
@@ -461,6 +542,7 @@ class _SettingsPageState extends State<SettingsPage> {
       title: 'Delete all seed data?',
       details: details,
       action: 'Delete all',
+      destructive: true,
     );
     final cancelledOrDisposed = !proceed || !mounted;
     if (cancelledOrDisposed) {
@@ -469,6 +551,45 @@ class _SettingsPageState extends State<SettingsPage> {
     await _applySeedChange(
       () => seeder.deleteAll(expectedCounts: existing),
       'All seed data deleted',
+    );
+  }
+
+  ButtonStyle _seedButtonStyle(MyColours colours) {
+    return FilledButton.styleFrom(
+      backgroundColor: colours.secondary,
+      foregroundColor: colours.background,
+      elevation: 0,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.zero,
+        side: BorderSide(color: Colors.black, width: 3),
+      ),
+      textStyle: colours.b1.copyWith(fontWeight: FontWeight.bold),
+    );
+  }
+
+  ButtonStyle _deleteSeedButtonStyle(MyColours colours) {
+    return OutlinedButton.styleFrom(
+      backgroundColor: colours.background,
+      foregroundColor: colours.error,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      side: BorderSide(color: colours.error, width: 3),
+      textStyle: colours.b1.copyWith(fontWeight: FontWeight.bold),
+    );
+  }
+
+  ButtonStyle _deleteConfirmButtonStyle(MyColours colours) {
+    return FilledButton.styleFrom(
+      backgroundColor: colours.error,
+      foregroundColor: colours.whiteAccents,
+      elevation: 0,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.zero,
+        side: BorderSide(color: Colors.black, width: 3),
+      ),
+      textStyle: colours.b1.copyWith(fontWeight: FontWeight.bold),
     );
   }
 
@@ -483,9 +604,7 @@ class _SettingsPageState extends State<SettingsPage> {
       decoration: BoxDecoration(
         color: context.colours.blendedprimary,
         border: Border.all(color: Colors.black, width: 4),
-        boxShadow: const [
-          BoxShadow(color: Colors.black, offset: Offset(6, 6)),
-        ],
+        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(6, 6))],
       ),
       child: child,
     );

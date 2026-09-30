@@ -258,10 +258,10 @@ class _DatabaseSeeder implements DatabaseSeeder {
   }
 
   Future<void> _seedAllScopes() async {
-    for (final scope in SeedScope.values) {
-      final scopeMutator = _getScopeMutator(scope);
-      await scopeMutator.seed();
-    }
+    await _categoryScopeMutator.seed();
+    await _budgetScopeMutator.seed();
+    await _transactionScopeMutator.seed();
+    await _recurringTransactionScopeMutator.seed();
   }
 
   @override
