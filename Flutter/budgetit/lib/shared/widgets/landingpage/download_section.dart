@@ -57,7 +57,7 @@ class DownloadSection extends StatelessWidget {
                     _DownloadButton(
                       label: "Download the app",
                       url:
-                          'https://budgetit-apk-releases.s3.eu-north-1.amazonaws.com/apk-releases/budgetit-manual-test.apk',
+                          'https://budgetit-apk-releases.s3.eu-north-1.amazonaws.com/apk-releases/latest.apk',
                     ),
                     // SizedBox(height: 14),
                     // _DownloadButton(
@@ -84,7 +84,7 @@ class DownloadSection extends StatelessWidget {
                           _DownloadButton(
                             label: "Download the app",
                             url:
-                                'https://budgetit-apk-releases.s3.eu-north-1.amazonaws.com/apk-releases/budgetit-manual-test.apk',
+                                'https://budgetit-apk-releases.s3.eu-north-1.amazonaws.com/apk-releases/latest.apk',
                           ),
                           SizedBox(height: 14),
                           _DownloadButton(
