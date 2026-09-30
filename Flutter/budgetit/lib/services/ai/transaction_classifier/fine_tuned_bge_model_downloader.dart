@@ -48,7 +48,7 @@ final class FineTunedBgeModelDownloader {
   /// Downloads the model if it is not already installed.
   ///
   /// Multiple calls share a single download. Throws if the download fails.
-  /// 
+  ///
   static Future<void> ensureModelDownloaded() {
     return _inFlight ??= _download().whenComplete(() => _inFlight = null);
   }

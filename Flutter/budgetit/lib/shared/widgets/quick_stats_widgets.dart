@@ -101,7 +101,9 @@ class QuickStatsWidget extends StatelessWidget {
 
                         backgroundColor: Colors.transparent,
 
-                        valueColor: AlwaysStoppedAnimation(colours.informational),
+                        valueColor: AlwaysStoppedAnimation(
+                          colours.informational,
+                        ),
                       ),
                     ),
 

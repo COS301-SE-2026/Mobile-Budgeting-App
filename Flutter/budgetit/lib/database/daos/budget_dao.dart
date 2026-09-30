@@ -378,5 +378,4 @@ class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
       name: 'Main Budget',
     );
   }
-
 }

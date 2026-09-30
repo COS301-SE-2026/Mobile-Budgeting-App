@@ -124,9 +124,7 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
     final budgetId = budgetIdOverride ?? transaction?.budgetTemplateId;
     final categories = budgetId == null
         ? allCategories
-        : allCategories
-              .where((c) => c.budgetTemplateId == budgetId)
-              .toList();
+        : allCategories.where((c) => c.budgetTemplateId == budgetId).toList();
     categories.sort((a, b) => a.name.compareTo(b.name));
 
     Category? selected;
@@ -526,7 +524,9 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
           _fieldLabel('Category', colours, cardTextColor),
           const SizedBox(height: 6),
           DropdownButtonFormField<Category>(
-            key: ValueKey('edit-category-${_selectedDaoCategory?.id ?? 'none'}'),
+            key: ValueKey(
+              'edit-category-${_selectedDaoCategory?.id ?? 'none'}',
+            ),
             initialValue: _selectedDaoCategory,
             isExpanded: true,
             dropdownColor: context.colours.background,

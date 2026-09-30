@@ -1,8 +1,4 @@
-enum ReportingPeriod {
-  weekly,
-  monthly,
-  yearly,
-}
+enum ReportingPeriod { weekly, monthly, yearly }
 
 extension ReportingPeriodLabel on ReportingPeriod {
   String get label {

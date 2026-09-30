@@ -26,7 +26,7 @@ part 'transaction_dao.g.dart';
 ///   shortDescription: 'Groceries',
 ///   transactionDate: DateTime.now(),
 ///   source: TransactionSource.manual,
-/// 
+///
 /// );
 /// ```
 @DriftAccessor(tables: [Transactions, TransactionCategoryMap])
@@ -256,40 +256,40 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
   /// - [categoryId] - the category to assign
   /// - [assignmentSource] - how the assignment was made (manual, AI, import)
   Future<TransactionCategoryMapData> assignCategory({
-  required String transactionId,
-  required String categoryId,
-  required AssignmentSource assignmentSource,
-}) async {
-  final now = _now();
-  final existing = await getCategoryForTransaction(transactionId);
+    required String transactionId,
+    required String categoryId,
+    required AssignmentSource assignmentSource,
+  }) async {
+    final now = _now();
+    final existing = await getCategoryForTransaction(transactionId);
 
-  if (existing != null) {
-    await (update(transactionCategoryMap)
-          ..where((t) => t.id.equals(existing.id)))
-        .write(
-      TransactionCategoryMapCompanion(
-        categoryId: Value(categoryId),
-        assignmentSource: Value(assignmentSource),
-        updatedAt: Value(now),
-      ),
-    );
-  } else {
-    await into(transactionCategoryMap).insert(
-      TransactionCategoryMapCompanion.insert(
-        id: _uuid.v4(),
-        transactionId: transactionId,
-        categoryId: categoryId,
-        assignedAt: now,
-        assignmentSource: assignmentSource,
-        updatedAt: now,
-      ),
-    );
+    if (existing != null) {
+      await (update(
+        transactionCategoryMap,
+      )..where((t) => t.id.equals(existing.id))).write(
+        TransactionCategoryMapCompanion(
+          categoryId: Value(categoryId),
+          assignmentSource: Value(assignmentSource),
+          updatedAt: Value(now),
+        ),
+      );
+    } else {
+      await into(transactionCategoryMap).insert(
+        TransactionCategoryMapCompanion.insert(
+          id: _uuid.v4(),
+          transactionId: transactionId,
+          categoryId: categoryId,
+          assignedAt: now,
+          assignmentSource: assignmentSource,
+          updatedAt: now,
+        ),
+      );
+    }
+
+    return (select(
+      transactionCategoryMap,
+    )..where((t) => t.transactionId.equals(transactionId))).getSingle();
   }
-
-  return (select(
-    transactionCategoryMap,
-  )..where((t) => t.transactionId.equals(transactionId))).getSingle();
-}
 
   /// Retrieves the category assigned to a transaction.
   ///

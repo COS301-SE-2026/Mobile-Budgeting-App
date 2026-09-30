@@ -24,17 +24,21 @@ class EqualHeightGrid extends StatelessWidget {
       final cells = <Widget>[];
       for (var c = 0; c < cols; c++) {
         if (c > 0) cells.add(SizedBox(width: spacing));
-        cells.add(Expanded(
-          child: c < slice.length ? slice[c] : const SizedBox.shrink(),
-        ));
+        cells.add(
+          Expanded(
+            child: c < slice.length ? slice[c] : const SizedBox.shrink(),
+          ),
+        );
       }
 
-      rows.add(IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: cells,
+      rows.add(
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: cells,
+          ),
         ),
-      ));
+      );
 
       if (end < children.length) rows.add(SizedBox(height: runSpacing));
     }

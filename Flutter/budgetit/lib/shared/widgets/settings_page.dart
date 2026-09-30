@@ -34,10 +34,10 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _saveAiEnabled(bool value) async {
     setState(() => _aiEnabled = value);
-    await context
-        .read<AppDatabase>()
-        .settingsDao
-        .setSetting('ai_categorisation', value.toString());
+    await context.read<AppDatabase>().settingsDao.setSetting(
+      'ai_categorisation',
+      value.toString(),
+    );
   }
 
   Future<void> _toggleBiometricLock(
@@ -70,12 +70,12 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       body: SafeArea(
         child: _isLoading
-            ? Center(
-                child: CircularProgressIndicator(color: colours.secondary),
-              )
+            ? Center(child: CircularProgressIndicator(color: colours.secondary))
             : SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 18, vertical: 22),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 22,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -98,15 +98,17 @@ class _SettingsPageState extends State<SettingsPage> {
                               children: [
                                 Text(
                                   theme.isDark ? 'Dark mode' : 'Light mode',
-                                  style: colours.b1
-                                      .copyWith(color: colours.cardText),
+                                  style: colours.b1.copyWith(
+                                    color: colours.cardText,
+                                  ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   'Resets to dark each time the app starts.',
                                   style: colours.b2.copyWith(
-                                    color: colours.cardText
-                                        .withValues(alpha: 0.7),
+                                    color: colours.cardText.withValues(
+                                      alpha: 0.7,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -136,15 +138,17 @@ class _SettingsPageState extends State<SettingsPage> {
                               children: [
                                 Text(
                                   'AI categorisation',
-                                  style: colours.b1
-                                      .copyWith(color: colours.cardText),
+                                  style: colours.b1.copyWith(
+                                    color: colours.cardText,
+                                  ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   'Suggest categories for imported transactions. Runs on this device.',
                                   style: colours.b2.copyWith(
-                                    color: colours.cardText
-                                        .withValues(alpha: 0.7),
+                                    color: colours.cardText.withValues(
+                                      alpha: 0.7,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -259,9 +263,7 @@ class _SettingsPageState extends State<SettingsPage> {
       decoration: BoxDecoration(
         color: context.colours.blendedprimary,
         border: Border.all(color: Colors.black, width: 4),
-        boxShadow: const [
-          BoxShadow(color: Colors.black, offset: Offset(6, 6)),
-        ],
+        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(6, 6))],
       ),
       child: child,
     );

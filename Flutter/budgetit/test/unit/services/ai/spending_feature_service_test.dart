@@ -86,39 +86,33 @@ void main() {
 
       expect(features.currentSpending, equals(1500.0));
 
-      expect(
-        features.averageDailySpending,
-        closeTo(1500.0 / 11, 0.001),
-      );
+      expect(features.averageDailySpending, closeTo(1500.0 / 11, 0.001));
 
-      expect(
-        features.previousMonthSpending,
-        equals(2000.0),
-      );
+      expect(features.previousMonthSpending, equals(2000.0));
 
-      expect(
-        features.threeMonthAverage,
-        equals(2000.0),
-      );
+      expect(features.threeMonthAverage, equals(2000.0));
 
       expect(features.transactionCount, equals(2));
       expect(features.daysElapsed, equals(11));
       expect(features.daysRemaining, equals(20));
     });
 
-    test('returns zero spending values when there are no transactions', () async {
-      final features = await service.buildFeatures(
-        referenceDate: DateTime(2026, 8, 11),
-      );
+    test(
+      'returns zero spending values when there are no transactions',
+      () async {
+        final features = await service.buildFeatures(
+          referenceDate: DateTime(2026, 8, 11),
+        );
 
-      expect(features.currentSpending, equals(0.0));
-      expect(features.averageDailySpending, equals(0.0));
-      expect(features.previousMonthSpending, equals(0.0));
-      expect(features.threeMonthAverage, equals(0.0));
-      expect(features.transactionCount, equals(0));
-      expect(features.daysElapsed, equals(11));
-      expect(features.daysRemaining, equals(20));
-    });
+        expect(features.currentSpending, equals(0.0));
+        expect(features.averageDailySpending, equals(0.0));
+        expect(features.previousMonthSpending, equals(0.0));
+        expect(features.threeMonthAverage, equals(0.0));
+        expect(features.transactionCount, equals(0));
+        expect(features.daysElapsed, equals(11));
+        expect(features.daysRemaining, equals(20));
+      },
+    );
 
     test('ignores income transactions when calculating spending', () async {
       await insertTransaction(

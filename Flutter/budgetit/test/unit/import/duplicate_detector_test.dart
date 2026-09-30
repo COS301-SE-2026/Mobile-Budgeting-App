@@ -33,26 +33,34 @@ ExistingTransaction _existing({
   );
 }
 
-
 void main() {
-
   group('DuplicateDetector', () {
+    test(
+      'flags a transaction as duplicate when the deduplication hash matches exactly',
+      () {
+        final existing = [
+          _existing(
+            date: DateTime(2026, 5, 1),
+            amount: '100.00',
+            hash: 'hashA',
+          ),
+        ];
+        final detector = DuplicateDetector(existing);
+        final incoming = _parsed(
+          date: DateTime(2026, 5, 1),
+          amount: '100.00',
+          hash: 'hashA',
+        );
+        detector.flagDuplicates([incoming]);
 
-    test('flags a transaction as duplicate when the deduplication hash matches exactly', () {
-      final existing = [ _existing(date: DateTime(2026, 5, 1), amount: '100.00', hash: 'hashA')];
-      final detector = DuplicateDetector(existing);
-      final incoming = _parsed(
-        date: DateTime(2026, 5, 1),
-        amount: '100.00',
-        hash: 'hashA',
-      );
-      detector.flagDuplicates([incoming]);
-
-      expect(incoming.isDuplicate, isTrue);
-    });
+        expect(incoming.isDuplicate, isTrue);
+      },
+    );
 
     test('flags duplicate through hash match even if amount/date differ', () {
-      final existing = [ _existing(date: DateTime(2026, 1, 1), amount: '999.00', hash: 'hashB')];
+      final existing = [
+        _existing(date: DateTime(2026, 1, 1), amount: '999.00', hash: 'hashB'),
+      ];
       final detector = DuplicateDetector(existing);
       final incoming = _parsed(
         date: DateTime(2026, 6, 15),
@@ -65,7 +73,13 @@ void main() {
     });
 
     test('flags duplicate when amount matches and dates are within 3 days', () {
-      final existing = [ _existing(date: DateTime(2026, 5, 1), amount: '250.00', hash: 'thisHash')];
+      final existing = [
+        _existing(
+          date: DateTime(2026, 5, 1),
+          amount: '250.00',
+          hash: 'thisHash',
+        ),
+      ];
       final detector = DuplicateDetector(existing);
       final incoming = _parsed(
         date: DateTime(2026, 5, 3),
@@ -78,7 +92,13 @@ void main() {
     });
 
     test('4 days apart with matching amount is not a duplicate', () {
-      final existing = [ _existing(date: DateTime(2026, 5, 1), amount: '250.00', hash: 'thisHash')];
+      final existing = [
+        _existing(
+          date: DateTime(2026, 5, 1),
+          amount: '250.00',
+          hash: 'thisHash',
+        ),
+      ];
       final detector = DuplicateDetector(existing);
       final incoming = _parsed(
         date: DateTime(2026, 5, 5),
@@ -90,21 +110,36 @@ void main() {
       expect(incoming.isDuplicate, isFalse);
     });
 
-    test('date proximity check also matches when incoming date is before existing date', () {
-      final existing = [ _existing(date: DateTime(2026, 5, 10), amount: '250.00', hash: 'thisHash')];
-      final detector = DuplicateDetector(existing);
-      final incoming = _parsed(
-        date: DateTime(2026, 5, 8), 
-        amount: '250.00',
-        hash: 'thatHash',
-      );
-      detector.flagDuplicates([incoming]);
+    test(
+      'date proximity check also matches when incoming date is before existing date',
+      () {
+        final existing = [
+          _existing(
+            date: DateTime(2026, 5, 10),
+            amount: '250.00',
+            hash: 'thisHash',
+          ),
+        ];
+        final detector = DuplicateDetector(existing);
+        final incoming = _parsed(
+          date: DateTime(2026, 5, 8),
+          amount: '250.00',
+          hash: 'thatHash',
+        );
+        detector.flagDuplicates([incoming]);
 
-      expect(incoming.isDuplicate, isTrue);
-    });
+        expect(incoming.isDuplicate, isTrue);
+      },
+    );
 
     test('not a duplicate when just amount differs', () {
-      final existing = [ _existing(date: DateTime(2026, 5, 1), amount: '250.00', hash: 'thisHash')];
+      final existing = [
+        _existing(
+          date: DateTime(2026, 5, 1),
+          amount: '250.00',
+          hash: 'thisHash',
+        ),
+      ];
       final detector = DuplicateDetector(existing);
       final incoming = _parsed(
         date: DateTime(2026, 5, 1),
@@ -128,23 +163,54 @@ void main() {
       expect(incoming.isDuplicate, isFalse);
     });
 
-    test('flagDuplicates mutates each transaction in the input list in place', () {
-      final existing = [ _existing(date: DateTime(2026, 5, 1), amount: '250.00', hash: 'existing-hash')];
-      final detector = DuplicateDetector(existing);
-      final dup = _parsed(date: DateTime(2026, 5, 1), amount: '250.00', hash: 'thisHash');
-      final notDup = _parsed(date: DateTime(2026, 5, 1), amount: '9999.00', hash: 'thatHash');
-      detector.flagDuplicates([dup, notDup]);
+    test(
+      'flagDuplicates mutates each transaction in the input list in place',
+      () {
+        final existing = [
+          _existing(
+            date: DateTime(2026, 5, 1),
+            amount: '250.00',
+            hash: 'existing-hash',
+          ),
+        ];
+        final detector = DuplicateDetector(existing);
+        final dup = _parsed(
+          date: DateTime(2026, 5, 1),
+          amount: '250.00',
+          hash: 'thisHash',
+        );
+        final notDup = _parsed(
+          date: DateTime(2026, 5, 1),
+          amount: '9999.00',
+          hash: 'thatHash',
+        );
+        detector.flagDuplicates([dup, notDup]);
 
-      expect(dup.isDuplicate, isTrue);
-      expect(notDup.isDuplicate, isFalse);
-    });
+        expect(dup.isDuplicate, isTrue);
+        expect(notDup.isDuplicate, isFalse);
+      },
+    );
 
     group('filterDuplicates', () {
       test('remove only the transactions flagged as duplicate', () {
-        final existing = [ _existing(date: DateTime(2026, 5, 1), amount: '250.00', hash: 'existing-hash')];
+        final existing = [
+          _existing(
+            date: DateTime(2026, 5, 1),
+            amount: '250.00',
+            hash: 'existing-hash',
+          ),
+        ];
         final detector = DuplicateDetector(existing);
-        final dup = _parsed(date: DateTime(2026, 5, 1), amount: '250.00', hash: 'thisHash');
-        final notDup = _parsed(date: DateTime(2026, 5, 1), amount: '9999.00', hash: 'thatHash');
+        final dup = _parsed(
+          date: DateTime(2026, 5, 1),
+          amount: '250.00',
+          hash: 'thisHash',
+        );
+        final notDup = _parsed(
+          date: DateTime(2026, 5, 1),
+          amount: '9999.00',
+          hash: 'thatHash',
+        );
         final parsed = [dup, notDup];
         detector.flagDuplicates(parsed);
         final result = detector.filterDuplicates(parsed);
@@ -154,23 +220,39 @@ void main() {
       });
 
       test('returns empty list if all transactions are duplicates', () {
-        final existing = [ _existing(date: DateTime(2026, 5, 1), amount: '250.00', hash: 'thisHash')];
+        final existing = [
+          _existing(
+            date: DateTime(2026, 5, 1),
+            amount: '250.00',
+            hash: 'thisHash',
+          ),
+        ];
         final detector = DuplicateDetector(existing);
-        final dup = _parsed(date: DateTime(2026, 5, 1), amount: '250.00', hash: 'thisHash');
+        final dup = _parsed(
+          date: DateTime(2026, 5, 1),
+          amount: '250.00',
+          hash: 'thisHash',
+        );
         detector.flagDuplicates([dup]);
         final result = detector.filterDuplicates([dup]);
 
         expect(result, isEmpty);
       });
 
-      test('returns everything unfiltered if flagDuplicates is never called', () {
-        final detector = DuplicateDetector(const []);
-        final tx = _parsed(date: DateTime(2026, 5, 1), amount: '250.00', hash: 'hashA');
-        final result = detector.filterDuplicates([tx]);
+      test(
+        'returns everything unfiltered if flagDuplicates is never called',
+        () {
+          final detector = DuplicateDetector(const []);
+          final tx = _parsed(
+            date: DateTime(2026, 5, 1),
+            amount: '250.00',
+            hash: 'hashA',
+          );
+          final result = detector.filterDuplicates([tx]);
 
-        expect(result, equals([tx]));
-      });
+          expect(result, equals([tx]));
+        },
+      );
     });
-
   });
 }

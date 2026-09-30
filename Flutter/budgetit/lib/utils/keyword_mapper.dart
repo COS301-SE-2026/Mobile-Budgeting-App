@@ -1,9 +1,7 @@
 class KeywordMapper {
-    KeywordMapper._();
+  KeywordMapper._();
 
-
-    static const Map<String, String> _rules = {
-
+  static const Map<String, String> _rules = {
     'woolworths food': 'Groceries',
     'checkers': 'Groceries',
     'pick n pay': 'Groceries',
@@ -14,7 +12,7 @@ class KeywordMapper {
     'cambridge food': 'Groceries',
     'boxer': 'Groceries',
     'ok foods': 'Groceries',
- 
+
     'steers': 'Dining Out',
     'nando': 'Dining Out',
     'mcdonalds': 'Dining Out',
@@ -32,7 +30,7 @@ class KeywordMapper {
     'uber eats': 'Dining Out',
     'mr delivery': 'Dining Out',
     'bolt food': 'Dining Out',
- 
+
     'uber': 'Transport',
     'bolt': 'Transport',
     'indriver': 'Transport',
@@ -50,7 +48,7 @@ class KeywordMapper {
     'golden arrow': 'Transport',
     'myciti': 'Transport',
     'parking': 'Transport',
- 
+
     'eskom': 'Utilities',
     'city power': 'Utilities',
     'electricity': 'Utilities',
@@ -62,7 +60,7 @@ class KeywordMapper {
     'vodacom': 'Utilities',
     'cell c': 'Utilities',
     'prepaid': 'Utilities',
- 
+
     'netflix': 'Subscriptions',
     'showmax': 'Subscriptions',
     'dstv': 'Subscriptions',
@@ -77,7 +75,7 @@ class KeywordMapper {
     'openai': 'Subscriptions',
     'subscription': 'Subscriptions',
     'monthly fee': 'Subscriptions',
- 
+
     'dischem': 'Health & Medical',
     'clicks pharmacy': 'Health & Medical',
     'pharmacy': 'Health & Medical',
@@ -90,7 +88,7 @@ class KeywordMapper {
     'momentum health': 'Health & Medical',
     'bonitas': 'Health & Medical',
     'medihelp': 'Health & Medical',
- 
+
     'woolworths': 'Clothing',
     'mr price': 'Clothing',
     'edgars': 'Clothing',
@@ -103,7 +101,7 @@ class KeywordMapper {
     'h&m': 'Clothing',
     'pep stores': 'Clothing',
     'ackermans': 'Clothing',
- 
+
     'ster-kinekor': 'Entertainment',
     'nu metro': 'Entertainment',
     'silverstar': 'Entertainment',
@@ -117,7 +115,7 @@ class KeywordMapper {
     'playstation': 'Entertainment',
     'xbox': 'Entertainment',
     'steam': 'Entertainment',
- 
+
     'university': 'Education',
     'college': 'Education',
     'tuition': 'Education',
@@ -127,14 +125,14 @@ class KeywordMapper {
     'skillshare': 'Education',
     'books': 'Education',
     'stationery': 'Education',
- 
+
     'salon': 'Personal Care',
     'barber': 'Personal Care',
     'spa': 'Personal Care',
     'beauty': 'Personal Care',
     'clicks': 'Personal Care',
     'dis-chem': 'Personal Care',
- 
+
     'builders': 'Home & Maintenance',
     'leroy merlin': 'Home & Maintenance',
     'hardware': 'Home & Maintenance',
@@ -144,7 +142,7 @@ class KeywordMapper {
     'furniture': 'Home & Maintenance',
     'ikea': 'Home & Maintenance',
     '@home': 'Home & Maintenance',
- 
+
     'flight': 'Travel',
     'airlink': 'Travel',
     'fastjet': 'Travel',
@@ -157,28 +155,28 @@ class KeywordMapper {
     'car hire': 'Travel',
     'avis': 'Travel',
     'budget car': 'Travel',
- 
+
     'rent': 'Rent',
     'lease': 'Rent',
     'rental': 'Rent',
- 
+
     'gift': 'Gifts & Donations',
     'donation': 'Gifts & Donations',
     'npo': 'Gifts & Donations',
     'charity': 'Gifts & Donations',
- 
+
     'salary': 'Salary',
     'payroll': 'Salary',
     'wages': 'Salary',
     'remuneration': 'Salary',
     'nett pay': 'Salary',
     'net pay': 'Salary',
- 
+
     'freelance': 'Freelance',
     'invoice': 'Freelance',
     'consulting': 'Freelance',
     'contract payment': 'Freelance',
- 
+
     'dividend': 'Investments',
     'interest': 'Investments',
     'investment': 'Investments',
@@ -186,18 +184,18 @@ class KeywordMapper {
     'capital gain': 'Investments',
     'unit trust': 'Investments',
     'easy equities': 'Investments',
-    'satrix': 'Investments', 
+    'satrix': 'Investments',
 
-    //got these mappings/matches from AI - 
-    };
+    //got these mappings/matches from AI -
+  };
 
-    static String? classify(String description) {
-        final lower = description.toLowerCase();
-        for ( final  entry in  _rules.entries) {
-            if ( lower.contains(entry.key)) {
-                return entry.value;
-            }
-        }
-        return null;
+  static String? classify(String description) {
+    final lower = description.toLowerCase();
+    for (final entry in _rules.entries) {
+      if (lower.contains(entry.key)) {
+        return entry.value;
+      }
     }
+    return null;
+  }
 }

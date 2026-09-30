@@ -54,7 +54,9 @@ class _CustomAppBarState extends State<CustomAppBar> {
             color: colours.secondary,
             border: Border(
               bottom: BorderSide(
-                  color: colours.background.withAlpha(30), width: 1),
+                color: colours.background.withAlpha(30),
+                width: 1,
+              ),
             ),
             boxShadow: [
               BoxShadow(
@@ -68,15 +70,20 @@ class _CustomAppBarState extends State<CustomAppBar> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Padding(
-
                 padding: EdgeInsets.symmetric(
-                    horizontal: context.sectionHPadding, vertical: 18),
+                  horizontal: context.sectionHPadding,
+                  vertical: 18,
+                ),
                 child: Row(
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                      child: Image.asset('assets/images/budgetit_logo.jpg',
-                          height: 40, width: 40, fit: BoxFit.cover),
+                      child: Image.asset(
+                        'assets/images/budgetit_logo.jpg',
+                        height: 40,
+                        width: 40,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                     const SizedBox(width: 10),
                     Text(
@@ -91,29 +98,34 @@ class _CustomAppBarState extends State<CustomAppBar> {
                     const Spacer(),
                     if (!compact) ...[
                       _NavLink(
-                          text: "Home",
-                          isActive: widget.activeSection == "Home",
-                          onTap: widget.onHomeTap),
+                        text: "Home",
+                        isActive: widget.activeSection == "Home",
+                        onTap: widget.onHomeTap,
+                      ),
                       const SizedBox(width: 28),
                       _NavLink(
-                          text: "Features",
-                          isActive: widget.activeSection == "Features",
-                          onTap: widget.onFeaturesTap),
+                        text: "Features",
+                        isActive: widget.activeSection == "Features",
+                        onTap: widget.onFeaturesTap,
+                      ),
                       const SizedBox(width: 28),
                       _NavLink(
-                          text: "How it works",
-                          isActive: widget.activeSection == "How it works",
-                          onTap: widget.onHowItWorksTap),
+                        text: "How it works",
+                        isActive: widget.activeSection == "How it works",
+                        onTap: widget.onHowItWorksTap,
+                      ),
                       const SizedBox(width: 28),
                       _NavLink(
-                          text: "About",
-                          isActive: widget.activeSection == "About",
-                          onTap: widget.onAboutTap),
+                        text: "About",
+                        isActive: widget.activeSection == "About",
+                        onTap: widget.onAboutTap,
+                      ),
                       const SizedBox(width: 28),
                       _NavLink(
-                          text: "Download App",
-                          isActive: widget.activeSection == "Download App",
-                          onTap: widget.onDownloadTap),
+                        text: "Download App",
+                        isActive: widget.activeSection == "Download App",
+                        onTap: widget.onDownloadTap,
+                      ),
 
                       Container(
                         width: 1,
@@ -122,9 +134,10 @@ class _CustomAppBarState extends State<CustomAppBar> {
                         color: colours.background.withValues(alpha: 0.25),
                       ),
                       _NavLink(
-                          text: "Login",
-                          isActive: false,
-                          onTap: widget.onLogin),
+                        text: "Login",
+                        isActive: false,
+                        onTap: widget.onLogin,
+                      ),
                       const SizedBox(width: 18),
                       _NavPill(text: "Get Started", onTap: widget.onGetStarted),
                     ] else
@@ -154,8 +167,9 @@ class _CustomAppBarState extends State<CustomAppBar> {
                           decoration: BoxDecoration(
                             border: Border(
                               top: BorderSide(
-                                  color: colours.background.withAlpha(30),
-                                  width: 1),
+                                color: colours.background.withAlpha(30),
+                                width: 1,
+                              ),
                             ),
                           ),
                           child: Column(
@@ -205,8 +219,10 @@ class _CustomAppBarState extends State<CustomAppBar> {
                               ),
                               const SizedBox(height: 4),
                               Divider(
-                                  color: colours.background
-                                      .withValues(alpha: 0.2)),
+                                color: colours.background.withValues(
+                                  alpha: 0.2,
+                                ),
+                              ),
                               _MobileNavLink(
                                 text: "Login",
                                 isActive: false,
@@ -238,7 +254,6 @@ class _CustomAppBarState extends State<CustomAppBar> {
     );
   }
 }
-
 
 class _NavPill extends StatefulWidget {
   final String text;
@@ -289,8 +304,11 @@ class _MobileNavLink extends StatelessWidget {
   final String text;
   final bool isActive;
   final VoidCallback onTap;
-  const _MobileNavLink(
-      {required this.text, required this.isActive, required this.onTap});
+  const _MobileNavLink({
+    required this.text,
+    required this.isActive,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -317,8 +335,11 @@ class _NavLink extends StatefulWidget {
   final String text;
   final bool isActive;
   final VoidCallback onTap;
-  const _NavLink(
-      {required this.text, required this.isActive, required this.onTap});
+  const _NavLink({
+    required this.text,
+    required this.isActive,
+    required this.onTap,
+  });
 
   @override
   State<_NavLink> createState() => _NavLinkState();
@@ -355,8 +376,9 @@ class _NavLinkState extends State<_NavLink> {
                     color: _isHovered || widget.isActive
                         ? colours.informational
                         : colours.background,
-                    fontWeight:
-                        widget.isActive ? FontWeight.bold : FontWeight.w600,
+                    fontWeight: widget.isActive
+                        ? FontWeight.bold
+                        : FontWeight.w600,
                     fontSize: 15,
                   ),
                   child: Text(widget.text),

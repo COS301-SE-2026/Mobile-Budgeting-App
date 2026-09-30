@@ -394,9 +394,7 @@ class _ProfileDetailsCardState extends State<_ProfileDetailsCard> {
       decoration: BoxDecoration(
         color: colours.primary,
         border: Border.all(color: Colors.black, width: 4),
-        boxShadow: const [
-          BoxShadow(color: Colors.black, offset: Offset(6, 6)),
-        ],
+        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(6, 6))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -615,10 +613,7 @@ class _EditDetailsDialogState extends State<_EditDetailsDialog> {
   }
 
   Widget _label(String text) {
-    return Text(
-      text,
-      style: context.colours.h4.copyWith(color: _cream),
-    );
+    return Text(text, style: context.colours.h4.copyWith(color: _cream));
   }
 
   Widget _textField({

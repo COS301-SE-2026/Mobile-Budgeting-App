@@ -26,7 +26,8 @@ class ImportOrchestrator {
     required AppDatabase db,
     required TransactionDao taDao,
     required CategoryDao categoryDao,
-    TransactionClassificationService? aiClassifier, StatementParserService? parser,
+    TransactionClassificationService? aiClassifier,
+    StatementParserService? parser,
   }) : _taDao = taDao,
        _categoryDao = categoryDao,
        _budgetDao = db.budgetDao,
@@ -82,7 +83,7 @@ class ImportOrchestrator {
     final classificationCategories = [
       for (final category in categories)
         if (category.type == CategoryType.expense)
-        ClassificationCategory(id: category.id, name: category.name),
+          ClassificationCategory(id: category.id, name: category.name),
     ];
     if (classificationCategories.isEmpty) return;
 

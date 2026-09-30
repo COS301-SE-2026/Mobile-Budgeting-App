@@ -689,9 +689,7 @@ class _AddEditRecurringTransactionDialogState
                   style: colours.b1.copyWith(color: colours.textPrimary),
                   decoration: _inputDecoration(context).copyWith(
                     labelText: 'Category',
-                    labelStyle: colours.b1.copyWith(
-                      color: colours.textPrimary,
-                    ),
+                    labelStyle: colours.b1.copyWith(color: colours.textPrimary),
                   ),
                   items: _categories
                       .map(
@@ -719,9 +717,8 @@ class _AddEditRecurringTransactionDialogState
                         ),
                       )
                       .toList(),
-                  onChanged: _loadingCategories ||
-                          _saving ||
-                          _categories.isEmpty
+                  onChanged:
+                      _loadingCategories || _saving || _categories.isEmpty
                       ? null
                       : (value) {
                           setState(() {

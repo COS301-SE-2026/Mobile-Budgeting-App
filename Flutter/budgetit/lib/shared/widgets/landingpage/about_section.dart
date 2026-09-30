@@ -13,7 +13,9 @@ class AboutSection extends StatelessWidget {
       width: double.infinity,
       color: context.colours.background,
       padding: EdgeInsets.symmetric(
-          horizontal: context.sectionHPadding, vertical: 56),
+        horizontal: context.sectionHPadding,
+        vertical: 56,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -39,31 +41,36 @@ class AboutSection extends StatelessWidget {
                 ),
                 children: [
                   const TextSpan(
-                    text: "Budget IT is a university software "
+                    text:
+                        "Budget IT is a university software "
                         "engineering project developed by ",
                   ),
                   TextSpan(
                     text: "Dev Oops",
                     style: TextStyle(
-                        color: context.colours.textPrimary,
-                        fontWeight: FontWeight.bold),
+                      color: context.colours.textPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const TextSpan(text: " and proudly sponsored by "),
                   TextSpan(
                     text: "Fuse IT",
                     style: TextStyle(
-                        color: context.colours.textPrimary,
-                        fontWeight: FontWeight.bold),
+                      color: context.colours.textPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const TextSpan(
-                    text: " (2026). Our mission is to make budgeting "
+                    text:
+                        " (2026). Our mission is to make budgeting "
                         "simple, accessible, and enjoyable. Especially without an ",
                   ),
                   TextSpan(
                     text: "internet connection.",
                     style: TextStyle(
-                        color: context.colours.textPrimary,
-                        fontWeight: FontWeight.bold),
+                      color: context.colours.textPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),

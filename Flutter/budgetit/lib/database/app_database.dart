@@ -41,7 +41,7 @@ part 'app_database.g.dart';
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(PowerSyncDatabase powerSyncDb)
-      : super(_openConnection(powerSyncDb));
+    : super(_openConnection(powerSyncDb));
 
   AppDatabase.forTesting(super.e);
 
@@ -79,8 +79,8 @@ class AppDatabase extends _$AppDatabase {
 
   late final CategoryDao categoryDao = CategoryDao(this);
 
-/// Accessor for locally cached AI embeddings.
-late final EmbeddingCacheDao embeddingCacheDao = EmbeddingCacheDao(this);
+  /// Accessor for locally cached AI embeddings.
+  late final EmbeddingCacheDao embeddingCacheDao = EmbeddingCacheDao(this);
 
   /// Accessor for transaction operations.
   late final TransactionDao transactionDao = TransactionDao(this);

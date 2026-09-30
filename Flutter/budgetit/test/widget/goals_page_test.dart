@@ -270,9 +270,7 @@ void main() {
 
       expect(await db.goalDao.getContributionsForTemplate(goal.id), isEmpty);
       expect(
-        await db.transactionDao.getTransactionById(
-          contribution.transactionId!,
-        ),
+        await db.transactionDao.getTransactionById(contribution.transactionId!),
         isNull,
       );
       expect(find.text('Allocation removed.'), findsOneWidget);
@@ -650,7 +648,10 @@ void main() {
       await tester.tap(find.byIcon(Icons.delete_outline));
       await settle(tester);
 
-      expect(find.textContaining('Other members are still on this goal'), findsOne);
+      expect(
+        find.textContaining('Other members are still on this goal'),
+        findsOne,
+      );
       expect(find.text('DELETE GOAL'), findsNothing);
       expect(await db.goalDao.getGoalTemplateById(goal.id), isNotNull);
 
@@ -773,9 +774,7 @@ void main() {
   });
 
   group('shared goal as member', () {
-    testWidgets('leaving returns my money and removes access', (
-      tester,
-    ) async {
+    testWidgets('leaving returns my money and removes access', (tester) async {
       await seedFriend();
       final goal = await seedGoal(name: 'Road trip', ownerId: friend);
       final membership = await seedMember(goal, me, invitedBy: friend);

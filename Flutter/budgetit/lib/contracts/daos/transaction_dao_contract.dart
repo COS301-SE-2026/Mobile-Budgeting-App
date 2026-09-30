@@ -52,9 +52,7 @@ abstract interface class TransactionDaoContract {
 
   /// Retrieves all transactions, most recent transaction date first.
   /// Soft-deleted rows are excluded unless [includeDeleted] is 'true'.
-  Future<List<Transaction>> getAllTransactions({
-    bool includeDeleted = false,
-  });
+  Future<List<Transaction>> getAllTransactions({bool includeDeleted = false});
 
   /// Retrieves all transactions of the given [type], most recent first.
   /// Soft-deleted rows are excluded unless [includeDeleted] is 'true'.
@@ -137,7 +135,5 @@ abstract interface class TransactionDaoContract {
   Future<void> removeMapping(String transactionId);
 
   /// Returns the transactions assigned to [categoryId].
-  Future<List<Transaction>> getTransactionsByCategory(
-    String categoryId,
-  );
+  Future<List<Transaction>> getTransactionsByCategory(String categoryId);
 }

@@ -9,15 +9,15 @@ class HowItWorks extends StatelessWidget {
   static const _steps = [
     (
       "Get Started",
-      "Sign in or continue as a guest. BudgetIt works even when you're offline."
+      "Sign in or continue as a guest. BudgetIt works even when you're offline.",
     ),
     (
       "Track your expenses",
-      "Record expenses, income, bills, and savings goals in seconds."
+      "Record expenses, income, bills, and savings goals in seconds.",
     ),
     (
       "Upgrade Anytime",
-      "Unlock bill splitting and cloud sync when you log in online."
+      "Unlock bill splitting and cloud sync when you log in online.",
     ),
   ];
 
@@ -27,7 +27,9 @@ class HowItWorks extends StatelessWidget {
       width: double.infinity,
       color: context.colours.background,
       padding: EdgeInsets.symmetric(
-          horizontal: context.sectionHPadding, vertical: 72),
+        horizontal: context.sectionHPadding,
+        vertical: 72,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -100,10 +102,7 @@ class _StepItem extends StatelessWidget {
                     curve: Curves.easeOut,
                     heightFactor: reached ? 1 : 0,
                     alignment: Alignment.topCenter,
-                    child: Container(
-                      width: 2,
-                      color: colours.greenAccents,
-                    ),
+                    child: Container(width: 2, color: colours.greenAccents),
                   ),
                 ],
               ),

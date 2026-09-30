@@ -52,7 +52,9 @@ class _MenuRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isDestructive ? Colors.redAccent : context.colours.textPrimary;
+    final color = isDestructive
+        ? Colors.redAccent
+        : context.colours.textPrimary;
     return Row(
       children: [
         Icon(icon, size: 18, color: color),

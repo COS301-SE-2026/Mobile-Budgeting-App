@@ -1,5 +1,6 @@
 @Tags(['nfr'])
 library;
+
 import 'package:decimal/decimal.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -40,8 +41,10 @@ void main() {
     });
   }
 
-  Future<int> medianMicros(Future<void> Function() action,
-      {int runs = 5}) async {
+  Future<int> medianMicros(
+    Future<void> Function() action, {
+    int runs = 5,
+  }) async {
     final timings = <int>[];
     for (var i = 0; i < runs; i++) {
       final sw = Stopwatch()..start();
@@ -55,8 +58,12 @@ void main() {
 
   Future<void> dateRangeQuery() async {
     await (db.select(db.transactions)
-          ..where((t) => t.transactionDate
-              .isBetweenValues(DateTime(2025, 6, 1), DateTime(2025, 6, 30)))
+          ..where(
+            (t) => t.transactionDate.isBetweenValues(
+              DateTime(2025, 6, 1),
+              DateTime(2025, 6, 30),
+            ),
+          )
           ..where((t) => t.deletedAt.isNull()))
         .get();
   }
@@ -76,8 +83,10 @@ void main() {
     final at20k = await medianMicros(dateRangeQuery);
 
     final ratio = at20k / at10k;
-    print('date-range  10k: ${at10k}us   20k: ${at20k}us   '
-        'ratio: ${ratio.toStringAsFixed(2)}x');
+    print(
+      'date-range  10k: ${at10k}us   20k: ${at20k}us   '
+      'ratio: ${ratio.toStringAsFixed(2)}x',
+    );
 
     expect(ratio, lessThan(2.5));
   });
@@ -90,8 +99,10 @@ void main() {
     final at20k = await medianMicros(aggregateQuery);
 
     final ratio = at20k / at10k;
-    print('aggregate   10k: ${at10k}us   20k: ${at20k}us   '
-        'ratio: ${ratio.toStringAsFixed(2)}x');
+    print(
+      'aggregate   10k: ${at10k}us   20k: ${at20k}us   '
+      'ratio: ${ratio.toStringAsFixed(2)}x',
+    );
 
     expect(ratio, lessThan(2.5));
   });
@@ -107,8 +118,10 @@ void main() {
     await seed(10000, offset: 20000);
     sw2.stop();
 
-    print('insert 10k into 10k table: ${sw1.elapsedMilliseconds}ms   '
-        'into 20k table: ${sw2.elapsedMilliseconds}ms');
+    print(
+      'insert 10k into 10k table: ${sw1.elapsedMilliseconds}ms   '
+      'into 20k table: ${sw2.elapsedMilliseconds}ms',
+    );
 
     expect(sw2.elapsedMilliseconds, lessThan(sw1.elapsedMilliseconds * 3));
   });

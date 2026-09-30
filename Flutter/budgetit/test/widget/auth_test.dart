@@ -60,9 +60,9 @@ Widget _wrap(Widget child, AppAuthProvider provider) =>
     ChangeNotifierProvider<AppAuthProvider>.value(
       value: provider,
       child: MaterialApp(
-         theme:   ThemeData(extensions: [MyColours.lightTheme]),
-        home: child
-        ),
+        theme: ThemeData(extensions: [MyColours.lightTheme]),
+        home: child,
+      ),
     );
 
 /// Lets the async constructor call (_checkCurrentSession) complete.

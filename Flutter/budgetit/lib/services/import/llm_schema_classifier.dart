@@ -6,25 +6,24 @@ import '../../models/import/statement_schema.dart';
 import 'schema_discovery_service.dart';
 
 class LlmSchemaClassifier implements SchemaClassifier {
-  static const  int  _maxSampleRows = 4;
+  static const int _maxSampleRows = 4;
   static const int _maxDescriptionLength = 40;
   static const int _tokenBuffer = 64;
   static const int _modelMaxTokens = 2024;
-  static const double _temperature =0.0;
+  static const double _temperature = 0.0;
   static const int _topK = 1;
   final Future<InferenceModel> Function() _modelProvider;
 
-  LlmSchemaClassifier({ Future<InferenceModel> Function()? modelProvider}) 
-  : _modelProvider = modelProvider ?? _defaultModelProvider;
+  LlmSchemaClassifier({Future<InferenceModel> Function()? modelProvider})
+    : _modelProvider = modelProvider ?? _defaultModelProvider;
 
   static const String _modelFileName = 'gemma3-1b-it-int4.task';
-  static const String _modelUrl = 'https://huggingface.co/litert-community/Gemma3-1B-IT/resolve/main/$_modelFileName';
+  static const String _modelUrl =
+      'https://huggingface.co/litert-community/Gemma3-1B-IT/resolve/main/$_modelFileName';
 
   static Future<InferenceModel> _defaultModelProvider() async {
-
-
     final installed = await FlutterGemma.isModelInstalled(_modelFileName);
-    if( !installed) {
+    if (!installed) {
       await FlutterGemma.installModel(
         modelType: ModelType.gemmaIt,
         fileType: ModelFileType.task,
@@ -51,10 +50,10 @@ class LlmSchemaClassifier implements SchemaClassifier {
       return const StatementSchema(signConvention: SignConvention.keywordBased);
     }
 
-   // final deterministic = classifyDeterministic(sampleRows);
-    //if (deterministic != null) return deterministic;    
+    // final deterministic = classifyDeterministic(sampleRows);
+    //if (deterministic != null) return deterministic;
 
-   /* final markers = sampleRows
+    /* final markers = sampleRows
         .map((r) => r.signMarker?.toUpperCase())
         .whereType<String>()
         .toSet();
@@ -74,10 +73,10 @@ class LlmSchemaClassifier implements SchemaClassifier {
 
     InferenceModel? model;
 
-
     try {
-      final rows = sampleRows.length > _maxSampleRows ? sampleRows.sublist(0, _maxSampleRows)
-      : sampleRows;
+      final rows = sampleRows.length > _maxSampleRows
+          ? sampleRows.sublist(0, _maxSampleRows)
+          : sampleRows;
 
       model = await _modelProvider();
       final chat = await model.createChat(
@@ -88,26 +87,23 @@ class LlmSchemaClassifier implements SchemaClassifier {
         systemInstruction: _systemInstruction,
       );
 
-    
-        await chat.addQueryChunk(
-          Message.text(text: _buildPrompt(rows), isUser: true),
-        );
+      await chat.addQueryChunk(
+        Message.text(text: _buildPrompt(rows), isUser: true),
+      );
 
-        final response = await chat.generateChatResponse();
-        final rawResponse = _extractResponseText(response);
-        print('LlmSchemaClassifier raw response: $rawResponse');
+      final response = await chat.generateChatResponse();
+      final rawResponse = _extractResponseText(response);
+      print('LlmSchemaClassifier raw response: $rawResponse');
 
-        return _parseResponse(rawResponse);
+      return _parseResponse(rawResponse);
     } catch (e) {
       print('LlmSchemaClassifier classify() failed: $e');
 
       return const StatementSchema(signConvention: SignConvention.keywordBased);
-
     } finally {
       await model?.close();
     }
   }
-
 
   static const String _systemInstruction = '''
       Classify a bank statement's sign convention. Return ONLY one JSON object, nothing else — no explanation, no markdown.
@@ -125,50 +121,50 @@ class LlmSchemaClassifier implements SchemaClassifier {
       Stop immediately after the closing brace.
       Example: rows show "200.00 CR" and "7.50" (no suffix) -> {"signConvention":"crSuffixMeansIncome","skipLinePatterns":[]}''';
 
+  String _buildPrompt(List<CandidateRow> rows) {
+    final buffer = StringBuffer();
 
+    buffer.writeln('Classify the bank statement sign convention.');
+    buffer.writeln('Return JSON only.');
+    buffer.writeln();
+    buffer.writeln('Allowed values:');
+    buffer.writeln('- crSuffixMeansIncome');
+    buffer.writeln('- minusPrefixMeansExpense');
+    buffer.writeln('- separateDebitCredit');
+    buffer.writeln('- signedAmount');
+    buffer.writeln('- keywordBased');
+    buffer.writeln();
+    buffer.writeln(
+      'The amount is absolute. Use signMarker and description only.',
+    );
+    buffer.writeln();
+    buffer.writeln('Rows:');
 
-String _buildPrompt(List<CandidateRow> rows) {
-  final buffer = StringBuffer();
+    for (var i = 0; i < rows.length; i++) {
+      final row = rows[i];
+      var description = row.description.trim();
 
+      if (description.length > _maxDescriptionLength) {
+        description = '${description.substring(0, _maxDescriptionLength)}...';
+      }
 
-
-  buffer.writeln('Classify the bank statement sign convention.');
-  buffer.writeln('Return JSON only.');
-  buffer.writeln();
-  buffer.writeln('Allowed values:');
-  buffer.writeln('- crSuffixMeansIncome');
-  buffer.writeln('- minusPrefixMeansExpense');
-  buffer.writeln('- separateDebitCredit');
-  buffer.writeln('- signedAmount');
-  buffer.writeln('- keywordBased');
-  buffer.writeln();
-  buffer.writeln('The amount is absolute. Use signMarker and description only.');
-  buffer.writeln();
-  buffer.writeln('Rows:');
-
-  for (var i = 0; i < rows.length; i++) {
-    final row = rows[i];
-    var description = row.description.trim();
-
-    if (description.length > _maxDescriptionLength) {
-      description = '${description.substring(0, _maxDescriptionLength)}...';
+      buffer.writeln(
+        '${i + 1}. '
+        'amount=${row.absAmount}; '
+        'marker=${_quote(row.signMarker ?? '')}; '
+        'description=${_quote(description)}',
+      );
     }
 
+    buffer.writeln();
     buffer.writeln(
-      '${i + 1}. '
-      'amount=${row.absAmount}; '
-      'marker=${_quote(row.signMarker ?? '')}; '
-      'description=${_quote(description)}',
+      '{"signConvention":"<allowed value>","skipLinePatterns":[]}',
     );
+
+    return buffer.toString();
   }
 
-  buffer.writeln();
-  buffer.writeln('{"signConvention":"<allowed value>","skipLinePatterns":[]}');
-
-  return buffer.toString();
-}
-
-  static String _quote(String value) => jsonEncode(value);  
+  static String _quote(String value) => jsonEncode(value);
 
   String _extractResponseText(Object response) {
     if (response is TextResponse) {
@@ -188,10 +184,12 @@ String _buildPrompt(List<CandidateRow> rows) {
       }
       final signConventionValue = decoded['signConvention'];
       if (signConventionValue is! String) {
-        throw const FormatException( 'Missing signConvention in LLM response');
+        throw const FormatException('Missing signConvention in LLM response');
       }
       final signConvention = _parseSignConvention(signConventionValue);
-      final skipLinePatterns = _parseSkipLinePatterns(decoded['skipLinePatterns']);
+      final skipLinePatterns = _parseSkipLinePatterns(
+        decoded['skipLinePatterns'],
+      );
 
       return StatementSchema(
         signConvention: signConvention,
@@ -209,7 +207,7 @@ String _buildPrompt(List<CandidateRow> rows) {
       '',
     );
 
-    cleaned = cleaned.replaceAll( RegExp(r'\s*```$'), '');
+    cleaned = cleaned.replaceAll(RegExp(r'\s*```$'), '');
     cleaned = cleaned.trim();
 
     try {
@@ -217,8 +215,7 @@ String _buildPrompt(List<CandidateRow> rows) {
       if (decoded is Map<String, dynamic>) {
         return jsonEncode(decoded);
       }
-    } catch (_) {
-    }
+    } catch (_) {}
 
     final start = cleaned.indexOf('{');
     if (start < 0) {
@@ -262,7 +259,6 @@ String _buildPrompt(List<CandidateRow> rows) {
     throw const FormatException('NOt terminated JSON object in LLM response');
   }
 
-
   static const Map<String, SignConvention> _aliases = {
     'cr': SignConvention.crSuffixMeansIncome,
     'minus': SignConvention.minusPrefixMeansExpense,
@@ -270,7 +266,7 @@ String _buildPrompt(List<CandidateRow> rows) {
     'keyword': SignConvention.keywordBased,
     'debitcredit': SignConvention.separateDebitCredit,
     'creditdebit': SignConvention.separateDebitCredit,
-    'debitonly' : SignConvention.explicitDebitMeansExpense,
+    'debitonly': SignConvention.explicitDebitMeansExpense,
   };
 
   SignConvention _parseSignConvention(String value) {
@@ -282,9 +278,8 @@ String _buildPrompt(List<CandidateRow> rows) {
     }
     final key = normalised.toLowerCase().replaceAll(RegExp(r'[^a-z]'), '');
     final alias = _aliases[key];
-    if(alias != null) return alias;
+    if (alias != null) return alias;
     throw FormatException('Unknown sign convention returned by LLM: $value');
-
   }
 
   List<String> _parseSkipLinePatterns(Object? value) {
@@ -293,9 +288,7 @@ String _buildPrompt(List<CandidateRow> rows) {
     }
 
     if (value is! List) {
-      throw const FormatException(
-        'skipLinePatterns must be a JSON array',
-      );
+      throw const FormatException('skipLinePatterns must be a JSON array');
     }
 
     return value

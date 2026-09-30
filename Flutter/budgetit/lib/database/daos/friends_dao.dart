@@ -25,31 +25,30 @@ class FriendsDao extends DatabaseAccessor<AppDatabase> with _$FriendsDaoMixin {
   }
 
   Future<UserProfile?> getProfileByUserId(String userId) {
-    return (select(userProfiles)..where((t) => t.userId.equals(userId)))
-        .getSingleOrNull();
+    return (select(
+      userProfiles,
+    )..where((t) => t.userId.equals(userId))).getSingleOrNull();
   }
 
   /// Pending requests where [currentUserId] is the recipient.
   Future<List<FriendRequest>> getIncomingRequests(String currentUserId) {
-    return (select(friendRequests)
-          ..where(
-            (t) =>
-                t.addresseeId.equals(currentUserId) &
-                t.status.equalsValue(FriendRequestStatus.pending) &
-                t.deletedAt.isNull(),
-          ))
+    return (select(friendRequests)..where(
+          (t) =>
+              t.addresseeId.equals(currentUserId) &
+              t.status.equalsValue(FriendRequestStatus.pending) &
+              t.deletedAt.isNull(),
+        ))
         .get();
   }
 
   /// Pending requests where [currentUserId] is the sender.
   Future<List<FriendRequest>> getOutgoingRequests(String currentUserId) {
-    return (select(friendRequests)
-          ..where(
-            (t) =>
-                t.requesterId.equals(currentUserId) &
-                t.status.equalsValue(FriendRequestStatus.pending) &
-                t.deletedAt.isNull(),
-          ))
+    return (select(friendRequests)..where(
+          (t) =>
+              t.requesterId.equals(currentUserId) &
+              t.status.equalsValue(FriendRequestStatus.pending) &
+              t.deletedAt.isNull(),
+        ))
         .get();
   }
 }

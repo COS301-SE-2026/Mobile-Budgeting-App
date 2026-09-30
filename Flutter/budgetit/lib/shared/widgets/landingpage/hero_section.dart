@@ -145,41 +145,41 @@ class _HeroSectionState extends State<HeroSection> {
                       fontFamily: 'SpaceGrotesk',
                     ),
                   ),
-                const SizedBox(height: 20),
-                Text(
-                  "Nerf your expenses with a budgeting app\nthat works anywhere.",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: colours.whiteAccents,
-                    fontSize: 18,
-                    height: 1.5,
-                    fontFamily: 'JetBrainsMono',
+                  const SizedBox(height: 20),
+                  Text(
+                    "Nerf your expenses with a budgeting app\nthat works anywhere.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: colours.whiteAccents,
+                      fontSize: 18,
+                      height: 1.5,
+                      fontFamily: 'JetBrainsMono',
+                    ),
                   ),
-                ),
-              
-              const SizedBox(height: 28),
-              const _HeroStats(),
-              const SizedBox(height: 16),
-              Text(
-                "No account needed — continue as a guest.",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: colours.whiteAccents.withValues(alpha: 0.6),
-                  fontSize: 13,
-                  fontFamily: 'JetBrainsMono',
-                ),
+
+                  const SizedBox(height: 28),
+                  const _HeroStats(),
+                  const SizedBox(height: 16),
+                  Text(
+                    "No account needed — continue as a guest.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: colours.whiteAccents.withValues(alpha: 0.6),
+                      fontSize: 13,
+                      fontFamily: 'JetBrainsMono',
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  Image.asset(
+                    'assets/images/dashboard.jpg',
+                    width: 400,
+                    fit: BoxFit.contain,
+                  ),
+                ],
               ),
-              const SizedBox(height: 40),
-              Image.asset(
-                'assets/images/dashboard.jpg',
-                width: 400,
-                fit: BoxFit.contain,
-              ),
-            ],
+            ),
           ),
-        ),
-        ),
-      ],
+        ],
       ),
     );
   }
@@ -201,10 +201,11 @@ class _HeroSectionState extends State<HeroSection> {
               child: Parallax(
                 factor: 0.20,
                 child: _Circle(
-                    size: 120,
-                    color: colours.secondary,
-                    duration: const Duration(seconds: 6),
-                    amplitude: 14),
+                  size: 120,
+                  color: colours.secondary,
+                  duration: const Duration(seconds: 6),
+                  amplitude: 14,
+                ),
               ),
             ),
             Positioned(
@@ -213,10 +214,11 @@ class _HeroSectionState extends State<HeroSection> {
               child: Parallax(
                 factor: 0.10,
                 child: _Circle(
-                    size: 90,
-                    color: colours.primary,
-                    duration: const Duration(seconds: 4),
-                    amplitude: 10),
+                  size: 90,
+                  color: colours.primary,
+                  duration: const Duration(seconds: 4),
+                  amplitude: 10,
+                ),
               ),
             ),
             Padding(
@@ -224,62 +226,65 @@ class _HeroSectionState extends State<HeroSection> {
               child: Container(
                 width: double.infinity,
                 color: colours.background,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 24,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    "Welcome to Budget IT",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: colours.informational,
-                      fontSize: context.isSmallMobile ? 30 : 36,
-                      height: 1.1,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'SpaceGrotesk',
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    "Nerf your expenses with a budgeting app that works anywhere.",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: colours.whiteAccents,
-                      fontSize: 16,
-                      fontFamily: 'JetBrainsMono',
-                      height: 1.5,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  const _HeroStats(),
-                  const SizedBox(height: 32),
-                  Text(
-                    "No Account Needed - continue as guest.",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: colours.whiteAccents.withValues(alpha:0.6),
-                      fontSize: 13,
-                      fontFamily: 'JetBrainsMono',
-                    ),
-                  ),
-                  const SizedBox(height:32),
-                  Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 320),
-                      child: Image.asset(
-                        'assets/images/phone_mockup.jpg',
-                        fit: BoxFit.contain,
+                  children: [
+                    Text(
+                      "Welcome to Budget IT",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: colours.informational,
+                        fontSize: context.isSmallMobile ? 30 : 36,
+                        height: 1.1,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'SpaceGrotesk',
                       ),
                     ),
-                  ),
-                  /*const SizedBox(height: 32),
+                    const SizedBox(height: 16),
+                    Text(
+                      "Nerf your expenses with a budgeting app that works anywhere.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: colours.whiteAccents,
+                        fontSize: 16,
+                        fontFamily: 'JetBrainsMono',
+                        height: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    const _HeroStats(),
+                    const SizedBox(height: 32),
+                    Text(
+                      "No Account Needed - continue as guest.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: colours.whiteAccents.withValues(alpha: 0.6),
+                        fontSize: 13,
+                        fontFamily: 'JetBrainsMono',
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 320),
+                        child: Image.asset(
+                          'assets/images/phone_mockup.jpg',
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                    /*const SizedBox(height: 32),
                   _AuthPanel(
                     onLogin: widget.onLogin,
                     onGetStarted: widget.onGetStarted,
                     stretch: true,
                   ),*/
-                ],
-              ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -288,7 +293,6 @@ class _HeroSectionState extends State<HeroSection> {
     );
   }
 }
-
 
 class _HeroStats extends StatelessWidget {
   const _HeroStats();
@@ -330,8 +334,9 @@ class _AuthPanel extends StatelessWidget {
             foregroundColor: colours.background,
             elevation: 4,
             shadowColor: Colors.black.withValues(alpha: 0.3),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
           child: const Text(
             "Get Started",
@@ -352,9 +357,12 @@ class _AuthPanel extends StatelessWidget {
           style: OutlinedButton.styleFrom(
             backgroundColor: colours.background,
             side: BorderSide(
-                color: colours.whiteAccents.withValues(alpha: 0.45), width: 2),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              color: colours.whiteAccents.withValues(alpha: 0.45),
+              width: 2,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
           child: Text(
             "Login",

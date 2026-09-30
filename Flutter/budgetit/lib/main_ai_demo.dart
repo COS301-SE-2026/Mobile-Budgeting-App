@@ -57,10 +57,7 @@ class _AiClassifierDemoScreenState extends State<AiClassifierDemoScreen> {
 
     _db = AppDatabase.forTesting(NativeDatabase.memory());
     _embedder = BgeOnnxEmbedder();
-    _service = TransactionClassificationService(
-      embedder: _embedder,
-      db: _db,
-    );
+    _service = TransactionClassificationService(embedder: _embedder, db: _db);
 
     _initialize();
   }

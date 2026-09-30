@@ -6,8 +6,8 @@ class StubSchemaClassifier implements SchemaClassifier {
   @override
   Future<StatementSchema> classify(List<CandidateRow> sampleRows) async {
     final deterministic = classifyDeterministic(sampleRows);
-    if(deterministic != null) return deterministic;
-  /*  final markers = sampleRows.map((r) => r.signMarker?.toUpperCase()).where((m) => m != null).toSet();
+    if (deterministic != null) return deterministic;
+    /*  final markers = sampleRows.map((r) => r.signMarker?.toUpperCase()).where((m) => m != null).toSet();
 
     if (markers.contains('CREDIT') || markers.contains('DEBIT')) {
       return const StatementSchema(

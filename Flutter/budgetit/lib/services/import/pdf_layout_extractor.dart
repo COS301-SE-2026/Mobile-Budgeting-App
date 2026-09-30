@@ -45,12 +45,14 @@ class PdfLayoutLine {
         grouped.add(cell);
       } else {
         final open = grouped.removeLast();
-        grouped.add(PdfLayoutCell(
-          '${open.text} ${cell.text}',
-          open.left,
-          cell.right > open.right ? cell.right : open.right,
-          columnBreakBefore: open.columnBreakBefore,
-        ));
+        grouped.add(
+          PdfLayoutCell(
+            '${open.text} ${cell.text}',
+            open.left,
+            cell.right > open.right ? cell.right : open.right,
+            columnBreakBefore: open.columnBreakBefore,
+          ),
+        );
       }
     }
     return grouped;
@@ -89,7 +91,8 @@ class PdfLayoutExtractor {
         .toList();
     if (frags.isEmpty) return const [];
 
-    final rowTolerance = _median(frags.map((f) => f.bounds.height)) * rowToleranceRatio;
+    final rowTolerance =
+        _median(frags.map((f) => f.bounds.height)) * rowToleranceRatio;
 
     frags.sort((a, b) => b.bounds.center.y.compareTo(a.bounds.center.y));
 
@@ -114,12 +117,14 @@ class PdfLayoutExtractor {
       final rowHeight = _median(row.map((f) => f.bounds.height));
       final cells = _wordsForRow(row, rowHeight);
       if (cells.isEmpty) continue;
-      lines.add(PdfLayoutLine(
-        pageNumber: pageNumber,
-        top: row.first.bounds.top,
-        height: rowHeight,
-        cells: cells,
-      ));
+      lines.add(
+        PdfLayoutLine(
+          pageNumber: pageNumber,
+          top: row.first.bounds.top,
+          height: rowHeight,
+          cells: cells,
+        ),
+      );
     }
     return lines;
   }
@@ -167,8 +172,9 @@ class PdfLayoutExtractor {
       if (d > 0) digitAdvances.add(d);
     }
     digitAdvances.sort();
-    final digitAdvance =
-        digitAdvances.isEmpty ? null : digitAdvances[digitAdvances.length ~/ 2];
+    final digitAdvance = digitAdvances.isEmpty
+        ? null
+        : digitAdvances[digitAdvances.length ~/ 2];
     final words = <PdfLayoutCell>[];
     var buffer = StringBuffer();
     var left = 0.0;
@@ -205,7 +211,6 @@ class PdfLayoutExtractor {
         }
       }
 
-
       if (starts) {
         flush();
         buffer.write(glyph);
@@ -227,5 +232,4 @@ class PdfLayoutExtractor {
     }
     return result;
   }
-
 }

@@ -4,7 +4,6 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-
 Widget appPreview({required Widget child, bool database = false}) {
   return Builder(
     builder: (context) {

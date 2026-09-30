@@ -211,10 +211,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ..._buildStepFields(),
           const SizedBox(height: 24),
           _buildPrimaryButton(),
-          if (_step > 0) ...[
-            const SizedBox(height: 12),
-            _buildBackButton(),
-          ],
+          if (_step > 0) ...[const SizedBox(height: 12), _buildBackButton()],
         ],
       ),
     );
@@ -285,7 +282,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
           ),
           const SizedBox(height: 10),
-          _buildBenefit('Leave this blank to skip. It will not affect your setup.'),
+          _buildBenefit(
+            'Leave this blank to skip. It will not affect your setup.',
+          ),
         ];
     }
   }
@@ -488,7 +487,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   void _next() {

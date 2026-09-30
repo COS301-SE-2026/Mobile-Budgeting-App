@@ -77,8 +77,8 @@ final class TransactionClassificationService {
       );
     }
 
-    final transactionVector = embeddingCache != null && 
-            transactionId?.trim().isNotEmpty == true
+    final transactionVector =
+        embeddingCache != null && transactionId?.trim().isNotEmpty == true
         ? await embeddingCache!.getOrCreate(
             sourceType: EmbeddingSourceType.transaction,
             sourceId: transactionId!,

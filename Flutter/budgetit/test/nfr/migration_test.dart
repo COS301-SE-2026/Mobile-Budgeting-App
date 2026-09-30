@@ -1,5 +1,6 @@
 @Tags(['nfr'])
 library;
+
 import 'dart:io';
 import 'package:decimal/decimal.dart';
 import 'package:drift/drift.dart' hide isNull, isNotNull;
@@ -32,8 +33,10 @@ void main() {
         .customSelect('PRAGMA user_version')
         .map((r) => r.read<int>('user_version'))
         .getSingle();
-    print('fresh database user_version=$version '
-        '(expected ${db.schemaVersion})');
+    print(
+      'fresh database user_version=$version '
+      '(expected ${db.schemaVersion})',
+    );
     expect(version, db.schemaVersion);
     await db.close();
   });
@@ -69,8 +72,10 @@ void main() {
     final second = AppDatabase.forTesting(NativeDatabase(file));
     final after = await second.transactionDao.getAllTransactions();
 
-    print('reopen: rows before=${before.length} after=${after.length} '
-        'amount=${after.first.amount}');
+    print(
+      'reopen: rows before=${before.length} after=${after.length} '
+      'amount=${after.first.amount}',
+    );
     expect(after.length, before.length);
     expect(after.first.amount, Decimal.parse('123.45'));
     await second.close();

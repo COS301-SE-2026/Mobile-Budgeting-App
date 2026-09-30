@@ -106,7 +106,9 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
           : const Value.absent(),
       updatedAt: Value(_now()),
     );
-    await (update(goalTemplates)..where((t) => t.id.equals(id))).write(companion);
+    await (update(
+      goalTemplates,
+    )..where((t) => t.id.equals(id))).write(companion);
     return (select(goalTemplates)..where((t) => t.id.equals(id))).getSingle();
   }
 
@@ -172,7 +174,9 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
 
   /// Retrieves a goal period by [id].
   Future<GoalPeriod?> getGoalPeriodById(String id) {
-    return (select(goalPeriods)..where((t) => t.id.equals(id))).getSingleOrNull();
+    return (select(
+      goalPeriods,
+    )..where((t) => t.id.equals(id))).getSingleOrNull();
   }
 
   /// Retrieves all goal periods for a template, ordered by start date.
@@ -274,7 +278,6 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
   Future<void> hardDeleteGoalPeriod(String id) async {
     await (delete(goalPeriods)..where((t) => t.id.equals(id))).go();
   }
-
 
   Future<GoalContribution> insertGoalContribution({
     required String templateId,
