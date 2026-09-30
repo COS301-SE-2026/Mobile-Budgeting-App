@@ -42,38 +42,41 @@ class SharingDao extends DatabaseAccessor<AppDatabase> with _$SharingDaoMixin {
     return (select(budgetMembers)..where((t) => t.id.equals(id))).getSingle();
   }
 
-  Future<BudgetMember?> getBudgetMember(String budgetTemplateId, String userId) {
-    return (select(budgetMembers)
-          ..where(
-            (t) =>
-                t.budgetTemplateId.equals(budgetTemplateId) &
-                t.userId.equals(userId) &
-                t.deletedAt.isNull(),
-          ))
+  Future<BudgetMember?> getBudgetMember(
+    String budgetTemplateId,
+    String userId,
+  ) {
+    return (select(budgetMembers)..where(
+          (t) =>
+              t.budgetTemplateId.equals(budgetTemplateId) &
+              t.userId.equals(userId) &
+              t.deletedAt.isNull(),
+        ))
         .getSingleOrNull();
   }
 
   Future<List<BudgetMember>> getBudgetMembers(String budgetTemplateId) {
-    return (select(budgetMembers)
-          ..where(
-            (t) =>
-                t.budgetTemplateId.equals(budgetTemplateId) &
-                t.deletedAt.isNull(),
-          ))
+    return (select(budgetMembers)..where(
+          (t) =>
+              t.budgetTemplateId.equals(budgetTemplateId) &
+              t.deletedAt.isNull(),
+        ))
         .get();
   }
 
-  Future<void> removeBudgetMember(String budgetTemplateId, String userId) async {
+  Future<void> removeBudgetMember(
+    String budgetTemplateId,
+    String userId,
+  ) async {
     final now = _now();
-    await (update(budgetMembers)
-          ..where(
-            (t) =>
-                t.budgetTemplateId.equals(budgetTemplateId) &
-                t.userId.equals(userId),
-          ))
+    await (update(budgetMembers)..where(
+          (t) =>
+              t.budgetTemplateId.equals(budgetTemplateId) &
+              t.userId.equals(userId),
+        ))
         .write(
-      BudgetMembersCompanion(deletedAt: Value(now), updatedAt: Value(now)),
-    );
+          BudgetMembersCompanion(deletedAt: Value(now), updatedAt: Value(now)),
+        );
   }
 
   /// Returns the number of budget members.
@@ -113,36 +116,30 @@ class SharingDao extends DatabaseAccessor<AppDatabase> with _$SharingDaoMixin {
   }
 
   Future<GoalMember?> getGoalMember(String goalTemplateId, String userId) {
-    return (select(goalMembers)
-          ..where(
-            (t) =>
-                t.goalTemplateId.equals(goalTemplateId) &
-                t.userId.equals(userId) &
-                t.deletedAt.isNull(),
-          ))
+    return (select(goalMembers)..where(
+          (t) =>
+              t.goalTemplateId.equals(goalTemplateId) &
+              t.userId.equals(userId) &
+              t.deletedAt.isNull(),
+        ))
         .getSingleOrNull();
   }
 
   Future<List<GoalMember>> getGoalMembers(String goalTemplateId) {
-    return (select(goalMembers)
-          ..where(
-            (t) =>
-                t.goalTemplateId.equals(goalTemplateId) &
-                t.deletedAt.isNull(),
-          ))
+    return (select(goalMembers)..where(
+          (t) => t.goalTemplateId.equals(goalTemplateId) & t.deletedAt.isNull(),
+        ))
         .get();
   }
 
   Future<void> removeGoalMember(String goalTemplateId, String userId) async {
     final now = _now();
-    await (update(goalMembers)
-          ..where(
-            (t) =>
-                t.goalTemplateId.equals(goalTemplateId) &
-                t.userId.equals(userId),
-          ))
+    await (update(goalMembers)..where(
+          (t) =>
+              t.goalTemplateId.equals(goalTemplateId) & t.userId.equals(userId),
+        ))
         .write(
-      GoalMembersCompanion(deletedAt: Value(now), updatedAt: Value(now)),
-    );
+          GoalMembersCompanion(deletedAt: Value(now), updatedAt: Value(now)),
+        );
   }
 }

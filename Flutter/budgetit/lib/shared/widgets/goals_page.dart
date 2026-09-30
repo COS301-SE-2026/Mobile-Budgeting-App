@@ -25,7 +25,10 @@ class _GoalsPageState extends State<GoalsPage> {
   }
 
   Future<void> _load() async {
-    final goals = await context.read<AppDatabase>().goalDao.getAllGoalTemplates();
+    final goals = await context
+        .read<AppDatabase>()
+        .goalDao
+        .getAllGoalTemplates();
     if (!mounted) return;
     setState(() {
       _goals = goals;
@@ -65,8 +68,9 @@ class _GoalsPageState extends State<GoalsPage> {
               ),
               TextField(
                 controller: amountController,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 decoration: const InputDecoration(labelText: 'Target amount'),
               ),
               const SizedBox(height: 12),
@@ -111,12 +115,12 @@ class _GoalsPageState extends State<GoalsPage> {
     }
 
     await context.read<AppDatabase>().goalDao.insertGoalTemplate(
-          name: nameController.text.trim().isEmpty
-              ? null
-              : nameController.text.trim(),
-          targetAmount: amount,
-          periodType: period,
-        );
+      name: nameController.text.trim().isEmpty
+          ? null
+          : nameController.text.trim(),
+      targetAmount: amount,
+      periodType: period,
+    );
     await _load();
   }
 

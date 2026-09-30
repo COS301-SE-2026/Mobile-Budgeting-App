@@ -13,7 +13,8 @@ extension LandingResponsiveContext on BuildContext {
   double get _width => MediaQuery.of(this).size.width;
   bool get isDesktop => _width >= LandingBreakpoints.desktop;
   bool get isTablet =>
-      _width < LandingBreakpoints.desktop && _width >= LandingBreakpoints.tablet;
+      _width < LandingBreakpoints.desktop &&
+      _width >= LandingBreakpoints.tablet;
   bool get isMobile => _width < LandingBreakpoints.tablet;
   bool get isSmallMobile => _width < LandingBreakpoints.mobile;
 

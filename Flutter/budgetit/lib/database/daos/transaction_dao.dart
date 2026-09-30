@@ -119,7 +119,7 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
   }
 
   /// Returns the number of transactions.
-  /// 
+  ///
   /// Soft-deleted transactions are included if [includeDeleted] is `true`.
   Future<int> countTransactions({bool includeDeleted = false}) async {
     final transactions = await getAllTransactions(
@@ -128,8 +128,8 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
     return transactions.length;
   }
 
-  /// Returns the number of category assignments, 
-  /// 
+  /// Returns the number of category assignments,
+  ///
   /// Includes soft-deleted rows.
   Future<int> countCategoryAssignments() async {
     final assignments = await select(transactionCategoryMap).get();
@@ -295,40 +295,40 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
   /// - [categoryId] - the category to assign
   /// - [assignmentSource] - how the assignment was made (manual, AI, import)
   Future<TransactionCategoryMapData> assignCategory({
-  required String transactionId,
-  required String categoryId,
-  required AssignmentSource assignmentSource,
-}) async {
-  final now = _now();
-  final existing = await getCategoryForTransaction(transactionId);
+    required String transactionId,
+    required String categoryId,
+    required AssignmentSource assignmentSource,
+  }) async {
+    final now = _now();
+    final existing = await getCategoryForTransaction(transactionId);
 
-  if (existing != null) {
-    await (update(transactionCategoryMap)
-          ..where((t) => t.id.equals(existing.id)))
-        .write(
-      TransactionCategoryMapCompanion(
-        categoryId: Value(categoryId),
-        assignmentSource: Value(assignmentSource),
-        updatedAt: Value(now),
-      ),
-    );
-  } else {
-    await into(transactionCategoryMap).insert(
-      TransactionCategoryMapCompanion.insert(
-        id: _uuid.v4(),
-        transactionId: transactionId,
-        categoryId: categoryId,
-        assignedAt: now,
-        assignmentSource: assignmentSource,
-        updatedAt: now,
-      ),
-    );
+    if (existing != null) {
+      await (update(
+        transactionCategoryMap,
+      )..where((t) => t.id.equals(existing.id))).write(
+        TransactionCategoryMapCompanion(
+          categoryId: Value(categoryId),
+          assignmentSource: Value(assignmentSource),
+          updatedAt: Value(now),
+        ),
+      );
+    } else {
+      await into(transactionCategoryMap).insert(
+        TransactionCategoryMapCompanion.insert(
+          id: _uuid.v4(),
+          transactionId: transactionId,
+          categoryId: categoryId,
+          assignedAt: now,
+          assignmentSource: assignmentSource,
+          updatedAt: now,
+        ),
+      );
+    }
+
+    return (select(
+      transactionCategoryMap,
+    )..where((t) => t.transactionId.equals(transactionId))).getSingle();
   }
-
-  return (select(
-    transactionCategoryMap,
-  )..where((t) => t.transactionId.equals(transactionId))).getSingle();
-}
 
   /// Retrieves the category assigned to a transaction.
   ///
@@ -360,7 +360,7 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
   }
 
   /// Deletes all transaction to category assignments
-  /// 
+  ///
   /// Does not delete transactions.
   Future<void> deleteAllCategoryAssignments() async {
     await delete(transactionCategoryMap).go();

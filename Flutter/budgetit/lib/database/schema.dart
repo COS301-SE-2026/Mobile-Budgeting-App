@@ -91,6 +91,7 @@ class Categories extends Table {
 /// traversal in a tree structure.
 class CategoryClosure extends Table {
   TextColumn get id => text()();
+
   /// Ancestor category ID.
   TextColumn get ancestorId => text().references(Categories, #id)();
 
@@ -109,8 +110,8 @@ class CategoryClosure extends Table {
 
   @override
   List<Set<Column>> get uniqueKeys => [
-        {ancestorId, descendantId},
-      ];
+    {ancestorId, descendantId},
+  ];
 }
 
 /// Stores individual income and expense transactions.
@@ -171,6 +172,7 @@ class Transactions extends Table {
 /// how the assignment was made.
 class TransactionCategoryMap extends Table {
   TextColumn get id => text()();
+
   /// The transaction this category is assigned to.
   TextColumn get transactionId => text().references(Transactions, #id)();
 
@@ -194,8 +196,8 @@ class TransactionCategoryMap extends Table {
 
   @override
   List<Set<Column>> get uniqueKeys => [
-        {transactionId},
-      ];
+    {transactionId},
+  ];
 }
 
 /// Defines a recurring budget amount for a category over a time period.
@@ -382,7 +384,6 @@ class AppSettings extends Table {
   Set<Column> get primaryKey => {key};
 }
 
-
 class StatementSchemaCache extends Table {
   TextColumn get fingerprint => text()();
 
@@ -394,13 +395,13 @@ class StatementSchemaCache extends Table {
 
   DateTimeColumn get updatedAt => dateTime()();
 
-
   @override
   Set<Column> get primaryKey => {fingerprint};
 }
 
-enum ImportFileType {pdf,csv}
-class Imports extends Table{
+enum ImportFileType { pdf, csv }
+
+class Imports extends Table {
   TextColumn get id => text()();
   TextColumn get userId => text().nullable()();
   TextColumn get fileSha256 => text()();
@@ -498,8 +499,7 @@ class BudgetMembers extends Table {
   TextColumn get id => text()();
 
   /// The shared budget template.
-  TextColumn get budgetTemplateId =>
-      text().references(BudgetTemplates, #id)();
+  TextColumn get budgetTemplateId => text().references(BudgetTemplates, #id)();
 
   /// The co-owner (Cognito subject).
   TextColumn get userId => text().nullable()();

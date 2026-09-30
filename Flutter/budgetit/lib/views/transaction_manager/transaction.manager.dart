@@ -41,7 +41,7 @@ class _TransactionManagerState extends State<TransactionManager> {
     'Nov',
     'Dec',
   ];
-    static const _fullMonthNames = [
+  static const _fullMonthNames = [
     'January',
     'February',
     'March',
@@ -170,7 +170,7 @@ class _TransactionManagerState extends State<TransactionManager> {
     return icons;
   }
 
-    Map<DateTime, List<Transaction>> _groupByMonth(List<Transaction> txns) {
+  Map<DateTime, List<Transaction>> _groupByMonth(List<Transaction> txns) {
     final map = <DateTime, List<Transaction>>{};
     for (final t in txns) {
       final local = t.transactionDate.toLocal();

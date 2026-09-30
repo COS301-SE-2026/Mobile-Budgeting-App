@@ -41,9 +41,7 @@ class _BudgetDatePickerPreviewState extends State<BudgetDatePickerPreview> {
             decoration: BoxDecoration(
               color: cardColor,
               border: Border.all(width: 4),
-              boxShadow: const [
-                BoxShadow(offset: Offset(6, 6)),
-              ],
+              boxShadow: const [BoxShadow(offset: Offset(6, 6))],
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,

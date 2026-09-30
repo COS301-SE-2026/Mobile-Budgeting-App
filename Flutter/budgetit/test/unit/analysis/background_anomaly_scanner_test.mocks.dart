@@ -1520,6 +1520,44 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
           as _i16.Future<List<_i13.Transaction>>);
 
   @override
+  _i16.Future<int> countTransactions({bool? includeDeleted = false}) =>
+      (super.noSuchMethod(
+            Invocation.method(#countTransactions, [], {
+              #includeDeleted: includeDeleted,
+            }),
+            returnValue: _i16.Future<int>.value(0),
+          )
+          as _i16.Future<int>);
+
+  @override
+  _i16.Future<int> countCategoryAssignments() =>
+      (super.noSuchMethod(
+            Invocation.method(#countCategoryAssignments, []),
+            returnValue: _i16.Future<int>.value(0),
+          )
+          as _i16.Future<int>);
+
+  @override
+  _i16.Future<int> countTransactionsWithRecurringId() =>
+      (super.noSuchMethod(
+            Invocation.method(#countTransactionsWithRecurringId, []),
+            returnValue: _i16.Future<int>.value(0),
+          )
+          as _i16.Future<int>);
+
+  @override
+  _i16.Future<int> countTransactionsLinkedToRecurringIds(
+    Iterable<String>? recurringIds,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#countTransactionsLinkedToRecurringIds, [
+              recurringIds,
+            ]),
+            returnValue: _i16.Future<int>.value(0),
+          )
+          as _i16.Future<int>);
+
+  @override
   _i16.Future<List<_i13.Transaction>> getTransactionsByType(
     _i19.TransactionType? type, {
     bool? includeDeleted = false,
@@ -1619,6 +1657,15 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
           as _i16.Future<void>);
 
   @override
+  _i16.Future<void> hardDeleteAllTransactions() =>
+      (super.noSuchMethod(
+            Invocation.method(#hardDeleteAllTransactions, []),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
+          )
+          as _i16.Future<void>);
+
+  @override
   _i16.Future<void> restoreTransaction(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#restoreTransaction, [id]),
@@ -1679,6 +1726,15 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
   _i16.Future<void> removeMapping(String? transactionId) =>
       (super.noSuchMethod(
             Invocation.method(#removeMapping, [transactionId]),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
+          )
+          as _i16.Future<void>);
+
+  @override
+  _i16.Future<void> deleteAllCategoryAssignments() =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteAllCategoryAssignments, []),
             returnValue: _i16.Future<void>.value(),
             returnValueForMissingStub: _i16.Future<void>.value(),
           )
@@ -2389,6 +2445,16 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
           as _i16.Future<List<_i13.Category>>);
 
   @override
+  _i16.Future<int> countCategories({bool? includeDeleted = false}) =>
+      (super.noSuchMethod(
+            Invocation.method(#countCategories, [], {
+              #includeDeleted: includeDeleted,
+            }),
+            returnValue: _i16.Future<int>.value(0),
+          )
+          as _i16.Future<int>);
+
+  @override
   _i16.Future<List<_i13.Category>> getCategoriesByType(
     _i19.CategoryType? type, {
     bool? includeDeleted = false,
@@ -2458,6 +2524,15 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
   _i16.Future<void> hardDeleteCategory(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#hardDeleteCategory, [id]),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
+          )
+          as _i16.Future<void>);
+
+  @override
+  _i16.Future<void> hardDeleteAllCategories() =>
+      (super.noSuchMethod(
+            Invocation.method(#hardDeleteAllCategories, []),
             returnValue: _i16.Future<void>.value(),
             returnValueForMissingStub: _i16.Future<void>.value(),
           )

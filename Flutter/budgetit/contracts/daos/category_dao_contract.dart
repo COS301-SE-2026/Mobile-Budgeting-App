@@ -12,14 +12,9 @@ abstract interface class CategoryDaoContract {
     bool isDefault = false,
   });
 
-  Future<Category?> getCategoryById(
-    String id, {
-    bool includeDeleted = false,
-  });
+  Future<Category?> getCategoryById(String id, {bool includeDeleted = false});
 
-  Future<List<Category>> getAllCategories({
-    bool includeDeleted = false,
-  });
+  Future<List<Category>> getAllCategories({bool includeDeleted = false});
 
   Future<List<Category>> getCategoriesByType(
     CategoryType type, {

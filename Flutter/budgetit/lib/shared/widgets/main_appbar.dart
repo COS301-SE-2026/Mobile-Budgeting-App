@@ -8,10 +8,7 @@ import 'package:budgetit/utils/theme_provider.dart';
 import 'package:budgetit/shared/widgets/settings_page.dart';
 
 class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
-  const MainAppbar({
-    super.key,
-    this.onProfileTap,
-  });
+  const MainAppbar({super.key, this.onProfileTap});
 
   final VoidCallback? onProfileTap;
 

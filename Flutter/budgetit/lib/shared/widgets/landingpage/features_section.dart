@@ -5,43 +5,43 @@
 // class FeaturesSection extends StatelessWidget {
 //   const FeaturesSection({super.key});
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   final colours = context.colours;
+// @override
+// Widget build(BuildContext context) {
+//   final colours = context.colours;
 
-  //   final List<Map<String, String>> features = [
-      
-  //     {
-  //       "title": "Offline-First Transaction Management",
-  //       "description":
-  //           "Runs entirely on your device with no internet connection required."
-  //     },
-  //     {
-  //       "title": "Bills & Subscriptions",
-  //       "description":
-  //           "Track recurring payments in one place. Know what is due, what is scheduled and what you can cut."
-  //     },
-  //     {
-  //       "title": "Budget Goals",
-  //       "description":
-  //           "Set spending limits, monitor progress in real time and get notified before you overspend."
-  //     },
-  //     {
-  //       "title": "Bank-grade Security",
-  //       "description":
-  //           "Biometric authentication and encryption keep your financial information safe."
-  //     },
-  //     {
-  //       "title": "Real time Analytics",
-  //       "description":
-  //           "View spending trends, category breakdowns and monthly insights instantly."
-  //     },
-  //     {
-  //       "title": "Statement Import",
-  //       "description":
-  //           "Upload CSV or PDF bank statements and Budget IT automatically categorises transactions."
-  //     },//might change to just bank statement
-  //   ];
+//   final List<Map<String, String>> features = [
+
+//     {
+//       "title": "Offline-First Transaction Management",
+//       "description":
+//           "Runs entirely on your device with no internet connection required."
+//     },
+//     {
+//       "title": "Bills & Subscriptions",
+//       "description":
+//           "Track recurring payments in one place. Know what is due, what is scheduled and what you can cut."
+//     },
+//     {
+//       "title": "Budget Goals",
+//       "description":
+//           "Set spending limits, monitor progress in real time and get notified before you overspend."
+//     },
+//     {
+//       "title": "Bank-grade Security",
+//       "description":
+//           "Biometric authentication and encryption keep your financial information safe."
+//     },
+//     {
+//       "title": "Real time Analytics",
+//       "description":
+//           "View spending trends, category breakdowns and monthly insights instantly."
+//     },
+//     {
+//       "title": "Statement Import",
+//       "description":
+//           "Upload CSV or PDF bank statements and Budget IT automatically categorises transactions."
+//     },//might change to just bank statement
+//   ];
 
 //     return Container(
 //       width: double.infinity,

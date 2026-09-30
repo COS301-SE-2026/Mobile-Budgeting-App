@@ -20,9 +20,7 @@ abstract interface class TransactionDaoContract {
     bool includeDeleted = false,
   });
 
-  Future<List<Transaction>> getAllTransactions({
-    bool includeDeleted = false,
-  });
+  Future<List<Transaction>> getAllTransactions({bool includeDeleted = false});
 
   Future<List<Transaction>> getTransactionsByType(
     TransactionType type, {
@@ -69,7 +67,5 @@ abstract interface class TransactionDaoContract {
 
   Future<void> removeMapping(String transactionId);
 
-  Future<List<Transaction>> getTransactionsByCategory(
-    String categoryId,
-  );
+  Future<List<Transaction>> getTransactionsByCategory(String categoryId);
 }

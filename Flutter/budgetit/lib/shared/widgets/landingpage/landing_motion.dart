@@ -9,8 +9,10 @@ class RevealOnScroll extends StatefulWidget {
     this.duration = const Duration(milliseconds: 480),
     this.slide = 0.06,
     this.triggerFraction = 0.9,
-  }) : assert(child != null || builder != null,
-            'Give RevealOnScroll either a child or a builder.');
+  }) : assert(
+         child != null || builder != null,
+         'Give RevealOnScroll either a child or a builder.',
+       );
 
   final Widget? child;
 

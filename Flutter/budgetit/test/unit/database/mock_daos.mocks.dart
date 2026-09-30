@@ -708,6 +708,17 @@ class MockCategoryDao extends _i1.Mock implements _i6.CategoryDao {
           as _i7.Future<List<_i2.Category>>);
 
   @override
+  _i7.Future<int> countCategories({bool? includeDeleted = false}) =>
+      (super.noSuchMethod(
+            Invocation.method(#countCategories, [], {
+              #includeDeleted: includeDeleted,
+            }),
+            returnValue: _i7.Future<int>.value(0),
+            returnValueForMissingStub: _i7.Future<int>.value(0),
+          )
+          as _i7.Future<int>);
+
+  @override
   _i7.Future<List<_i2.Category>> getCategoriesByType(
     _i18.CategoryType? type, {
     bool? includeDeleted = false,
@@ -794,6 +805,15 @@ class MockCategoryDao extends _i1.Mock implements _i6.CategoryDao {
   _i7.Future<void> hardDeleteCategory(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#hardDeleteCategory, [id]),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
+          )
+          as _i7.Future<void>);
+
+  @override
+  _i7.Future<void> hardDeleteAllCategories() =>
+      (super.noSuchMethod(
+            Invocation.method(#hardDeleteAllCategories, []),
             returnValue: _i7.Future<void>.value(),
             returnValueForMissingStub: _i7.Future<void>.value(),
           )
@@ -1715,6 +1735,48 @@ class MockTransactionDao extends _i1.Mock implements _i8.TransactionDao {
           as _i7.Future<List<_i2.Transaction>>);
 
   @override
+  _i7.Future<int> countTransactions({bool? includeDeleted = false}) =>
+      (super.noSuchMethod(
+            Invocation.method(#countTransactions, [], {
+              #includeDeleted: includeDeleted,
+            }),
+            returnValue: _i7.Future<int>.value(0),
+            returnValueForMissingStub: _i7.Future<int>.value(0),
+          )
+          as _i7.Future<int>);
+
+  @override
+  _i7.Future<int> countCategoryAssignments() =>
+      (super.noSuchMethod(
+            Invocation.method(#countCategoryAssignments, []),
+            returnValue: _i7.Future<int>.value(0),
+            returnValueForMissingStub: _i7.Future<int>.value(0),
+          )
+          as _i7.Future<int>);
+
+  @override
+  _i7.Future<int> countTransactionsWithRecurringId() =>
+      (super.noSuchMethod(
+            Invocation.method(#countTransactionsWithRecurringId, []),
+            returnValue: _i7.Future<int>.value(0),
+            returnValueForMissingStub: _i7.Future<int>.value(0),
+          )
+          as _i7.Future<int>);
+
+  @override
+  _i7.Future<int> countTransactionsLinkedToRecurringIds(
+    Iterable<String>? recurringIds,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#countTransactionsLinkedToRecurringIds, [
+              recurringIds,
+            ]),
+            returnValue: _i7.Future<int>.value(0),
+            returnValueForMissingStub: _i7.Future<int>.value(0),
+          )
+          as _i7.Future<int>);
+
+  @override
   _i7.Future<List<_i2.Transaction>> getTransactionsByType(
     _i18.TransactionType? type, {
     bool? includeDeleted = false,
@@ -1838,6 +1900,15 @@ class MockTransactionDao extends _i1.Mock implements _i8.TransactionDao {
           as _i7.Future<void>);
 
   @override
+  _i7.Future<void> hardDeleteAllTransactions() =>
+      (super.noSuchMethod(
+            Invocation.method(#hardDeleteAllTransactions, []),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
+          )
+          as _i7.Future<void>);
+
+  @override
   _i7.Future<void> restoreTransaction(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#restoreTransaction, [id]),
@@ -1914,6 +1985,15 @@ class MockTransactionDao extends _i1.Mock implements _i8.TransactionDao {
   _i7.Future<void> removeMapping(String? transactionId) =>
       (super.noSuchMethod(
             Invocation.method(#removeMapping, [transactionId]),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
+          )
+          as _i7.Future<void>);
+
+  @override
+  _i7.Future<void> deleteAllCategoryAssignments() =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteAllCategoryAssignments, []),
             returnValue: _i7.Future<void>.value(),
             returnValueForMissingStub: _i7.Future<void>.value(),
           )
@@ -2822,6 +2902,32 @@ class MockRecurringTransactionDao extends _i1.Mock
           as _i7.Future<List<_i2.RecurringTransaction>>);
 
   @override
+  _i7.Future<int> countRecurringTransactions({bool? includeDeleted = false}) =>
+      (super.noSuchMethod(
+            Invocation.method(#countRecurringTransactions, [], {
+              #includeDeleted: includeDeleted,
+            }),
+            returnValue: _i7.Future<int>.value(0),
+            returnValueForMissingStub: _i7.Future<int>.value(0),
+          )
+          as _i7.Future<int>);
+
+  @override
+  _i7.Future<List<String>> listRecurringTransactionIdsForCategoryIds(
+    Iterable<String>? categoryIds,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#listRecurringTransactionIdsForCategoryIds, [
+              categoryIds,
+            ]),
+            returnValue: _i7.Future<List<String>>.value(<String>[]),
+            returnValueForMissingStub: _i7.Future<List<String>>.value(
+              <String>[],
+            ),
+          )
+          as _i7.Future<List<String>>);
+
+  @override
   _i7.Future<List<_i2.RecurringTransaction>> getRecurringTransactionsByType(
     _i18.TransactionType? type, {
     bool? includeDeleted = false,
@@ -2928,6 +3034,28 @@ class MockRecurringTransactionDao extends _i1.Mock
   _i7.Future<void> hardDeleteRecurringTransaction(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#hardDeleteRecurringTransaction, [id]),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
+          )
+          as _i7.Future<void>);
+
+  @override
+  _i7.Future<void> hardDeleteRecurringTransactions(
+    Iterable<String>? recurringTransactionIds,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#hardDeleteRecurringTransactions, [
+              recurringTransactionIds,
+            ]),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
+          )
+          as _i7.Future<void>);
+
+  @override
+  _i7.Future<void> hardDeleteAllRecurringTransactions() =>
+      (super.noSuchMethod(
+            Invocation.method(#hardDeleteAllRecurringTransactions, []),
             returnValue: _i7.Future<void>.value(),
             returnValueForMissingStub: _i7.Future<void>.value(),
           )
@@ -3838,6 +3966,15 @@ class MockBudgetDao extends _i1.Mock implements _i10.BudgetDao {
           as _i7.Future<List<_i2.BudgetTemplate>>);
 
   @override
+  _i7.Future<int> countBudgetScope() =>
+      (super.noSuchMethod(
+            Invocation.method(#countBudgetScope, []),
+            returnValue: _i7.Future<int>.value(0),
+            returnValueForMissingStub: _i7.Future<int>.value(0),
+          )
+          as _i7.Future<int>);
+
+  @override
   _i7.Future<_i2.BudgetTemplate?> getBudgetTemplateByCategory(
     String? categoryId, {
     bool? includeDeleted = false,
@@ -3918,6 +4055,15 @@ class MockBudgetDao extends _i1.Mock implements _i10.BudgetDao {
   _i7.Future<void> hardDeleteBudgetTemplate(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#hardDeleteBudgetTemplate, [id]),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
+          )
+          as _i7.Future<void>);
+
+  @override
+  _i7.Future<void> hardDeleteAllBudgetTemplates() =>
+      (super.noSuchMethod(
+            Invocation.method(#hardDeleteAllBudgetTemplates, []),
             returnValue: _i7.Future<void>.value(),
             returnValueForMissingStub: _i7.Future<void>.value(),
           )

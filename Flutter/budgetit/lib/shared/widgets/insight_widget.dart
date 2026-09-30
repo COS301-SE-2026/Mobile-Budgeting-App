@@ -130,11 +130,11 @@ class _InsightCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colours = context.colours;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? colours.blendedprimary: colours.secondary;
-    final cardTextColor = isDark ? colours.secondary: colours.background;
+    final cardColor = isDark ? colours.blendedprimary : colours.secondary;
+    final cardTextColor = isDark ? colours.secondary : colours.background;
     final mutedCardText = cardTextColor.withValues(alpha: 0.75);
     final isAlert = insight.severity == InsightSeverity.alert;
-    final signalColor = isAlert ? colours.error:cardTextColor;
+    final signalColor = isAlert ? colours.error : cardTextColor;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -227,7 +227,6 @@ class _InsightCard extends StatelessWidget {
                             color: cardTextColor,
                             fontWeight: FontWeight.w600,
                             fontSize: 13,
-                            
                           ),
                         ),
 
@@ -284,7 +283,7 @@ class _SeverityBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final colours = context.colours;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final dashboardTextColor = isDark ? colours.secondary:colours.background;
+    final dashboardTextColor = isDark ? colours.secondary : colours.background;
 
     final (label, bg, fg) = switch (severity) {
       InsightSeverity.tip => (

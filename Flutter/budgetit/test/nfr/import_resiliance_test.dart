@@ -1,5 +1,6 @@
 @Tags(['nfr'])
 library;
+
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:budgetit/database/app_database.dart';
@@ -55,8 +56,10 @@ NOT_A_DATE,Broken row,abc
     final path = await writeCsv('mixed.csv', partiallyMalformedCsv);
     final parsed = await orchestrator.preparePreview(path);
 
-    print('malformed CSV: parsed ${parsed.length} usable rows from 5 data '
-        'lines (2 intentionally invalid)');
+    print(
+      'malformed CSV: parsed ${parsed.length} usable rows from 5 data '
+      'lines (2 intentionally invalid)',
+    );
 
     expect(parsed, isNotEmpty);
     expect(parsed.length, lessThanOrEqualTo(3));
@@ -69,9 +72,11 @@ NOT_A_DATE,Broken row,abc
 
     final stored = await db.select(db.transactions).get();
 
-    print('commit: parsed=${result.totalParsed} inserted=${result.inserted} '
-        'skipped=${result.duplicatesSkipped} failed=${result.failed} '
-        'stored=${stored.length}');
+    print(
+      'commit: parsed=${result.totalParsed} inserted=${result.inserted} '
+      'skipped=${result.duplicatesSkipped} failed=${result.failed} '
+      'stored=${stored.length}',
+    );
 
     expect(result.failed, 0);
     expect(stored.length, result.inserted);
@@ -88,8 +93,10 @@ NOT_A_DATE,Broken row,abc
     final secondResult = await orchestrator.commitImport(second);
     final afterSecond = (await db.select(db.transactions).get()).length;
 
-    print('re-import: after first=$afterFirst after second=$afterSecond '
-        'flagged as duplicate=${secondResult.duplicatesSkipped}');
+    print(
+      're-import: after first=$afterFirst after second=$afterSecond '
+      'flagged as duplicate=${secondResult.duplicatesSkipped}',
+    );
 
     expect(afterSecond, afterFirst);
     expect(secondResult.duplicatesSkipped, greaterThan(0));
@@ -109,37 +116,46 @@ NOT_A_DATE,Broken row,abc
     expect(stored, isEmpty);
   });
 
-  test('a non-statement file is rejected without corrupting the database',
-      () async {
-    await orchestrator.commitImport(
-      await orchestrator.preparePreview(await writeCsv('valid.csv', validCsv)),
-    );
-    final before = (await db.select(db.transactions).get()).length;
+  test(
+    'a non-statement file is rejected without corrupting the database',
+    () async {
+      await orchestrator.commitImport(
+        await orchestrator.preparePreview(
+          await writeCsv('valid.csv', validCsv),
+        ),
+      );
+      final before = (await db.select(db.transactions).get()).length;
 
-    final junkPath = await writeCsv('junk.csv', 'this is not a statement\n@@@');
+      final junkPath = await writeCsv(
+        'junk.csv',
+        'this is not a statement\n@@@',
+      );
 
-    var threw = false;
-    try {
-      final parsed = await orchestrator.preparePreview(junkPath);
-      await orchestrator.commitImport(parsed);
-    } catch (_) {
-      threw = true;
-    }
+      var threw = false;
+      try {
+        final parsed = await orchestrator.preparePreview(junkPath);
+        await orchestrator.commitImport(parsed);
+      } catch (_) {
+        threw = true;
+      }
 
-    final after = (await db.select(db.transactions).get()).length;
+      final after = (await db.select(db.transactions).get()).length;
 
-    print('junk file: threw=$threw rows before=$before after=$after');
-    expect(after, greaterThanOrEqualTo(before));
-  });
+      print('junk file: threw=$threw rows before=$before after=$after');
+      expect(after, greaterThanOrEqualTo(before));
+    },
+  );
 
   test('import scales to a 5,000-row statement', () async {
     final buffer = StringBuffer('Date,Description,Amount\n');
     for (var i = 0; i < 5000; i++) {
       final day = (i % 28) + 1;
       final month = (i % 12) + 1;
-      buffer.writeln('${day.toString().padLeft(2, '0')}/'
-          '${month.toString().padLeft(2, '0')}/2026,'
-          'Merchant $i,-${(10 + i % 900)}.00');
+      buffer.writeln(
+        '${day.toString().padLeft(2, '0')}/'
+        '${month.toString().padLeft(2, '0')}/2026,'
+        'Merchant $i,-${(10 + i % 900)}.00',
+      );
     }
 
     final path = await writeCsv('large.csv', buffer.toString());
@@ -151,15 +167,17 @@ NOT_A_DATE,Broken row,abc
     final result = await orchestrator.commitImport(parsed);
     commitSw.stop();
 
-    print('5k import: parse=${parseSw.elapsedMilliseconds}ms '
-        'commit=${commitSw.elapsedMilliseconds}ms '
-        'parsed=${parsed.length} inserted=${result.inserted}');
+    print(
+      '5k import: parse=${parseSw.elapsedMilliseconds}ms '
+      'commit=${commitSw.elapsedMilliseconds}ms '
+      'parsed=${parsed.length} inserted=${result.inserted}',
+    );
 
     expect(parsed.length, greaterThan(4000));
     expect(parseSw.elapsedMilliseconds, lessThan(30000));
   });
 
-    test('a CSV with no recognisable date column is rejected', () async {
+  test('a CSV with no recognisable date column is rejected', () async {
     final path = await writeCsv(
       'nodate.csv',
       'Reference,Description,Amount\nABC123,Woolworths,-450.00\n',
@@ -184,8 +202,10 @@ Date,Description,Credit,Debit
     final income = parsed.where((t) => t.isIncome).length;
     final expense = parsed.where((t) => !t.isIncome).length;
 
-    print('credit/debit columns: parsed=${parsed.length} '
-        'income=$income expense=$expense');
+    print(
+      'credit/debit columns: parsed=${parsed.length} '
+      'income=$income expense=$expense',
+    );
 
     expect(parsed.length, 3);
     expect(income, 2);

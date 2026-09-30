@@ -39,9 +39,7 @@ class _SearchBoxState extends State<SearchBox> {
       focusNode: _focusNode,
       onChanged: widget.onChanged,
       cursorColor: context.colours.whiteAccents,
-      style: context.colours.b1.copyWith(
-        color: context.colours.whiteAccents,
-      ),
+      style: context.colours.b1.copyWith(color: context.colours.whiteAccents),
       decoration: InputDecoration(
         hintText: _isFocused ? null : widget.hintText,
         hintStyle: context.colours.searchtext,
@@ -62,10 +60,7 @@ class _SearchBoxState extends State<SearchBox> {
           borderRadius: BorderRadius.zero,
           borderSide: BorderSide(color: Colors.black, width: 4),
         ),
-        contentPadding: const EdgeInsets.symmetric(
-          vertical: 10,
-          horizontal: 8,
-        ),
+        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       ),
     );
   }

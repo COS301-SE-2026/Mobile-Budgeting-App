@@ -24,7 +24,7 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
 
   bool _passwordVisible = false;
   bool _confirmPasswordVisible = false;
-// using the app colours we defined in app colour file..
+  // using the app colours we defined in app colour file..
   Color get _green => context.colours.primary;
   Color get _cream => context.colours.cardText;
   Color get _glassColor => context.colours.cardText.withValues(alpha: 0.13);
@@ -85,11 +85,8 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
           const SizedBox(width: 48),
           Text(
             'Budget IT',
-            style: context.colours.title.copyWith(
-              color: _cream,
-              fontSize: 20,
-            ),
-          ),// i dont know if this should be placed but agile
+            style: context.colours.title.copyWith(color: _cream, fontSize: 20),
+          ), // i dont know if this should be placed but agile
           IconButton(
             icon: Icon(Icons.settings, color: _cream),
             onPressed: () => Navigator.push(
@@ -109,7 +106,7 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
     );
   }
 
-  //Header 
+  //Header
   Widget _buildHeader() {
     return Column(
       children: [
@@ -140,9 +137,7 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
       decoration: BoxDecoration(
         color: context.colours.blendedprimary,
         border: Border.all(color: _borderColor, width: 4),
-        boxShadow: [
-          BoxShadow(color: _borderColor, offset: const Offset(6, 6)),
-        ],
+        boxShadow: [BoxShadow(color: _borderColor, offset: const Offset(6, 6))],
       ),
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -377,10 +372,7 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
             ? SizedBox(
                 height: 20,
                 width: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: _green,
-                ),
+                child: CircularProgressIndicator(strokeWidth: 2, color: _green),
               )
             : Text(
                 label,
@@ -459,9 +451,7 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
       decoration: BoxDecoration(
         color: _glassColor,
         border: Border.all(color: _borderColor, width: 4),
-        boxShadow: [
-          BoxShadow(color: _borderColor, offset: const Offset(6, 6)),
-        ],
+        boxShadow: [BoxShadow(color: _borderColor, offset: const Offset(6, 6))],
       ),
       child: Icon(icon, color: _cream, size: 28),
     );

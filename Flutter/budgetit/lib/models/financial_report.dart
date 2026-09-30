@@ -1,13 +1,13 @@
 class FinancialReport {
   FinancialReport({
-  required this.startDate,
-  required this.endDate,
-  required this.budgetTarget,
-  required this.totalIncome,
-  required this.totalExpenses,
-  required this.categoryTotals,
-  required this.transactions,
-});
+    required this.startDate,
+    required this.endDate,
+    required this.budgetTarget,
+    required this.totalIncome,
+    required this.totalExpenses,
+    required this.categoryTotals,
+    required this.transactions,
+  });
 
   final DateTime startDate;
   final DateTime endDate;

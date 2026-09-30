@@ -10,7 +10,7 @@ class MyBox extends StatefulWidget {
   final double? amount;
   final String? category;
   final String? date;
-  // forgot to add the category to our current ui so here it is 
+  // forgot to add the category to our current ui so here it is
   final List<String> categories;
   final TransactionType? transactionType;
   final bool isExpense;
@@ -73,8 +73,8 @@ class _MyBoxState extends State<MyBox> {
         icon: _icon,
         category: _category,
         categories: widget.categories,
-        transactionId : widget.transactionId,
-        transactionType : widget.transactionType,
+        transactionId: widget.transactionId,
+        transactionType: widget.transactionType,
         onSave: (newName, newAmount, newIcon, newCategory) {
           setState(() {
             _name = newName;
@@ -100,10 +100,11 @@ class _MyBoxState extends State<MyBox> {
       onTapCancel: () => setState(() => _isPressed = false),
       child: Stack(
         children: [
-          Container(//adding our custom card decor
+          Container(
+            //adding our custom card decor
             height: MediaQuery.of(context).size.height * 0.1,
             width: MediaQuery.of(context).size.width * 0.9,
-            alignment : Alignment.center,
+            alignment: Alignment.center,
             decoration: BoxDecoration(
               shape: BoxShape.rectangle,
               color: context.colours.background,

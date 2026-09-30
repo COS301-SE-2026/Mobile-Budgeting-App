@@ -17,7 +17,7 @@ class GraphicalReportsScreen extends StatefulWidget {
 
   final AppDatabase database;
   final Future<GraphicalReportData> Function(ReportingPeriod period)?
-      reportBuilder;
+  reportBuilder;
 
   @override
   State<GraphicalReportsScreen> createState() => _GraphicalReportsScreenState();

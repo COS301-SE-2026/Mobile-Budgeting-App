@@ -211,8 +211,7 @@ class _BudgetAppState extends State<BudgetApp> with WidgetsBindingObserver {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
 
-      themeMode:
-          themeProvider.isDark ? ThemeMode.dark : ThemeMode.light,
+      themeMode: themeProvider.isDark ? ThemeMode.dark : ThemeMode.light,
 
       theme: ThemeData(
         brightness: Brightness.light,
@@ -226,10 +225,7 @@ class _BudgetAppState extends State<BudgetApp> with WidgetsBindingObserver {
 
       initialRoute: '/',
 
-      routes: {
-        '/transaction_manager': (context) =>
-            const TransactionManager(),
-      },
+      routes: {'/transaction_manager': (context) => const TransactionManager()},
 
       home: const AuthWrapper(),
       builder: (context, child) {
@@ -332,13 +328,13 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: MainAppbar(
-  onProfileTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const FriendsPage()),
-    );
-  },
-),
+        onProfileTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const FriendsPage()),
+          );
+        },
+      ),
       body: _buildPages(db)[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(

@@ -2,8 +2,6 @@ import 'package:budgetit/utils/app_colour.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-
-
 class SpendingCategory {
   final String label;
   final double percentage;
@@ -33,10 +31,7 @@ class SpendingChart extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Spending by Category',
-          style: context.colours.h2,
-        ),
+        Text('Spending by Category', style: context.colours.h2),
         const SizedBox(height: 24),
         SizedBox(
           height: 220,
@@ -69,10 +64,7 @@ class SpendingChart extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    total,
-                    style: context.colours.h1,
-                  ),
+                  Text(total, style: context.colours.h1),
                 ],
               ),
             ],

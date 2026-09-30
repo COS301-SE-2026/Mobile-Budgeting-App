@@ -12,10 +12,7 @@ class HelpMenuPage extends StatelessWidget {
         backgroundColor: context.colours.background,
         elevation: 0,
         iconTheme: IconThemeData(color: context.colours.secondary),
-        title: Text(
-          'Help Menu',
-          style: context.colours.title,
-        ),
+        title: Text('Help Menu', style: context.colours.title),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -33,7 +30,8 @@ class HelpMenuPage extends StatelessWidget {
                 steps: const [
                   _HelpStep(
                     icon: Icons.attach_money,
-                    text: 'Go to the Transaction Manager page using the money icon in the bottom navigation.',
+                    text:
+                        'Go to the Transaction Manager page using the money icon in the bottom navigation.',
                   ),
                   _HelpStep(
                     icon: Icons.add,
@@ -41,7 +39,8 @@ class HelpMenuPage extends StatelessWidget {
                   ),
                   _HelpStep(
                     icon: Icons.edit_note_outlined,
-                    text: 'Choose Add Transaction, then enter the description, amount, type and date.',
+                    text:
+                        'Choose Add Transaction, then enter the description, amount, type and date.',
                   ),
                   _HelpStep(
                     icon: Icons.check_circle_outline,
@@ -56,11 +55,13 @@ class HelpMenuPage extends StatelessWidget {
                 steps: const [
                   _HelpStep(
                     icon: Icons.pie_chart_outline,
-                    text: 'Go to the Budget Manager page using the pie chart icon in the bottom navigation.',
+                    text:
+                        'Go to the Budget Manager page using the pie chart icon in the bottom navigation.',
                   ),
                   _HelpStep(
                     icon: Icons.category_outlined,
-                    text: 'Tap the budget category you want to add spending to.',
+                    text:
+                        'Tap the budget category you want to add spending to.',
                   ),
                   _HelpStep(
                     icon: Icons.add,
@@ -68,7 +69,8 @@ class HelpMenuPage extends StatelessWidget {
                   ),
                   _HelpStep(
                     icon: Icons.check_circle_outline,
-                    text: 'Enter the transaction details and save it to update that budget.',
+                    text:
+                        'Enter the transaction details and save it to update that budget.',
                   ),
                 ],
               ),
@@ -79,7 +81,8 @@ class HelpMenuPage extends StatelessWidget {
                 steps: const [
                   _HelpStep(
                     icon: Icons.pie_chart_outline,
-                    text: 'Go to the Budget Manager page using the pie chart icon in the bottom navigation.',
+                    text:
+                        'Go to the Budget Manager page using the pie chart icon in the bottom navigation.',
                   ),
                   _HelpStep(
                     icon: Icons.bar_chart_outlined,
@@ -87,11 +90,13 @@ class HelpMenuPage extends StatelessWidget {
                   ),
                   _HelpStep(
                     icon: Icons.calendar_month_outlined,
-                    text: 'Use the Weekly, Monthly or Yearly chips to change the reporting period.',
+                    text:
+                        'Use the Weekly, Monthly or Yearly chips to change the reporting period.',
                   ),
                   _HelpStep(
                     icon: Icons.show_chart,
-                    text: 'Scroll through the report cards to view income, expenses, categories, budgets and spending trends.',
+                    text:
+                        'Scroll through the report cards to view income, expenses, categories, budgets and spending trends.',
                   ),
                 ],
               ),
@@ -104,23 +109,28 @@ class HelpMenuPage extends StatelessWidget {
                 steps: const [
                   _HelpStep(
                     icon: Icons.download_outlined,
-                    text: 'Download a statement from your banking app or online banking. CSV works best, PDF also works.',
+                    text:
+                        'Download a statement from your banking app or online banking. CSV works best, PDF also works.',
                   ),
                   _HelpStep(
                     icon: Icons.attach_money,
-                    text: 'Go to the Transaction Manager page and tap the plus button.',
+                    text:
+                        'Go to the Transaction Manager page and tap the plus button.',
                   ),
                   _HelpStep(
                     icon: Icons.folder_open,
-                    text: 'Choose Import Statement, then pick the file from your device.',
+                    text:
+                        'Choose Import Statement, then pick the file from your device.',
                   ),
                   _HelpStep(
                     icon: Icons.preview_outlined,
-                    text: 'Review the preview screen. Nothing is saved until you confirm.',
+                    text:
+                        'Review the preview screen. Nothing is saved until you confirm.',
                   ),
                   _HelpStep(
                     icon: Icons.check_circle_outline,
-                    text: 'Tap Confirm to add the transactions to your account.',
+                    text:
+                        'Tap Confirm to add the transactions to your account.',
                   ),
                 ],
               ),
@@ -131,23 +141,28 @@ class HelpMenuPage extends StatelessWidget {
                 steps: const [
                   _HelpStep(
                     icon: Icons.account_balance_outlined,
-                    text: 'Every bank marks money in and money out differently. Some use a Cr label, some a minus sign, some separate columns.',
+                    text:
+                        'Every bank marks money in and money out differently. Some use a Cr label, some a minus sign, some separate columns.',
                   ),
                   _HelpStep(
                     icon: Icons.rule,
-                    text: 'BudgetIT works out which rule your bank uses so it can label every transaction correctly.',
+                    text:
+                        'BudgetIT works out which rule your bank uses so it can label every transaction correctly.',
                   ),
                   _HelpStep(
                     icon: Icons.quiz_outlined,
-                    text: 'If the statement is unclear, you are asked to pick the rule once. It then applies to the whole file.',
+                    text:
+                        'If the statement is unclear, you are asked to pick the rule once. It then applies to the whole file.',
                   ),
                   _HelpStep(
                     icon: Icons.visibility_outlined,
-                    text: 'The preview under each option shows how your transactions would be labelled, so you can see which looks right.',
+                    text:
+                        'The preview under each option shows how your transactions would be labelled, so you can see which looks right.',
                   ),
                   _HelpStep(
                     icon: Icons.bookmark_added_outlined,
-                    text: 'Your answer is remembered, so future statements from the same bank import without asking again.',
+                    text:
+                        'Your answer is remembered, so future statements from the same bank import without asking again.',
                   ),
                 ],
               ),
@@ -158,15 +173,18 @@ class HelpMenuPage extends StatelessWidget {
                 steps: const [
                   _HelpStep(
                     icon: Icons.cancel_outlined,
-                    text: 'On the preview screen, tap Cancel Import and try again with a different option in the confirmation question.',
+                    text:
+                        'On the preview screen, tap Cancel Import and try again with a different option in the confirmation question.',
                   ),
                   _HelpStep(
                     icon: Icons.edit_outlined,
-                    text: 'If you have already imported, open the Transaction Manager, tap the transaction, and change its type.',
+                    text:
+                        'If you have already imported, open the Transaction Manager, tap the transaction, and change its type.',
                   ),
                   _HelpStep(
                     icon: Icons.tune,
-                    text: 'Changing a transaction by hand does not affect the rest of the import.',
+                    text:
+                        'Changing a transaction by hand does not affect the rest of the import.',
                   ),
                 ],
               ),
@@ -177,19 +195,23 @@ class HelpMenuPage extends StatelessWidget {
                 steps: const [
                   _HelpStep(
                     icon: Icons.content_copy_outlined,
-                    text: 'Transactions you have already imported are flagged as duplicates and skipped, so nothing is counted twice.',
+                    text:
+                        'Transactions you have already imported are flagged as duplicates and skipped, so nothing is counted twice.',
                   ),
                   _HelpStep(
                     icon: Icons.summarize_outlined,
-                    text: 'Summary lines such as totals, opening balance and closing balance are ignored because they are not transactions.',
+                    text:
+                        'Summary lines such as totals, opening balance and closing balance are ignored because they are not transactions.',
                   ),
                   _HelpStep(
                     icon: Icons.report_gmailerrorred_outlined,
-                    text: 'Rows with no readable date or amount are skipped. The rest of the file still imports normally.',
+                    text:
+                        'Rows with no readable date or amount are skipped. The rest of the file still imports normally.',
                   ),
                   _HelpStep(
                     icon: Icons.checklist,
-                    text: 'The preview screen shows exactly what will be added before you confirm.',
+                    text:
+                        'The preview screen shows exactly what will be added before you confirm.',
                   ),
                 ],
               ),
@@ -202,19 +224,23 @@ class HelpMenuPage extends StatelessWidget {
                 steps: const [
                   _HelpStep(
                     icon: Icons.phone_android,
-                    text: 'All your transactions, budgets and categories are stored on this device.',
+                    text:
+                        'All your transactions, budgets and categories are stored on this device.',
                   ),
                   _HelpStep(
                     icon: Icons.wifi_off,
-                    text: 'Statements are read on your device. Your financial data is not uploaded anywhere.',
+                    text:
+                        'Statements are read on your device. Your financial data is not uploaded anywhere.',
                   ),
                   _HelpStep(
                     icon: Icons.airplanemode_active,
-                    text: 'Everything works without an internet connection, including importing and reports.',
+                    text:
+                        'Everything works without an internet connection, including importing and reports.',
                   ),
                   _HelpStep(
                     icon: Icons.logout,
-                    text: 'Signing out clears your session but keeps your financial data on the device.',
+                    text:
+                        'Signing out clears your session but keeps your financial data on the device.',
                   ),
                 ],
               ),
@@ -225,19 +251,23 @@ class HelpMenuPage extends StatelessWidget {
                 steps: const [
                   _HelpStep(
                     icon: Icons.event_repeat,
-                    text: 'Set an amount, a start date and how often it repeats. BudgetIT creates each occurrence for you.',
+                    text:
+                        'Set an amount, a start date and how often it repeats. BudgetIT creates each occurrence for you.',
                   ),
                   _HelpStep(
                     icon: Icons.update,
-                    text: 'If the app was closed when one was due, it is created the next time you open the app.',
+                    text:
+                        'If the app was closed when one was due, it is created the next time you open the app.',
                   ),
                   _HelpStep(
                     icon: Icons.calendar_today,
-                    text: 'A monthly item set for the 31st falls on the last day of shorter months, then returns to the 31st.',
+                    text:
+                        'A monthly item set for the 31st falls on the last day of shorter months, then returns to the 31st.',
                   ),
                   _HelpStep(
                     icon: Icons.pause_circle_outline,
-                    text: 'Deleting a recurring template stops future occurrences. Ones already created stay in your history.',
+                    text:
+                        'Deleting a recurring template stops future occurrences. Ones already created stay in your history.',
                   ),
                 ],
               ),
@@ -250,23 +280,28 @@ class HelpMenuPage extends StatelessWidget {
                 steps: const [
                   _HelpStep(
                     icon: Icons.pie_chart_outline,
-                    text: 'Budget: a spending limit for one category over a period, such as R2000 on groceries each month.',
+                    text:
+                        'Budget: a spending limit for one category over a period, such as R2000 on groceries each month.',
                   ),
                   _HelpStep(
                     icon: Icons.category_outlined,
-                    text: 'Category: a label grouping similar transactions, such as Groceries, Rent or Salary.',
+                    text:
+                        'Category: a label grouping similar transactions, such as Groceries, Rent or Salary.',
                   ),
                   _HelpStep(
                     icon: Icons.trending_up,
-                    text: 'Income and expense: money coming in and money going out. Every transaction is one or the other.',
+                    text:
+                        'Income and expense: money coming in and money going out. Every transaction is one or the other.',
                   ),
                   _HelpStep(
                     icon: Icons.favorite_outline,
-                    text: 'Financial health score: a 0 to 100 summary of this month based on your income, spending and budgets.',
+                    text:
+                        'Financial health score: a 0 to 100 summary of this month based on your income, spending and budgets.',
                   ),
                   _HelpStep(
                     icon: Icons.warning_amber_outlined,
-                    text: 'Anomaly: spending that is unusual compared to your normal pattern. It is a prompt to look, not a warning of a problem.',
+                    text:
+                        'Anomaly: spending that is unusual compared to your normal pattern. It is a prompt to look, not a warning of a problem.',
                   ),
                 ],
               ),
@@ -298,11 +333,7 @@ class HelpMenuPage extends StatelessWidget {
         color: context.colours.blendedprimary,
         border: Border.all(color: Colors.black, width: 4),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.black,
-            offset: Offset(6, 6),
-            blurRadius: 0,
-          ),
+          BoxShadow(color: Colors.black, offset: Offset(6, 6), blurRadius: 0),
         ],
       ),
       child: Column(
@@ -335,11 +366,7 @@ class HelpMenuPage extends StatelessWidget {
         color: context.colours.blendedprimary,
         border: Border.all(color: Colors.black, width: 4),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.black,
-            offset: Offset(6, 6),
-            blurRadius: 0,
-          ),
+          BoxShadow(color: Colors.black, offset: Offset(6, 6), blurRadius: 0),
         ],
       ),
       child: Column(
@@ -387,11 +414,7 @@ class _HelpDropDown extends StatelessWidget {
         color: context.colours.blendedprimary,
         border: Border.all(color: Colors.black, width: 4),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.black,
-            offset: Offset(6, 6),
-            blurRadius: 0,
-          ),
+          BoxShadow(color: Colors.black, offset: Offset(6, 6), blurRadius: 0),
         ],
       ),
       child: Theme(
@@ -405,17 +428,12 @@ class _HelpDropDown extends StatelessWidget {
           collapsedIconColor: context.colours.cardText,
           tilePadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
           childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
-          leading: Icon(
-            icon,
-            color: context.colours.cardText,
-          ),
+          leading: Icon(icon, color: context.colours.cardText),
           title: Text(
             title,
             style: context.colours.b1.copyWith(color: context.colours.cardText),
           ),
-          children: [
-            for (final step in steps) _HelpStepRow(step: step),
-          ],
+          children: [for (final step in steps) _HelpStepRow(step: step)],
         ),
       ),
     );
@@ -434,11 +452,7 @@ class _HelpStepRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            step.icon,
-            size: 18,
-            color: context.colours.cardText,
-          ),
+          Icon(step.icon, size: 18, color: context.colours.cardText),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -455,10 +469,7 @@ class _HelpStepRow extends StatelessWidget {
 }
 
 class _HelpStep {
-  const _HelpStep({
-    required this.icon,
-    required this.text,
-  });
+  const _HelpStep({required this.icon, required this.text});
 
   final IconData icon;
   final String text;

@@ -15,7 +15,6 @@ import '../../../services/import/llm_schema_classifier.dart';
 import '../../../services/import/statement_parser_service.dart';
 import 'schema_confirmation_dialog.dart';
 
-
 class ImportScreen extends StatefulWidget {
   final AppDatabase db;
 
@@ -30,7 +29,6 @@ class _ImportScreenState extends State<ImportScreen> {
   late final TransactionClassificationService _aiClassifier;
   late final SchemaDiscoveryService _schemaDiscovery;
   late final StatementParserService _parser;
-
 
   bool _loading = false;
   String? _error;
@@ -58,97 +56,96 @@ class _ImportScreenState extends State<ImportScreen> {
     _parser = StatementParserService(schemaDiscovery: _schemaDiscovery);
   }
 
+  Future<void> _pickAndParse() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
 
-Future<void> _pickAndParse() async {
-  setState(() {
-    _loading = true;
-    _error = null;
-  });
+    try {
+      final result = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['csv', 'pdf'],
+        allowMultiple: false,
+      );
 
-  try {
-    final result = await FilePicker.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['csv', 'pdf'],
-      allowMultiple: false,
-    );
-
-    if (result == null || result.isEmpty) {
-      if (mounted) {
-        setState(() => _loading = false);
+      if (result == null || result.isEmpty) {
+        if (mounted) {
+          setState(() => _loading = false);
+        }
+        return;
       }
-      return;
-    }
 
-    final path = result.single.path;
+      final path = result.single.path;
 
-    if (path == null) {
+      if (path == null) {
+        if (mounted) {
+          setState(() {
+            _error = 'The selected file could not be opened.';
+          });
+        }
+        return;
+      }
+
+      debugPrint('Selected statement file: $path');
+
+      await _aiClassifier.initialize();
+
+      final orchestrator = ImportOrchestrator(
+        db: widget.db,
+        taDao: TransactionDao(widget.db),
+        categoryDao: CategoryDao(widget.db),
+        aiClassifier: _aiClassifier,
+        parser: _parser,
+      );
+
+      final preview = await orchestrator.preparePreview(
+        path,
+        onNeedsSchemaConfirmation: (proposed, sampleRows) =>
+            showSchemaConfirmationDialog(
+              context,
+              proposed: proposed,
+              sampleRows: sampleRows,
+            ),
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      if (preview.isEmpty) {
+        setState(() {
+          _error = 'No transactions were found in this file.';
+        });
+        return;
+      }
+
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ImportPreviewScreen(
+            transactions: preview,
+            orchestrator: orchestrator,
+          ),
+        ),
+      );
+    } catch (error, stackTrace) {
+      debugPrint('Statement import failed: $error');
+      debugPrintStack(stackTrace: stackTrace);
+
       if (mounted) {
         setState(() {
-          _error = 'The selected file could not be opened.';
+          _error = error.toString();
         });
       }
-      return;
-    }
-
-    debugPrint('Selected statement file: $path');
-
-    await _aiClassifier.initialize();
-
-    final orchestrator = ImportOrchestrator(
-      db: widget.db,
-      taDao: TransactionDao(widget.db),
-      categoryDao: CategoryDao(widget.db),
-      aiClassifier: _aiClassifier,
-      parser: _parser,
-    );
-
-    final preview = await orchestrator.preparePreview(
-      path,
-      onNeedsSchemaConfirmation: (proposed, sampleRows) => showSchemaConfirmationDialog(
-        context,
-        proposed: proposed,
-        sampleRows: sampleRows,
-      ),
-    );
-
-
-    if (!mounted) {
-      return;
-    }
-
-    if (preview.isEmpty) {
-      setState(() {
-        _error = 'No transactions were found in this file.';
-      });
-      return;
-    }
-
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ImportPreviewScreen(
-          transactions: preview,
-          orchestrator: orchestrator,
-        ),
-      ),
-    );
-  } catch (error, stackTrace) {
-    debugPrint('Statement import failed: $error');
-    debugPrintStack(stackTrace: stackTrace);
-
-    if (mounted) {
-      setState(() {
-        _error = error.toString();
-      });
-    }
-  } finally {
-    if (mounted) {
-      setState(() {
-        _loading = false;
-      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _loading = false;
+        });
+      }
     }
   }
-}
 
   @override
   void dispose() {
@@ -220,10 +217,7 @@ Future<void> _pickAndParse() async {
               ),
             ),
             const SizedBox(height: 32),
-            Text(
-              'Supported formats',
-              style: colors.h2.copyWith(fontSize: 14),
-            ),
+            Text('Supported formats', style: colors.h2.copyWith(fontSize: 14)),
             const SizedBox(height: 8),
             Row(
               children: [

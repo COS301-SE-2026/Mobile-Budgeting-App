@@ -3,7 +3,6 @@ import 'package:budgetit/database/schema.dart';
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:budgetit/utils/icon_mapper.dart';
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -146,11 +145,12 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
       if (mounted) setState(() => _saving = false);
     }
   }
-// i used ai to refactor this part,
-//it adds a usability confirmation for delete function
-// i used the neobrutalist shadow effect as our design guide
-//styled modal form for editing a transaction name and adding the confirmation step
-//added app styles, formatted by ai
+
+  // i used ai to refactor this part,
+  //it adds a usability confirmation for delete function
+  // i used the neobrutalist shadow effect as our design guide
+  //styled modal form for editing a transaction name and adding the confirmation step
+  //added app styles, formatted by ai
   Future<void> _confirmDelete() async {
     final colours = context.colours;
     final shouldDelete = await showDialog<bool>(

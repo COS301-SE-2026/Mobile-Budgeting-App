@@ -2,12 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../utils/app_colour.dart';
 
 class FeatureChip extends StatelessWidget {
-  const FeatureChip({
-    super.key,
-    required this.label,
-    this.value,
-    this.icon,
-  });
+  const FeatureChip({super.key, required this.label, this.value, this.icon});
 
   final String label;
   final String? value;

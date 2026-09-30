@@ -14,23 +14,28 @@ class SchemaCacheDao extends DatabaseAccessor<AppDatabase>
   SchemaCacheDao(super.db);
   DateTime _now() => DateTime.now().toUtc();
 
-
-
   @override
   Future<StatementSchema?> get(String fingerprint) async {
-    final row = await (select(statementSchemaCache)..where((t) => t.fingerprint.equals(fingerprint))).getSingleOrNull();
+    final row = await (select(
+      statementSchemaCache,
+    )..where((t) => t.fingerprint.equals(fingerprint))).getSingleOrNull();
 
     if (row == null) return null;
 
     List<String> skipPatterns;
     try {
-      skipPatterns = (jsonDecode(row.skipLinePatterns) as List).map((e) => e.toString()).toList();
+      skipPatterns = (jsonDecode(row.skipLinePatterns) as List)
+          .map((e) => e.toString())
+          .toList();
     } catch (_) {
       skipPatterns = const [];
     }
 
     return StatementSchema(
-      signConvention: SignConvention.values.firstWhere((e) => e.name == row.signConvention, orElse: () => SignConvention.keywordBased),
+      signConvention: SignConvention.values.firstWhere(
+        (e) => e.name == row.signConvention,
+        orElse: () => SignConvention.keywordBased,
+      ),
       skipLinePatterns: skipPatterns,
     );
   }

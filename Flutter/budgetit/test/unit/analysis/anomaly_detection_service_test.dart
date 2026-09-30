@@ -80,24 +80,9 @@ void main() {
 
     test('anomaly result contains correct historical average', () {
       final history = [
-        month(
-          2026,
-          1,
-          1000,
-          categories: {'Groceries': 200, 'Dining Out': 100},
-        ),
-        month(
-          2026,
-          2,
-          1000,
-          categories: {'Groceries': 200, 'Dining Out': 100},
-        ),
-        month(
-          2026,
-          3,
-          1000,
-          categories: {'Groceries': 200, 'Dining Out': 100},
-        ),
+        month(2026, 1, 1000, categories: {'Groceries': 200, 'Dining Out': 100}),
+        month(2026, 2, 1000, categories: {'Groceries': 200, 'Dining Out': 100}),
+        month(2026, 3, 1000, categories: {'Groceries': 200, 'Dining Out': 100}),
         month(
           2026,
           4,

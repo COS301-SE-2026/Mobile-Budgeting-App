@@ -15,7 +15,6 @@ class BillItem extends StatelessWidget {
     required this.amount,
   });
 
-
   @override
   Widget build(BuildContext context) {
     return Container(

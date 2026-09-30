@@ -86,7 +86,7 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                 ),
               ),
-             SizedBox(height: 18),
+              SizedBox(height: 18),
               FadeTransition(
                 opacity: _sloganOpacity,
                 child: Text(

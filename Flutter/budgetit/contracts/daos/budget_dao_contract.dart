@@ -49,10 +49,7 @@ abstract interface class BudgetDaoContract {
 
   Future<List<BudgetPeriod>> getBudgetPeriodsForTemplate(String templateId);
 
-  Future<BudgetPeriod?> getActiveBudgetPeriod(
-    String templateId,
-    DateTime date,
-  );
+  Future<BudgetPeriod?> getActiveBudgetPeriod(String templateId, DateTime date);
 
   Future<BudgetPeriod> generateNextBudgetPeriod(String templateId);
 

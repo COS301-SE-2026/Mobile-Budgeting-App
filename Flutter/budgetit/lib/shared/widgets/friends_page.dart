@@ -54,9 +54,9 @@ class _FriendsPageState extends State<FriendsPage> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _loading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not load friends: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Could not load friends: $e')));
     }
   }
 
@@ -97,14 +97,16 @@ class _FriendsPageState extends State<FriendsPage> {
     try {
       await FriendService.instance.sendFriendRequest(code);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Friend request sent to $code')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Friend request sent to $code')));
       await _load();
     } catch (e) {
       if (!mounted) return;
       final message = _friendlyError(e);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
     }
   }
 
@@ -118,9 +120,9 @@ class _FriendsPageState extends State<FriendsPage> {
       await _load();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed: ${_friendlyError(e)}')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed: ${_friendlyError(e)}')));
     }
   }
 
@@ -168,12 +170,17 @@ class _FriendsPageState extends State<FriendsPage> {
                       (r) => ListTile(
                         contentPadding: EdgeInsets.zero,
                         leading: const Icon(Icons.person_add_alt_1),
-                        title: Text('${_codeFor(r.requesterId)} wants to be friends'),
+                        title: Text(
+                          '${_codeFor(r.requesterId)} wants to be friends',
+                        ),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
-                              icon: const Icon(Icons.check, color: Colors.green),
+                              icon: const Icon(
+                                Icons.check,
+                                color: Colors.green,
+                              ),
                               onPressed: () => _respond(r, true),
                             ),
                             IconButton(
@@ -188,7 +195,9 @@ class _FriendsPageState extends State<FriendsPage> {
                       (r) => ListTile(
                         contentPadding: EdgeInsets.zero,
                         leading: const Icon(Icons.schedule),
-                        title: Text('Request sent to ${_codeFor(r.addresseeId)}'),
+                        title: Text(
+                          'Request sent to ${_codeFor(r.addresseeId)}',
+                        ),
                       ),
                     ),
                   ],
@@ -197,14 +206,18 @@ class _FriendsPageState extends State<FriendsPage> {
                   if (_friends.isEmpty)
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 8),
-                      child: Text('No friends yet. Add a friend to get started.'),
+                      child: Text(
+                        'No friends yet. Add a friend to get started.',
+                      ),
                     )
                   else
                     ..._friends.map(
                       (f) => ListTile(
                         contentPadding: EdgeInsets.zero,
                         leading: const Icon(Icons.person_outline),
-                        title: Text('Friend code: ${_codeFor(_otherUserId(f))}'),
+                        title: Text(
+                          'Friend code: ${_codeFor(_otherUserId(f))}',
+                        ),
                       ),
                     ),
                 ],

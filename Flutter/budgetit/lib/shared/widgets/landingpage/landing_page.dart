@@ -67,7 +67,8 @@ class _LandingPageState extends State<LandingPage> {
       }
     });
 
-    final showTop = _scrollController.hasClients &&
+    final showTop =
+        _scrollController.hasClients &&
         _scrollController.offset > MediaQuery.of(context).size.height;
     if (current != _activeSection || showTop != _showBackToTop) {
       setState(() {
@@ -107,15 +108,16 @@ class _LandingPageState extends State<LandingPage> {
                 children: [
                   HeroSection(
                     key: _homeKey,
-                  //  onGetStarted: _handleGetStarted,
-//                    onLogin: _handleLogin,
+                    //  onGetStarted: _handleGetStarted,
+                    //                    onLogin: _handleLogin,
                   ),
                   ImportSection(key: _featuresKey),
                   HowItWorks(key: _howItWorksKey),
                   DownloadSection(key: _downloadKey),
                   AboutSection(key: _aboutKey),
                   const Footer(
-                    repoUrl: 'https://github.com/COS301-SE-2026/Mobile-Budgeting-App',
+                    repoUrl:
+                        'https://github.com/COS301-SE-2026/Mobile-Budgeting-App',
                     contactEmail: 'devoops.cos301@gmail.com',
                   ),
                 ],

@@ -75,7 +75,7 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
   }
 
   /// Removes categories from all goal templates
-  /// 
+  ///
   /// Includes soft-deleted rows.
   Future<void> uncategorizeAllGoalTemplates() async {
     final uncategorizeGoals = update(goalTemplates);
@@ -113,7 +113,9 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
       name: name != null ? Value(name) : const Value.absent(),
       updatedAt: Value(_now()),
     );
-    await (update(goalTemplates)..where((t) => t.id.equals(id))).write(companion);
+    await (update(
+      goalTemplates,
+    )..where((t) => t.id.equals(id))).write(companion);
     return (select(goalTemplates)..where((t) => t.id.equals(id))).getSingle();
   }
 
@@ -175,7 +177,9 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
 
   /// Retrieves a goal period by [id].
   Future<GoalPeriod?> getGoalPeriodById(String id) {
-    return (select(goalPeriods)..where((t) => t.id.equals(id))).getSingleOrNull();
+    return (select(
+      goalPeriods,
+    )..where((t) => t.id.equals(id))).getSingleOrNull();
   }
 
   /// Retrieves all goal periods for a template, ordered by start date.
