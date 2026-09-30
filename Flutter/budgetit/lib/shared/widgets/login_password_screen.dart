@@ -5,6 +5,7 @@ import '../../utils/app_colour.dart';
 import 'verify_email_screen.dart';
 import 'forgot_password_screen.dart';
 
+
 class LoginRegisterScreen extends StatefulWidget {
   const LoginRegisterScreen({super.key});
 
@@ -26,6 +27,7 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
   // using the app colours we defined in app colour file..
   Color get _green => context.colours.primary;
   Color get _cream => context.colours.cardText;
+
   Color get _softCream => _cream.withValues(alpha: 0.8);
   Color get _mutedCream => _cream.withValues(alpha: 0.6);
   Color get _faintCream => _cream.withValues(alpha: 0.4);
@@ -59,6 +61,7 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
                     const SizedBox(height: 32),
                     _buildCard(auth),
                     const SizedBox(height: 32),
+
                     _buildSecureBadge(),
                     const SizedBox(height: 32),
                   ],
@@ -415,6 +418,7 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
       ),
     );
   }
+
 
   // --- Secure Badge ---
   Widget _buildSecureBadge() {

@@ -40,3 +40,4 @@ class ParsedTransaction {
       'ParsedTransaction(data: $date, description: $description,'
       'amount: $amount, isIncome: $isIncome, category: $categoryName, duplicate: $isDuplicate)';
 }
+

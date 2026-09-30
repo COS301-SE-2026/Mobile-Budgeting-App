@@ -79,6 +79,18 @@ class SharingDao extends DatabaseAccessor<AppDatabase> with _$SharingDaoMixin {
         );
   }
 
+  /// Returns the number of budget members.
+  /// Includes soft-deleted rows.
+  Future<int> countBudgetMembers() async {
+    final members = await select(budgetMembers).get();
+    return members.length;
+  }
+
+  /// Hard deletes all budget memberships.
+  Future<void> deleteAllBudgetMembers() async {
+    await delete(budgetMembers).go();
+  }
+
   // ── Goals ──
 
   Future<GoalMember> inviteToGoal({

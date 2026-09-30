@@ -1,7 +1,17 @@
 [
-  { "category_name": "Groceries",     "amount": "2000.00", "period_type": "monthly", "currency": "ZAR" },
-  { "category_name": "Rent",          "amount": "8000.00", "period_type": "monthly", "currency": "ZAR" },
-  { "category_name": "Transport",     "amount": "800.00",  "period_type": "monthly", "currency": "ZAR" },
-  { "category_name": "Entertainment", "amount": "500.00",  "period_type": "monthly", "currency": "ZAR" },
-  { "category_name": "Dining Out",    "amount": "1000.00", "period_type": "monthly", "currency": "ZAR" }
+  { "category_name": "Groceries",          "amount": "4500.00", "period_type": "monthly", "currency": "ZAR" },
+  { "category_name": "Rent",               "amount": "8000.00", "period_type": "monthly", "currency": "ZAR" },
+  { "category_name": "Transport",          "amount": "1500.00", "period_type": "monthly", "currency": "ZAR" },
+  { "category_name": "Health & Medical",   "amount": "1500.00", "period_type": "monthly", "currency": "ZAR" },
+  { "category_name": "Entertainment",      "amount": "1000.00", "period_type": "monthly", "currency": "ZAR" },
+  { "category_name": "Dining Out",         "amount": "1800.00", "period_type": "monthly", "currency": "ZAR" },
+  { "category_name": "Utilities",          "amount": "1800.00", "period_type": "monthly", "currency": "ZAR" },
+  { "category_name": "Clothing",           "amount": "1000.00", "period_type": "monthly", "currency": "ZAR" },
+  { "category_name": "Education",          "amount": "1600.00", "period_type": "monthly", "currency": "ZAR" },
+  { "category_name": "Subscriptions",      "amount": "800.00",  "period_type": "monthly", "currency": "ZAR" },
+  { "category_name": "Personal Care",      "amount": "600.00",  "period_type": "monthly", "currency": "ZAR" },
+  { "category_name": "Home & Maintenance", "amount": "1000.00", "period_type": "monthly", "currency": "ZAR" },
+  { "category_name": "Travel",             "amount": "3000.00", "period_type": "monthly", "currency": "ZAR" },
+  { "category_name": "Gifts & Donations",  "amount": "750.00",  "period_type": "monthly", "currency": "ZAR" },
+  { "category_name": "Shopping",           "amount": "2500.00", "period_type": "monthly", "currency": "ZAR" }
 ]

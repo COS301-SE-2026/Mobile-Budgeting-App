@@ -3,10 +3,10 @@
     "amount": "25000.00",
     "type": "income",
     "short_description": "Monthly salary",
-    "long_description": "Overdue demo template for startup catch-up",
+    "long_description": "Primary monthly salary payment",
     "next_date_offset": {
       "unit": "months",
-      "amount": 2,
+      "amount": 1,
       "day_of_month": 1
     },
     "period_type": "monthly",
@@ -15,17 +15,137 @@
     "category_name": "Salary"
   },
   {
+    "amount": "8000.00",
+    "type": "expense",
+    "short_description": "Monthly rent",
+    "long_description": "Apartment rent payment",
+    "next_date_offset": {
+      "unit": "months",
+      "amount": 1,
+      "day_of_month": 1
+    },
+    "period_type": "monthly",
+    "interval_amount": 1,
+    "currency": "ZAR",
+    "category_name": "Rent"
+  },
+  {
     "amount": "950.00",
     "type": "expense",
     "short_description": "Weekly groceries",
-    "long_description": "Overdue demo template for startup catch-up",
+    "long_description": "Weekly household grocery allowance",
     "next_date_offset": {
       "unit": "days",
-      "amount": 14
+      "amount": 7
     },
     "period_type": "weekly",
     "interval_amount": 1,
     "currency": "ZAR",
     "category_name": "Groceries"
+  },
+  {
+    "amount": "299.00",
+    "type": "expense",
+    "short_description": "Streaming and music subscriptions",
+    "long_description": "Recurring entertainment subscriptions",
+    "next_date_offset": {
+      "unit": "months",
+      "amount": 1,
+      "day_of_month": 5
+    },
+    "period_type": "monthly",
+    "interval_amount": 1,
+    "currency": "ZAR",
+    "category_name": "Subscriptions"
+  },
+  {
+    "amount": "1450.00",
+    "type": "expense",
+    "short_description": "Electricity and water",
+    "long_description": "Estimated monthly household utilities",
+    "next_date_offset": {
+      "unit": "months",
+      "amount": 1,
+      "day_of_month": 10
+    },
+    "period_type": "monthly",
+    "interval_amount": 1,
+    "currency": "ZAR",
+    "category_name": "Utilities"
+  },
+  {
+    "amount": "650.00",
+    "type": "expense",
+    "short_description": "Transport card top-up",
+    "long_description": "Monthly public transport allowance",
+    "next_date_offset": {
+      "unit": "months",
+      "amount": 1,
+      "day_of_month": 4
+    },
+    "period_type": "monthly",
+    "interval_amount": 1,
+    "currency": "ZAR",
+    "category_name": "Transport"
+  },
+  {
+    "amount": "1800.00",
+    "type": "expense",
+    "short_description": "Medical aid contribution",
+    "long_description": "Monthly medical aid contribution",
+    "next_date_offset": {
+      "unit": "months",
+      "amount": 1,
+      "day_of_month": 11
+    },
+    "period_type": "monthly",
+    "interval_amount": 1,
+    "currency": "ZAR",
+    "category_name": "Health & Medical"
+  },
+  {
+    "amount": "1450.00",
+    "type": "expense",
+    "short_description": "School and course fees",
+    "long_description": "Monthly education payment",
+    "next_date_offset": {
+      "unit": "months",
+      "amount": 1,
+      "day_of_month": 21
+    },
+    "period_type": "monthly",
+    "interval_amount": 1,
+    "currency": "ZAR",
+    "category_name": "Education"
+  },
+  {
+    "amount": "650.00",
+    "type": "expense",
+    "short_description": "Home insurance",
+    "long_description": "Monthly household insurance premium",
+    "next_date_offset": {
+      "unit": "months",
+      "amount": 1,
+      "day_of_month": 25
+    },
+    "period_type": "monthly",
+    "interval_amount": 1,
+    "currency": "ZAR",
+    "category_name": "Home & Maintenance"
+  },
+  {
+    "amount": "450.00",
+    "type": "expense",
+    "short_description": "Personal care appointment",
+    "long_description": "Monthly personal care allowance",
+    "next_date_offset": {
+      "unit": "months",
+      "amount": 1,
+      "day_of_month": 20
+    },
+    "period_type": "monthly",
+    "interval_amount": 1,
+    "currency": "ZAR",
+    "category_name": "Personal Care"
   }
 ]

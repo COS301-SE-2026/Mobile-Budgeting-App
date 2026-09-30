@@ -35,6 +35,7 @@ _kConventionLabels = {
   ),
 };
 
+
 Future<StatementSchema> showSchemaConfirmationDialog(
   BuildContext context, {
   required StatementSchema proposed,
@@ -277,6 +278,7 @@ class _SchemaConfirmationDialogState extends State<_SchemaConfirmationDialog> {
           ],
         ),
       ),
+
     );
   }
 

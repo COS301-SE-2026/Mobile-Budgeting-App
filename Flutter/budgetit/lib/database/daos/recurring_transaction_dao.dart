@@ -109,6 +109,29 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     return query.get();
   }
 
+  /// Returns the number of recurring transactions.
+  /// Includes soft deleted records if [includeDeleted] is `true`.
+  Future<int> countRecurringTransactions({bool includeDeleted = false}) async {
+    final recurringTransactions = await getAllRecurringTransactions(
+      includeDeleted: includeDeleted,
+    );
+    return recurringTransactions.length;
+  }
+
+  /// Returns a list of schedule IDs linked to one of [categoryIds].
+  Future<List<String>> listRecurringTransactionIdsForCategoryIds(
+    Iterable<String> categoryIds,
+  ) async {
+    final ids = categoryIds.toList();
+    if (ids.isEmpty) {
+      return [];
+    }
+    final query = select(recurringTransactions)
+      ..where((row) => row.categoryId.isIn(ids));
+    final recurringTransactionsForCategories = await query.get();
+    return recurringTransactionsForCategories.map((row) => row.id).toList();
+  }
+
   Future<List<RecurringTransaction>> getRecurringTransactionsByType(
     TransactionType type, {
     bool includeDeleted = false,
@@ -200,11 +223,37 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     );
   }
 
-  Future<void> hardDeleteRecurringTransaction(String id) async {
-    await (update(transactions)..where((t) => t.recurringId.equals(id))).write(
+  Future<void> hardDeleteRecurringTransaction(String id) {
+    return hardDeleteRecurringTransactions([id]);
+  }
+
+  /// Hard deletes recurring transactions templates and unlinks child transactions.
+  Future<void> hardDeleteRecurringTransactions(
+    Iterable<String> recurringTransactionIds,
+  ) async {
+    final recurringTransactionIdList = recurringTransactionIds.toList();
+    if (recurringTransactionIdList.isEmpty) {
+      return;
+    }
+
+    final unlinkTransactions = update(transactions)
+      ..where((row) => row.recurringId.isIn(recurringTransactionIdList));
+    await unlinkTransactions.write(
       const TransactionsCompanion(recurringId: Value(null)),
     );
-    await (delete(recurringTransactions)..where((t) => t.id.equals(id))).go();
+
+    final deleteRecurringTransactions = delete(recurringTransactions)
+      ..where((row) => row.id.isIn(recurringTransactionIdList));
+    await deleteRecurringTransactions.go();
+  }
+
+  /// Hard deletes all recurring transactions templates and unlinks their generated children.
+  Future<void> hardDeleteAllRecurringTransactions() async {
+    final unlinkTransactions = update(transactions);
+    await unlinkTransactions.write(
+      const TransactionsCompanion(recurringId: Value(null)),
+    );
+    await delete(recurringTransactions).go();
   }
 
   Future<void> restoreRecurringTransaction(String id) async {

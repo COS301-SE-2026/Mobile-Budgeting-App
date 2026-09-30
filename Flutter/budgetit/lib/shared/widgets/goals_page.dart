@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 import '../../database/schema.dart';
 import 'searchbox.dart';
 
+
 class GoalsPage extends StatefulWidget {
   const GoalsPage({super.key});
 
@@ -1628,6 +1629,7 @@ class _GoalsPageState extends State<GoalsPage> {
               background: cardTextColor,
               foreground: cardColor,
               onPressed: () => Navigator.of(dialogContext).pop(true),
+
             ),
           ],
         ),

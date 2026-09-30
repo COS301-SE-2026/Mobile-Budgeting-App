@@ -194,6 +194,7 @@ Date,Description,Amount
     },
   );
 
+
   test('switching guest to logged-in preserves existing local data', () async {
     final path = await writeCsv('guest.csv', statement);
     final parsed = await orchestrator.preparePreview(path);

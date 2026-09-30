@@ -38,9 +38,11 @@ void main() {
   late TransactionDao taDao;
   late CategoryDao categoryDao;
   late ImportOrchestrator orchestrator;
+  late BudgetTemplate budget;
 
-  setUp(() {
+  setUp(() async {
     db = openTestDatabase();
+    budget = await db.budgetDao.getOrCreateDefaultBudget();
     taDao = TransactionDao(db);
     categoryDao = CategoryDao(db);
     orchestrator = ImportOrchestrator(
@@ -131,7 +133,7 @@ void main() {
         final category = await categoryDao.insertCategory(
           name: 'Groceries',
           type: CategoryType.expense,
-          budgetTemplateId: 'test-budget',
+          budgetTemplateId: budget.id,
         );
         final transactions = [
           _parsed(
@@ -157,7 +159,7 @@ void main() {
         final category = await categoryDao.insertCategory(
           name: 'Groceries',
           type: CategoryType.expense,
-          budgetTemplateId: 'test-budget',
+          budgetTemplateId: budget.id,
         );
         final transactions = [
           _parsed(

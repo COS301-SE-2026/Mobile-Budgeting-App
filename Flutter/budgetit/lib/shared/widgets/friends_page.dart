@@ -30,6 +30,7 @@ class _FriendsPageState extends State<FriendsPage> {
   @override
   void initState() {
     super.initState();
+
   }
 
   @override
