@@ -24,6 +24,7 @@ import 'services/recurring/recurring_transaction_catch_up_service.dart';
 import 'synch/backendconnector.dart';
 import 'views/dashboard/dashboard.dart';
 import 'shared/widgets/login_password_screen.dart';
+import 'shared/widgets/onboarding_screen.dart';
 import 'shared/widgets/biometric_lock_screen.dart';
 import 'utils/theme_provider.dart';
 import 'shared/widgets/main_appbar.dart';
@@ -99,14 +100,20 @@ Future<Widget> _initializeApp() async {
   const skipReseed = bool.fromEnvironment('SKIP_RESEED', defaultValue: false);
   final shouldReseed = kDebugMode && !skipReseed;
 
-  final powerSyncDb = await _openPowerSyncDatabase(reset: shouldReseed);
+  final powerSyncDb = await _openPowerSyncDatabase();
   final db = AppDatabase(powerSyncDb);
 
   // Initialise the local schema before seeding, so the tables exist when the
   // seeder writes to them. Syncing is started separately once the user signs in.
   await powerSyncDb.initialize();
 
-  if (shouldReseed) await DatabaseSeeder(db).seed();
+  if (shouldReseed) {
+    await powerSyncDb.disconnectAndClear();
+    for (final table in db.allTables) {
+      await db.delete(table).go();
+    }
+    await DatabaseSeeder(db).seed();
+  }
   if (kDebugMode && !kIsWeb) {
     unawaited(db.startDriftViewer(enabled: true));
   }
@@ -140,16 +147,13 @@ Future<Widget> _initializeApp() async {
   );
 }
 
-Future<PowerSyncDatabase> _openPowerSyncDatabase({required bool reset}) async {
+Future<PowerSyncDatabase> _openPowerSyncDatabase() async {
   if (kIsWeb) {
     // PowerSync stores this named database in browser storage on the web.
     return PowerSyncDatabase(schema: powerSyncSchema, path: 'budgetit.db');
   }
   final directory = await getApplicationDocumentsDirectory();
   final file = File(p.join(directory.path, 'budgetit.db'));
-  if (reset && await file.exists()) {
-    await file.delete();
-  }
   return PowerSyncDatabase(schema: powerSyncSchema, path: file.path);
 }
 
@@ -271,6 +275,46 @@ class AuthWrapper extends StatelessWidget {
 
       case AuthStatus.skipped:
       case AuthStatus.loggedIn:
+        return const OnboardingGate();
+    }
+  }
+}
+
+class OnboardingGate extends StatefulWidget {
+  const OnboardingGate({super.key});
+
+  @override
+  State<OnboardingGate> createState() => _OnboardingGateState();
+}
+
+class _OnboardingGateState extends State<OnboardingGate> {
+  bool? _onboardingComplete;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_checkOnboarding());
+  }
+
+  Future<void> _checkOnboarding() async {
+    final complete = await context
+        .read<AppDatabase>()
+        .settingsDao
+        .getOnboardingComplete();
+    if (!mounted) return;
+    setState(() => _onboardingComplete = complete);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    switch (_onboardingComplete) {
+      case null:
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      case false:
+        return OnboardingScreen(
+          onComplete: () => setState(() => _onboardingComplete = true),
+        );
+      case true:
         return const HomePage();
     }
   }
