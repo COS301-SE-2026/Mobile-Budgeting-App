@@ -38,7 +38,7 @@ import 'package:flutter_gemma/flutter_gemma.dart';
 import 'package:pdfrx/pdfrx.dart';
 import 'package:flutter_gemma_mediapipe/flutter_gemma_mediapipe.dart';
 import 'services/import/llm_schema_classifier.dart';
-import 'services/ai/transaction_classifier/bge_model_downloader.dart';
+import 'services/ai/transaction_classifier/fine_tuned_bge_model_downloader.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -292,7 +292,7 @@ class _HomePageState extends State<HomePage> {
       unawaited(_runRecurringTransactionCatchUp());
       if (!kIsWeb) {
         unawaited(LlmSchemaClassifier.ensureModelDownloaded());
-        unawaited(BgeModelDownloader.ensureModelDownloaded());
+        unawaited(FineTunedBgeModelDownloader.ensureModelDownloaded());
       }
     });
   }
