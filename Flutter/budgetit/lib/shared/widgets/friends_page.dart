@@ -435,26 +435,51 @@ class _FriendsPageState extends State<FriendsPage> {
     Widget? trailing,
   }) {
     final colours = context.colours;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final tileTextColor = isLight ? colours.secondary : colours.cardText;
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
+      height: MediaQuery.of(context).size.height * 0.1,
+      width: MediaQuery.of(context).size.width * 0.9,
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: isDark ? colours.background : colours.cardText,
+        color: colours.background,
         border: Border.all(color: Colors.black, width: 3),
       ),
-      child: ListTile(
-        leading: Container(
-          padding: const EdgeInsets.all(6),
-          color: isDark ? colours.blendedprimary : colours.primary,
-          child: Icon(icon, color: colours.cardText),
-        ),
-        title: Text(
-          title,
-          style: colours.b1.copyWith(
-            color: isDark ? colours.cardText : colours.primary,
+      child: Row(
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: isLight ? colours.secondary : colours.blendedprimary,
+              border: Border.all(color: Colors.black, width: 2),
+            ),
+            child: Icon(
+              icon,
+              color: isLight ? colours.background : colours.cardText,
+              size: 20,
+            ),
           ),
-        ),
-        trailing: trailing,
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: colours.budgetheader.copyWith(
+                color: tileTextColor,
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          if (trailing != null) ...[
+            const SizedBox(width: 8),
+            trailing,
+          ],
+        ],
       ),
     );
   }

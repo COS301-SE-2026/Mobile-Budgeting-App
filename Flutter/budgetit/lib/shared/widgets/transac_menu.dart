@@ -34,6 +34,26 @@ class _FABMenuState extends State<FABMenu> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Align(
+            alignment: Alignment.centerRight,
+            child: InkWell(
+              onTap: () => Navigator.of(context).pop(),
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: isDark ? colours.background : colours.secondary,
+                  border: Border.all(color: Colors.black, width: 3),
+                ),
+                child: Icon(
+                  Icons.close,
+                  color: isDark ? colours.cardText : colours.background,
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
           _MenuButton(
             label: 'Add Transaction',
             icon: Icons.add,

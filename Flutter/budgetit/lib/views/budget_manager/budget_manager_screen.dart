@@ -932,6 +932,9 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
       future: _budgetItemsFuture,
       builder: (context, snapshot) {
         final items = snapshot.data ?? [];
+        final indicatorColor = Theme.of(context).brightness == Brightness.dark
+            ? context.colours.secondary
+            : context.colours.background;
         if (items.isEmpty) {
           return const BalanceCard(
             totalSpent: 0,
@@ -972,14 +975,15 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
               children: List.generate(items.length, (i) {
                 final active = i == _currentBudgetIndex;
                 return AnimatedContainer(
+                  key: ValueKey('budget-page-$i'),
                   duration: const Duration(milliseconds: 180),
                   width: active ? 11 : 9,
                   height: active ? 11 : 9,
                   margin: const EdgeInsets.symmetric(horizontal: 4),
                   decoration: BoxDecoration(
                     color: active
-                        ? context.colours.cardText
-                        : context.colours.cardText.withValues(alpha: 0.35),
+                        ? indicatorColor
+                        : indicatorColor.withValues(alpha: 0.35),
                     border: Border.all(color: Colors.black, width: 1.5),
                     shape: BoxShape.circle,
                   ),
@@ -1125,15 +1129,20 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
 
   InputDecoration _budgetDialogFieldDecoration(
     String label,
-    MyColours colours,
-  ) {
+    MyColours colours, {
+    String? hint,
+  }) {
     const border = OutlineInputBorder(
       borderRadius: BorderRadius.zero,
       borderSide: BorderSide(color: Colors.black, width: 3),
     );
     return InputDecoration(
       labelText: label,
+      hintText: hint,
       labelStyle: colours.b1.copyWith(color: colours.textPrimary),
+      hintStyle: colours.b1.copyWith(
+        color: colours.textPrimary.withValues(alpha: 0.55),
+      ),
       filled: true,
       fillColor: colours.background,
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
@@ -1415,6 +1424,79 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
     final colours = context.colours;
     final me = await FriendService.instance.getMyUserId();
     final friends = await db.friendsDao.getFriends();
+    if (!mounted) return;
+
+    if (friends.isEmpty) {
+      final isDark = Theme.of(context).brightness == Brightness.dark;
+      final dialogColor = isDark ? colours.blendedprimary : colours.background;
+      final dialogTextColor = isDark ? colours.secondary : colours.textPrimary;
+
+      await showDialog<void>(
+        context: context,
+        barrierColor: Colors.black.withValues(alpha: 0.35),
+        builder: (dialogContext) => Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 420),
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
+            decoration: BoxDecoration(
+              color: dialogColor,
+              border: Border.all(color: Colors.black, width: 4),
+              boxShadow: const [
+                BoxShadow(color: Colors.black, offset: Offset(6, 6)),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: colours.informational,
+                        border: Border.all(color: Colors.black, width: 2),
+                      ),
+                      child: const Icon(
+                        Icons.people_outline,
+                        color: Colors.black,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'SHARE BUDGET',
+                        style: colours.h2.copyWith(color: dialogTextColor),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 18),
+                Text(
+                  'You need to add friends first before you can share a budget.',
+                  style: colours.b1.copyWith(color: dialogTextColor),
+                ),
+                const SizedBox(height: 22),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.of(dialogContext).pop(),
+                    style: _budgetDialogPrimaryStyle(dialogContext),
+                    child: const Text('CLOSE'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      return;
+    }
+
     final profiles = await db.friendsDao.getAllProfiles();
     final codeByUser = {
       for (final p in profiles)
@@ -1430,24 +1512,19 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
           side: const BorderSide(color: Colors.black, width: 4),
         ),
         title: Text('SHARE BUDGET', style: colours.h2),
-        content: friends.isEmpty
-            ? Text('No friends yet.', style: colours.b1)
-            : SizedBox(
-                width: double.maxFinite,
-                child: ListView(
-                  shrinkWrap: true,
-                  children: friends.map((f) {
-                    final otherId = f.userA == me ? f.userB : f.userA;
-                    return ListTile(
-                      title: Text(
-                        codeByUser[otherId] ?? 'Friend',
-                        style: colours.b1,
-                      ),
-                      onTap: () => Navigator.pop(dCtx, otherId),
-                    );
-                  }).toList(),
-                ),
-              ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView(
+            shrinkWrap: true,
+            children: friends.map((f) {
+              final otherId = f.userA == me ? f.userB : f.userA;
+              return ListTile(
+                title: Text(codeByUser[otherId] ?? 'Friend', style: colours.b1),
+                onTap: () => Navigator.pop(dCtx, otherId),
+              );
+            }).toList(),
+          ),
+        ),
       ),
     );
 
@@ -1691,12 +1768,8 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
       context: context,
       builder: (dialogContext) {
         final isDark = Theme.of(dialogContext).brightness == Brightness.dark;
-        final dialogColor = isDark
-            ? colours.blendedprimary
-            : colours.background;
-        final dialogTextColor = isDark
-            ? colours.secondary
-            : colours.textPrimary;
+        final dialogColor = isDark ? colours.blendedprimary : colours.secondary;
+        final dialogTextColor = isDark ? colours.secondary : colours.background;
 
         return Dialog(
           backgroundColor: Colors.transparent,
@@ -2305,32 +2378,6 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
             ? colours.secondary
             : colours.textPrimary;
 
-        InputDecoration inputDecoration(String label, {String? hint}) {
-          return InputDecoration(
-            labelText: label,
-            labelStyle: colours.b1.copyWith(color: dialogTextColor),
-            hintText: hint,
-            filled: true,
-            fillColor: colours.background,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 10,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.zero,
-              borderSide: const BorderSide(color: Colors.black, width: 3),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.zero,
-              borderSide: const BorderSide(color: Colors.black, width: 3),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.zero,
-              borderSide: const BorderSide(color: Colors.black, width: 4),
-            ),
-          );
-        }
-
         return FutureBuilder<List<_BudgetCategoryOption>>(
           future: _categoryOptionsFuture,
           builder: (context, snapshot) {
@@ -2359,26 +2406,71 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+                          Row(
+                            children: [
+                              Container(
+                                width: 36,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? colours.blendedprimary
+                                      : colours.secondary,
+                                  border: Border.all(
+                                    color: Colors.black,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Icon(
+                                  Icons.account_balance_wallet_outlined,
+                                  color: isDark
+                                      ? colours.cardText
+                                      : colours.background,
+                                  size: 20,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  'NEW BUDGET',
+                                  style: colours.h2.copyWith(
+                                    color: dialogTextColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
                           Text(
-                            'NEW BUDGET',
-                            style: colours.h2.copyWith(color: dialogTextColor),
+                            'Set a monthly spending limit for a new budget.',
+                            style: colours.b1.copyWith(color: dialogTextColor),
                           ),
                           const SizedBox(height: 16),
                           TextField(
                             controller: nameController,
-                            style: colours.b1.copyWith(color: dialogTextColor),
-                            decoration: inputDecoration(
+                            autofocus: true,
+                            textCapitalization: TextCapitalization.words,
+                            style: colours.b1.copyWith(
+                              color: colours.textPrimary,
+                            ),
+                            decoration: _budgetDialogFieldDecoration(
                               'Budget name',
+                              colours,
                               hint: 'e.g. Main Budget',
                             ),
                           ),
                           const SizedBox(height: 14),
                           TextField(
                             controller: amountController,
-                            keyboardType: TextInputType.number,
-                            style: colours.b1.copyWith(color: dialogTextColor),
-                            decoration: inputDecoration(
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            style: colours.b4.copyWith(
+                              color: colours.textPrimary,
+                              fontSize: 16,
+                            ),
+                            decoration: _budgetDialogFieldDecoration(
                               'Budget limit',
+                              colours,
                               hint: 'e.g. 5000',
                             ),
                           ),
@@ -2389,10 +2481,15 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                               OutlinedButton(
                                 onPressed: () =>
                                     Navigator.of(dialogContext).pop(),
-                                child: const Text('Cancel'),
+                                style: _budgetDialogCancelStyle(
+                                  dialogContext,
+                                  dialogTextColor,
+                                ),
+                                child: const Text('CANCEL'),
                               ),
                               const SizedBox(width: 8),
                               ElevatedButton(
+                                style: _budgetDialogPrimaryStyle(dialogContext),
                                 onPressed: () async {
                                   final name = nameController.text.trim();
                                   final amount = double.tryParse(
@@ -2412,7 +2509,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                                   }
                                   _refreshBudgets();
                                 },
-                                child: const Text('Create'),
+                                child: const Text('CREATE'),
                               ),
                             ],
                           ),
@@ -2591,8 +2688,7 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                           type: CategoryType.expense,
                           budgetTemplateId: budgetId,
                           icon: Icons.sell_outlined,
-                          color: '#137E84'
-                          ,
+                          color: '#137E84',
                         );
                         if (dialogContext.mounted) {
                           Navigator.of(dialogContext).pop();

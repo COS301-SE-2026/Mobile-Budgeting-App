@@ -14,6 +14,7 @@ class TransactionFilterBar extends StatelessWidget {
     required this.onSearchChanged,
     required this.onCategoryChanged,
     required this.onSortChanged,
+    this.showSearch = true,
   });
 
   static const allCategories = 'All categories';
@@ -25,6 +26,7 @@ class TransactionFilterBar extends StatelessWidget {
   final ValueChanged<String> onSearchChanged;
   final ValueChanged<String> onCategoryChanged;
   final ValueChanged<TransactionSort> onSortChanged;
+  final bool showSearch;
 
   @override
   Widget build(BuildContext context) {
@@ -58,6 +60,8 @@ class TransactionFilterBar extends StatelessWidget {
             ),
           ],
         );
+
+        if (!showSearch) return dropdowns;
 
         if (constraints.maxWidth < 620) {
           return Column(
@@ -120,10 +124,10 @@ class _FilterDropdown<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
-    final filterBackground = isLight
-        ? context.colours.cardText
-        : isActive
+    final filterBackground = isActive
         ? context.colours.informational
+        : isLight
+        ? context.colours.cardText
         : context.colours.searchBar;
     final filterForeground = isLight
         ? context.colours.secondary
