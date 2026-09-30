@@ -23,20 +23,6 @@ class ProfilePage extends StatelessWidget {
     context.read<AppAuthProvider>().backToLogin();
   }
 
-  Future<void> _toggleBiometricLock(
-    BuildContext context,
-    AppAuthProvider auth,
-  ) async {
-    final changed = await auth.setBiometricLockEnabled(
-      !auth.biometricLockEnabled,
-    );
-    if (!changed && context.mounted && auth.errorMessage != null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(auth.errorMessage!)));
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final colours = context.colours;
@@ -219,79 +205,6 @@ class ProfilePage extends StatelessWidget {
                       ),
                     );
                   },
-                ),
-                const SizedBox(height: 28),
-              ],
-              if (auth.isLoggedIn) ...[
-                Container(
-                  decoration: BoxDecoration(
-                    color: colours.primary,
-                    border: Border.all(color: Colors.black, width: 4),
-                    boxShadow: const [
-                      BoxShadow(color: Colors.black, offset: Offset(6, 6)),
-                    ],
-                  ),
-                  child: InkWell(
-                    onTap: auth.isLoading
-                        ? null
-                        : () => _toggleBiometricLock(context, auth),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'BIOMETRIC LOCK',
-                                  style: colours.h4.copyWith(
-                                    color: colours.cardText,
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  'Require Android biometrics when reopening the app',
-                                  style: colours.b1.copyWith(
-                                    color: colours.cardText,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 14),
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 160),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 9,
-                            ),
-                            decoration: BoxDecoration(
-                              color: auth.biometricLockEnabled
-                                  ? colours.cardText
-                                  : colours.background,
-                              border: Border.all(color: Colors.black, width: 3),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black,
-                                  offset: Offset(3, 3),
-                                ),
-                              ],
-                            ),
-                            child: Text(
-                              auth.biometricLockEnabled ? 'ON' : 'OFF',
-                              style: colours.b1.copyWith(
-                                color: auth.biometricLockEnabled
-                                    ? colours.primary
-                                    : colours.cardText,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
                 ),
                 const SizedBox(height: 28),
               ],
