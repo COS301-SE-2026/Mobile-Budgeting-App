@@ -40,38 +40,18 @@ class _SettingsPageState extends State<SettingsPage> {
         .setSetting('ai_categorisation', value.toString());
   }
 
-  Future<void> _confirmLogout() async {
-    final colours = context.colours;
-    final shouldLogout = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: colours.background,
-        shape: const RoundedRectangleBorder(
-          side: BorderSide(color: Colors.black, width: 3),
-        ),
-        title: Text('Log out', style: colours.h2),
-        content: Text('Are you sure you want to log out?', style: colours.b1),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text('Cancel', style: colours.b1),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(
-              'Log out',
-              style: colours.b1.copyWith(color: colours.error),
-            ),
-          ),
-        ],
-      ),
+  Future<void> _toggleBiometricLock(
+    BuildContext context,
+    AppAuthProvider auth,
+  ) async {
+    final changed = await auth.setBiometricLockEnabled(
+      !auth.biometricLockEnabled,
     );
-
-    if (shouldLogout != true || !mounted) return;
-
-    await context.read<AppAuthProvider>().signOut();
-    if (!mounted) return;
-    Navigator.of(context).popUntil((route) => route.isFirst);
+    if (!changed && context.mounted && auth.errorMessage != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(auth.errorMessage!)));
+    }
   }
 
   @override
@@ -179,41 +159,88 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    _sectionTitle(context, 'ACCOUNT'),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: auth.isLoading ? null : _confirmLogout,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colours.error,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: const RoundedRectangleBorder(
-                            side: BorderSide(color: Colors.black, width: 3),
-                          ),
-                          elevation: 0,
+                    if (auth.isLoggedIn) ...[
+                      _sectionTitle(context, 'SECURITY'),
+                      const SizedBox(height: 12),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: colours.primary,
+                          border: Border.all(color: Colors.black, width: 4),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(6, 6),
+                            ),
+                          ],
                         ),
-                        icon: auth.isLoading
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
+                        child: InkWell(
+                          onTap: auth.isLoading
+                              ? null
+                              : () => _toggleBiometricLock(context, auth),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'BIOMETRIC LOCK',
+                                        style: colours.h4.copyWith(
+                                          color: colours.cardText,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        'Require Android biometrics when reopening the app',
+                                        style: colours.b1.copyWith(
+                                          color: colours.cardText,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              )
-                            : const Icon(Icons.logout),
-                        label: Text(
-                          'LOG OUT',
-                          style: colours.b1.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
+                                const SizedBox(width: 14),
+                                AnimatedContainer(
+                                  duration: const Duration(milliseconds: 160),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 9,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: auth.biometricLockEnabled
+                                        ? colours.cardText
+                                        : colours.background,
+                                    border: Border.all(
+                                      color: Colors.black,
+                                      width: 3,
+                                    ),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Colors.black,
+                                        offset: Offset(3, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Text(
+                                    auth.biometricLockEnabled ? 'ON' : 'OFF',
+                                    style: colours.b1.copyWith(
+                                      color: auth.biometricLockEnabled
+                                          ? colours.primary
+                                          : colours.cardText,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
+                      const SizedBox(height: 24),
+                    ],
                   ],
                 ),
               ),
