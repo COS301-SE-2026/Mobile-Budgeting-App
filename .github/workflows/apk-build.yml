@@ -94,10 +94,9 @@ jobs:
           check_version 'Android Gradle Plugin' "$agp_version" "$EXPECTED_AGP_VERSION"
           check_version 'Kotlin Gradle Plugin' "$kotlin_version" "$EXPECTED_KOTLIN_VERSION"
 
-          # Flutter builds with the project wrapper, not the runner's global Gradle.
-          gradle_output=$(cd "$android_dir" && ./gradlew --version)
-          printf '%s\n' "$gradle_output"
-          gradle_version=$(printf '%s\n' "$gradle_output" | ci_first_match_in_text '^Gradle \([0-9][0-9.]*\).*$')
+          # Flutter generates the ignored wrapper launcher during the build.
+          # Check its tracked distribution instead of requiring ./gradlew here.
+          gradle_version=$(ci_first_match_in_text '^distributionUrl=.*gradle-\([0-9][0-9.]*\)-.*\.zip.*$' < "$android_dir/gradle/wrapper/gradle-wrapper.properties")
           check_version 'Gradle wrapper' "$gradle_version" "$EXPECTED_GRADLE_VERSION"
 
           sdk_root=${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}
