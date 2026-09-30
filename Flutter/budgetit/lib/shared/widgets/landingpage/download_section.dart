@@ -15,7 +15,9 @@ class DownloadSection extends StatelessWidget {
       width: double.infinity,
       color: colours.background,
       padding: EdgeInsets.symmetric(
-          horizontal: context.sectionHPadding, vertical: 60),
+        horizontal: context.sectionHPadding,
+        vertical: 60,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -48,12 +50,14 @@ class DownloadSection extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
                     _PlatformBadge(
-                        icon: Icons.android_rounded, label: "ANDROID BASED"),
+                      icon: Icons.android_rounded,
+                      label: "ANDROID BASED",
+                    ),
                     SizedBox(height: 28),
                     _DownloadButton(
                       label: "Download the app",
                       url:
-                          'https://budgetit-apk-releases.s3.eu-north-1.amazonaws.com/apk-releases/budgetit-manual-test.apk',
+                          'https://budgetit-apk-releases.s3.eu-north-1.amazonaws.com/apk-releases/latest.apk',
                     ),
                     // SizedBox(height: 14),
                     // _DownloadButton(
@@ -69,7 +73,9 @@ class DownloadSection extends StatelessWidget {
                   children: [
                     const Expanded(
                       child: _PlatformBadge(
-                          icon: Icons.android_rounded, label: "ANDROID BASED"),
+                        icon: Icons.android_rounded,
+                        label: "ANDROID BASED",
+                      ),
                     ),
                     Expanded(
                       child: Column(
@@ -78,7 +84,7 @@ class DownloadSection extends StatelessWidget {
                           _DownloadButton(
                             label: "Download the app",
                             url:
-                                'https://budgetit-apk-releases.s3.eu-north-1.amazonaws.com/apk-releases/budgetit-manual-test.apk',
+                                'https://budgetit-apk-releases.s3.eu-north-1.amazonaws.com/apk-releases/latest.apk',
                           ),
                           SizedBox(height: 14),
                           _DownloadButton(
@@ -125,7 +131,11 @@ class _PlatformBadge extends StatelessWidget {
               ),
             ],
           ),
-          child: Icon(icon, size: compact ? 44 : 60, color: colours.greenAccents),
+          child: Icon(
+            icon,
+            size: compact ? 44 : 60,
+            color: colours.greenAccents,
+          ),
         ),
         const SizedBox(width: 24),
         Flexible(
@@ -194,10 +204,11 @@ class _DownloadButtonState extends State<_DownloadButton> {
         : Text(
             widget.label,
             style: TextStyle(
-                color: colours.background,
-                fontWeight: FontWeight.w600,
-                fontSize: 15,
-                fontFamily: 'SpaceGrotesk'),
+              color: colours.background,
+              fontWeight: FontWeight.w600,
+              fontSize: 15,
+              fontFamily: 'SpaceGrotesk',
+            ),
           );
 
     if (widget.outlined) {
@@ -212,7 +223,8 @@ class _DownloadButtonState extends State<_DownloadButton> {
             side: const BorderSide(color: Colors.black, width: 3),
             padding: const EdgeInsets.symmetric(horizontal: 24),
             shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.zero),
+              borderRadius: BorderRadius.zero,
+            ),
           ),
           child: child,
         ),
@@ -230,8 +242,7 @@ class _DownloadButtonState extends State<_DownloadButton> {
           elevation: 0,
           side: const BorderSide(color: Colors.black, width: 3),
           padding: const EdgeInsets.symmetric(horizontal: 24),
-          shape:
-              const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
         ),
         child: child,
       ),

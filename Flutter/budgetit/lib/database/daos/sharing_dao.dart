@@ -42,38 +42,53 @@ class SharingDao extends DatabaseAccessor<AppDatabase> with _$SharingDaoMixin {
     return (select(budgetMembers)..where((t) => t.id.equals(id))).getSingle();
   }
 
-  Future<BudgetMember?> getBudgetMember(String budgetTemplateId, String userId) {
-    return (select(budgetMembers)
-          ..where(
-            (t) =>
-                t.budgetTemplateId.equals(budgetTemplateId) &
-                t.userId.equals(userId) &
-                t.deletedAt.isNull(),
-          ))
+  Future<BudgetMember?> getBudgetMember(
+    String budgetTemplateId,
+    String userId,
+  ) {
+    return (select(budgetMembers)..where(
+          (t) =>
+              t.budgetTemplateId.equals(budgetTemplateId) &
+              t.userId.equals(userId) &
+              t.deletedAt.isNull(),
+        ))
         .getSingleOrNull();
   }
 
   Future<List<BudgetMember>> getBudgetMembers(String budgetTemplateId) {
-    return (select(budgetMembers)
-          ..where(
-            (t) =>
-                t.budgetTemplateId.equals(budgetTemplateId) &
-                t.deletedAt.isNull(),
-          ))
+    return (select(budgetMembers)..where(
+          (t) =>
+              t.budgetTemplateId.equals(budgetTemplateId) &
+              t.deletedAt.isNull(),
+        ))
         .get();
   }
 
-  Future<void> removeBudgetMember(String budgetTemplateId, String userId) async {
+  Future<void> removeBudgetMember(
+    String budgetTemplateId,
+    String userId,
+  ) async {
     final now = _now();
-    await (update(budgetMembers)
-          ..where(
-            (t) =>
-                t.budgetTemplateId.equals(budgetTemplateId) &
-                t.userId.equals(userId),
-          ))
+    await (update(budgetMembers)..where(
+          (t) =>
+              t.budgetTemplateId.equals(budgetTemplateId) &
+              t.userId.equals(userId),
+        ))
         .write(
-      BudgetMembersCompanion(deletedAt: Value(now), updatedAt: Value(now)),
-    );
+          BudgetMembersCompanion(deletedAt: Value(now), updatedAt: Value(now)),
+        );
+  }
+
+  /// Returns the number of budget members.
+  /// Includes soft-deleted rows.
+  Future<int> countBudgetMembers() async {
+    final members = await select(budgetMembers).get();
+    return members.length;
+  }
+
+  /// Hard deletes all budget memberships.
+  Future<void> deleteAllBudgetMembers() async {
+    await delete(budgetMembers).go();
   }
 
   // ── Goals ──
@@ -121,8 +136,7 @@ class SharingDao extends DatabaseAccessor<AppDatabase> with _$SharingDaoMixin {
     return (select(goalMembers)
           ..where(
             (t) =>
-                t.goalTemplateId.equals(goalTemplateId) &
-                t.deletedAt.isNull(),
+                t.goalTemplateId.equals(goalTemplateId) & t.deletedAt.isNull(),
           )
           ..orderBy([(t) => OrderingTerm.asc(t.createdAt)]))
         .get();
@@ -135,9 +149,7 @@ class SharingDao extends DatabaseAccessor<AppDatabase> with _$SharingDaoMixin {
     if (ids.isEmpty) return {};
     final rows =
         await (select(goalMembers)
-              ..where(
-                (t) => t.goalTemplateId.isIn(ids) & t.deletedAt.isNull(),
-              )
+              ..where((t) => t.goalTemplateId.isIn(ids) & t.deletedAt.isNull())
               ..orderBy([(t) => OrderingTerm.asc(t.createdAt)]))
             .get();
     final byTemplate = <String, List<GoalMember>>{};
@@ -183,15 +195,14 @@ class SharingDao extends DatabaseAccessor<AppDatabase> with _$SharingDaoMixin {
 
   Future<void> removeGoalMember(String goalTemplateId, String userId) async {
     final now = _now();
-    await (update(goalMembers)
-          ..where(
-            (t) =>
-                t.goalTemplateId.equals(goalTemplateId) &
-                t.userId.equals(userId) &
-                t.deletedAt.isNull(),
-          ))
+    await (update(goalMembers)..where(
+          (t) =>
+              t.goalTemplateId.equals(goalTemplateId) &
+              t.userId.equals(userId) &
+              t.deletedAt.isNull(),
+        ))
         .write(
-      GoalMembersCompanion(deletedAt: Value(now), updatedAt: Value(now)),
-    );
+          GoalMembersCompanion(deletedAt: Value(now), updatedAt: Value(now)),
+        );
   }
 }

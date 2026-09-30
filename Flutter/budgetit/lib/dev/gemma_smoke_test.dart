@@ -14,9 +14,9 @@ Future<void> runGemmaSmokeTest() async {
   if (!alreadyInstalled) {
     print('Gemma smoke test: downloading model (this can take a while)...');
     await FlutterGemma.installModel(
-      modelType: ModelType.gemmaIt,
-      fileType: ModelFileType.task,
-      )
+          modelType: ModelType.gemmaIt,
+          fileType: ModelFileType.task,
+        )
         .fromNetwork(_modelUrl)
         .withProgress((progress) => print('Gemma smoke test: $progress%'))
         .install();
@@ -33,10 +33,9 @@ Future<void> runGemmaSmokeTest() async {
   print('Gemma smoke test: model loaded.');
 
   final chat = await model.createChat();
-  await chat.addQueryChunk(Message.text(
-    text: 'Reply with exactly one word: hello.',
-    isUser: true,
-  ));
+  await chat.addQueryChunk(
+    Message.text(text: 'Reply with exactly one word: hello.', isUser: true),
+  );
 
   print('Gemma smoke test: generating response...');
   final response = await chat.generateChatResponse();

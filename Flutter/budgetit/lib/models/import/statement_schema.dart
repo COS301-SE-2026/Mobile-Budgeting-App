@@ -17,9 +17,9 @@ class StatementSchema {
   });
 
   Map<String, dynamic> toJson() => {
-        'signConvention': signConvention.name,
-        'skipLinePatterns': skipLinePatterns,
-      };
+    'signConvention': signConvention.name,
+    'skipLinePatterns': skipLinePatterns,
+  };
 
   factory StatementSchema.fromJson(Map<String, dynamic> json) {
     return StatementSchema(
@@ -27,7 +27,8 @@ class StatementSchema {
         (e) => e.name == json['signConvention'],
         orElse: () => SignConvention.keywordBased,
       ),
-      skipLinePatterns: (json['skipLinePatterns'] as List?)
+      skipLinePatterns:
+          (json['skipLinePatterns'] as List?)
               ?.map((e) => e.toString())
               .toList() ??
           const [],

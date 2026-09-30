@@ -98,10 +98,7 @@ abstract interface class BudgetDaoContract {
   /// A period is active when its start date is at or before [date] and its
   /// end date at or after. Pass [date] in UTC, since period boundaries are
   /// stored in UTC.
-  Future<BudgetPeriod?> getActiveBudgetPeriod(
-    String templateId,
-    DateTime date,
-  );
+  Future<BudgetPeriod?> getActiveBudgetPeriod(String templateId, DateTime date);
 
   /// Generates and returns the next budget period for [templateId].
   /// If a period is already active for the current date it is returned

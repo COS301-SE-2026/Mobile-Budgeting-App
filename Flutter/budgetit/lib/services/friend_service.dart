@@ -35,7 +35,8 @@ class FriendService {
     return _myProfile!;
   }
 
-  Future<String> getMyUserId() async => (await getMyProfile())['user_id'] as String;
+  Future<String> getMyUserId() async =>
+      (await getMyProfile())['user_id'] as String;
 
   Future<String> getMyFriendCode() async =>
       (await getMyProfile())['friend_code'] as String;

@@ -106,6 +106,14 @@ class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
     return q.get();
   }
 
+  /// Returns the number of budget templates and periods.
+  /// Includes soft deleted records.
+  Future<int> countBudgetScope() async {
+    final templates = await getAllBudgetTemplates(includeDeleted: true);
+    final periods = await select(budgetPeriods).get();
+    return templates.length + periods.length;
+  }
+
   /// Returns the active budget template for the given [categoryId].
   ///
   /// Returns the first matching template, or `null` if none exists.
@@ -171,6 +179,14 @@ class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
       await (delete(budgetPeriods)..where((t) => t.templateId.equals(id))).go();
       await (delete(budgetTemplates)..where((t) => t.id.equals(id))).go();
     });
+  }
+
+  /// Hard deletes all budget templates and their generated periods.
+  ///
+  /// Callers must delete any linked budget members first.
+  Future<void> hardDeleteAllBudgetTemplates() async {
+    await delete(budgetPeriods).go();
+    await delete(budgetTemplates).go();
   }
 
   /// Restores a soft-deleted budget template by clearing its [deletedAt] timestamp.
@@ -378,5 +394,4 @@ class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
       name: 'Main Budget',
     );
   }
-
 }

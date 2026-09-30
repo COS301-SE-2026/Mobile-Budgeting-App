@@ -4,12 +4,7 @@ import '../../../utils/app_colour.dart';
 import 'landing_responsive.dart';
 
 class Footer extends StatelessWidget {
-  const Footer({
-    super.key,
-    this.repoUrl,
-    this.contactEmail,
-    this.privacyUrl,
-  });
+  const Footer({super.key, this.repoUrl, this.contactEmail, this.privacyUrl});
 
   final String? repoUrl;
   final String? contactEmail;
@@ -31,12 +26,18 @@ class Footer extends StatelessWidget {
       width: double.infinity,
       color: colours.background,
       padding: EdgeInsets.fromLTRB(
-          context.sectionHPadding, 36, context.sectionHPadding, 28),
+        context.sectionHPadding,
+        36,
+        context.sectionHPadding,
+        28,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-              height: 1, color: colours.whiteAccents.withValues(alpha: 0.15)),
+            height: 1,
+            color: colours.whiteAccents.withValues(alpha: 0.15),
+          ),
           const SizedBox(height: 28),
           Flex(
             direction: compact ? Axis.vertical : Axis.horizontal,
@@ -87,7 +88,6 @@ class Footer extends StatelessWidget {
     );
   }
 }
-
 
 class _FooterLink extends StatelessWidget {
   final String label;

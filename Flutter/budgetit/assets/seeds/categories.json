@@ -13,6 +13,7 @@
   { "name": "Home & Maintenance","type": "expense", "icon": "57622", "color": "#FF9800" },
   { "name": "Travel",            "type": "expense", "icon": "58007", "color": "#2196F3" },
   { "name": "Gifts & Donations", "type": "expense", "icon": "57662", "color": "#EC407A" },
+  { "name": "Shopping",          "type": "expense", "icon": "59596", "color": "#03A9F4" },
   { "name": "Salary",            "type": "income",  "icon": "57522", "color": "#4CAF50" },
   { "name": "Freelance",         "type": "income",  "icon": "57733", "color": "#2196F3" },
   { "name": "Investments",       "type": "income",  "icon": "59007", "color": "#FF9800" },

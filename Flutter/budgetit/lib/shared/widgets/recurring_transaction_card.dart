@@ -53,8 +53,8 @@ class _RecurringTransactionCardState extends State<RecurringTransactionCard> {
     return '${local.day} ${_months[local.month - 1]} ${local.year}';
   }
 
-@override
-Widget build(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
     final colours = context.colours;
     final rt = widget.recurringTransaction;
     final isExpense = rt.type == TransactionType.expense;

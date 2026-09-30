@@ -157,7 +157,7 @@ void main() {
       expect(results.first.date, equals(DateTime(2026, 5, 15)));
     });
 
-    test('slips lines containing skip keywords', () async{
+    test('slips lines containing skip keywords', () async {
       final lines = [
         'Total Deposits \$1,000.00',
         'Beginning Balance \$5,000.00',
@@ -168,7 +168,7 @@ void main() {
       expect(results.first.amount, equals(Decimal.parse('100.00')));
     });
 
-    test('skips empty lines', ()async {
+    test('skips empty lines', () async {
       final lines = ['', '  ', '05-15 Deposit 200.00'];
       final results = await parser.testParsePdfLines(lines);
       expect(results.length, equals(1));
@@ -190,14 +190,14 @@ void main() {
       );
     });
 
-    test('negative amount mark transaction as expense', () async{
+    test('negative amount mark transaction as expense', () async {
       final lines = ['05-15 ATM withdrawal -100.00'];
       final results = await parser.testParsePdfLines(lines);
       expect(results, isNotEmpty);
       expect(results.first.isIncome, isFalse);
     });
 
-    test('returns empty list for lines with no parsable transaction', () async{
+    test('returns empty list for lines with no parsable transaction', () async {
       final lines = [
         'This Text',
         'No dates or amounts',
@@ -206,7 +206,7 @@ void main() {
       final results = await parser.testParsePdfLines(lines);
       expect(results, isEmpty);
     });
-    test('deduplication hash is nonEmpty', () async{
+    test('deduplication hash is nonEmpty', () async {
       final lines = ['05-15 Here 100.00'];
       final results = await parser.testParsePdfLines(lines);
       expect(results, isNotEmpty);

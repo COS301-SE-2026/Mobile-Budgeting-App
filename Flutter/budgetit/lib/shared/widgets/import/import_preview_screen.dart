@@ -275,11 +275,11 @@ class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
                         ),
                       ),
                       items: [
-                          DropdownMenuItem(
+                        DropdownMenuItem(
                           value: '',
-                            child: Text(
-                              'No assigned category ($fallbackCategory)',
-                            ),
+                          child: Text(
+                            'No assigned category ($fallbackCategory)',
+                          ),
                         ),
                         for (final category in categories)
                           DropdownMenuItem(

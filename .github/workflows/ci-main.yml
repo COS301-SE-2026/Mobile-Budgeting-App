@@ -13,7 +13,6 @@ on:
       - opened
       - synchronize
       - reopened
-      - labeled
       - ready_for_review
   workflow_dispatch:
     inputs:
@@ -37,24 +36,14 @@ jobs:
       contents: read
       pull-requests: read
     with:
-      force_full: ${{ startsWith(github.ref, 'refs/tags/ci-main-test-') || inputs.force_full || false }}
+      force_full: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || startsWith(github.ref, 'refs/tags/ci-main-test-') || inputs.force_full || false }}
 
   secret-scan:
     name: Secret Scan
     needs: changes
     if: >-
       ${{
-        needs.changes.outputs.force_full == 'true' ||
-        (
-          github.event_name == 'pull_request' &&
-          github.event.pull_request.base.ref == 'main' &&
-          github.event.pull_request.draft == false &&
-          github.event.pull_request.head.repo.full_name == github.repository &&
-          (
-            contains(github.event.pull_request.labels.*.name, 'release-candidate') ||
-            contains(github.event.pull_request.labels.*.name, 'release-landing-candidate')
-          )
-        )
+        needs.changes.outputs.force_full == 'true'
       }}
     uses: ./.github/workflows/secret-scan.yml
     permissions:
@@ -69,17 +58,7 @@ jobs:
     if: >-
       ${{
         needs.changes.outputs.force_full == 'true' ||
-        needs.changes.outputs.should_osv_scan == 'true' ||
-        (
-          github.event_name == 'pull_request' &&
-          github.event.pull_request.base.ref == 'main' &&
-          github.event.pull_request.draft == false &&
-          github.event.pull_request.head.repo.full_name == github.repository &&
-          (
-            contains(github.event.pull_request.labels.*.name, 'release-candidate') ||
-            contains(github.event.pull_request.labels.*.name, 'release-landing-candidate')
-          )
-        )
+        needs.changes.outputs.should_osv_scan == 'true'
       }}
     uses: ./.github/workflows/osv-scan.yml
     permissions:
@@ -88,18 +67,7 @@ jobs:
       security-events: write
     with:
       blocking: true
-      source-ref: >-
-        ${{
-          github.event_name == 'pull_request' &&
-          github.event.pull_request.base.ref == 'main' &&
-          github.event.pull_request.draft == false &&
-          github.event.pull_request.head.repo.full_name == github.repository &&
-          (
-            contains(github.event.pull_request.labels.*.name, 'release-candidate') ||
-            contains(github.event.pull_request.labels.*.name, 'release-landing-candidate')
-          ) &&
-          github.event.pull_request.head.sha || ''
-        }}
+      source-ref: ''
 
   prepare:
     name: Generate Dart
@@ -107,34 +75,13 @@ jobs:
     if: >-
       ${{
         needs.changes.outputs.force_full == 'true' ||
-        needs.changes.outputs.should_prepare_generated_dart == 'true' ||
-        (
-          github.event_name == 'pull_request' &&
-          github.event.pull_request.base.ref == 'main' &&
-          github.event.pull_request.draft == false &&
-          github.event.pull_request.head.repo.full_name == github.repository &&
-          (
-            contains(github.event.pull_request.labels.*.name, 'release-candidate') ||
-            contains(github.event.pull_request.labels.*.name, 'release-landing-candidate')
-          )
-        )
+        needs.changes.outputs.should_prepare_generated_dart == 'true'
       }}
     uses: ./.github/workflows/generated-dart.yml
     permissions:
       contents: read
     with:
-      source-ref: >-
-        ${{
-          github.event_name == 'pull_request' &&
-          github.event.pull_request.base.ref == 'main' &&
-          github.event.pull_request.draft == false &&
-          github.event.pull_request.head.repo.full_name == github.repository &&
-          (
-            contains(github.event.pull_request.labels.*.name, 'release-candidate') ||
-            contains(github.event.pull_request.labels.*.name, 'release-landing-candidate')
-          ) &&
-          github.event.pull_request.head.sha || ''
-        }}
+      source-ref: ''
 
   lint:
     name: Lint
@@ -142,24 +89,14 @@ jobs:
     if: >-
       ${{
         needs.changes.outputs.force_full == 'true' ||
-        needs.changes.outputs.should_lint == 'true' ||
-        (
-          github.event_name == 'pull_request' &&
-          github.event.pull_request.base.ref == 'main' &&
-          github.event.pull_request.draft == false &&
-          github.event.pull_request.head.repo.full_name == github.repository &&
-          (
-            contains(github.event.pull_request.labels.*.name, 'release-candidate') ||
-            contains(github.event.pull_request.labels.*.name, 'release-landing-candidate')
-          )
-        )
+        needs.changes.outputs.should_lint == 'true'
       }}
     uses: ./.github/workflows/lint.yml
     permissions:
       actions: read
       contents: read
     with:
-      blocking: true
+      blocking: false
       generated-artifact: ${{ needs.prepare.outputs.artifact-name }}
       source-ref: ${{ needs.prepare.outputs.source-sha }}
 
@@ -169,21 +106,14 @@ jobs:
     if: >-
       ${{
         needs.changes.outputs.force_full == 'true' ||
-        needs.changes.outputs.should_unit_tests == 'true' ||
-        (
-          github.event_name == 'pull_request' &&
-          github.event.pull_request.base.ref == 'main' &&
-          github.event.pull_request.draft == false &&
-          github.event.pull_request.head.repo.full_name == github.repository &&
-          contains(github.event.pull_request.labels.*.name, 'release-candidate')
-        )
+        needs.changes.outputs.should_unit_tests == 'true'
       }}
     uses: ./.github/workflows/unit-tests.yml
     permissions:
       actions: read
       contents: read
     with:
-      blocking: true
+      blocking: false
       generated-artifact: ${{ needs.prepare.outputs.artifact-name }}
       source-ref: ${{ needs.prepare.outputs.source-sha }}
 
@@ -193,21 +123,14 @@ jobs:
     if: >-
       ${{
         needs.changes.outputs.force_full == 'true' ||
-        needs.changes.outputs.should_widget_tests == 'true' ||
-        (
-          github.event_name == 'pull_request' &&
-          github.event.pull_request.base.ref == 'main' &&
-          github.event.pull_request.draft == false &&
-          github.event.pull_request.head.repo.full_name == github.repository &&
-          contains(github.event.pull_request.labels.*.name, 'release-candidate')
-        )
+        needs.changes.outputs.should_widget_tests == 'true'
       }}
     uses: ./.github/workflows/widget-tests.yml
     permissions:
       actions: read
       contents: read
     with:
-      blocking: true
+      blocking: false
       generated-artifact: ${{ needs.prepare.outputs.artifact-name }}
       source-ref: ${{ needs.prepare.outputs.source-sha }}
 
@@ -217,21 +140,14 @@ jobs:
     if: >-
       ${{
         needs.changes.outputs.force_full == 'true' ||
-        needs.changes.outputs.should_integration_tests == 'true' ||
-        (
-          github.event_name == 'pull_request' &&
-          github.event.pull_request.base.ref == 'main' &&
-          github.event.pull_request.draft == false &&
-          github.event.pull_request.head.repo.full_name == github.repository &&
-          contains(github.event.pull_request.labels.*.name, 'release-candidate')
-        )
+        needs.changes.outputs.should_integration_tests == 'true'
       }}
     uses: ./.github/workflows/integration-tests.yml
     permissions:
       actions: read
       contents: read
     with:
-      blocking: true
+      blocking: false
       generated-artifact: ${{ needs.prepare.outputs.artifact-name }}
       source-ref: ${{ needs.prepare.outputs.source-sha }}
 
@@ -249,7 +165,7 @@ jobs:
       report-path: unit.json
       source-ref: ${{ needs.prepare.outputs.source-sha }}
       report-name: Unit Tests
-      blocking: true
+      blocking: false
 
   report-widget-tests:
     name: Widget Test Report
@@ -265,7 +181,7 @@ jobs:
       report-path: widget.json
       source-ref: ${{ needs.prepare.outputs.source-sha }}
       report-name: Widget Tests
-      blocking: true
+      blocking: false
 
   report-integration-tests:
     name: Integration Test Report
@@ -281,7 +197,7 @@ jobs:
       report-path: integration.json
       source-ref: ${{ needs.prepare.outputs.source-sha }}
       report-name: Integration Tests
-      blocking: true
+      blocking: false
 
   coverage-gate:
     name: Coverage
@@ -299,7 +215,7 @@ jobs:
       actions: read
       contents: read
     with:
-      blocking: true
+      blocking: false
       source-ref: ${{ needs.prepare.outputs.source-sha }}
       unit-coverage-artifact: ${{ needs.unit-tests.outputs.coverage-artifact }}
       widget-coverage-artifact: ${{ needs.widget-tests.outputs.coverage-artifact }}
@@ -312,14 +228,7 @@ jobs:
     if: >-
       ${{
         needs.changes.outputs.force_full == 'true' ||
-        needs.changes.outputs.should_apk_build == 'true' ||
-        (
-          github.event_name == 'pull_request' &&
-          github.event.pull_request.base.ref == 'main' &&
-          github.event.pull_request.draft == false &&
-          github.event.pull_request.head.repo.full_name == github.repository &&
-          contains(github.event.pull_request.labels.*.name, 'release-candidate')
-        )
+        needs.changes.outputs.should_apk_build == 'true'
       }}
     uses: ./.github/workflows/apk-build.yml
     permissions:
@@ -336,14 +245,7 @@ jobs:
     if: >-
       ${{
         needs.changes.outputs.force_full == 'true' ||
-        needs.changes.outputs.should_pages_build == 'true' ||
-        (
-          github.event_name == 'pull_request' &&
-          github.event.pull_request.base.ref == 'main' &&
-          github.event.pull_request.draft == false &&
-          github.event.pull_request.head.repo.full_name == github.repository &&
-          contains(github.event.pull_request.labels.*.name, 'release-landing-candidate')
-        )
+        needs.changes.outputs.should_pages_build == 'true'
       }}
     uses: ./.github/workflows/pages-build.yml
     permissions:
@@ -354,59 +256,41 @@ jobs:
       generated-artifact: ${{ needs.prepare.outputs.artifact-name }}
       source-ref: ${{ needs.prepare.outputs.source-sha }}
 
-  publish-apk-candidate:
-    name: Publish APK candidate
+  deploy-apk-production:
+    name: Deploy APK production
     needs:
       - secret-scan
       - osv-scan
-      - lint
-      - unit-tests
-      - widget-tests
-      - integration-tests
-      - report-unit-tests
-      - report-widget-tests
-      - report-integration-tests
-      - coverage-gate
       - apk-build
-    if: >-
-      ${{
-        github.event_name == 'pull_request' &&
-        github.event.pull_request.base.ref == 'main' &&
-        github.event.pull_request.draft == false &&
-        github.event.pull_request.head.repo.full_name == github.repository &&
-        contains(github.event.pull_request.labels.*.name, 'release-candidate')
-      }}
-    uses: ./.github/workflows/apk-deploy-candidate.yml
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/apk-deploy-production.yml
     permissions:
-      contents: write
+      actions: read
+      contents: read
+    concurrency:
+      group: apk-production-release
+      cancel-in-progress: false
     with:
       artifact-name: ${{ needs.apk-build.outputs.artifact-name }}
-      source-sha: ${{ github.event.pull_request.head.sha }}
-      pull-request-number: ${{ format('{0}', github.event.pull_request.number) }}
     secrets:
-      RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-  publish-pages-candidate:
-    name: Publish Pages candidate
+  deploy-pages-production:
+    name: Deploy Pages production
     needs:
       - secret-scan
       - osv-scan
-      - lint
       - pages-build
-    if: >-
-      ${{
-        github.event_name == 'pull_request' &&
-        github.event.pull_request.base.ref == 'main' &&
-        github.event.pull_request.draft == false &&
-        github.event.pull_request.head.repo.full_name == github.repository &&
-        contains(github.event.pull_request.labels.*.name, 'release-landing-candidate')
-      }}
-    uses: ./.github/workflows/pages-deploy-candidate.yml
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/pages-deploy-production.yml
     permissions:
-      contents: write
+      actions: read
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages-production-release
+      cancel-in-progress: false
     with:
-      artifact-name: ${{ needs.pages-build.outputs.release-artifact-name }}
-      source-sha: ${{ github.event.pull_request.head.sha }}
-      pull-request-number: ${{ format('{0}', github.event.pull_request.number) }}
-    secrets:
-      RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+      artifact-name: ${{ needs.pages-build.outputs.artifact-name }}

@@ -106,7 +106,9 @@ class _ImportSectionState extends State<ImportSection> {
                   child: SizedBox(
                     width: 240,
                     child: _FeatureScreenshot(
-                        asset: feature.imageAsset, feature: feature),
+                      asset: feature.imageAsset,
+                      feature: feature,
+                    ),
                   ),
                 ),
               ),
@@ -173,7 +175,9 @@ class _ImportSectionState extends State<ImportSection> {
               child: SizedBox(
                 width: 220,
                 child: _FeatureScreenshot(
-                    asset: feature.imageAsset, feature: feature),
+                  asset: feature.imageAsset,
+                  feature: feature,
+                ),
               ),
             ),
             const SizedBox(height: 32),
@@ -254,7 +258,9 @@ class _ExploreTracker extends StatelessWidget {
             Icon(
               done ? Icons.verified_rounded : Icons.touch_app_outlined,
               size: 18,
-              color: done ? kAmber : colours.whiteAccents.withValues(alpha: 0.7),
+              color: done
+                  ? kAmber
+                  : colours.whiteAccents.withValues(alpha: 0.7),
             ),
             const SizedBox(width: 10),
             Text(
@@ -313,15 +319,18 @@ class _FeatureScreenshot extends StatelessWidget {
       transitionBuilder: (child, animation) => FadeTransition(
         opacity: animation,
         child: ScaleTransition(
-            scale: Tween(begin: 0.97, end: 1.0).animate(animation),
-            child: child),
+          scale: Tween(begin: 0.97, end: 1.0).animate(animation),
+          child: child,
+        ),
       ),
       child: Container(
         key: ValueKey(asset),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-              color: colours.secondary.withValues(alpha: 0.25), width: 1),
+            color: colours.secondary.withValues(alpha: 0.25),
+            width: 1,
+          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.3),
@@ -375,7 +384,6 @@ class _FeatureScreenshot extends StatelessWidget {
   }
 }
 
-
 class FeatureCard extends StatefulWidget {
   final IconData icon;
   final String title;
@@ -410,8 +418,9 @@ class _FeatureCardState extends State<FeatureCard> {
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
-      cursor:
-          widget.onTap == null ? MouseCursor.defer : SystemMouseCursors.click,
+      cursor: widget.onTap == null
+          ? MouseCursor.defer
+          : SystemMouseCursors.click,
       child: GestureDetector(
         onTapDown: (_) => setState(() => _isPressed = true),
         onTapUp: (_) => setState(() => _isPressed = false),
@@ -428,16 +437,15 @@ class _FeatureCardState extends State<FeatureCard> {
             decoration: BoxDecoration(
               color: colours.secondary,
               borderRadius: BorderRadius.zero,
-              border: Border.all(
-                color: Colors.black,
-                width: active ? 4 : 3,
-              ),
+              border: Border.all(color: Colors.black, width: active ? 4 : 3),
               boxShadow: [
                 BoxShadow(
                   color: active ? colours.greenAccents : Colors.black,
                   blurRadius: 0,
-                  offset: Offset(active || _isHovered ? 6 : 4,
-                      active || _isHovered ? 6 : 4),
+                  offset: Offset(
+                    active || _isHovered ? 6 : 4,
+                    active || _isHovered ? 6 : 4,
+                  ),
                 ),
               ],
             ),
@@ -481,10 +489,11 @@ class _FeatureCardState extends State<FeatureCard> {
                           ),
                           if (widget.explored && !active) ...[
                             const SizedBox(width: 8),
-                            Icon(Icons.check_circle_rounded,
-                                size: 18,
-                                color: colours.background
-                                    .withValues(alpha: 0.35)),
+                            Icon(
+                              Icons.check_circle_rounded,
+                              size: 18,
+                              color: colours.background.withValues(alpha: 0.35),
+                            ),
                           ],
                         ],
                       ),

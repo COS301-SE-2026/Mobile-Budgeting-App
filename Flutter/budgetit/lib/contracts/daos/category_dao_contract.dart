@@ -37,16 +37,11 @@ abstract interface class CategoryDaoContract {
   /// Retrieves a category by [id].
   /// Returns 'null' if none exists, or if it is soft-deleted and
   /// [includeDeleted] is 'false'.
-  Future<Category?> getCategoryById(
-    String id, {
-    bool includeDeleted = false,
-  });
+  Future<Category?> getCategoryById(String id, {bool includeDeleted = false});
 
   /// Retrieves all categories.
   /// Soft-deleted categories are excluded unless [includeDeleted] is 'true'.
-  Future<List<Category>> getAllCategories({
-    bool includeDeleted = false,
-  });
+  Future<List<Category>> getAllCategories({bool includeDeleted = false});
 
   /// Retrieves all categories of the given [type].
   /// Soft-deleted categories are excluded unless [includeDeleted] is 'true'.

@@ -13,7 +13,10 @@ Widget _wrapProfilePage({Brightness brightness = Brightness.dark}) {
       brightness: brightness,
       extensions: <ThemeExtension<dynamic>>[colours],
     ),
-    home: const ProfilePage(),
+    home: ProfilePage(
+      isDarkMode: brightness == Brightness.dark,
+      onToggleTheme: () {},
+    ),
   );
 }
 

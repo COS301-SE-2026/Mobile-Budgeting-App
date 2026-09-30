@@ -1,12 +1,12 @@
 @Tags(['nfr'])
 library;
+
 import 'package:decimal/decimal.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:budgetit/database/app_database.dart';
 import 'package:budgetit/database/schema.dart';
 import '../unit/database/helpers.dart';
-
 
 void main() {
   late AppDatabase db;
@@ -76,14 +76,17 @@ void main() {
     final to = DateTime(2025, 6, 30);
 
     final sw = Stopwatch()..start();
-    final rows = await (db.select(db.transactions)
-          ..where((t) => t.transactionDate.isBetweenValues(from, to))
-          ..where((t) => t.deletedAt.isNull()))
-        .get();
+    final rows =
+        await (db.select(db.transactions)
+              ..where((t) => t.transactionDate.isBetweenValues(from, to))
+              ..where((t) => t.deletedAt.isNull()))
+            .get();
     sw.stop();
 
-    print('NFR-01-c  date-range query: ${sw.elapsedMilliseconds}ms '
-        '(${rows.length} rows)');
+    print(
+      'NFR-01-c  date-range query: ${sw.elapsedMilliseconds}ms '
+      '(${rows.length} rows)',
+    );
     expect(rows, isNotEmpty);
     expect(sw.elapsedMilliseconds, lessThan(300));
   });

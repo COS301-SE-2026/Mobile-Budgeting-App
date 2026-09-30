@@ -13,9 +13,11 @@ void main() {
 
   late AppDatabase db;
   late AiAnalyticsService service;
+  late BudgetTemplate budget;
 
-  setUp(() {
+  setUp(() async {
     db = openTestDatabase();
+    budget = await db.budgetDao.getOrCreateDefaultBudget();
 
     service = AiAnalyticsService(
       featureService: SpendingFeatureService(db.transactionDao),
@@ -32,6 +34,7 @@ void main() {
       shortDescription: 'Groceries',
       transactionDate: DateTime(2026, 8, 2),
       source: TransactionSource.manual,
+      budgetTemplateId: budget.id,
     );
 
     await db.transactionDao.insertTransaction(
@@ -40,6 +43,7 @@ void main() {
       shortDescription: 'Transport',
       transactionDate: DateTime(2026, 8, 8),
       source: TransactionSource.manual,
+      budgetTemplateId: budget.id,
     );
 
     final prediction = await service.getSpendingPrediction(

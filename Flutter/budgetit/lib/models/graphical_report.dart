@@ -23,10 +23,7 @@ class BudgetComparisonData {
 }
 
 class SpendingTrendData {
-  const SpendingTrendData({
-    required this.label,
-    required this.amount,
-  });
+  const SpendingTrendData({required this.label, required this.amount});
 
   final String label;
   final double amount;
@@ -49,8 +46,6 @@ class GraphicalReportData {
   final double totalExpenses;
 
   bool get hasFinancialData {
-    return totalIncome > 0 ||
-        totalExpenses > 0 ||
-        categorySpending.isNotEmpty;
+    return totalIncome > 0 || totalExpenses > 0 || categorySpending.isNotEmpty;
   }
 }

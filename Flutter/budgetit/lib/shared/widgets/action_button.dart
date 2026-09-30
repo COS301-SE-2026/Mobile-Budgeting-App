@@ -4,7 +4,7 @@ import '../../utils/app_colour.dart';
 class ActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
-  
+
   const ActionButton({super.key, required this.icon, required this.label});
 
   @override
@@ -41,13 +41,7 @@ class ActionButton extends StatelessWidget {
 
           const SizedBox(height: 10),
 
-          Text(
-            label,
-
-            textAlign: TextAlign.center,
-
-            style: context.colours.b1,
-          ),
+          Text(label, textAlign: TextAlign.center, style: context.colours.b1),
         ],
       ),
     );

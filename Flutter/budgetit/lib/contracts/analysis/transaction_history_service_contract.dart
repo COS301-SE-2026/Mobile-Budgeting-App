@@ -15,9 +15,7 @@ abstract interface class TransactionHistoryServiceContract {
   /// a continuous timeline.
   ///
   /// [monthsBack] must be between 1 and 24.
-  Future<List<MonthlySpendingSummary>> getMonthlyHistory({
-    int monthsBack = 6,
-  });
+  Future<List<MonthlySpendingSummary>> getMonthlyHistory({int monthsBack = 6});
 
   /// Builds the summary for a single calendar month.
   /// [month] is 1-based. Returns an empty summary rather than 'null' when

@@ -5,7 +5,14 @@ void main() {
   group('WebFileDownloaderImpl (non-web stub)', () {
     test('downloadBytes throws UnsupportedError', () {
       final downloader = WebFileDownloaderImpl();
-      expect(() => downloader.downloadBytes( bytes: [1, 2, 3], fileName: 'statement.csv', mimeType: 'text/csv'), throwsA(isA<UnsupportedError>()));
+      expect(
+        () => downloader.downloadBytes(
+          bytes: [1, 2, 3],
+          fileName: 'statement.csv',
+          mimeType: 'text/csv',
+        ),
+        throwsA(isA<UnsupportedError>()),
+      );
     });
 
     test('error message explains web-only support', () {
@@ -26,7 +33,14 @@ void main() {
       final downloader = WebFileDownloaderImpl();
       final bigBytes = List<int>.generate(10000, (i) => i % 256);
 
-      expect(() => downloader.downloadBytes( bytes: bigBytes, fileName: 'big_report.pdf', mimeType: 'application/pdf'), throwsUnsupportedError);
+      expect(
+        () => downloader.downloadBytes(
+          bytes: bigBytes,
+          fileName: 'big_report.pdf',
+          mimeType: 'application/pdf',
+        ),
+        throwsUnsupportedError,
+      );
     });
   });
 }

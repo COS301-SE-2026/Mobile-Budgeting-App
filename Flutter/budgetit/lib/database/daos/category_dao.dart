@@ -123,6 +123,14 @@ class CategoryDao extends DatabaseAccessor<AppDatabase>
     return q.get();
   }
 
+  /// Returns the number of categories.
+  ///
+  /// Includes soft deleted categories if [includeDeleted] is `true`.
+  Future<int> countCategories({bool includeDeleted = false}) async {
+    final categories = await getAllCategories(includeDeleted: includeDeleted);
+    return categories.length;
+  }
+
   /// Retrieves all categories of the given [type].
   ///
   /// By default, soft-deleted categories are excluded. Use [includeDeleted]
@@ -250,6 +258,14 @@ class CategoryDao extends DatabaseAccessor<AppDatabase>
           .go();
       await (delete(categories)..where((t) => t.id.equals(id))).go();
     });
+  }
+
+  /// Hard deletes all categories and their closure entries.
+  ///
+  /// Callers must remove dependants first.
+  Future<void> hardDeleteAllCategories() async {
+    await delete(categoryClosure).go();
+    await delete(categories).go();
   }
 
   /// Restores a soft-deleted category by clearing its [deletedAt] timestamp.

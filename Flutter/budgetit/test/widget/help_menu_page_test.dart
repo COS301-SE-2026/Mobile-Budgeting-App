@@ -10,9 +10,7 @@ Widget wrapHelpMenu() {
   return ChangeNotifierProvider(
     create: (_) => ThemeProvider(),
     child: MaterialApp(
-      theme: ThemeData(
-        extensions: [MyColours.lightTheme],
-      ),
+      theme: ThemeData(extensions: [MyColours.lightTheme]),
       home: const HelpMenuPage(),
     ),
   );
@@ -45,17 +43,16 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        find.text('Go to the Transaction Manager page using the money icon in the bottom navigation.'),
+        find.text(
+          'Go to the Transaction Manager page using the money icon in the bottom navigation.',
+        ),
         findsOneWidget,
       );
       expect(
         find.text('Tap the plus button at the bottom of the screen.'),
         findsOneWidget,
       );
-      expect(
-        find.text('Tap Add to save the transaction.'),
-        findsOneWidget,
-      );
+      expect(find.text('Tap Add to save the transaction.'), findsOneWidget);
     });
 
     testWidgets('help page is scrollable', (tester) async {

@@ -3,8 +3,8 @@ name: APK Production Deploy
 on:
   workflow_call:
     inputs:
-      source-sha:
-        description: Source commit
+      artifact-name:
+        description: Build artifact from the current workflow run
         required: true
         type: string
     secrets:
@@ -24,10 +24,10 @@ jobs:
       - name: Check inputs
         shell: bash
         env:
-          SOURCE_SHA: ${{ inputs.source-sha }}
+          ARTIFACT_NAME: ${{ inputs.artifact-name }}
         run: |
-          if [ -z "$SOURCE_SHA" ]; then
-            echo 'source-sha is missing.' >&2
+          if [ -z "$ARTIFACT_NAME" ]; then
+            echo 'artifact-name is missing.' >&2
             exit 1
           fi
 
@@ -38,33 +38,13 @@ jobs:
     environment: production
     permissions:
       contents: read
-      pull-requests: read
+      actions: read
     steps:
-      - name: Checkout release
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Download built APK
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
-          ref: ${{ github.ref }}
-          fetch-depth: 0
-
-      - name: Find candidate
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: ./.github/CI-scripts/validate-release-candidate.sh "${GITHUB_REF_NAME}" apk "${GITHUB_ENV}"
-
-      - name: Download candidate APK
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPOSITORY: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-
-          mkdir -p dist
-          gh release download "$CANDIDATE_RELEASE_TAG" \
-            --repo "$REPOSITORY" \
-            --pattern '*.apk' \
-            --dir dist
+          name: ${{ inputs.artifact-name }}
+          path: dist
 
       - name: Check APK file
         shell: bash

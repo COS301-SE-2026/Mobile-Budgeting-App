@@ -10,7 +10,6 @@ import 'package:budgetit/shared/widgets/landingpage/about_section.dart';
 import 'package:budgetit/shared/widgets/landingpage/footer.dart';
 import 'package:budgetit/utils/app_colour.dart';
 
-
 Widget _wrap() {
   return MaterialApp(
     debugShowCheckedModeBanner: false,
@@ -22,9 +21,7 @@ Widget _wrap() {
   );
 }
 
-
 void main() {
-
   group('Landing Page', () {
     testWidgets('builds without throwing and show a scaffold', (tester) async {
       await tester.pumpWidget(_wrap());
@@ -45,38 +42,46 @@ void main() {
       expect(find.byType(DownloadSection), findsOneWidget);
       expect(find.byType(AboutSection), findsOneWidget);
       expect(find.byType(Footer), findsOneWidget);
-    });    
-
-    testWidgets('sections are laid out in a single scrollable column in the documented order', (tester) async {
-      await tester.pumpWidget(_wrap());
-      await tester.pump();
-
-      expect(find.byType(SingleChildScrollView), findsOneWidget);
-      expect(find.byType(Column), findsWidgets);
-      final heroY = tester.getTopLeft(find.byType(HeroSection)).dy;
-      final importY = tester.getTopLeft(find.byType(ImportSection)).dy;
-      final howItWorksY = tester.getTopLeft(find.byType(HowItWorks)).dy;
-      final downloadY = tester.getTopLeft(find.byType(DownloadSection)).dy;
-      final aboutY = tester.getTopLeft(find.byType(AboutSection)).dy;
-      final footerY = tester.getTopLeft(find.byType(Footer)).dy;
-
-      expect(heroY, lessThan(importY));
-      expect(importY, lessThan(howItWorksY));
-      expect(howItWorksY, lessThan(downloadY));
-      expect(downloadY, lessThan(aboutY));
-      expect(aboutY, lessThan(footerY));
     });
 
-    testWidgets('the nav bar is pinned above the scroll content (Stack overlay)', (tester) async {
-      await tester.pumpWidget(_wrap());
-      await tester.pump();
+    testWidgets(
+      'sections are laid out in a single scrollable column in the documented order',
+      (tester) async {
+        await tester.pumpWidget(_wrap());
+        await tester.pump();
 
-      expect(find.byType(Stack), findsWidgets);
-      final navBarTop = tester.getTopLeft(find.byType(CustomAppBar)).dy;
-      expect(navBarTop, equals(0.0));
-    });
+        expect(find.byType(SingleChildScrollView), findsOneWidget);
+        expect(find.byType(Column), findsWidgets);
+        final heroY = tester.getTopLeft(find.byType(HeroSection)).dy;
+        final importY = tester.getTopLeft(find.byType(ImportSection)).dy;
+        final howItWorksY = tester.getTopLeft(find.byType(HowItWorks)).dy;
+        final downloadY = tester.getTopLeft(find.byType(DownloadSection)).dy;
+        final aboutY = tester.getTopLeft(find.byType(AboutSection)).dy;
+        final footerY = tester.getTopLeft(find.byType(Footer)).dy;
 
-    testWidgets('CustomAppBar starts with "Home" as the active section', (tester) async {
+        expect(heroY, lessThan(importY));
+        expect(importY, lessThan(howItWorksY));
+        expect(howItWorksY, lessThan(downloadY));
+        expect(downloadY, lessThan(aboutY));
+        expect(aboutY, lessThan(footerY));
+      },
+    );
+
+    testWidgets(
+      'the nav bar is pinned above the scroll content (Stack overlay)',
+      (tester) async {
+        await tester.pumpWidget(_wrap());
+        await tester.pump();
+
+        expect(find.byType(Stack), findsWidgets);
+        final navBarTop = tester.getTopLeft(find.byType(CustomAppBar)).dy;
+        expect(navBarTop, equals(0.0));
+      },
+    );
+
+    testWidgets('CustomAppBar starts with "Home" as the active section', (
+      tester,
+    ) async {
       await tester.pumpWidget(_wrap());
       await tester.pump();
 
@@ -84,8 +89,9 @@ void main() {
       expect(appBar.activeSection, equals('Home'));
     });
 
-
-    testWidgets('invoking each CustomAppBar scroll callback does not throw', (tester) async {
+    testWidgets('invoking each CustomAppBar scroll callback does not throw', (
+      tester,
+    ) async {
       await tester.pumpWidget(_wrap());
       await tester.pump();
       final appBar = tester.widget<CustomAppBar>(find.byType(CustomAppBar));
@@ -109,19 +115,24 @@ void main() {
       expect(find.byType(LandingPage), findsOneWidget);
     });
 
-    testWidgets('scrolling the page updates the active section without throwing', (tester) async {
-      await tester.pumpWidget(_wrap());
-      await tester.pump();
-      final scrollable = find.byType(SingleChildScrollView);
-      expect(scrollable, findsOneWidget);
-      for (var i = 0; i < 5; i++) {
-        await tester.drag(scrollable, const Offset(0, -600));
+    testWidgets(
+      'scrolling the page updates the active section without throwing',
+      (tester) async {
+        await tester.pumpWidget(_wrap());
         await tester.pump();
-      }
-      expect(find.byType(CustomAppBar), findsOneWidget);
-    });
+        final scrollable = find.byType(SingleChildScrollView);
+        expect(scrollable, findsOneWidget);
+        for (var i = 0; i < 5; i++) {
+          await tester.drag(scrollable, const Offset(0, -600));
+          await tester.pump();
+        }
+        expect(find.byType(CustomAppBar), findsOneWidget);
+      },
+    );
 
-    testWidgets('disposes cleanly without leaking the scroll listener', (tester) async {
+    testWidgets('disposes cleanly without leaking the scroll listener', (
+      tester,
+    ) async {
       await tester.pumpWidget(_wrap());
       await tester.pump();
       await tester.pumpWidget(const SizedBox.shrink());
@@ -129,9 +140,5 @@ void main() {
 
       expect(find.byType(LandingPage), findsNothing);
     });
-
-
   });
-
-
 }

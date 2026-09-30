@@ -19,15 +19,9 @@ void main() {
 
       final prediction = service.predict(features);
 
-      expect(
-        prediction.predictedMonthEndSpending,
-        closeTo(4500.0, 0.001),
-      );
+      expect(prediction.predictedMonthEndSpending, closeTo(4500.0, 0.001));
 
-      expect(
-        prediction.currentSpending,
-        equals(1500.0),
-      );
+      expect(prediction.currentSpending, equals(1500.0));
     });
 
     test('calculates predicted increase correctly', () {
@@ -76,10 +70,7 @@ void main() {
 
       final prediction = service.predict(features);
 
-      expect(
-        prediction.confidence,
-        inInclusiveRange(0.0, 1.0),
-      );
+      expect(prediction.confidence, inInclusiveRange(0.0, 1.0));
     });
 
     test('handles invalid zero days elapsed safely', () {
@@ -95,10 +86,7 @@ void main() {
 
       final prediction = service.predict(features);
 
-      expect(
-        prediction.predictedMonthEndSpending,
-        equals(500.0),
-      );
+      expect(prediction.predictedMonthEndSpending, equals(500.0));
 
       expect(prediction.confidence, equals(0.0));
     });

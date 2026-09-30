@@ -62,9 +62,49 @@ jobs:
           name: ${{ inputs.generated-artifact }}
           path: Flutter/budgetit
 
-      - name: Check toolchain
+      - name: Check APK toolchain
         shell: bash
-        run: ./.github/CI-scripts/verify-runner-toolchain.sh --diagnostic
+        env:
+          EXPECTED_JAVA_MAJOR: '17'
+          EXPECTED_GRADLE_VERSION: '9.1.0'
+          EXPECTED_AGP_VERSION: '8.12.1'
+          EXPECTED_KOTLIN_VERSION: '2.2.20'
+          EXPECTED_NDK_VERSION: '28.2.13676358'
+        run: |
+          set -euo pipefail
+          source .github/CI-scripts/ci-common.sh
+          ci_require_cmd java sed
+
+          check_version() {
+            local name="$1" actual="$2" expected="$3"
+            echo "$name: ${actual:-unknown}"
+            if [ "$actual" != "$expected" ]; then
+              echo "Expected $name $expected, found ${actual:-unknown}." >&2
+              exit 1
+            fi
+          }
+
+          java_version=$(java -version 2>&1 | ci_first_match_in_text '^.*version "\([0-9][0-9._-]*\)".*$')
+          check_version Java "${java_version%%.*}" "$EXPECTED_JAVA_MAJOR"
+
+          android_dir=Flutter/budgetit/android
+          settings_file="$android_dir/settings.gradle.kts"
+          agp_version=$(ci_first_match_in_text '.*id("com.android.application")[[:space:]]*version[[:space:]]*"\([^"]*\)".*' < "$settings_file")
+          kotlin_version=$(ci_first_match_in_text '.*id("org.jetbrains.kotlin.android")[[:space:]]*version[[:space:]]*"\([^"]*\)".*' < "$settings_file")
+          check_version 'Android Gradle Plugin' "$agp_version" "$EXPECTED_AGP_VERSION"
+          check_version 'Kotlin Gradle Plugin' "$kotlin_version" "$EXPECTED_KOTLIN_VERSION"
+
+          # Flutter builds with the project wrapper, not the runner's global Gradle.
+          gradle_output=$(cd "$android_dir" && ./gradlew --version)
+          printf '%s\n' "$gradle_output"
+          gradle_version=$(printf '%s\n' "$gradle_output" | ci_first_match_in_text '^Gradle \([0-9][0-9.]*\).*$')
+          check_version 'Gradle wrapper' "$gradle_version" "$EXPECTED_GRADLE_VERSION"
+
+          sdk_root=${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}
+          if [ -z "$sdk_root" ] || [ ! -d "$sdk_root/ndk/$EXPECTED_NDK_VERSION" ]; then
+            echo "Android SDK with NDK $EXPECTED_NDK_VERSION is required." >&2
+            exit 1
+          fi
 
       - name: Apply Gradle settings
         shell: bash

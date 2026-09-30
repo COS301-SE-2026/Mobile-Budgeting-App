@@ -767,10 +767,7 @@ class _GoalsPageState extends State<GoalsPage> {
         children: [
           Text(
             'TOTAL SAVED',
-            style: colours.h2.copyWith(
-              color: cardTextColor,
-              fontSize: 14,
-            ),
+            style: colours.h2.copyWith(color: cardTextColor, fontSize: 14),
           ),
           const SizedBox(height: 18),
           FittedBox(
