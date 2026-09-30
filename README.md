@@ -146,6 +146,7 @@ curl http://localhost:8000/health
 
 How to run the manual / tool-assisted tests for the non-functional requirements
 (NFRs) defined in [`docs/SAS.md`](SAS.md) §2.5.
+Evidence in ['docs/assets/nfr']
 
 | ID | Requirement (quantified) | Tool | Target |
 |----|--------------------------|------|--------|
