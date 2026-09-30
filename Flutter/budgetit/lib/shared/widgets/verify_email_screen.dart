@@ -2,20 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../utils/app_colour.dart';
 
 class VerifyEmailScreen extends StatefulWidget {
   final String email;
-  const VerifyEmailScreen({super.key, required this.email});
+  final String? password;
+
+  const VerifyEmailScreen({super.key, required this.email, this.password});
 
   @override
   State<VerifyEmailScreen> createState() => _VerifyEmailScreenState();
 }
 
 class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
-  static const _green = Color(0xFF04240C);
-  static const _cream = Color(0xFFDDD6AE);
-  static const _glassColor = Color(0x22DDD6AE);
-  static const _glassBorder = Color(0x44DDD6AE);
+  Color get _green => context.colours.primary;
+  Color get _cream => context.colours.cardText;
+  Color get _mutedCream => _cream.withValues(alpha: 0.7);
+  Color get _borderColor => context.colours.category;
 
   // One controller per digit box
   final List<TextEditingController> _controllers = List.generate(
@@ -67,12 +70,12 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   Widget _buildBackButton(BuildContext context) {
     return GestureDetector(
       onTap: () => Navigator.pop(context),
-      child: const Row(
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.arrow_back_ios, color: Colors.white, size: 16),
-          SizedBox(width: 4),
-          Text('Back', style: TextStyle(color: Colors.white, fontSize: 14)),
+          Icon(Icons.arrow_back_ios, color: _cream, size: 16),
+          const SizedBox(width: 4),
+          Text('Back', style: TextStyle(color: _cream, fontSize: 14)),
         ],
       ),
     );
@@ -82,10 +85,10 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Verify your email',
-          style: TextStyle(
-            color: Colors.white,
+          style: context.colours.h2.copyWith(
+            color: _cream,
             fontSize: 28,
             fontWeight: FontWeight.bold,
           ),
@@ -93,15 +96,15 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
         const SizedBox(height: 12),
         RichText(
           text: TextSpan(
-            style: const TextStyle(color: Colors.white60, fontSize: 14),
+            style: context.colours.h2.copyWith(
+              color: _mutedCream,
+              fontSize: 14,
+            ),
             children: [
               const TextSpan(text: 'We sent a 6-digit code to\n'),
               TextSpan(
                 text: widget.email,
-                style: const TextStyle(
-                  color: Color(0xFFDDD6AE),
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(color: _cream, fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -113,9 +116,9 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   Widget _buildCodeCard(AppAuthProvider auth) {
     return Container(
       decoration: BoxDecoration(
-        color: _glassColor,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _glassBorder),
+        color: context.colours.blendedprimary,
+        border: Border.all(color: _borderColor, width: 4),
+        boxShadow: [BoxShadow(color: _borderColor, offset: const Offset(6, 6))],
       ),
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -138,9 +141,8 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
           height: 54,
           child: Container(
             decoration: BoxDecoration(
-              color: const Color(0x1ADDD6AE),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: _glassBorder),
+              color: _cream.withValues(alpha: 0.1),
+              border: Border.all(color: _borderColor, width: 3),
             ),
             child: TextField(
               controller: _controllers[index],
@@ -148,8 +150,8 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
               textAlign: TextAlign.center,
               keyboardType: TextInputType.number,
               maxLength: 1,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: _cream,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -181,8 +183,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: const Color(0x33CF6679),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: const Color(0xFFCF6679)),
+          border: Border.all(color: const Color(0xFFCF6679), width: 3),
         ),
         child: Row(
           children: [
@@ -210,7 +211,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
           foregroundColor: _green,
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: _borderColor, width: 4),
           ),
           disabledBackgroundColor: const Color(0x88DDD6AE),
         ),
@@ -236,16 +237,13 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
       child: GestureDetector(
         onTap: _handleResend,
         child: RichText(
-          text: const TextSpan(
-            style: TextStyle(color: Colors.white60, fontSize: 13),
+          text: TextSpan(
+            style: TextStyle(color: _mutedCream, fontSize: 13),
             children: [
-              TextSpan(text: "Didn't receive a code? "),
+              const TextSpan(text: "Didn't receive a code? "),
               TextSpan(
                 text: 'Resend',
-                style: TextStyle(
-                  color: Color(0xFFDDD6AE),
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(color: _cream, fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -282,7 +280,14 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     }
     final success = await auth.confirmSignUp(widget.email, code);
     if (success && mounted) {
-      // Verification done — go back to login
+      final password = widget.password;
+      if (password != null && await auth.signIn(widget.email, password)) {
+        if (!mounted) return;
+        Navigator.popUntil(context, (route) => route.isFirst);
+        return;
+      }
+
+      // Verification succeeded, but automatic sign-in was unavailable.
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Email verified! Please log in.'),

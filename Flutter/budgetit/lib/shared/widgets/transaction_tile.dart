@@ -40,12 +40,7 @@ class TransactionTile extends StatelessWidget {
 
         border: Border.all(color: Colors.black, width: 4),
 
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black,
-            offset: const Offset(6, 6),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black, offset: const Offset(6, 6))],
       ),
 
       child: Column(
@@ -140,9 +135,9 @@ class TransactionTile extends StatelessWidget {
                     amount,
 
                     style: colours.h2.copyWith(
-                      fontSize: 19,
+                      fontSize: 21,
 
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w800,
 
                       color: isExpense
                           ? Colors.redAccent

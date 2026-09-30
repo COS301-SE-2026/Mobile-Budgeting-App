@@ -29,6 +29,7 @@ void main() {
     return dao.insertTransaction(
       amount: amount ?? Decimal.parse('10.00'),
       type: type,
+      budgetTemplateId: 'test-budget',
       shortDescription: shortDescription ?? 'Test transaction',
       transactionDate: transactionDate ?? DateTime(2025, 6, 15),
       source: source,
@@ -41,6 +42,7 @@ void main() {
       final tx = await dao.insertTransaction(
         amount: Decimal.parse('99.50'),
         type: TransactionType.expense,
+        budgetTemplateId: 'test-budget',
         shortDescription: 'Coffee',
         transactionDate: DateTime(2025, 1, 1),
         source: TransactionSource.manual,
@@ -66,6 +68,7 @@ void main() {
       final tx = await dao.insertTransaction(
         amount: Decimal.parse('5.00'),
         type: TransactionType.expense,
+        budgetTemplateId: 'test-budget',
         shortDescription: 'Lunch',
         longDescription: 'Lunch at the canteen',
         transactionDate: DateTime(2025, 3, 1),
@@ -87,6 +90,7 @@ void main() {
           () async => dao.insertTransaction(
             amount: Decimal.parse('1.00'),
             type: TransactionType.expense,
+            budgetTemplateId: 'test-budget',
             shortDescription: 'x' * 101,
             transactionDate: DateTime(2025, 1, 1),
             source: TransactionSource.manual,
@@ -100,6 +104,7 @@ void main() {
       final tx = await dao.insertTransaction(
         amount: Decimal.parse('1.00'),
         type: TransactionType.expense,
+        budgetTemplateId: 'test-budget',
         shortDescription: 'x' * 100,
         transactionDate: DateTime(2025, 1, 1),
         source: TransactionSource.manual,
@@ -115,6 +120,7 @@ void main() {
           () async => dao.insertTransaction(
             amount: Decimal.parse('1.00'),
             type: TransactionType.expense,
+            budgetTemplateId: 'test-budget',
             shortDescription: 'Short',
             longDescription: 'x' * 501,
             transactionDate: DateTime(2025, 1, 1),
@@ -129,6 +135,7 @@ void main() {
       final tx = await dao.insertTransaction(
         amount: Decimal.parse('1.00'),
         type: TransactionType.expense,
+        budgetTemplateId: 'test-budget',
         shortDescription: 'Short',
         longDescription: 'x' * 500,
         transactionDate: DateTime(2025, 1, 1),

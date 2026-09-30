@@ -32,8 +32,8 @@ void main() {
     expect(find.text('Income'), findsOneWidget);
     expect(find.text('Expenses'), findsOneWidget);
 
-    // 3. Recent transactions section loads.
-    expect(find.text('RECENT TRANSACTIONS'), findsOneWidget);
+    // 3. Transactions section loads.
+    expect(find.text('TRANSACTIONS'), findsOneWidget);
 
     // 4. Empty database state is shown.
     expect(find.text('No transactions yet'), findsOneWidget);

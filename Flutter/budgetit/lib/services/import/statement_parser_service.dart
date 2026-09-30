@@ -4,6 +4,7 @@ import 'package:decimal/decimal.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 import '../../models/import/parsed_transaction.dart';
+import 'pdf_layout_extractor.dart';
 import 'package:pdfrx/pdfrx.dart';
 import 'package:flutter/foundation.dart';
 import 'schema_discovery_service.dart';
@@ -34,14 +35,25 @@ class _CsvCandidate {
   Decimal get absAmount => signedAmount.abs();
 }
 
+class _ColumnBand {
+  final String role;
+  double left;
+  double right;
+  _ColumnBand(this.role, this.left, this.right);
+}
+
+
 
 class StatementParserService {
   final SchemaDiscoveryService _schemaDiscovery;
+  final PdfLayoutExtractor _layoutExtractor;
 
   StatementParserService({
      SchemaDiscoveryService? schemaDiscovery,
+      PdfLayoutExtractor? layoutExtractor,
   })
-    : _schemaDiscovery = schemaDiscovery ?? SchemaDiscoveryService(classifier: StubSchemaClassifier());
+    : _schemaDiscovery = schemaDiscovery ?? SchemaDiscoveryService(classifier: StubSchemaClassifier()),
+      _layoutExtractor = layoutExtractor ?? const PdfLayoutExtractor();
 
 
     Future<List<ParsedTransaction>> parse (String path, {SchemaConfirmationCallback? onNeedsSchemaConfirmation}) async {
@@ -57,7 +69,7 @@ class StatementParserService {
 
     Future<List<ParsedTransaction>> _parseCsv(String path, {SchemaConfirmationCallback? onNeedsSchemaConfirmation}) async {
         final content = await File(path).readAsString();
-        final rows = const CsvToListConverter(eol: '\n').convert(content);
+        final rows = const CsvDecoder().convert(content);
         if (rows.length < 2) throw FormatException('CSV has no data rows.');
         
         final headers = rows.first.map((h) => h.toString().toLowerCase().trim()).toList();
@@ -126,13 +138,14 @@ class StatementParserService {
           return _finalizeCsv(candidates, (c) {
             final m = c.typeMarker!;
             return m.contains('CREDIT') || m == 'CR' || m.contains('IN');
-          });
+          }, headers: headers);
         }
 
         final hasNegative = candidates.any((c) => c.signedAmount < Decimal.zero);
         final hasPositive = candidates.any((c) => c.signedAmount > Decimal.zero);
-        if (hasNegative && hasPositive) {
-          return _finalizeCsv( candidates, (c) => c.signedAmount >= Decimal.zero);
+        final hasExplicitMarker = candidates.any((c) => c.explicitMarker != null);
+        if ((hasNegative && hasPositive) || !hasExplicitMarker) {
+          return _finalizeCsv( candidates, (c) => c.signedAmount >= Decimal.zero, headers: headers);
         }
 
         final rowCandidates = candidates
@@ -173,7 +186,7 @@ class StatementParserService {
               rawSource: '',
           );
         return resolveIsIncome(asRow, schema);
-        });
+        }, headers: headers);
       } 
         
        /* final results = <ParsedTransaction>[];
@@ -283,14 +296,15 @@ class StatementParserService {
 
     List<ParsedTransaction> _finalizeCsv(
       List<_CsvCandidate> candidates,
-      bool Function(_CsvCandidate) isIncomeResolver,
-    ) {
+      bool Function(_CsvCandidate) isIncomeResolver, {
+      List<String>? headers,
+    }) {
       final results = <ParsedTransaction>[];
       for(final c in candidates) {
         final isIncome = isIncomeResolver(c);
         final rawMap = <String, String>{
-          for(var j=0;j < c.rawRow.length; j++) 
-            'col_$j' : c.rawRow[j].toString(),
+          for(var j=0;j < c.rawRow.length; j++)
+            (headers != null && j < headers.length ? headers[j] : 'col_$j') : c.rawRow[j].toString(),
         };
         results.add(ParsedTransaction(
           date: c.date,
@@ -319,7 +333,7 @@ class StatementParserService {
     return (signedAmount: value, explicitMarker: explicitMarker);
   }
 
-    Future<List<ParsedTransaction>> _parsePdf(String path, { SchemaConfirmationCallback? onNeedsSchemaConfirmation}) async {
+    /*Future<List<ParsedTransaction>> _parsePdf(String path, { SchemaConfirmationCallback? onNeedsSchemaConfirmation}) async {
         try {
             final text = await _extractPdfText(path);
 
@@ -341,9 +355,46 @@ class StatementParserService {
         } catch (e) {
             throw FormatException('Could not extract text from PDf: $e');
         }
+    }*/
+
+    Future<List<ParsedTransaction>> _parsePdf(String path, { SchemaConfirmationCallback? onNeedsSchemaConfirmation}) async {
+        try {
+            final layoutLines = await _layoutExtractor.extractLines(path);
+
+            if (kDebugMode) {
+              print('---- PDF LAYOUT LINES (${layoutLines.length}) ----');
+              for (var i = 0; i < layoutLines.length; i++) {
+                print('[$i] "${layoutLines[i].text}"');
+              }
+              print('--- END PDF LAYOUT LINES ---');
+            }
+
+            final table = _extractTableCandidates(layoutLines);
+            if (table != null && table.candidates.isNotEmpty) {
+              if (kDebugMode) {
+                print('PDF: column table path, ${table.candidates.length} rows,'
+                    ' ${table.schema.signConvention.name}');
+              }
+              return _candidatesToTransactions(
+                table.candidates,
+                fixedSchema: table.schema,
+              );
+            }
+
+            return await parsePdfLines(
+              layoutLines.map((l) => l.text).toList(),
+              onNeedsSchemaConfirmation: onNeedsSchemaConfirmation,
+            );
+        } on ImportCancelledException {
+          rethrow;
+        } catch (e) {
+            throw FormatException('Could not extract text from PDF: $e');
+        }
     }
 
-    Future<String> _extractPdfText(String path) async {
+
+
+    /*Future<String> _extractPdfText(String path) async {
         final document = await PdfDocument.openFile(path);
         final buffer = StringBuffer();
         for (int i = 1; i <= document.pages.length; i++){
@@ -354,7 +405,13 @@ class StatementParserService {
             }
         }
         return buffer.toString();
-    }
+    }*/
+
+ /*   Future<List<String>> _extractPdfLines(String path) async {
+        final layoutLines = await _layoutExtractor.extractLines(path);
+        return layoutLines.map((l) => l.text).toList();
+    }*/
+
 
     static const List<String> _skipKeywords = [
       'total', 'balance', 'account #', 'transaction', 'description','summary', 'page number',
@@ -379,8 +436,23 @@ class StatementParserService {
       r'\$?R?\s?([\-]?(?:\d+(?:[,\s]\d{3})*[.,]\d{2}|\b\d{1,6}\b))(-)?\s*(Cr|Dr)?',
       caseSensitive: false,
     );
+    static final RegExp _strictAmountPattern = RegExp(
+      r'(?:(?<![A-Za-z])R)?\s?([\-]?\d+(?:,\d{3})*[.,]\d{2})(-)?\s*(Cr|Dr)?',
+      caseSensitive: false,
+    );
     //static final RegExp _periodRangePattern = RegExp( r'^\s*\d{1,2}\s+[A-Za-z]{3}\s+\d{4}\s+to\s+\d{1,2}\s+[A-Za-z]{3}\s+\d{4}\s*$', caseSensitive: false);
         static final RegExp _periodRangePattern = RegExp( r'^\s*(?:statement\s+from\s+)?\d{1,2}\s+[A-Za-z]{3,9}\s+\d{4}\s+to\s+\d{1,2}\s+[A-Za-z]{3,9}\s+\d{4}\s*$', caseSensitive: false);
+
+    static const List<String> _balanceLayoutSkipKeywords = [
+      'see money differently', 'ombudsman', 'reg no', 'tran list',
+      'brought forward', 'carried forward', 'utilisation', 'funds received',
+      'funds used', 'initiation fee', 'other charges', 'vat inclusive',
+      'vat calculated', 'client vat', 'account type', 'envelope',
+      'annual credit interest', 'item cost', 'lost cards', 'client services',
+      'tax invoice',
+    ];
+
+    static String _normaliseForKeywords(String s) => s.toLowerCase().replaceAll(RegExp(r'\s+'), ' ').trim();
 
     List<CandidateRow> _extractPdfCandidates(List<String> lines) {
       final candidates = <CandidateRow>[];
@@ -388,6 +460,13 @@ class StatementParserService {
       DateTime? pendingDate;
       String? pendingDescription;
       String? lastGoodDescription;
+
+      final isBalanceColumnLayout = lines.any((l) {
+        final s = _normaliseForKeywords(l);
+        return s.contains('tran list no') || s.contains('see money differently');
+      });
+      Decimal? runningBalance;
+
 
       void resetPendingWrap() {
         pendingDate = null;
@@ -397,12 +476,19 @@ class StatementParserService {
       for (final rawLine in lines) {
         final trimmed = rawLine.trim();
       if (trimmed.isEmpty) continue;
-      final lower = trimmed.toLowerCase();
-      if (_skipKeywords.any((k) => lower.contains(k))) {
+      final lower = _normaliseForKeywords(trimmed);
+      if (isBalanceColumnLayout &&
+          (lower.contains('opening balance') || lower.contains('balance brought forward'))) {
+        final seed = _trailingBalance(trimmed);
+        if (seed != null) runningBalance = seed;
+      }
+      if (_skipKeywords.any((k) => lower.contains(k)) ||
+          (isBalanceColumnLayout && _balanceLayoutSkipKeywords.any((k) => lower.contains(k)))) {
         pendingLines.clear();
         resetPendingWrap();
         continue;
       }
+
       if(_periodRangePattern.hasMatch(trimmed)){
         pendingLines.clear();
         resetPendingWrap();
@@ -415,7 +501,7 @@ class StatementParserService {
       //: _amountPattern.firstMatch(trimmed);
       final beforeDateText = dateMatch != null ? trimmed.substring(0, dateMatch.start) : '';
       final afterDateText = dateMatch != null ? trimmed.substring(dateMatch.end) : trimmed;
-      final beforeAmountMatch = (dateMatch != null && !trimmed.contains('=')) ? _selectAmountMatch(beforeDateText) : null;
+      final beforeAmountMatch = (dateMatch != null && !trimmed.contains('=')) ? _selectAmountMatch(beforeDateText, strict: isBalanceColumnLayout) : null;
       final usingBeforeAmount = beforeAmountMatch != null;
 
       //final searchText = dateMatch != null ? trimmed.substring(dateMatch.end) : trimmed;
@@ -425,7 +511,7 @@ class StatementParserService {
       : (allAmountMatches.length >= 2 ? allAmountMatches[allAmountMatches.length - 2]  
       : allAmountMatches.last);*/
       //final amountMatch = trimmed.contains('=') ? null : _selectAmountMatch(searchText);
-      final amountMatch = usingBeforeAmount ? beforeAmountMatch : (trimmed.contains('=') ? null : _selectAmountMatch(afterDateText));
+      final amountMatch = usingBeforeAmount ? beforeAmountMatch : (trimmed.contains('=') ? null : _selectAmountMatch(afterDateText, strict: isBalanceColumnLayout));
       if (dateMatch == null && amountMatch != null && pendingDate != null ) {
         /*if(dateMatch == null && amountMatch != null){
           final remainder = trimmed.replaceFirst(amountMatch.group(0)!, '').trim();
@@ -583,7 +669,7 @@ class StatementParserService {
             ? afterDate.substring(amountPos + amountStr.length)
             : '';
 
-        final marker = _resolveSignMarker(
+        var marker = _resolveSignMarker(
           description: description,
           afterAmountText: afterAmount,
           isNegative: isNegative,
@@ -591,11 +677,28 @@ class StatementParserService {
           crDrSuffix: crDrSuffix,
         );
 
-        final descriptionParts = <String>[
-          ...pendingLines,
-          if (beforeDate.isNotEmpty) beforeDate,
-          if (description.isNotEmpty) description,
-        ];
+
+        if (isBalanceColumnLayout) {
+          final lineBalance = _trailingBalance(afterAmount);
+          final prev = runningBalance;
+          if (marker == null && lineBalance != null && prev != null) {
+            if (prev + absAmount == lineBalance) {
+              marker = 'CREDIT';
+            } else if (prev - absAmount == lineBalance) {
+              marker = 'DEBIT';
+            }
+          }
+          if (lineBalance != null) runningBalance = lineBalance;
+        }
+
+        final descriptionParts = isBalanceColumnLayout
+            ? <String>[if (description.isNotEmpty) description]
+            : <String>[
+                ...pendingLines,
+                if (beforeDate.isNotEmpty) beforeDate,
+                if (description.isNotEmpty) description,
+              ];
+
         final joinedDescription = descriptionParts.join(' ').replaceAll(RegExp(r'\s+'), ' ').trim();
         final finalDescription = joinedDescription.isNotEmpty ? joinedDescription : (lastGoodDescription != null ? '$lastGoodDescription (Fee)' : 'Bank Fee');
         if (joinedDescription.isNotEmpty) {
@@ -643,11 +746,13 @@ class StatementParserService {
 
 
 
-Match? _selectAmountMatch(String text) {
-  for (final m in _amountPattern.allMatches(text)) {
+Match? _selectAmountMatch(String text, {bool strict = false}) {
+
+  final pattern = strict ? _strictAmountPattern : _amountPattern;
+  for (final m in pattern.allMatches(text)) {
     final before = m.start > 0 ? text[m.start - 1] : '';
     final after = m.end < text.length ? text[m.end] : '';
-    if (before == '*' || after == '*') continue;
+    if (before == '*' || (!strict && after == '*')) continue;
     final tail = text.substring(m.end).replaceAll(RegExp(r'(Cr|Dr)', caseSensitive: false), '');
     if (RegExp(r'[A-Za-z]').hasMatch(tail)) continue;
     if(tail.trimLeft().startsWith('[%]')) continue;
@@ -655,6 +760,17 @@ Match? _selectAmountMatch(String text) {
   }
   return null;
 }  
+
+
+  Decimal? _trailingBalance(String text) {
+    Match? last;
+    for (final m in _strictAmountPattern.allMatches(text)) {
+      last = m;
+    }
+    if (last == null) return null;
+    return _parseMatchedAmount(last.group(1)!).abs();
+  }
+
 
   String? _detectPositionalColumnMarker(String afterAmountText) {
     final nextAmount = _amountPattern.firstMatch(afterAmountText);
@@ -685,6 +801,380 @@ Match? _selectAmountMatch(String text) {
     return isNeg ? -value : value;
   }
 
+    static final RegExp _tableValueToken = RegExp(
+        r'^(?:[R0-9.,\-+*()]+(?:Cr|Dr)?|Cr|Dr)$',
+        caseSensitive: false);
+    static final RegExp _tableDatePattern = RegExp(
+        r'^(?:\d{1,4}[\/\-]\d{1,2}[\/\-]\d{2,4}'
+        r'|\d{1,2}\s+[A-Za-z]{3,9}(?:\s+\d{4})?)$');
+    static const Set<String> _tableValueRoles = {
+      'fees', 'debits', 'credits', 'balance', 'amount',
+    };
+    static const List<String> _tableSkipPhrases = [
+      'balance brought forward', 'balance carried forward',
+      'opening balance', 'closing balance', 'total charges',
+    ];
+
+
+    ({List<CandidateRow> candidates, StatementSchema schema})?
+        _extractTableCandidates(List<PdfLayoutLine> lines) {
+      List<_ColumnBand>? bands;
+      var separateDebitCredit = false;
+      var sawCrDrSuffix = false;
+      PdfLayoutLine? lastDataLine;
+
+      final candidates = <CandidateRow>[];
+      DateTime? pendingDate;
+      var pendingDescription = '';
+      var pendingSource = '';
+      var orphanDescription = '';
+      var orphanSource = '';
+
+      void flushOrphan() {
+        if (orphanDescription.isNotEmpty && candidates.isNotEmpty) {
+          final last = candidates.removeLast();
+          candidates.add(CandidateRow(
+            date: last.date,
+            absAmount: last.absAmount,
+            description: last.description == 'Uncategorised transaction'
+                ? orphanDescription
+                : _joinText(last.description, orphanDescription),
+            signMarker: last.signMarker,
+            rawSource: _joinText(last.rawSource, orphanSource),
+          ));
+        }
+        orphanDescription = '';
+        orphanSource = '';
+      }
+
+      for (final line in lines) {
+        final header = _detectHeaderBands(line);
+        if (header != null) {
+          flushOrphan();
+          bands = header;
+          separateDebitCredit = header.any((b) => b.role == 'debits');
+          lastDataLine = null;
+          pendingDate = null;
+          pendingDescription = '';
+          pendingSource = '';
+          continue;
+        }
+        if (bands == null) continue;
+
+        final normalised = _normaliseForKeywords(line.text);
+        if (_tableSkipPhrases.any(normalised.contains)) {
+          flushOrphan();
+          pendingDate = null;
+          pendingDescription = '';
+          pendingSource = '';
+          continue;
+        }
+
+        final byRole = <String, List<String>>{};
+        final rawRoles = <String>{};
+        final textTokens = <({String text, String role})>[];
+        var overranValueColumn = false;
+
+        for (final word in line.cells) {
+          final role = _bandFor(bands, word)?.role ?? 'description';
+          final isValueColumn = _tableValueRoles.contains(role);
+
+          if (isValueColumn && _tableValueToken.hasMatch(word.text)) {
+            rawRoles.add(role);
+            byRole.putIfAbsent(role, () => <String>[]).add(word.text);
+            continue;
+          }
+          if (word.text.replaceAll(RegExp(r'[^\w]'), '').isEmpty) continue;
+          if (isValueColumn) overranValueColumn = true;
+          textTokens.add((
+            text: word.text,
+            role: isValueColumn ? 'description' : role,
+          ));
+        }
+
+        var dateStart = -1;
+        var dateLength = 0;
+        var dateText = '';
+        for (var i = 0; i < textTokens.length && dateStart < 0; i++) {
+          if (textTokens[i].role != 'date') continue;
+          for (var k = 3; k >= 1; k--) {
+            if (i + k > textTokens.length) continue;
+            final candidate = _normaliseDateText(
+                textTokens.sublist(i, i + k).map((t) => t.text).join(' '));
+            if (_tableDatePattern.hasMatch(candidate)) {
+              dateStart = i;
+              dateLength = k;
+              dateText = candidate;
+              break;
+            }
+          }
+        }
+
+        final descriptionParts = <String>[];
+        for (var i = 0; i < textTokens.length; i++) {
+          if (dateStart >= 0 && i >= dateStart && i < dateStart + dateLength) {
+            continue;
+          }
+          final t = textTokens[i];
+          final afterDate = dateStart >= 0 && i >= dateStart + dateLength;
+          if (t.role == 'description' || (t.role == 'date' && (afterDate || dateStart < 0))) {
+            descriptionParts.add(t.text);
+          } else {
+            rawRoles.add(t.role);
+          }
+        }
+        final description = descriptionParts.join(' ').trim();
+        if (dateStart >= 0) rawRoles.add('date');
+        if (description.isNotEmpty) rawRoles.add('description');
+
+        DateTime? date;
+        if (dateStart >= 0) {
+          try {
+            date = parseDate(dateText);
+          } catch (_) {
+            date = null;
+          }
+        }
+
+        Decimal? amount;
+        String? marker;
+        if (separateDebitCredit) {
+          final credit = _tableValue(byRole['credits']);
+          final debit =
+              _tableValue(byRole['debits']) ?? _tableValue(byRole['fees']);
+          if (credit != null && credit != Decimal.zero) {
+            amount = credit;
+            marker = 'CREDIT';
+          } else if (debit != null && debit != Decimal.zero) {
+            amount = debit;
+            marker = 'DEBIT';
+          }
+        } else {
+          final signed = _tableSignedValue(byRole['amount']);
+          if (signed != null && signed.amount != Decimal.zero) {
+            amount = signed.amount;
+            if (signed.negative) {
+              marker = '-';
+            } else if (signed.credit) {
+              marker = 'CR';
+            }
+            if (signed.credit || signed.debitSuffix) sawCrDrSuffix = true;
+          }
+        }
+
+        if (date != null && amount != null) {
+          var rowDescription = _describe(pendingDescription, description);
+          var rowSource = _joinText(pendingSource, line.text);
+          if (description.isEmpty &&
+              pendingDescription.isEmpty &&
+              orphanDescription.isNotEmpty) {
+            rowDescription = orphanDescription;
+            rowSource = _joinText(orphanSource, line.text);
+            orphanDescription = '';
+            orphanSource = '';
+          } else {
+            flushOrphan();
+          }
+          candidates.add(CandidateRow(
+            date: date,
+            absAmount: amount,
+            description: rowDescription,
+            signMarker: marker,
+            rawSource: rowSource,
+          ));
+          pendingDate = null;
+          pendingDescription = '';
+          pendingSource = '';
+          lastDataLine = line;
+          continue;
+        }
+
+        if (date != null) {
+          flushOrphan();
+          pendingDate = date;
+          pendingDescription = description;
+          pendingSource = line.text;
+          lastDataLine = line;
+          continue;
+        }
+
+        if (amount != null) {
+          if (pendingDate != null) {
+            candidates.add(CandidateRow(
+              date: pendingDate,
+              absAmount: amount,
+              description: _describe(pendingDescription, description),
+              signMarker: marker,
+              rawSource: _joinText(pendingSource, line.text),
+            ));
+            pendingDate = null;
+            pendingDescription = '';
+            pendingSource = '';
+            lastDataLine = line;
+          }
+          continue;
+        }
+
+        if (description.isEmpty) continue;
+
+        if (pendingDate != null) {
+          pendingDescription = _joinText(pendingDescription, description);
+          pendingSource = _joinText(pendingSource, line.text);
+          lastDataLine = line;
+          continue;
+        }
+
+        final isContinuation = candidates.isNotEmpty &&
+            lastDataLine != null &&
+            line.pageNumber == lastDataLine.pageNumber &&
+            (lastDataLine.top - line.top) <= line.height * 5.0 &&
+            !overranValueColumn &&
+            rawRoles.isNotEmpty &&
+            rawRoles.every((r) => r == 'description');
+        if (isContinuation) {
+          orphanDescription = _joinText(orphanDescription, description);
+          orphanSource = _joinText(orphanSource, line.text);
+          lastDataLine = line;
+        }
+      }
+      flushOrphan();
+
+      if (bands == null) return null;
+      return (
+        candidates: candidates,
+        schema: StatementSchema(
+          signConvention: separateDebitCredit
+              ? SignConvention.separateDebitCredit
+              : sawCrDrSuffix
+                  ? SignConvention.crSuffixMeansIncome
+                  : SignConvention.minusPrefixMeansExpense,
+        ),
+      );
+    }
+
+    String _normaliseDateText(String raw) => raw
+        .replaceAllMapped(RegExp(r'(\d)([A-Za-z])'), (m) => '${m[1]} ${m[2]}')
+        .replaceAllMapped(RegExp(r'([A-Za-z])(\d)'), (m) => '${m[1]} ${m[2]}')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+
+    String _joinText(String a, String b) =>
+        [a, b].where((s) => s.trim().isNotEmpty).join(' ').trim();
+
+    String _describe(String pending, String current) {
+      final joined = _joinText(pending, current);
+      return joined.isEmpty ? 'Uncategorised transaction' : joined;
+    }
+
+
+    List<_ColumnBand>? _detectHeaderBands(PdfLayoutLine line) {
+      final columns = line.columns;
+      if (columns.length < 3) return null;
+
+      final bands = <_ColumnBand>[];
+      for (final c in columns) {
+        final label = c.text.toLowerCase().replaceAll(RegExp(r'[^a-z ]'), '').trim();
+        final String role;
+        if (label == 'date' || label.endsWith(' date')) {
+          role = 'date';
+        } else if (label.startsWith('description') ||
+            label.startsWith('narrative') ||
+            label.startsWith('details') ||
+            label.startsWith('transaction detail')) {
+          role = 'description';
+        } else if (label.startsWith('debit') ||
+            label.startsWith('withdrawal') ||
+            label.startsWith('money out')) {
+          role = 'debits';
+        } else if (label.startsWith('credit') ||
+            label.startsWith('deposit') ||
+            label.startsWith('money in')) {
+          role = 'credits';
+        } else if (label.contains('balance')) {
+          role = 'balance';
+        } else if (label.contains('amount')) {
+          role = 'amount';
+        } else if (label.startsWith('fee') || label.startsWith('charge')) {
+          role = 'fees';
+        } else {
+          role = 'other';
+        }
+        bands.add(_ColumnBand(role, c.left, c.right));
+      }
+
+      final roles = bands.map((b) => b.role).toSet();
+      final hasDebitCredit =
+          roles.containsAll({'date', 'description', 'debits', 'credits'});
+      final hasSingleAmount = roles.containsAll({'date', 'description', 'amount'});
+      if (!hasDebitCredit && !hasSingleAmount) return null;
+      final origLeft = bands.map((b) => b.left).toList();
+      final origRight = bands.map((b) => b.right).toList();
+      for (var i = 0; i < bands.length - 1; i++) {
+        final double boundary;
+        if (_tableValueRoles.contains(bands[i + 1].role)) {
+          final midpoint = (origRight[i] + origLeft[i + 1]) / 2;
+          final labelWidth = origRight[i + 1] - origLeft[i + 1];
+          final nearLabel = origLeft[i + 1] - labelWidth;
+          boundary = midpoint > nearLabel ? midpoint : nearLabel;
+        } else {
+          boundary = origLeft[i + 1];
+        }
+        bands[i].right = boundary;
+        bands[i + 1].left = boundary;
+      }
+      bands.first.left = double.negativeInfinity;
+      bands.last.right = double.infinity;
+      return bands;
+    }
+
+
+    _ColumnBand? _bandFor(List<_ColumnBand> bands, PdfLayoutCell word) {
+      for (final b in bands) {
+        if (word.center >= b.left && word.center < b.right) return b;
+      }
+      return null;
+    }
+
+    Decimal? _tableValue(List<String>? tokens) {
+      if (tokens == null || tokens.isEmpty) return null;
+      final joined = tokens.join().replaceAll(RegExp(r'[R\s*]'), '');
+      if (!RegExp(r'^-?\d[\d,]*(?:[.,]\d{2})?-?$').hasMatch(joined)) return null;
+      try {
+        return _parseMatchedAmount(joined).abs();
+      } catch (_) {
+        return null;
+      }
+    }
+    ({Decimal amount, bool negative, bool credit, bool debitSuffix})?
+        _tableSignedValue(List<String>? tokens) {
+      if (tokens == null || tokens.isEmpty) return null;
+      var joined = tokens.join();
+      final upper = joined.toUpperCase();
+      final credit = upper.endsWith('CR');
+      final debitSuffix = upper.endsWith('DR');
+      if (credit || debitSuffix) {
+        joined = joined.substring(0, joined.length - 2);
+      }
+      joined = joined.replaceAll(RegExp(r'[R\s*()]'), '');
+      if (joined.isEmpty) return null;
+      final negative =
+          joined.startsWith('-') || joined.endsWith('-') || debitSuffix;
+      joined = joined.replaceAll('-', '').replaceAll('+', '');
+      if (!RegExp(r'^\d[\d,\s]*[.,]\d{2}$').hasMatch(joined)) return null;
+      try {
+        return (
+          amount: _parseMatchedAmount(joined).abs(),
+          negative: negative,
+          credit: credit,
+          debitSuffix: debitSuffix,
+        );
+      } catch (_) {
+        return null;
+      }
+    }
+
+
+
 
 
 
@@ -699,7 +1189,9 @@ Match? _selectAmountMatch(String text) {
         //final amountPattern = RegExp(r'\$?([\-]?\d{1,3}(?:,\d{3})*(?:\.\d{2}))\s*(Cr|Dr)?', caseSensitive: false);
 
         //final skipKeywords = ['total','balance','account #','transaction', 'description','summary','page number','statement date', 'beginning balance', 'ending balance',];
-        final candidates = _extractPdfCandidates(lines);
+        
+        
+        /*final candidates = _extractPdfCandidates(lines);
         if (candidates.isEmpty) {
           return [];
         }
@@ -727,7 +1219,12 @@ Match? _selectAmountMatch(String text) {
             rawData: {'raw_line': c.rawSource},
           ));
         }
-        return results;
+        return results;*/
+        return _candidatesToTransactions(
+          _extractPdfCandidates(lines),
+          onNeedsSchemaConfirmation: onNeedsSchemaConfirmation,
+        );
+
 
 
        /* final pendingLines = <String>[];
@@ -807,6 +1304,50 @@ Match? _selectAmountMatch(String text) {
 
         return results;*/
     }
+
+    Future<List<ParsedTransaction>> _candidatesToTransactions(
+      List<CandidateRow> candidates, {
+      SchemaConfirmationCallback? onNeedsSchemaConfirmation,
+      StatementSchema? fixedSchema,
+    }) async {
+        if (candidates.isEmpty) return [];
+
+        final StatementSchema schema;
+        final List<CandidateRow> filteredCandidates;
+
+        if (fixedSchema != null) {
+          schema = fixedSchema;
+          filteredCandidates = candidates;
+        } else {
+          final peeked = await _schemaDiscovery.peekCached(
+              sourceType: 'pdf', sampleRows: candidates);
+          filteredCandidates = peeked == null
+              ? candidates
+              : candidates
+                  .where((c) => !_matchesSkipPatterns(c.rawSource, peeked.skipLinePatterns))
+                  .toList();
+          schema = await _schemaDiscovery.discover(
+            sourceType: 'pdf',
+            sampleRows: filteredCandidates,
+            onNeedsConfirmation: onNeedsSchemaConfirmation,
+          );
+        }
+
+        final results = <ParsedTransaction>[];
+        for (final c in filteredCandidates) {
+          final isIncome = resolveIsIncome(c, schema);
+          results.add(ParsedTransaction(
+            date: c.date,
+            description: c.description,
+            amount: c.absAmount,
+            isIncome: isIncome,
+            deduplicationHash: _hash(c.date, c.absAmount, c.description),
+            rawData: {'raw_line': c.rawSource},
+          ));
+        }
+        return results;
+    }
+
 
     @visibleForTesting
     int findCol(List<String> headers, List<String> candidates){
@@ -917,7 +1458,9 @@ Decimal parseAmount(String raw) {
   }
 
  String _hash(DateTime date, Decimal amount, String description) {
-    final key = '${date.toIso8601String()}|${amount.toString()}|${description.toLowerCase().trim()}';
+    final trimmed = description.trim();
+    final short = trimmed.length > 100 ? trimmed.substring(0, 100) : trimmed;
+    final key = '${date.toIso8601String()}|${amount.toString()}|${short.toLowerCase()}';
     return sha256.convert(utf8.encode(key)).toString().substring(0, 16);
   }
 }

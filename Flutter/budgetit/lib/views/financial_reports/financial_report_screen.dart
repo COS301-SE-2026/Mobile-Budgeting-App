@@ -8,14 +8,13 @@ import '../../utils/app_colour.dart';
 class FinancialReportScreen extends StatefulWidget {
   const FinancialReportScreen({
     super.key,
-    AppDatabase? database,
+    required this.database,
     FinancialReportService? reportService,
     FinancialReportExportService? exportService,
-  }) : _database = database,
-       _reportService = reportService,
+  }) : _reportService = reportService,
        _exportService = exportService;
 
-  final AppDatabase? _database;
+  final AppDatabase database;
   final FinancialReportService? _reportService;
   final FinancialReportExportService? _exportService;
 
@@ -24,29 +23,17 @@ class FinancialReportScreen extends StatefulWidget {
 }
 
 class _FinancialReportScreenState extends State<FinancialReportScreen> {
-  late final AppDatabase _database;
   late final FinancialReportService _reportService;
   late final FinancialReportExportService _exportService;
-  late final bool _ownsDatabase;
 
   bool _isExporting = false;
 
   @override
   void initState() {
     super.initState();
-
-    _database = widget._database ?? AppDatabase();
-    _ownsDatabase = widget._database == null;
-    _reportService = widget._reportService ?? FinancialReportService(_database);
+    _reportService =
+        widget._reportService ?? FinancialReportService(widget.database);
     _exportService = widget._exportService ?? FinancialReportExportService();
-  }
-
-  @override
-  void dispose() {
-    if (_ownsDatabase) {
-      _database.close();
-    }
-    super.dispose();
   }
 
   Future<void> _exportPdf() async {
@@ -114,10 +101,43 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
     return Scaffold(
       backgroundColor: background,
       appBar: AppBar(
-        title: const Text('Financial Reports'),
+        automaticallyImplyLeading: false,
+        leadingWidth: 64,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16, top: 7, bottom: 7),
+          child: InkWell(
+            onTap: () => Navigator.of(context).maybePop(),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: context.colours.primary,
+                border: Border.all(color: Colors.black, width: 3),
+                boxShadow: const [
+                  BoxShadow(color: Colors.black, offset: Offset(4, 4)),
+                ],
+              ),
+              child: Icon(
+                Icons.arrow_back,
+                color: context.colours.cardText,
+                size: 18,
+              ),
+            ),
+          ),
+        ),
+        title: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'FINANCIAL REPORTS',
+            style: context.colours.h2.copyWith(
+              color: context.colours.textPrimary,
+            ),
+          ),
+        ),
         backgroundColor: context.colours.background,
-        foregroundColor: context.colours.cardText,
+        foregroundColor: context.colours.textPrimary,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -145,11 +165,17 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
             const SizedBox(height: 24),
             //i used Pavan's code to decorate the boxes
             Container(
+              width: double.infinity,
+              height: 55,
               decoration: BoxDecoration(
                 color: tertiary,
                 border: Border.all(color: Colors.black, width: 4),
-                boxShadow: [
-                  BoxShadow(color: Colors.black, offset: const Offset(6, 6)),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black,
+                    offset: Offset(4, 4),
+                    blurRadius: 0,
+                  ),
                 ],
               ),
               child: ElevatedButton.icon(
@@ -169,13 +195,16 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
             ),
             const SizedBox(height: 12),
             Container(
+              width: double.infinity,
+              height: 55,
               decoration: BoxDecoration(
                 color: background,
                 border: Border.all(color: Colors.black, width: 4),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
                     color: Colors.black,
-                    offset: const Offset(6, 6),
+                    offset: Offset(4, 4),
+                    blurRadius: 0,
                   ), // using the box shadoww we used in transaction manager
                 ],
               ),

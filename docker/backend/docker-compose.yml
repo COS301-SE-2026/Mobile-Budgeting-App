@@ -11,8 +11,6 @@ services:
       - "${APP_PORT:-8000}:${APP_PORT:-8000}"
     volumes:
       - ../../backend/src:/app/src
-    env_file:
-      - ../../backend/.env
     networks:
       - budgetit-net
 
@@ -44,6 +42,20 @@ services:
       /usr/bin/mc mb localminio/apk-bucket;
       exit 0;
       "
+
+  powersync:
+    image: journeyapps/powersync-service:latest
+    restart: unless-stopped
+    command: ["start", "-r", "unified"]
+    volumes:
+      - ../../powersync/config.yaml:/config/config.yaml
+      - ../../powersync/sync-rules.yaml:/config/sync-rules.yaml
+    ports:
+      - "8080:8080"
+    environment:
+      POWERSYNC_CONFIG_PATH: /config/config.yaml
+    networks:
+      - budgetit-net
 
 volumes:
   minio-data:

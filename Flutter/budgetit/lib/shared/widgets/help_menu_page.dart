@@ -95,6 +95,266 @@ class HelpMenuPage extends StatelessWidget {
                   ),
                 ],
               ),
+              const SizedBox(height: 24),
+              _sectionTitle(context, 'IMPORTING STATEMENTS'),
+              const SizedBox(height: 12),
+              _HelpDropDown(
+                icon: Icons.upload_file,
+                title: 'HOW TO IMPORT A BANK STATEMENT',
+                steps: const [
+                  _HelpStep(
+                    icon: Icons.download_outlined,
+                    text: 'Download a statement from your banking app or online banking. CSV works best, PDF also works.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.attach_money,
+                    text: 'Go to the Transaction Manager page and tap the plus button.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.folder_open,
+                    text: 'Choose Import Statement, then pick the file from your device.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.preview_outlined,
+                    text: 'Review the preview screen. Nothing is saved until you confirm.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.check_circle_outline,
+                    text: 'Tap Confirm to add the transactions to your account.',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _HelpDropDown(
+                icon: Icons.help_outline,
+                title: 'WHAT THE CONFIRMATION QUESTION MEANS',
+                steps: const [
+                  _HelpStep(
+                    icon: Icons.account_balance_outlined,
+                    text: 'Every bank marks money in and money out differently. Some use a Cr label, some a minus sign, some separate columns.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.rule,
+                    text: 'BudgetIT works out which rule your bank uses so it can label every transaction correctly.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.quiz_outlined,
+                    text: 'If the statement is unclear, you are asked to pick the rule once. It then applies to the whole file.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.visibility_outlined,
+                    text: 'The preview under each option shows how your transactions would be labelled, so you can see which looks right.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.bookmark_added_outlined,
+                    text: 'Your answer is remembered, so future statements from the same bank import without asking again.',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _HelpDropDown(
+                icon: Icons.swap_vert,
+                title: 'IF A TRANSACTION IS THE WRONG WAY ROUND',
+                steps: const [
+                  _HelpStep(
+                    icon: Icons.cancel_outlined,
+                    text: 'On the preview screen, tap Cancel Import and try again with a different option in the confirmation question.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.edit_outlined,
+                    text: 'If you have already imported, open the Transaction Manager, tap the transaction, and change its type.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.tune,
+                    text: 'Changing a transaction by hand does not affect the rest of the import.',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _HelpDropDown(
+                icon: Icons.filter_alt_outlined,
+                title: 'WHY SOME ROWS WERE NOT IMPORTED',
+                steps: const [
+                  _HelpStep(
+                    icon: Icons.content_copy_outlined,
+                    text: 'Transactions you have already imported are flagged as duplicates and skipped, so nothing is counted twice.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.summarize_outlined,
+                    text: 'Summary lines such as totals, opening balance and closing balance are ignored because they are not transactions.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.report_gmailerrorred_outlined,
+                    text: 'Rows with no readable date or amount are skipped. The rest of the file still imports normally.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.checklist,
+                    text: 'The preview screen shows exactly what will be added before you confirm.',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              _sectionTitle(context, 'FRIENDS AND GOALS'),
+              const SizedBox(height: 12),
+              _HelpDropDown(
+                icon: Icons.flag_outlined,
+                title: 'HOW SAVINGS GOALS WORK',
+                steps: const [
+                  _HelpStep(
+                    icon: Icons.pie_chart_outline,
+                    text: 'Go to the Budget Manager page using the pie chart icon in the bottom navigation, then tap View / Add Goals.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.add,
+                    text: 'Tap Create New Goal, then enter a name, target amount and period. Tap Create to save it.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.account_balance_wallet_outlined,
+                    text: 'Available surplus is your income minus your expenses. You can only allocate up to this amount.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.savings_outlined,
+                    text: 'Tap Allocate on a goal to set money aside. It is recorded as an expense, so it leaves your spendable balance.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.undo,
+                    text: 'Tap a goal to see its history. Undo an allocation or use Release funds to book the money back as income.',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _HelpDropDown(
+                icon: Icons.people_outline,
+                title: 'HOW TO ADD A FRIEND',
+                steps: const [
+                  _HelpStep(
+                    icon: Icons.login,
+                    text: 'Friends need an account. Log in or sign up first, as guests cannot add friends.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.people_outline,
+                    text: 'Go to the Friends page using the people icon in the bottom navigation.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.badge_outlined,
+                    text: 'Your friend code is shown at the top. Share it so friends can add you. It is also on your Profile.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.person_add_outlined,
+                    text: "Tap Add Friend By Code, enter your friend's code and tap Send.",
+                  ),
+                  _HelpStep(
+                    icon: Icons.how_to_reg_outlined,
+                    text: 'Requests appear under Requests. Tap the tick to accept or the cross to decline.',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _HelpDropDown(
+                icon: Icons.group_add_outlined,
+                title: 'HOW GOAL SHARING WORKS',
+                steps: const [
+                  _HelpStep(
+                    icon: Icons.people_outline,
+                    text: 'You can only share goals with friends, so add them on the Friends page first.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.share_outlined,
+                    text: 'When creating a goal, tick friends under Share With Friends. For an existing goal, tap it and tap Share.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.mail_outline,
+                    text: "Invites appear under Goal Invites on your friend's Savings Goals page. They tap Join Goal or Decline.",
+                  ),
+                  _HelpStep(
+                    icon: Icons.groups_outlined,
+                    text: 'Everyone on a shared goal can allocate towards it and sees the same progress.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.logout,
+                    text: 'Members can leave at any time. Any money they put in is booked back to them as income.',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              _sectionTitle(context, 'YOUR DATA'),
+              const SizedBox(height: 12),
+              _HelpDropDown(
+                icon: Icons.lock_outline,
+                title: 'WHERE YOUR DATA IS STORED',
+                steps: const [
+                  _HelpStep(
+                    icon: Icons.phone_android,
+                    text: 'All your transactions, budgets and categories are stored on this device.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.wifi_off,
+                    text: 'Statements are read on your device. Your financial data is not uploaded anywhere.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.airplanemode_active,
+                    text: 'Everything works without an internet connection, including importing and reports.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.logout,
+                    text: 'Signing out clears your session but keeps your financial data on the device.',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _HelpDropDown(
+                icon: Icons.repeat,
+                title: 'HOW RECURRING TRANSACTIONS WORK',
+                steps: const [
+                  _HelpStep(
+                    icon: Icons.event_repeat,
+                    text: 'Set an amount, a start date and how often it repeats. BudgetIT creates each occurrence for you.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.update,
+                    text: 'If the app was closed when one was due, it is created the next time you open the app.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.calendar_today,
+                    text: 'A monthly item set for the 31st falls on the last day of shorter months, then returns to the 31st.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.pause_circle_outline,
+                    text: 'Deleting a recurring template stops future occurrences. Ones already created stay in your history.',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              _sectionTitle(context, 'TERMS EXPLAINED'),
+              const SizedBox(height: 12),
+              _HelpDropDown(
+                icon: Icons.menu_book_outlined,
+                title: 'WHAT THE TERMS MEAN',
+                steps: const [
+                  _HelpStep(
+                    icon: Icons.pie_chart_outline,
+                    text: 'Budget: a spending limit for one category over a period, such as R2000 on groceries each month.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.category_outlined,
+                    text: 'Category: a label grouping similar transactions, such as Groceries, Rent or Salary.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.trending_up,
+                    text: 'Income and expense: money coming in and money going out. Every transaction is one or the other.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.favorite_outline,
+                    text: 'Financial health score: a 0 to 100 summary of this month based on your income, spending and budgets.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.warning_amber_outlined,
+                    text: 'Anomaly: spending that is unusual compared to your normal pattern. It is a prompt to look, not a warning of a problem.',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              _supportCard(context),
               const SizedBox(height: 18),
               Center(
                 child: Text(
@@ -144,6 +404,43 @@ class HelpMenuPage extends StatelessWidget {
           Text(
             'Open a dropdown below to see where to find each feature and which icon to look for.',
             style: context.colours.b1.copyWith(color: context.colours.cardText),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _supportCard(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        color: context.colours.blendedprimary,
+        border: Border.all(color: Colors.black, width: 4),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black,
+            offset: Offset(6, 6),
+            blurRadius: 0,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'STILL STUCK?',
+            style: context.colours.b1.copyWith(color: context.colours.cardText),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'If something is not working the way you expect, let us know what you were doing and which screen you were on.',
+            style: context.colours.b2.copyWith(color: context.colours.cardText),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Budget IT by Dev Oops',
+            style: context.colours.b2.copyWith(color: context.colours.cardText),
           ),
         ],
       ),

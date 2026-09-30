@@ -4,9 +4,11 @@ part of 'recurring_transaction_dao.dart';
 
 // ignore_for_file: type=lint
 mixin _$RecurringTransactionDaoMixin on DatabaseAccessor<AppDatabase> {
+  $BudgetTemplatesTable get budgetTemplates => attachedDatabase.budgetTemplates;
   $CategoriesTable get categories => attachedDatabase.categories;
   $RecurringTransactionsTable get recurringTransactions =>
       attachedDatabase.recurringTransactions;
+  $ImportsTable get imports => attachedDatabase.imports;
   $TransactionsTable get transactions => attachedDatabase.transactions;
   $TransactionCategoryMapTable get transactionCategoryMap =>
       attachedDatabase.transactionCategoryMap;
@@ -17,6 +19,11 @@ mixin _$RecurringTransactionDaoMixin on DatabaseAccessor<AppDatabase> {
 class RecurringTransactionDaoManager {
   final _$RecurringTransactionDaoMixin _db;
   RecurringTransactionDaoManager(this._db);
+  $$BudgetTemplatesTableTableManager get budgetTemplates =>
+      $$BudgetTemplatesTableTableManager(
+        _db.attachedDatabase,
+        _db.budgetTemplates,
+      );
   $$CategoriesTableTableManager get categories =>
       $$CategoriesTableTableManager(_db.attachedDatabase, _db.categories);
   $$RecurringTransactionsTableTableManager get recurringTransactions =>
@@ -24,6 +31,8 @@ class RecurringTransactionDaoManager {
         _db.attachedDatabase,
         _db.recurringTransactions,
       );
+  $$ImportsTableTableManager get imports =>
+      $$ImportsTableTableManager(_db.attachedDatabase, _db.imports);
   $$TransactionsTableTableManager get transactions =>
       $$TransactionsTableTableManager(_db.attachedDatabase, _db.transactions);
   $$TransactionCategoryMapTableTableManager get transactionCategoryMap =>

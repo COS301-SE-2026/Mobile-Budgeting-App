@@ -686,6 +686,7 @@ void main() {
       final transaction = await transactionDao.insertTransaction(
         amount: Decimal.parse('100.00'),
         type: TransactionType.expense,
+        budgetTemplateId: 'test-budget',
         shortDescription: 'Child',
         transactionDate: DateTime(2026, 6, 1),
         source: TransactionSource.manual,
@@ -1057,6 +1058,7 @@ void main() {
       final transaction = await transactionDao.insertTransaction(
         amount: recurring.amount,
         type: recurring.type,
+        budgetTemplateId: 'test-budget',
         shortDescription: description,
         transactionDate: DateTime(2026, 6, 1),
         source: TransactionSource.manual,
