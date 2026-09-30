@@ -659,7 +659,77 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                 _summaryCard(),
 
                 const SizedBox(height: 14),
-                _budgetActionCarousel(cardColor, cardTextColor),
+
+                GestureDetector(
+                  onTap: () => _showCreateBudgetDialog(context),
+                  child: Container(
+                    width: double.infinity,
+                    height: 55,
+                    decoration: BoxDecoration(
+                      color: cardColor,
+                      border: Border.all(color: Colors.black, width: 4),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(4, 4),
+                          blurRadius: 0,
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.add, color: cardTextColor),
+                        const SizedBox(width: 8),
+                        Text(
+                          'CREATE NEW BUDGET',
+                          style: colours.h2.copyWith(
+                            color: cardTextColor,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 14),
+
+                GestureDetector(
+                  onTap: () => Navigator.of(
+                    context,
+                  ).push(MaterialPageRoute(builder: (_) => const GoalsPage())),
+                  child: Container(
+                    width: double.infinity,
+                    height: 55,
+                    decoration: BoxDecoration(
+                      color: cardColor,
+                      border: Border.all(color: Colors.black, width: 4),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(4, 4),
+                          blurRadius: 0,
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.flag_outlined, color: cardTextColor),
+                        const SizedBox(width: 8),
+                        Text(
+                          'VIEW / ADD GOALS',
+                          style: colours.h2.copyWith(
+                            color: cardTextColor,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
                 const SizedBox(height: 18),
 
                 SearchBox(
@@ -805,90 +875,54 @@ class _BudgetManagerScreenState extends State<BudgetManagerScreen> {
                     ],
                   ),
                 ),
+                const SizedBox(height: 20),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            FinancialReportScreen(database: widget.database),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    height: 55,
+                    decoration: BoxDecoration(
+                      color: cardColor,
+                      border: Border.all(color: Colors.black, width: 4),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(4, 4),
+                          blurRadius: 0,
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.file_download_outlined,
+                          color: cardTextColor,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'EXPORT REPORT',
+                          style: colours.h2.copyWith(
+                            color: cardTextColor,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
               ],
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _budgetActionCarousel(Color cardColor, Color cardTextColor) {
-    final actions = <({IconData icon, String label, VoidCallback onTap})>[
-      (
-        icon: Icons.add,
-        label: 'CREATE NEW BUDGET',
-        onTap: () => _showCreateBudgetDialog(context),
-      ),
-      (
-        icon: Icons.flag_outlined,
-        label: 'VIEW / ADD GOALS',
-        onTap: () => Navigator.of(
-          context,
-        ).push(MaterialPageRoute(builder: (_) => const GoalsPage())),
-      ),
-      (
-        icon: Icons.file_download_outlined,
-        label: 'EXPORT REPORT',
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => FinancialReportScreen(database: widget.database),
-          ),
-        ),
-      ),
-    ];
-
-    return SizedBox(
-      height: 63,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.only(right: 6, bottom: 6),
-        itemCount: actions.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 12),
-        itemBuilder: (context, index) {
-          final action = actions[index];
-          return Semantics(
-            button: true,
-            label: action.label,
-            child: InkWell(
-              onTap: action.onTap,
-              child: Container(
-                width: 230,
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                decoration: BoxDecoration(
-                  color: cardColor,
-                  border: Border.all(color: Colors.black, width: 4),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black,
-                      offset: Offset(4, 4),
-                      blurRadius: 0,
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(action.icon, color: cardTextColor, size: 21),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Text(
-                        action.label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.colours.h2.copyWith(
-                          color: cardTextColor,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
       ),
     );
   }

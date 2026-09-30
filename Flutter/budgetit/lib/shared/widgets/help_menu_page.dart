@@ -194,6 +194,89 @@ class HelpMenuPage extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 24),
+              _sectionTitle(context, 'FRIENDS AND GOALS'),
+              const SizedBox(height: 12),
+              _HelpDropDown(
+                icon: Icons.flag_outlined,
+                title: 'HOW SAVINGS GOALS WORK',
+                steps: const [
+                  _HelpStep(
+                    icon: Icons.pie_chart_outline,
+                    text: 'Go to the Budget Manager page using the pie chart icon in the bottom navigation, then tap View / Add Goals.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.add,
+                    text: 'Tap Create New Goal, then enter a name, target amount and period. Tap Create to save it.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.account_balance_wallet_outlined,
+                    text: 'Available surplus is your income minus your expenses. You can only allocate up to this amount.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.savings_outlined,
+                    text: 'Tap Allocate on a goal to set money aside. It is recorded as an expense, so it leaves your spendable balance.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.undo,
+                    text: 'Tap a goal to see its history. Undo an allocation or use Release funds to book the money back as income.',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _HelpDropDown(
+                icon: Icons.people_outline,
+                title: 'HOW TO ADD A FRIEND',
+                steps: const [
+                  _HelpStep(
+                    icon: Icons.login,
+                    text: 'Friends need an account. Log in or sign up first, as guests cannot add friends.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.people_outline,
+                    text: 'Go to the Friends page using the people icon in the bottom navigation.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.badge_outlined,
+                    text: 'Your friend code is shown at the top. Share it so friends can add you. It is also on your Profile.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.person_add_outlined,
+                    text: "Tap Add Friend By Code, enter your friend's code and tap Send.",
+                  ),
+                  _HelpStep(
+                    icon: Icons.how_to_reg_outlined,
+                    text: 'Requests appear under Requests. Tap the tick to accept or the cross to decline.',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _HelpDropDown(
+                icon: Icons.group_add_outlined,
+                title: 'HOW GOAL SHARING WORKS',
+                steps: const [
+                  _HelpStep(
+                    icon: Icons.people_outline,
+                    text: 'You can only share goals with friends, so add them on the Friends page first.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.share_outlined,
+                    text: 'When creating a goal, tick friends under Share With Friends. For an existing goal, tap it and tap Share.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.mail_outline,
+                    text: "Invites appear under Goal Invites on your friend's Savings Goals page. They tap Join Goal or Decline.",
+                  ),
+                  _HelpStep(
+                    icon: Icons.groups_outlined,
+                    text: 'Everyone on a shared goal can allocate towards it and sees the same progress.',
+                  ),
+                  _HelpStep(
+                    icon: Icons.logout,
+                    text: 'Members can leave at any time. Any money they put in is booked back to them as income.',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
               _sectionTitle(context, 'YOUR DATA'),
               const SizedBox(height: 12),
               _HelpDropDown(
