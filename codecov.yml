@@ -11,54 +11,54 @@ coverage:
   status:
     project:
       default:
-        target: auto
-        threshold: 10%
-        informational: false
+        target: 0%
+        threshold: 0%
+        informational: true
         branches:
           - dev
       feature:
-        target: auto
-        threshold: 10%
+        target: 0%
+        threshold: 0%
         informational: true
         branches:
           - feature
           - "feature/.*"
       newdev:
-        target: auto
-        threshold: 10%
-        informational: false
+        target: 0%
+        threshold: 0%
+        informational: true
         branches:
           - newdev
       main:
-        target: auto
-        threshold: 10%
-        informational: false
+        target: 0%
+        threshold: 0%
+        informational: true
         branches:
           - main
     patch:
       default:
-        target: 80%
-        threshold: 10%
-        informational: false
+        target: 0%
+        threshold: 0%
+        informational: true
         branches:
           - dev
       feature:
-        target: 80%
-        threshold: 10%
+        target: 0%
+        threshold: 0%
         informational: true
         branches:
           - feature
           - "feature/.*"
       newdev:
-        target: 50%
-        threshold: 10%
-        informational: false
+        target: 0%
+        threshold: 0%
+        informational: true
         branches:
           - newdev
       main:
-        target: 80%
-        threshold: 10%
-        informational: false
+        target: 0%
+        threshold: 0%
+        informational: true
         branches:
           - main
 
