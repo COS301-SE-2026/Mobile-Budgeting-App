@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 
 import '../../../database/schema.dart';
 import '../../../models/import/parsed_transaction.dart';
 import '../../../models/import/import_result.dart';
 import '../../../services/import/import_orchestrator.dart';
 import '../../../utils/app_colour.dart';
-import '../../../utils/theme_provider.dart';
 
 class ImportPreviewScreen extends StatefulWidget {
   final List<ParsedTransaction> transactions;
@@ -77,7 +75,6 @@ class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<ThemeProvider>();
     final colours = context.colours;
     final newCount = _new.length;
     final dupCount = _duplicates.length;
@@ -91,28 +88,10 @@ class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
         shape: const Border(bottom: BorderSide(color: Colors.black, width: 4)),
-        title: Text('REVIEW TRANSACTIONS', style: colours.h2),
-        actions: [
-          IconButton(
-            tooltip: theme.isDark ? 'Light mode' : 'Dark mode',
-            icon: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: colours.informational,
-                border: Border.all(color: Colors.black, width: 4),
-              ),
-              child: Icon(
-                theme.isDark
-                    ? Icons.light_mode_outlined
-                    : Icons.dark_mode_outlined,
-                color: Colors.black,
-              ),
-            ),
-            onPressed: () => context.read<ThemeProvider>().toggle(),
-          ),
-          const SizedBox(width: 8),
-        ],
+        title: Text(
+          'REVIEW TRANSACTIONS',
+          style: colours.h2.copyWith(color: colours.cardText),
+        ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(36),
           child: Padding(
@@ -449,7 +428,7 @@ class _TransactionTile extends StatelessWidget {
                   border: Border.all(color: Colors.black, width: 2),
                 ),
                 child: Icon(
-                  isIncome ? Icons.arrow_downward : Icons.arrow_upward,
+                  isIncome ? Icons.arrow_upward : Icons.arrow_downward,
                   color: isLight ? colours.background : colours.cardText,
                   size: 20,
                 ),

@@ -3,6 +3,7 @@ import 'package:budgetit/database/schema.dart';
 import 'package:budgetit/shared/widgets/box.dart';
 import 'package:budgetit/shared/widgets/fab.dart';
 import 'package:budgetit/shared/widgets/transaction_filter_bar.dart';
+import 'package:budgetit/shared/widgets/searchbox.dart';
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:budgetit/utils/theme_provider.dart';
 import 'package:budgetit/utils/icon_mapper.dart';
@@ -83,9 +84,6 @@ class _TransactionManagerState extends State<TransactionManager> {
     if (!mounted) return;
     setState(() {
       _budgets = budgets;
-      if (_selectedBudgetId == null && budgets.isNotEmpty) {
-        _selectedBudgetId = budgets.first.id;
-      }
     });
   }
 
@@ -301,42 +299,97 @@ class _TransactionManagerState extends State<TransactionManager> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 5,
+                ),
+                child: SearchBox(
+                  hintText: 'Search transactions',
+                  onChanged: (value) => setState(() => _searchQuery = value),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 5,
+                ),
                 child: Container(
                   width: double.infinity,
+                  height: 48,
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
-                    color: colours.background,
-                    border: Border.all(color: Colors.black, width: 3),
+                    color: Theme.of(context).brightness == Brightness.light
+                        ? colours.cardText
+                        : _selectedBudgetId != null
+                        ? colours.informational
+                        : colours.searchBar,
+                    border: Border.all(color: Colors.black, width: 4),
                   ),
-                  child: DropdownButton<String>(
-                    value: _selectedBudgetId ?? '',
-                    isExpanded: true,
-                    underline: const SizedBox.shrink(),
-                    dropdownColor: colours.background,
-                    style: colours.b1.copyWith(color: colours.textPrimary),
-                    items: [
-                      DropdownMenuItem<String>(
-                        value: '',
-                        child: Text(
-                          'All budgets',
-                          style: colours.b1.copyWith(color: colours.textPrimary),
-                        ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _selectedBudgetId ?? '',
+                      isExpanded: true,
+                      dropdownColor:
+                          Theme.of(context).brightness == Brightness.light
+                          ? colours.cardText
+                          : colours.searchBar,
+                      iconEnabledColor:
+                          Theme.of(context).brightness == Brightness.light
+                          ? colours.secondary
+                          : colours.cardText,
+                      style: colours.b1.copyWith(
+                        color: Theme.of(context).brightness == Brightness.light
+                            ? colours.secondary
+                            : colours.cardText,
                       ),
-                      for (final budget in _budgets)
+                      items: [
                         DropdownMenuItem<String>(
-                          value: budget.id,
-                          child: Text(
-                            budget.name ?? 'Budget',
-                            style: colours.b1.copyWith(
-                              color: colours.textPrimary,
-                            ),
+                          value: '',
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.account_balance_outlined,
+                                size: 18,
+                                color:
+                                    Theme.of(context).brightness ==
+                                        Brightness.light
+                                    ? colours.secondary
+                                    : colours.cardText,
+                              ),
+                              const SizedBox(width: 8),
+                              Text('All budgets'),
+                            ],
                           ),
                         ),
-                    ],
-                    onChanged: (value) => setState(
-                      () => _selectedBudgetId =
-                          (value == null || value.isEmpty) ? null : value,
+                        for (final budget in _budgets)
+                          DropdownMenuItem<String>(
+                            value: budget.id,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.account_balance_wallet_outlined,
+                                  size: 18,
+                                  color:
+                                      Theme.of(context).brightness ==
+                                          Brightness.light
+                                      ? colours.secondary
+                                      : colours.cardText,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    budget.name ?? 'Budget',
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                      onChanged: (value) => setState(
+                        () => _selectedBudgetId =
+                            (value == null || value.isEmpty) ? null : value,
+                      ),
                     ),
                   ),
                 ),
@@ -351,6 +404,7 @@ class _TransactionManagerState extends State<TransactionManager> {
                   categoryIcons: _categoryIconsByName,
                   selectedCategory: _selectedCategory,
                   selectedSort: _sort,
+                  showSearch: false,
                   onSearchChanged: (value) =>
                       setState(() => _searchQuery = value),
                   onCategoryChanged: (value) =>

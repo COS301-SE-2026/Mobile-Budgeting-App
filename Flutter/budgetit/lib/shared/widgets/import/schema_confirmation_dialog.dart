@@ -309,7 +309,7 @@ class _SchemaConfirmationDialogState extends State<_SchemaConfirmationDialog> {
               border: Border.all(color: Colors.black, width: 2),
             ),
             child: Icon(
-              isIncome ? Icons.arrow_downward : Icons.arrow_upward,
+              isIncome ? Icons.arrow_upward : Icons.arrow_downward,
               color: isLight ? colours.background : colours.cardText,
               size: 20,
             ),

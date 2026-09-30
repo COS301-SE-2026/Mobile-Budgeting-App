@@ -482,9 +482,11 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                         const SizedBox(width: 10),
                         Text(
                           dateLabel,
-                          style: colours.b1.copyWith(
+                          style: colours.b5.copyWith(
                             color: colours.textPrimary,
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
+                            letterSpacing: 0.8,
                           ),
                         ),
                       ],
@@ -567,20 +569,25 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
 
                 const SizedBox(height: 14),
                 DropdownButtonFormField<String>(
-                  key: ValueKey('target-budget-${_selectedBudget?.id ?? 'none'}'),
+                  key: ValueKey(
+                    'target-budget-${_selectedBudget?.id ?? 'none'}',
+                  ),
                   initialValue: _selectedBudget?.id,
                   isExpanded: true,
                   dropdownColor: colours.background,
                   style: colours.b1.copyWith(color: colours.textPrimary),
-                  decoration: _inputDecoration(
-                    '',
-                    context,
-                    cardColor,
-                    cardTextColor,
-                  ).copyWith(
-                    labelText: 'Budget',
-                    labelStyle: colours.b1.copyWith(color: colours.textPrimary),
-                  ),
+                  decoration:
+                      _inputDecoration(
+                        '',
+                        context,
+                        cardColor,
+                        cardTextColor,
+                      ).copyWith(
+                        labelText: 'Budget',
+                        labelStyle: colours.b1.copyWith(
+                          color: colours.textPrimary,
+                        ),
+                      ),
                   items: _budgets
                       .map(
                         (b) => DropdownMenuItem<String>(

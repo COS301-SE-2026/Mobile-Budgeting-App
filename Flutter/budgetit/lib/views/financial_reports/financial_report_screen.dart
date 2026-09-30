@@ -101,10 +101,43 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
     return Scaffold(
       backgroundColor: background,
       appBar: AppBar(
-        title: const Text('Financial Reports'),
+        automaticallyImplyLeading: false,
+        leadingWidth: 64,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16, top: 7, bottom: 7),
+          child: InkWell(
+            onTap: () => Navigator.of(context).maybePop(),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: context.colours.primary,
+                border: Border.all(color: Colors.black, width: 3),
+                boxShadow: const [
+                  BoxShadow(color: Colors.black, offset: Offset(4, 4)),
+                ],
+              ),
+              child: Icon(
+                Icons.arrow_back,
+                color: context.colours.cardText,
+                size: 18,
+              ),
+            ),
+          ),
+        ),
+        title: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'FINANCIAL REPORTS',
+            style: context.colours.h2.copyWith(
+              color: context.colours.textPrimary,
+            ),
+          ),
+        ),
         backgroundColor: context.colours.background,
-        foregroundColor: context.colours.cardText,
+        foregroundColor: context.colours.textPrimary,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
