@@ -141,9 +141,7 @@ curl http://localhost:8000/health
 
 ---
 
-<<<<<<< HEAD
-## CI/CD
-=======
+
 # NFR Testing Guide
 
 How to run the manual / tool-assisted tests for the non-functional requirements
@@ -315,5 +313,22 @@ time (docker compose -f docker-compose.yml -f docker-compose.prod.yml pull && \
   (in practice this should be seconds-to-minutes).
 
 
+## CI/CD
+
+### Feature Branches
+
+![Feature Branch CI](docs/assets/diagrams/CI-CD/CI-CD-FEATURE.png)
+
+### Dev Branch
+
+![Dev Branch CI](docs/assets/diagrams/CI-CD/CI-CD-DEV.png)
+
+### Main Branch
+
+![Main Branch](docs/assets/diagrams/CI-CD/CI-CD-MAIN.png)
+
+### Full Flow
+
+![Full Flow](docs/assets/diagrams/CI-CD/CI-CD-FULL.png)
 
 ---
