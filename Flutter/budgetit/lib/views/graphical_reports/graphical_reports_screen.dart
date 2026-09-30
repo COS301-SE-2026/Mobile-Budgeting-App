@@ -548,7 +548,6 @@ class _GraphicalReportsScreenState extends State<GraphicalReportsScreen> {
           final isDark = Theme.of(context).brightness == Brightness.dark;
           final cardColor = isDark
               ? colours.blendedprimary
-
               : colours.background;
           final cardTextColor = colours.secondary;
 

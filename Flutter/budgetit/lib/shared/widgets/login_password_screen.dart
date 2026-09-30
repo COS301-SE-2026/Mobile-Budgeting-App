@@ -5,7 +5,6 @@ import '../../utils/app_colour.dart';
 import 'verify_email_screen.dart';
 import 'forgot_password_screen.dart';
 
-
 class LoginRegisterScreen extends StatefulWidget {
   const LoginRegisterScreen({super.key});
 
@@ -418,7 +417,6 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
       ),
     );
   }
-
 
   // --- Secure Badge ---
   Widget _buildSecureBadge() {

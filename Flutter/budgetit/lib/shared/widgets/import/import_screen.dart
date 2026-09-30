@@ -15,7 +15,6 @@ import '../../../services/import/llm_schema_classifier.dart';
 import '../../../services/import/statement_parser_service.dart';
 import 'schema_confirmation_dialog.dart';
 
-
 class ImportScreen extends StatefulWidget {
   final AppDatabase db;
 
@@ -31,9 +30,7 @@ class _ImportScreenState extends State<ImportScreen> {
   late final SchemaDiscoveryService _schemaDiscovery;
   late final StatementParserService _parser;
 
-
   bool _loading = false;
-
 
   @override
   void initState() {
@@ -88,7 +85,6 @@ class _ImportScreenState extends State<ImportScreen> {
               'local PDF or CSV file and try again.',
         );
       }
-
 
       debugPrint('Selected statement file: $path');
 
@@ -154,7 +150,6 @@ class _ImportScreenState extends State<ImportScreen> {
         });
       }
     }
-
 
     if (retry && mounted) {
       await _pickAndParse();
@@ -335,7 +330,6 @@ class _ImportScreenState extends State<ImportScreen> {
     return retry ?? false;
   }
 
-
   @override
   void dispose() {
     unawaited(_aiClassifier.dispose());
@@ -491,7 +485,6 @@ class _ImportScreenState extends State<ImportScreen> {
               ),
             ),
             const SizedBox(height: 16),
-
           ],
         ),
       ),
