@@ -18,7 +18,7 @@ on:
         type: string
     outputs:
       artifact-name:
-        description: Uploaded APK artifact name
+        description: Uploaded debug APK artifact name
         value: ${{ jobs.build.outputs.artifact-name }}
       source-sha:
         description: Source SHA for the APK artifact
@@ -109,19 +109,19 @@ jobs:
         shell: bash
         run: cp .github/gradle/ci-gradle.properties Flutter/budgetit/android/gradle.properties
 
-      - name: Build release APK
+      - name: Build debug APK
         working-directory: Flutter/budgetit
         run: |
-          flutter build apk --release --no-tree-shake-icons \
+          flutter build apk --debug --no-tree-shake-icons \
             --dart-define=ENVIRONMENT=prod \
-            --dart-define=POWERSYNC_URL=${{ vars.POWERSYNC_URL }} \
-            --dart-define=API_URL=${{ vars.API_URL }}
+            --dart-define=POWERSYNC_URL=https://sync.16.28.126.118.sslip.io \
+            --dart-define=API_URL=https://api.16.28.126.118.sslip.io
 
-      - name: Upload release APK
+      - name: Upload debug APK
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: ${{ steps.source.outputs.artifact-name }}
-          path: Flutter/budgetit/build/app/outputs/flutter-apk/app-release.apk
+          path: Flutter/budgetit/build/app/outputs/flutter-apk/app-debug.apk
           if-no-files-found: error
           retention-days: 7
