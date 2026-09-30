@@ -2930,6 +2930,7 @@ class MockRecurringTransactionDao extends _i1.Mock
     int? intervalAmount,
     String? currency,
     DateTime? startDate,
+    _i3.Value<String?>? categoryId = const _i3.Value.absent(),
   }) =>
       (super.noSuchMethod(
             Invocation.method(
@@ -2945,6 +2946,7 @@ class MockRecurringTransactionDao extends _i1.Mock
                 #intervalAmount: intervalAmount,
                 #currency: currency,
                 #startDate: startDate,
+                #categoryId: categoryId,
               },
             ),
             returnValue: _i7.Future<_i2.RecurringTransaction>.value(
@@ -2963,6 +2965,7 @@ class MockRecurringTransactionDao extends _i1.Mock
                     #intervalAmount: intervalAmount,
                     #currency: currency,
                     #startDate: startDate,
+                    #categoryId: categoryId,
                   },
                 ),
               ),
@@ -2984,6 +2987,7 @@ class MockRecurringTransactionDao extends _i1.Mock
                         #intervalAmount: intervalAmount,
                         #currency: currency,
                         #startDate: startDate,
+                        #categoryId: categoryId,
                       },
                     ),
                   ),
