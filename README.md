@@ -100,14 +100,6 @@ curl http://localhost:8000/health
 
 ![group](https://shieldcn.dev/group/github/open-issues/COS301-SE-2026/Mobile-Budgeting-App.png+/github/closed-issues/COS301-SE-2026/Mobile-Budgeting-App.png?variant=secondary)
 
----
-
-### Build Status
-
-| Branch   | Status |
-| -------- | ------ |
-| **Main** | 1,2    |
-| **Dev**  | 2,2    |
 
 ---
 
