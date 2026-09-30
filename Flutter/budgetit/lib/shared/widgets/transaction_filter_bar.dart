@@ -124,10 +124,10 @@ class _FilterDropdown<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
-    final filterBackground = isLight
-        ? context.colours.cardText
-        : isActive
+    final filterBackground = isActive
         ? context.colours.informational
+        : isLight
+        ? context.colours.cardText
         : context.colours.searchBar;
     final filterForeground = isLight
         ? context.colours.secondary

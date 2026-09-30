@@ -3,6 +3,7 @@ import 'package:budgetit/database/schema.dart';
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:budgetit/utils/date_display_formatter.dart';
 import 'package:budgetit/utils/app_dialog_style.dart';
+import 'package:budgetit/utils/icon_mapper.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:drift/drift.dart' show Value;
@@ -608,8 +609,16 @@ class _AddEditRecurringTransactionDialogState
                     _TypeButton(
                       label: 'Income',
                       selected: _type == TransactionType.income,
-                      onTap: () =>
-                          setState(() => _type = TransactionType.income),
+                      onTap: () async {
+                        if (_type == TransactionType.income) return;
+
+                        setState(() {
+                          _type = TransactionType.income;
+                          _selectedCategoryId = null;
+                        });
+
+                        await _loadCategories();
+                      },
                     ),
                   ],
                 ),
@@ -671,65 +680,83 @@ class _AddEditRecurringTransactionDialogState
                 ),
                 const SizedBox(height: 14),
 
-                if (_loadingCategories)
-                  InputDecorator(
-                    decoration: _inputDecoration(context).copyWith(
-                      labelText: 'Category',
-                      prefixIcon: Icon(
-                        Icons.category_outlined,
-                        color: colours.textPrimary,
-                      ),
-                    ),
-                    child: const SizedBox(
-                      height: 22,
-                      child: Center(child: LinearProgressIndicator()),
-                    ),
-                  )
-                else
-                  DropdownButtonFormField<String>(
-                    initialValue: _selectedCategoryId,
-                    isExpanded: true,
-                    dropdownColor: colours.background,
-                    style: colours.b1,
-                    icon: Icon(
-                      Icons.keyboard_arrow_down,
+                DropdownButtonFormField<String>(
+                  key: ValueKey(_selectedCategoryId ?? _type.name),
+                  initialValue: _selectedCategoryId,
+                  isExpanded: true,
+                  dropdownColor: colours.background,
+                  style: colours.b1.copyWith(color: colours.textPrimary),
+                  decoration: _inputDecoration(context).copyWith(
+                    labelText: 'Category',
+                    labelStyle: colours.b1.copyWith(
                       color: colours.textPrimary,
                     ),
-                    decoration: _inputDecoration(context).copyWith(
-                      labelText: 'Category',
-                      hintText: _categories.isEmpty
-                          ? 'No categories available'
-                          : 'Select category',
-                      prefixIcon: Icon(
-                        Icons.category_outlined,
-                        color: colours.textPrimary,
-                      ),
-                    ),
-                    items: _categories
-                        .map(
-                          (category) => DropdownMenuItem<String>(
-                            value: category.id,
-                            child: Text(
-                              category.name,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                  ),
+                  items: _categories
+                      .map(
+                        (category) => DropdownMenuItem<String>(
+                          value: category.id,
+                          child: Row(
+                            children: [
+                              Icon(
+                                category.iconData ?? Icons.category_outlined,
+                                color: colours.textPrimary,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  category.name,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: colours.b1.copyWith(
+                                    color: colours.textPrimary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: _loadingCategories ||
+                          _saving ||
+                          _categories.isEmpty
+                      ? null
+                      : (value) {
+                          setState(() {
+                            _selectedCategoryId = value;
+                          });
+                        },
+                  icon: _loadingCategories
+                      ? SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            color: colours.secondary,
+                            strokeWidth: 2,
                           ),
                         )
-                        .toList(),
-                    onChanged: _saving || _categories.isEmpty
-                        ? null
-                        : (value) {
-                            setState(() {
-                              _selectedCategoryId = value;
-                            });
-                          },
-                    validator: (value) {
-                      if (_categories.isNotEmpty && value == null) {
-                        return 'Please select a category';
-                      }
-                      return null;
-                    },
+                      : Icon(
+                          Icons.keyboard_arrow_down,
+                          color: colours.textPrimary,
+                        ),
+                  hint: Text(
+                    _loadingCategories
+                        ? 'Loading categories...'
+                        : _categories.isEmpty
+                        ? 'No categories available'
+                        : 'Select category',
+                    style: colours.b1.copyWith(
+                      color: colours.textPrimary.withValues(alpha: 0.6),
+                    ),
                   ),
+                  validator: (value) {
+                    if (_categories.isNotEmpty && value == null) {
+                      return 'Please select a category';
+                    }
+                    return null;
+                  },
+                ),
                 const SizedBox(height: 14),
                 DropdownButtonFormField<String>(
                   key: ValueKey(_recurrence.key),

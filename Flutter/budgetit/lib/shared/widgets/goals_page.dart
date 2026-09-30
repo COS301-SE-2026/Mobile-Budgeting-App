@@ -963,10 +963,10 @@ class _GoalsPageState extends State<GoalsPage> {
     final isLight = Theme.of(context).brightness == Brightness.light;
     final isActive = _view != _GoalView.progress;
     final foreground = isLight ? colours.secondary : colours.cardText;
-    final background = isLight
-        ? colours.cardText
-        : isActive
+    final background = isActive
         ? colours.informational
+        : isLight
+        ? colours.cardText
         : colours.searchBar;
 
     return Container(

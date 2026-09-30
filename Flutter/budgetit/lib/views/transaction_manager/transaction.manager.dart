@@ -318,10 +318,10 @@ class _TransactionManagerState extends State<TransactionManager> {
                   height: 48,
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).brightness == Brightness.light
-                        ? colours.cardText
-                        : _selectedBudgetId != null
+                    color: _selectedBudgetId != null
                         ? colours.informational
+                        : Theme.of(context).brightness == Brightness.light
+                        ? colours.cardText
                         : colours.searchBar,
                     border: Border.all(color: Colors.black, width: 4),
                   ),
