@@ -8,6 +8,7 @@ import 'package:budgetit/models/import/parsed_transaction.dart';
 import 'package:budgetit/services/import/import_orchestrator.dart';
 import '../database/helpers.dart';
 
+
 ParsedTransaction _parsed({
   required String description,
   required String amount,
@@ -31,7 +32,9 @@ ParsedTransaction _parsed({
   return tx;
 }
 
+
 void main() {
+
   configureSqliteForTests();
 
   late AppDatabase db;
@@ -53,6 +56,7 @@ void main() {
   tearDown(() async {
     await db.close();
   });
+
 
   group('Import orchestrator import commit', () {
     test('empty list returns a null result', () async {
@@ -105,6 +109,7 @@ void main() {
       expect(stored, hasLength(1));
       expect(stored.first.shortDescription, equals('New transaction'));
     });
+
 
     test('inserts duplicates instead of skipping them', () async {
       final transactions = [
@@ -180,6 +185,7 @@ void main() {
       await orchestrator.commitImport(transactions);
       final stored = await taDao.getAllTransactions();
       final mapping = await taDao.getCategoryForTransaction(stored.first.id);
+
 
       expect(mapping, isNull);
     });
@@ -257,4 +263,6 @@ void main() {
       },
     );
   });
+
 }
+

@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from typing import Annotated
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, Depends, HTTPException, Header
+from fastapi import FastAPI, Depends, HTTPException, Header, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy import delete as sa_delete, select as sa_select, and_, or_
@@ -23,6 +23,7 @@ from models import (
     Import,
     GoalTemplate,
     GoalPeriod,
+    GoalContribution,
     BudgetMember,
     GoalMember,
     UserProfile,
@@ -32,6 +33,9 @@ from models import (
 from schema import UploadPayload, CrudOp, FriendRequestIn, FriendRequestIdIn
 import jwt
 from jwt import PyJWKClient
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 load_dotenv()
 
@@ -39,6 +43,10 @@ app = FastAPI(
     title=os.getenv("APP_TITLE", "Budgetit API"),
     version=os.getenv("APP_VERSION", "0.1.0"),
 )
+
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 tables = {
     "categories": Category,
@@ -51,6 +59,7 @@ tables = {
     "imports": Import,
     "goal_templates": GoalTemplate,
     "goal_periods": GoalPeriod,
+    "goal_contributions": GoalContribution,
     "budget_members": BudgetMember,
     "goal_members": GoalMember,
     "user_profiles": UserProfile,
@@ -82,6 +91,7 @@ JOIN_OWNED_TABLES = {
     "transaction_category_map": (Transaction, "transaction_id"),
     "budget_periods": (BudgetTemplate, "template_id"),
     "goal_periods": (GoalTemplate, "template_id"),
+    "goal_contributions": (GoalTemplate, "template_id"),
 }
 
 # Membership tables: one row per co-owner. The writer must be a participant
@@ -158,8 +168,82 @@ async def _shared_participant(db: AsyncSession, template_table: str, template_id
         member_model.user_id == user_id,
         member_model.deleted_at.is_(None),
     )
-    result = await db.execute(stmt)
+    if hasattr(member_model, "status"):
+        stmt = stmt.where(member_model.status == "accepted")
+    result = await db.execute(stmt.limit(1))
     return result.scalar_one_or_none() is not None
+
+
+async def _are_friends(db: AsyncSession, user_1: str, user_2: str) -> bool:
+    a, b = (user_1, user_2) if user_1 < user_2 else (user_2, user_1)
+    stmt = sa_select(Friendship).where(
+        Friendship.user_a == a,
+        Friendship.user_b == b,
+        Friendship.deleted_at.is_(None),
+    )
+    result = await db.execute(stmt.limit(1))
+    return result.scalar_one_or_none() is not None
+
+
+GOAL_MEMBER_IMMUTABLE = {"goal_template_id", "user_id", "invited_by"}
+GOAL_MEMBER_TRANSITIONS = {("pending", "accepted"), ("pending", "declined")}
+
+
+async def _prepare_goal_member_put(
+    db: AsyncSession, entry: CrudOp, user_id: str, data: dict
+) -> dict:
+    existing = await db.get(GoalMember, entry.id)
+    if existing is not None:
+        data["goal_template_id"] = existing.goal_template_id
+        data["user_id"] = existing.user_id
+        data["invited_by"] = existing.invited_by
+        data["status"] = existing.status
+        return data
+
+    template = await db.get(GoalTemplate, data["goal_template_id"])
+    invitee = data.get("user_id")
+    if not invitee:
+        raise HTTPException(status_code=400, detail="goal_members write requires 'user_id'")
+    if invitee == user_id or invitee == template.user_id:
+        raise HTTPException(status_code=400, detail="That user already owns this goal")
+    if not await _are_friends(db, user_id, invitee):
+        raise HTTPException(status_code=403, detail="You can only share goals with friends")
+
+    data["status"] = "pending"
+    data["invited_by"] = user_id
+    return data
+
+
+async def _authorize_goal_member_patch(
+    db: AsyncSession, row: GoalMember, entry: CrudOp, user_id: str
+) -> None:
+    changes = entry.data
+    for column in GOAL_MEMBER_IMMUTABLE:
+        if column in changes and str(changes[column]) != str(getattr(row, column)):
+            raise HTTPException(status_code=400, detail=f"goal_members.{column} cannot be changed")
+
+    is_invitee = row.user_id == user_id
+
+    if "status" in changes and changes["status"] != row.status:
+        if not is_invitee:
+            raise forbidden("goal_members", entry.id, "respond to")
+        if (row.status, changes["status"]) not in GOAL_MEMBER_TRANSITIONS:
+            raise HTTPException(
+                status_code=409,
+                detail=f"Cannot change invite from {row.status} to {changes['status']}",
+            )
+
+    if "deleted_at" in changes:
+        if changes["deleted_at"] is None and row.deleted_at is not None:
+            raise HTTPException(status_code=400, detail="Send a new invite instead of restoring one")
+        if not is_invitee and not await _shared_participant(
+            db, "goal_templates", row.goal_template_id, user_id
+        ):
+            raise forbidden("goal_members", entry.id, "remove")
+
+    if not is_invitee and "status" not in changes and "deleted_at" not in changes:
+        if not await _shared_participant(db, "goal_templates", row.goal_template_id, user_id):
+            raise forbidden("goal_members", entry.id, "patch")
 
 
 async def join_owner_id(db: AsyncSession, table: str, parent_ref_id: str) -> str | None:
@@ -210,6 +294,11 @@ async def _prepare_put(db: AsyncSession, entry: CrudOp, user_id: str, table: str
         data["user_id"] = getattr(parent, "user_id", None)
         if table == "category_closure":
             data["is_default"] = getattr(parent, "is_default", False)
+        elif table == "goal_contributions":
+            existing = await db.get(GoalContribution, entry.id)
+            if existing is not None and existing.user_id != user_id:
+                raise forbidden(table, entry.id, "write")
+            data["user_id"] = user_id
     elif table in MEMBERSHIP_TABLES:
         parent_model, fk_col = MEMBERSHIP_TABLES[table]
         parent_ref_id = data.get(fk_col)
@@ -219,6 +308,8 @@ async def _prepare_put(db: AsyncSession, entry: CrudOp, user_id: str, table: str
             )
         if not await _shared_participant(db, parent_model.__tablename__, parent_ref_id, user_id):
             raise forbidden(table, entry.id, "write")
+        if table == "goal_members":
+            data = await _prepare_goal_member_put(db, entry, user_id, data)
     elif table in TWO_PARTY_TABLES:
         col_a, col_b = TWO_PARTY_TABLES[table]
         if table == "friend_requests":
@@ -312,6 +403,13 @@ async def apply_patch(db: AsyncSession, model, entry: CrudOp, user_id: str, tabl
     elif table in SHARED_TEMPLATES:
         if not await _shared_participant(db, table, entry.id, user_id):
             raise forbidden(table, entry.id, "patch")
+        if (
+            table == "goal_templates"
+            and "deleted_at" in entry.data
+            and (entry.data["deleted_at"] is None) != (row.deleted_at is None)
+            and row.user_id != user_id
+        ):
+            raise forbidden(table, entry.id, "delete")
     elif table in JOIN_OWNED_TABLES:
         parent_model, ref_column = JOIN_OWNED_TABLES[table]
         parent_ref_id = entry.data.get(ref_column, getattr(row, ref_column))
@@ -322,6 +420,10 @@ async def apply_patch(db: AsyncSession, model, entry: CrudOp, user_id: str, tabl
             owner = await join_owner_id(db, table, parent_ref_id)
             if owner != user_id:
                 raise forbidden(table, entry.id, "patch")
+        if table == "goal_contributions" and row.user_id != user_id:
+            raise forbidden(table, entry.id, "patch")
+    elif table == "goal_members":
+        await _authorize_goal_member_patch(db, row, entry, user_id)
     elif table in MEMBERSHIP_TABLES:
         parent_model, fk_col = MEMBERSHIP_TABLES[table]
         parent_ref_id = entry.data.get(fk_col, getattr(row, fk_col))
@@ -332,9 +434,13 @@ async def apply_patch(db: AsyncSession, model, entry: CrudOp, user_id: str, tabl
         if user_id not in (getattr(row, col_a), getattr(row, col_b)):
             raise forbidden(table, entry.id, "patch")
 
+    protected = {"user_id", "is_default"}
+    if table == "goal_members":
+        protected |= GOAL_MEMBER_IMMUTABLE | {"created_at"}
+
     column_types = _column_types(model)
     for key, value in entry.data.items():
-        if key not in ("user_id", "is_default"):
+        if key not in protected:
             setattr(row, key, _coerce_datetime_column(value, column_types.get(key)))
 
 
@@ -350,6 +456,8 @@ async def apply_delete(db: AsyncSession, model, entry: CrudOp, user_id: str, tab
     elif table in SHARED_TEMPLATES:
         if not await _shared_participant(db, table, entry.id, user_id):
             raise forbidden(table, entry.id, "delete")
+        if table == "goal_templates" and row.user_id != user_id:
+            raise forbidden(table, entry.id, "delete")
     elif table in JOIN_OWNED_TABLES:
         parent_model, ref_column = JOIN_OWNED_TABLES[table]
         parent_ref_id = getattr(row, ref_column)
@@ -360,6 +468,8 @@ async def apply_delete(db: AsyncSession, model, entry: CrudOp, user_id: str, tab
             owner = await join_owner_id(db, table, parent_ref_id)
             if owner != user_id:
                 raise forbidden(table, entry.id, "delete")
+        if table == "goal_contributions" and row.user_id != user_id:
+            raise forbidden(table, entry.id, "delete")
     elif table in MEMBERSHIP_TABLES:
         parent_model, fk_col = MEMBERSHIP_TABLES[table]
         parent_ref_id = getattr(row, fk_col)
@@ -376,6 +486,7 @@ async def apply_delete(db: AsyncSession, model, entry: CrudOp, user_id: str, tab
     await db.execute(sa_delete(model).where(model.id == entry.id))
 
 
+@limiter.limit("600/minute")
 @app.post(
     "/powersync/upload",
     tags=["PowerSync"],
@@ -388,6 +499,7 @@ async def apply_delete(db: AsyncSession, model, entry: CrudOp, user_id: str, tab
     },
 )
 async def upload(
+    request: Request,
     payload: UploadPayload,
     db: Annotated[AsyncSession, Depends(get_db)],
     user_id: Annotated[str, Depends(get_current_user)],
@@ -433,8 +545,10 @@ async def _generate_unique_friend_code(db: AsyncSession) -> str:
     raise HTTPException(status_code=500, detail="Could not generate a unique friend code")
 
 
+@limiter.limit("60/minute")
 @app.get("/me/profile", tags=["Friends"])
 async def get_my_profile(
+    request: Request,
     db: Annotated[AsyncSession, Depends(get_db)],
     user_id: Annotated[str, Depends(get_current_user)],
 ):
@@ -464,8 +578,10 @@ async def get_my_profile(
     }
 
 
+@limiter.limit("20/minute")
 @app.post("/friends/request", tags=["Friends"])
 async def send_friend_request(
+    request: Request,
     payload: FriendRequestIn,
     db: Annotated[AsyncSession, Depends(get_db)],
     user_id: Annotated[str, Depends(get_current_user)],
@@ -531,8 +647,10 @@ async def send_friend_request(
     return {"request_id": request.id, "status": request.status, "addressee_id": request.addressee_id}
 
 
+@limiter.limit("30/minute")
 @app.post("/friends/accept", tags=["Friends"])
 async def accept_friend_request(
+    request: Request,
     payload: FriendRequestIdIn,
     db: Annotated[AsyncSession, Depends(get_db)],
     user_id: Annotated[str, Depends(get_current_user)],
@@ -571,8 +689,10 @@ async def accept_friend_request(
     return {"status": "accepted"}
 
 
+@limiter.limit("30/minute")
 @app.post("/friends/decline", tags=["Friends"])
 async def decline_friend_request(
+    request: Request,
     payload: FriendRequestIdIn,
     db: Annotated[AsyncSession, Depends(get_db)],
     user_id: Annotated[str, Depends(get_current_user)],

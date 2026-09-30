@@ -1,6 +1,7 @@
 import 'package:budgetit/database/app_database.dart';
 import 'package:budgetit/database/schema.dart';
 import 'package:budgetit/utils/app_colour.dart';
+import 'package:budgetit/utils/app_dialog_style.dart';
 import 'package:budgetit/utils/icon_mapper.dart';
 
 import 'package:flutter/material.dart';
@@ -49,6 +50,9 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
   List<Category> _daoCategories = [];
   Category? _selectedDaoCategory;
   bool _loadingCategories = false;
+  List<BudgetTemplate> _budgets = [];
+  String? _selectedBudgetId;
+  bool _loadingBudgets = false;
   bool _saving = false;
   final _formKey = GlobalKey<FormState>();
 
@@ -66,6 +70,7 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
         ? widget.category
         : (widget.categories.isNotEmpty ? widget.categories.first : '');
     if (_usesDaoCategories) {
+      _loadBudgets();
       _loadDaoCategories();
     }
   }
@@ -77,7 +82,28 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
     super.dispose();
   }
 
-  Future<void> _loadDaoCategories() async {
+  Future<void> _loadBudgets() async {
+    setState(() => _loadingBudgets = true);
+    final db = context.read<AppDatabase>();
+    final all = await db.budgetDao.getAllBudgetTemplates();
+    final budgets = all.where((b) => b.name?.isNotEmpty ?? false).toList();
+    final transaction = await db.transactionDao.getTransactionById(
+      widget.transactionId!,
+    );
+    if (!mounted) return;
+    setState(() {
+      _budgets = budgets;
+      if (transaction != null &&
+          budgets.any((b) => b.id == transaction.budgetTemplateId)) {
+        _selectedBudgetId = transaction.budgetTemplateId;
+      } else if (budgets.isNotEmpty) {
+        _selectedBudgetId = budgets.first.id;
+      }
+      _loadingBudgets = false;
+    });
+  }
+
+  Future<void> _loadDaoCategories({String? budgetIdOverride}) async {
     setState(() => _loadingCategories = true);
     final db = context.read<AppDatabase>();
     final transactionId = widget.transactionId!;
@@ -88,10 +114,17 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
     final results = await Future.wait([
       db.categoryDao.getCategoriesByType(categoryType),
       db.transactionDao.getCategoryForTransaction(transactionId),
+      db.transactionDao.getTransactionById(transactionId),
     ]);
 
-    final categories = results[0] as List<Category>;
+    final allCategories = results[0] as List<Category>;
     final mapping = results[1] as TransactionCategoryMapData?;
+    final transaction = results[2] as Transaction?;
+
+    final budgetId = budgetIdOverride ?? transaction?.budgetTemplateId;
+    final categories = budgetId == null
+        ? allCategories
+        : allCategories.where((c) => c.budgetTemplateId == budgetId).toList();
     categories.sort((a, b) => a.name.compareTo(b.name));
 
     Category? selected;
@@ -133,6 +166,13 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
         );
       }
 
+      if (_usesDaoCategories && _selectedBudgetId != null) {
+        await context.read<AppDatabase>().transactionDao.updateTransaction(
+          widget.transactionId!,
+          budgetTemplateId: _selectedBudgetId,
+        );
+      }
+
       widget.onSave(
         _nameController.text.trim(),
         newAmount,
@@ -157,18 +197,24 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor: colours.secondary,
+          backgroundColor: AppDialogStyle.isDark(context)
+              ? AppDialogStyle.surface(context)
+              : colours.secondary,
           title: Text(
             'Delete Transaction',
             style: colours.h2.copyWith(
-              color: colours.background,
+              color: AppDialogStyle.isDark(context)
+                  ? colours.secondary
+                  : colours.background,
               fontWeight: FontWeight.bold,
             ),
           ),
           content: Text(
             'Are you sure you want to delete this transaction?',
             style: colours.h2.copyWith(
-              color: colours.background.withValues(alpha: 0.9),
+              color: AppDialogStyle.isDark(context)
+                  ? colours.secondary.withValues(alpha: 0.9)
+                  : colours.background.withValues(alpha: 0.9),
               fontSize: 13,
               fontWeight: FontWeight.w500,
             ),
@@ -176,20 +222,27 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
+              style: AppDialogStyle.isDark(context)
+                  ? AppDialogStyle.cancel(context)
+                  : null,
               child: Text(
                 'CANCEL',
                 style: colours.h2.copyWith(
-                  color: colours.background,
+                  color: AppDialogStyle.isDark(context)
+                      ? colours.secondary
+                      : colours.background,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colours.error,
-                foregroundColor: colours.whiteAccents,
-              ),
+              style: AppDialogStyle.isDark(context)
+                  ? AppDialogStyle.primary(context)
+                  : ElevatedButton.styleFrom(
+                      backgroundColor: colours.error,
+                      foregroundColor: colours.whiteAccents,
+                    ),
               child: const Text('DELETE'),
             ),
           ],
@@ -252,12 +305,12 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
                             width: 34,
                             height: 34,
                             decoration: BoxDecoration(
-                              color: colours.secondary,
+                              color: colours.background,
                               border: Border.all(color: Colors.black, width: 2),
                             ),
                             child: Icon(
                               widget.icon,
-                              color: colours.background,
+                              color: colours.secondary,
                               size: 20,
                             ),
                           ),
@@ -347,6 +400,47 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
                       ),
                       const SizedBox(height: 16),
 
+                      if (_usesDaoCategories) ...[
+                        _fieldLabel('Budget', colours, cardTextColor),
+                        const SizedBox(height: 6),
+                        DropdownButtonFormField<String>(
+                          key: ValueKey(
+                            'edit-budget-${_selectedBudgetId ?? 'none'}',
+                          ),
+                          initialValue: _selectedBudgetId,
+                          isExpanded: true,
+                          dropdownColor: context.colours.background,
+                          style: colours.h2.copyWith(
+                            color: cardTextColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          decoration: _inputDecoration(
+                            'Budget',
+                            context,
+                            cardColor,
+                            cardTextColor,
+                          ),
+                          items: _budgets
+                              .map(
+                                (b) => DropdownMenuItem<String>(
+                                  value: b.id,
+                                  child: Text(b.name ?? 'Budget'),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: _loadingBudgets
+                              ? null
+                              : (value) {
+                                  if (value != null) {
+                                    setState(() => _selectedBudgetId = value);
+                                    _loadDaoCategories(budgetIdOverride: value);
+                                  }
+                                },
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+
                       _categorySection(colours, cardColor, cardTextColor),
                       const SizedBox(height: 24),
 
@@ -357,6 +451,9 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
                             onPressed: _saving
                                 ? null
                                 : () => Navigator.of(context).pop(),
+                            style: AppDialogStyle.isDark(context)
+                                ? AppDialogStyle.cancel(context)
+                                : null,
                             child: Text(
                               'Cancel',
                               style: colours.h2.copyWith(
@@ -368,17 +465,22 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
                           const SizedBox(width: 8),
                           ElevatedButton(
                             onPressed: _saving ? null : _save,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: colours.secondary,
-                              foregroundColor: colours.background,
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(color: Colors.black, width: 4),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 10,
-                              ),
-                            ),
+                            style: AppDialogStyle.isDark(context)
+                                ? AppDialogStyle.primary(context)
+                                : ElevatedButton.styleFrom(
+                                    backgroundColor: colours.secondary,
+                                    foregroundColor: colours.background,
+                                    shape: RoundedRectangleBorder(
+                                      side: BorderSide(
+                                        color: Colors.black,
+                                        width: 4,
+                                      ),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 10,
+                                    ),
+                                  ),
                             child: _saving
                                 ? SizedBox(
                                     width: 16,
@@ -422,9 +524,12 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
           _fieldLabel('Category', colours, cardTextColor),
           const SizedBox(height: 6),
           DropdownButtonFormField<Category>(
+            key: ValueKey(
+              'edit-category-${_selectedDaoCategory?.id ?? 'none'}',
+            ),
             initialValue: _selectedDaoCategory,
             isExpanded: true,
-            dropdownColor: cardColor,
+            dropdownColor: context.colours.background,
             style: colours.h2.copyWith(
               color: cardTextColor,
               fontSize: 14,
@@ -487,7 +592,7 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
         DropdownButtonFormField<String>(
           initialValue: _selectedCategory,
           isExpanded: true,
-          dropdownColor: cardColor,
+          dropdownColor: context.colours.background,
           style: colours.h2.copyWith(
             color: cardTextColor,
             fontSize: 14,
@@ -537,7 +642,7 @@ InputDecoration _inputDecoration(
     fontWeight: FontWeight.w500,
   ),
   filled: true,
-  fillColor: fillColor,
+  fillColor: context.colours.background,
   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
   border: OutlineInputBorder(
     borderRadius: BorderRadius.zero,
@@ -549,7 +654,7 @@ InputDecoration _inputDecoration(
   ),
   focusedBorder: OutlineInputBorder(
     borderRadius: BorderRadius.zero,
-    borderSide: BorderSide(color: context.colours.secondary, width: 4),
+    borderSide: const BorderSide(color: Colors.black, width: 4),
   ),
   errorBorder: OutlineInputBorder(
     borderRadius: BorderRadius.zero,

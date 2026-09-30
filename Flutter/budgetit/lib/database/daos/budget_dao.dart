@@ -51,7 +51,7 @@ class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
   /// - [periodType] - the frequency at which to generate budget periods
   /// - [currency] - the currency code (defaults to 'ZAR')
   Future<BudgetTemplate> insertBudgetTemplate({
-    required String categoryId,
+    String? categoryId,
     required Decimal amount,
     required PeriodType periodType,
     String currency = 'ZAR',
@@ -382,5 +382,16 @@ class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
   /// Hard-deletes a budget period by its [id].
   Future<void> hardDeleteBudgetPeriod(String id) async {
     await (delete(budgetPeriods)..where((t) => t.id.equals(id))).go();
+  }
+
+  /// Returns the first active budget, creating a "Main Budget" if none exist.
+  Future<BudgetTemplate> getOrCreateDefaultBudget() async {
+    final budgets = await getAllBudgetTemplates();
+    if (budgets.isNotEmpty) return budgets.first;
+    return insertBudgetTemplate(
+      amount: Decimal.zero,
+      periodType: PeriodType.monthly,
+      name: 'Main Budget',
+    );
   }
 }

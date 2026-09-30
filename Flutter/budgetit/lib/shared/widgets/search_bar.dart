@@ -7,6 +7,11 @@ class SearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colours = context.colours;
+    final searchBackground = Color.alphaBlend(
+      colours.cardText.withValues(alpha: 0.13),
+      colours.primary.withValues(alpha: 1),
+    );
+    final searchForeground = colours.cardText;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -16,7 +21,7 @@ class SearchBar extends StatelessWidget {
       height: 55,
 
       decoration: BoxDecoration(
-        color: colours.secondary,
+        color: searchBackground,
 
         borderRadius: BorderRadius.circular(15),
 
@@ -35,18 +40,14 @@ class SearchBar extends StatelessWidget {
 
       child: Row(
         children: [
-          Icon(Icons.search, color: colours.background),
+          Icon(Icons.search, color: searchForeground),
 
           const SizedBox(width: 10),
 
           Text(
             "Search transactions...",
 
-            style: TextStyle(
-              color: colours.background.withValues(alpha: 0.7),
-
-              fontSize: 12,
-            ),
+            style: TextStyle(color: searchForeground, fontSize: 12),
           ),
         ],
       ),

@@ -27,6 +27,7 @@ void main() {
     return db.transactionDao.insertTransaction(
       amount: Decimal.parse(amount),
       type: type,
+      budgetTemplateId: 'test-budget',
       shortDescription: description,
       transactionDate: date ?? DateTime.now(),
       source: TransactionSource.manual,

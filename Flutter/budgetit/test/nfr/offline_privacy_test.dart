@@ -116,6 +116,7 @@ Date,Description,Amount
     final created = await db.transactionDao.insertTransaction(
       amount: Decimal.parse('99.99'),
       type: TransactionType.expense,
+      budgetTemplateId: 'test-budget',
       shortDescription: 'Offline write',
       longDescription: '',
       transactionDate: DateTime(2026, 5, 1),
@@ -166,6 +167,7 @@ Date,Description,Amount
       await db.transactionDao.insertTransaction(
         amount: Decimal.parse('250.00'),
         type: TransactionType.expense,
+        budgetTemplateId: 'test-budget',
         shortDescription: 'Pre-logout transaction',
         longDescription: '',
         transactionDate: DateTime(2026, 5, 1),
@@ -191,6 +193,7 @@ Date,Description,Amount
       expect(after, before);
     },
   );
+
 
   test('switching guest to logged-in preserves existing local data', () async {
     final path = await writeCsv('guest.csv', statement);

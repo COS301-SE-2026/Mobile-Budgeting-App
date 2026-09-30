@@ -38,6 +38,7 @@ void main() {
             createdAt: date,
             updatedAt: date,
             source: TransactionSource.import,
+            budgetTemplateId: 'perf-budget',
           ),
         );
       }

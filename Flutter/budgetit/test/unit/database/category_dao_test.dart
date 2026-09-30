@@ -24,6 +24,7 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Groceries',
         type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
       );
 
       expect(cat.name, equals('Groceries'));
@@ -34,6 +35,7 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Salary',
         type: CategoryType.income,
+        budgetTemplateId: 'test-budget',
       );
 
       expect(cat.id, isNotEmpty);
@@ -43,6 +45,7 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Rent',
         type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
       );
 
       expect(cat.isDefault, isFalse);
@@ -52,6 +55,7 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Salary',
         type: CategoryType.income,
+        budgetTemplateId: 'test-budget',
         isDefault: true,
       );
 
@@ -62,6 +66,7 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Dining',
         type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
         icon: Icons.restaurant,
         color: '#FF5733',
       );
@@ -74,6 +79,7 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Transport',
         type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
       );
 
       expect(cat.icon, isNull);
@@ -87,6 +93,7 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Health',
         type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
       );
       final after = DateTime.now().toUtc().add(const Duration(seconds: 1));
 
@@ -99,6 +106,7 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Food',
         type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
       );
 
       final closureRows = await db.select(db.categoryClosure).get();
@@ -116,6 +124,7 @@ void main() {
       final inserted = await dao.insertCategory(
         name: 'Utilities',
         type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
       );
 
       final found = await dao.getCategoryById(inserted.id);
@@ -134,6 +143,7 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Old',
         type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
       );
       await dao.softDeleteCategory(cat.id);
 
@@ -148,6 +158,7 @@ void main() {
         final cat = await dao.insertCategory(
           name: 'Old',
           type: CategoryType.expense,
+          budgetTemplateId: 'test-budget',
         );
         await dao.softDeleteCategory(cat.id);
 
@@ -161,8 +172,16 @@ void main() {
 
   group('CategoryDao.getAllCategories', () {
     test('returns all active categories', () async {
-      await dao.insertCategory(name: 'A', type: CategoryType.expense);
-      await dao.insertCategory(name: 'B', type: CategoryType.income);
+      await dao.insertCategory(
+        name: 'A',
+        type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
+      );
+      await dao.insertCategory(
+        name: 'B',
+        type: CategoryType.income,
+        budgetTemplateId: 'test-budget',
+      );
 
       final all = await dao.getAllCategories();
 
@@ -177,8 +196,13 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Deleted',
         type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
       );
-      await dao.insertCategory(name: 'Active', type: CategoryType.expense);
+      await dao.insertCategory(
+        name: 'Active',
+        type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
+      );
       await dao.softDeleteCategory(cat.id);
 
       final all = await dao.getAllCategories();
@@ -191,6 +215,7 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Deleted',
         type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
       );
       await dao.softDeleteCategory(cat.id);
 
@@ -202,8 +227,16 @@ void main() {
 
   group('CategoryDao.getCategoriesByType', () {
     test('returns only income categories', () async {
-      await dao.insertCategory(name: 'Salary', type: CategoryType.income);
-      await dao.insertCategory(name: 'Rent', type: CategoryType.expense);
+      await dao.insertCategory(
+        name: 'Salary',
+        type: CategoryType.income,
+        budgetTemplateId: 'test-budget',
+      );
+      await dao.insertCategory(
+        name: 'Rent',
+        type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
+      );
 
       final income = await dao.getCategoriesByType(CategoryType.income);
 
@@ -217,6 +250,7 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Old Name',
         type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
       );
 
       final updated = await dao.updateCategory(cat.id, name: 'New Name');
@@ -228,6 +262,7 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Ambiguous',
         type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
       );
 
       final updated = await dao.updateCategory(
@@ -242,6 +277,7 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Food',
         type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
         icon: Icons.restaurant,
         color: '#FF0000',
       );
@@ -257,6 +293,7 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Test',
         type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
       );
       final originalSec = cat.updatedAt.microsecondsSinceEpoch ~/ 1000000;
 
@@ -276,6 +313,7 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Temp',
         type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
       );
 
       await dao.softDeleteCategory(cat.id);
@@ -290,6 +328,7 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Restored',
         type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
       );
       await dao.softDeleteCategory(cat.id);
 
@@ -306,6 +345,7 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Gone',
         type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
       );
 
       await dao.hardDeleteCategory(cat.id);
@@ -317,6 +357,7 @@ void main() {
       final cat = await dao.insertCategory(
         name: 'Gone',
         type: CategoryType.expense,
+        budgetTemplateId: 'test-budget',
       );
 
       await dao.hardDeleteCategory(cat.id);

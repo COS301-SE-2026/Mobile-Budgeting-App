@@ -12,9 +12,11 @@ import 'package:provider/provider.dart';
 import 'package:saropa_drift_advisor/saropa_drift_advisor.dart';
 import 'amplifyconfiguration.dart';
 import 'shared/widgets/biometric_lock_screen.dart';
+import 'shared/widgets/biometric_enrollment_dialog.dart';
 import 'auth/data/cognito_auth_service.dart';
 import 'auth/providers/auth_provider.dart';
 import 'database/app_database.dart';
+
 import 'database/powersync_schema.dart';
 import 'models/recurring/recurring_transaction_catch_up_result.dart';
 import 'services/analysis/background_anomaly_scanner.dart';
@@ -22,6 +24,7 @@ import 'services/recurring/recurring_transaction_catch_up_service.dart';
 import 'synch/backendconnector.dart';
 import 'views/dashboard/dashboard.dart';
 import 'shared/widgets/login_password_screen.dart';
+import 'shared/widgets/onboarding_screen.dart';
 import 'shared/widgets/biometric_lock_screen.dart';
 import 'utils/theme_provider.dart';
 import 'shared/widgets/main_appbar.dart';
@@ -31,14 +34,15 @@ import 'utils/app_colour.dart';
 import 'views/budget_manager/budget_manager_screen.dart';
 import 'package:budgetit/views/profile/profile_page.dart';
 import 'shared/widgets/friends_page.dart';
+import 'shared/widgets/profile_page.dart' as app_profile;
 import 'package:flutter_gemma/flutter_gemma.dart';
 //import 'package:flutter_gemma_litertlm/flutter_gemma_litertlm.dart';
 import 'package:pdfrx/pdfrx.dart';
 import 'package:flutter_gemma_mediapipe/flutter_gemma_mediapipe.dart';
 import 'services/import/llm_schema_classifier.dart';
-import 'services/ai/transaction_classifier/bge_model_downloader.dart';
+import 'services/ai/transaction_classifier/fine_tuned_bge_model_downloader.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const StartupApp());
 }
@@ -99,6 +103,7 @@ Future<Widget> _initializeApp() async {
   // Initialise the local schema before seeding, so the tables exist when the
   // seeder writes to them. Syncing is started separately once the user signs in.
   await powerSyncDb.initialize();
+
   if (kDebugMode && !kIsWeb) {
     unawaited(db.startDriftViewer(enabled: true));
   }
@@ -139,6 +144,7 @@ Future<PowerSyncDatabase> _openPowerSyncDatabase() async {
   }
   final directory = await getApplicationDocumentsDirectory();
   final file = File(p.join(directory.path, 'budgetit.db'));
+
   return PowerSyncDatabase(schema: powerSyncSchema, path: file.path);
 }
 
@@ -260,6 +266,46 @@ class AuthWrapper extends StatelessWidget {
 
       case AuthStatus.skipped:
       case AuthStatus.loggedIn:
+        return const OnboardingGate();
+    }
+  }
+}
+
+class OnboardingGate extends StatefulWidget {
+  const OnboardingGate({super.key});
+
+  @override
+  State<OnboardingGate> createState() => _OnboardingGateState();
+}
+
+class _OnboardingGateState extends State<OnboardingGate> {
+  bool? _onboardingComplete;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_checkOnboarding());
+  }
+
+  Future<void> _checkOnboarding() async {
+    final complete = await context
+        .read<AppDatabase>()
+        .settingsDao
+        .getOnboardingComplete();
+    if (!mounted) return;
+    setState(() => _onboardingComplete = complete);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    switch (_onboardingComplete) {
+      case null:
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      case false:
+        return OnboardingScreen(
+          onComplete: () => setState(() => _onboardingComplete = true),
+        );
+      case true:
         return const HomePage();
     }
   }
@@ -274,6 +320,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+  bool _biometricPromptScheduled = false;
 
   @override
   void initState() {
@@ -282,9 +329,43 @@ class _HomePageState extends State<HomePage> {
       unawaited(_runRecurringTransactionCatchUp());
       if (!kIsWeb) {
         unawaited(LlmSchemaClassifier.ensureModelDownloaded());
-        unawaited(BgeModelDownloader.ensureModelDownloaded());
+        unawaited(FineTunedBgeModelDownloader.ensureModelDownloaded());
       }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final auth = context.watch<AppAuthProvider>();
+    if (!auth.shouldOfferBiometricEnrollment || _biometricPromptScheduled) {
+      return;
+    }
+    _biometricPromptScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(_showBiometricEnrollmentPrompt());
+    });
+  }
+
+  Future<void> _showBiometricEnrollmentPrompt() async {
+    if (!mounted) return;
+    final enable = await showBiometricEnrollmentDialog(context);
+    if (!mounted) return;
+
+    final auth = context.read<AppAuthProvider>();
+    auth.dismissBiometricEnrollmentOffer();
+    if (!enable) return;
+
+    final enabled = await auth.setBiometricLockEnabled(true);
+    if (!enabled && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            auth.errorMessage ?? 'Biometric lock could not be enabled.',
+          ),
+        ),
+      );
+    }
   }
 
   Future<void> _runRecurringTransactionCatchUp() async {
@@ -322,6 +403,9 @@ class _HomePageState extends State<HomePage> {
 
     final db = context.read<AppDatabase>();
     final selectedNavIconColor = Theme.of(context).brightness == Brightness.dark
+        ? context.colours.cardText
+        : context.colours.secondary;
+    final navIndicatorColor = Theme.of(context).brightness == Brightness.dark
         ? context.colours.background
         : context.colours.cardText;
     final unselectedNavIconColor = context.colours.cardText;
@@ -331,16 +415,14 @@ class _HomePageState extends State<HomePage> {
         onProfileTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const FriendsPage()),
+            MaterialPageRoute(builder: (_) => const app_profile.ProfilePage()),
           );
         },
       ),
       body: _buildPages(db)[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(color: context.colours.category, width: 4),
-          ),
+          border: Border(top: const BorderSide(color: Colors.black, width: 4)),
         ),
         child: SafeArea(
           top: false,
@@ -350,14 +432,12 @@ class _HomePageState extends State<HomePage> {
             elevation: 0,
             surfaceTintColor: Colors.transparent,
             shadowColor: Colors.transparent,
-            backgroundColor: Theme.of(context).brightness == Brightness.dark
-                ? context.colours.background
-                : context.colours.blendedprimary,
-            indicatorColor: context.colours.secondary,
+            backgroundColor: context.colours.blendedprimary,
+            indicatorColor: navIndicatorColor,
             labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
             indicatorShape: RoundedRectangleBorder(
               borderRadius: BorderRadius.zero,
-              side: BorderSide(color: context.colours.category, width: 3),
+              side: const BorderSide(color: Colors.black, width: 3),
             ),
             onDestinationSelected: _onDestinationSelected,
             destinations: [
@@ -400,6 +480,19 @@ class _HomePageState extends State<HomePage> {
                 ),
                 label: 'Budgets',
               ),
+              NavigationDestination(
+                icon: Icon(
+                  Icons.people_outline,
+                  color: unselectedNavIconColor,
+                  size: 26,
+                ),
+                selectedIcon: Icon(
+                  Icons.people,
+                  color: selectedNavIconColor,
+                  size: 26,
+                ),
+                label: 'Friends',
+              ),
             ],
           ),
         ),
@@ -412,6 +505,7 @@ class _HomePageState extends State<HomePage> {
       Dashboard(onViewTransactions: () => _onDestinationSelected(1)),
       const TransactionManager(),
       BudgetManagerScreen(database: db),
+      const FriendsPage(showAppBar: false),
     ];
   }
 

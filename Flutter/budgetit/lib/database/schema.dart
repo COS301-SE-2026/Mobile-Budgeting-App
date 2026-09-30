@@ -27,6 +27,8 @@ enum PeriodType { daily, weekly, monthly, yearly }
 /// The lifecycle state of a friend request.
 enum FriendRequestStatus { pending, accepted, declined }
 
+enum GoalMemberStatus { pending, accepted, declined }
+
 /// The type of record from which an embedding was generated.
 enum EmbeddingSourceType { transaction, category }
 
@@ -80,6 +82,9 @@ class Categories extends Table {
   /// When the category was soft-deleted (null if active).
   DateTimeColumn get deletedAt => dateTime().nullable()();
   TextColumn get userId => text().nullable()();
+
+  /// The budget this category belongs to.
+  TextColumn get budgetTemplateId => text().references(BudgetTemplates, #id)();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -162,6 +167,7 @@ class Transactions extends Table {
 
   TextColumn get importId => text().references(Imports, #id).nullable()();
 
+  TextColumn get budgetTemplateId => text().references(BudgetTemplates, #id)();
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -491,6 +497,32 @@ class GoalPeriods extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+class GoalContributions extends Table {
+  TextColumn get id => text()();
+
+  TextColumn get templateId => text().references(GoalTemplates, #id)();
+
+  TextColumn get userId => text().nullable()();
+
+  TextColumn get amount => text().map(DecimalConverter())();
+
+  TextColumn get note => text().nullable()();
+
+  TextColumn get transactionId =>
+      text().references(Transactions, #id).nullable()();
+
+  DateTimeColumn get contributedAt => dateTime()();
+
+  DateTimeColumn get createdAt => dateTime()();
+
+  DateTimeColumn get updatedAt => dateTime()();
+
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 /// Lists the co-owners of a shared budget template.
 ///
 /// The template owner is identified by [BudgetTemplates.userId]; these rows
@@ -521,6 +553,12 @@ class GoalMembers extends Table {
 
   /// The co-owner (Cognito subject).
   TextColumn get userId => text().nullable()();
+
+  TextColumn get status => textEnum<GoalMemberStatus>().withDefault(
+    Constant(GoalMemberStatus.accepted.name),
+  )();
+
+  TextColumn get invitedBy => text().nullable()();
 
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();

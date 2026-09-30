@@ -75,6 +75,7 @@ class Category(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     user_id: Mapped[str] = mapped_column(String)
+    budget_template_id: Mapped[str] = mapped_column(ForeignKey("budget_templates.id"))
 
 
 class CategoryClosure(Base):
@@ -114,7 +115,7 @@ class Transaction(Base):
     )
     user_id: Mapped[str] = mapped_column(String)
     import_id: Mapped[str | None] = mapped_column(ForeignKey("imports.id"), nullable=True)
-
+    budget_template_id: Mapped[str] = mapped_column(ForeignKey("budget_templates.id"))
 
 class TransactionCategoryMap(Base):
     
@@ -243,6 +244,23 @@ class GoalPeriod(Base):
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
+class GoalContribution(Base):
+    __tablename__ = "goal_contributions"
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=_uuid)
+    template_id: Mapped[str] = mapped_column(ForeignKey("goal_templates.id"))
+    user_id: Mapped[str] = mapped_column(String)
+    amount: Mapped[Decimal] = mapped_column(Numeric(19, 4))
+    note: Mapped[str | None] = mapped_column(String, nullable=True)
+    transaction_id: Mapped[str | None] = mapped_column(
+        ForeignKey("transactions.id"), nullable=True
+    )
+    contributed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
 class BudgetMember(Base):
     __tablename__ = "budget_members"
 
@@ -260,6 +278,8 @@ class GoalMember(Base):
     id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=_uuid)
     goal_template_id: Mapped[str] = mapped_column(ForeignKey("goal_templates.id"))
     user_id: Mapped[str] = mapped_column(String)
+    status: Mapped[str] = mapped_column(String, default="accepted", server_default="accepted")
+    invited_by: Mapped[str | None] = mapped_column(String, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

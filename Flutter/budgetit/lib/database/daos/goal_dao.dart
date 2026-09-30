@@ -12,7 +12,7 @@ part 'goal_dao.g.dart';
 /// Goals mirror budgets but track an income target per period. [GoalDao]
 /// manages goal template lifecycle and the generation of [GoalPeriods] from a
 /// template's [PeriodType].
-@DriftAccessor(tables: [GoalTemplates, GoalPeriods])
+@DriftAccessor(tables: [GoalTemplates, GoalPeriods, GoalContributions])
 class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
   /// Singleton UUID generator used to create unique identifiers.
   final Uuid _uuid = const Uuid();
@@ -103,6 +103,9 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
     PeriodType? periodType,
     String? currency,
     String? name,
+    String? categoryId,
+    bool clearName = false,
+    bool clearCategory = false,
   }) async {
     final companion = GoalTemplatesCompanion(
       targetAmount: targetAmount != null
@@ -110,7 +113,16 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
           : const Value.absent(),
       periodType: periodType != null ? Value(periodType) : const Value.absent(),
       currency: currency != null ? Value(currency) : const Value.absent(),
-      name: name != null ? Value(name) : const Value.absent(),
+      name: clearName
+          ? const Value(null)
+          : name != null
+          ? Value(name)
+          : const Value.absent(),
+      categoryId: clearCategory
+          ? const Value(null)
+          : categoryId != null
+          ? Value(categoryId)
+          : const Value.absent(),
       updatedAt: Value(_now()),
     );
     await (update(
@@ -127,9 +139,13 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
     );
   }
 
-  /// Hard-deletes a goal template and all associated periods.
+  /// Hard-deletes a goal template and all associated periods and
+  /// contributions.
   Future<void> hardDeleteGoalTemplate(String id) async {
     await db.transaction(() async {
+      await (delete(
+        goalContributions,
+      )..where((t) => t.templateId.equals(id))).go();
       await (delete(goalPeriods)..where((t) => t.templateId.equals(id))).go();
       await (delete(goalTemplates)..where((t) => t.id.equals(id))).go();
     });
@@ -278,8 +294,82 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
     return (select(goalPeriods)..where((t) => t.id.equals(id))).getSingle();
   }
 
-  /// Hard-deletes a goal period by [id].
   Future<void> hardDeleteGoalPeriod(String id) async {
     await (delete(goalPeriods)..where((t) => t.id.equals(id))).go();
+  }
+
+  Future<GoalContribution> insertGoalContribution({
+    required String templateId,
+    required Decimal amount,
+    String? note,
+    String? transactionId,
+    DateTime? contributedAt,
+    String? userId,
+  }) async {
+    if (amount <= Decimal.zero) {
+      throw ArgumentError('amount must be greater than zero');
+    }
+    final id = _uuid.v4();
+    final now = _now();
+    await into(goalContributions).insert(
+      GoalContributionsCompanion.insert(
+        id: id,
+        templateId: templateId,
+        userId: Value(userId),
+        amount: amount,
+        note: Value(note),
+        transactionId: Value(transactionId),
+        contributedAt: contributedAt?.toUtc() ?? now,
+        createdAt: now,
+        updatedAt: now,
+      ),
+    );
+    return (select(
+      goalContributions,
+    )..where((t) => t.id.equals(id))).getSingle();
+  }
+
+  Future<List<GoalContribution>> getContributionsForTemplate(
+    String templateId, {
+    bool includeDeleted = false,
+  }) {
+    final q = select(goalContributions)
+      ..where((t) => t.templateId.equals(templateId))
+      ..orderBy([(t) => OrderingTerm.desc(t.contributedAt)]);
+    if (!includeDeleted) q.where((t) => t.deletedAt.isNull());
+    return q.get();
+  }
+
+  Future<Decimal> getTotalSavedForTemplate(String templateId) async {
+    final rows = await getContributionsForTemplate(templateId);
+    return rows.fold<Decimal>(Decimal.zero, (sum, row) => sum + row.amount);
+  }
+
+  Future<void> softDeleteGoalContribution(String id) async {
+    final now = _now();
+    await (update(goalContributions)..where((t) => t.id.equals(id))).write(
+      GoalContributionsCompanion(deletedAt: Value(now), updatedAt: Value(now)),
+    );
+  }
+
+  Future<void> clearContributionsForTemplate(
+    String templateId, {
+    String? userId,
+  }) async {
+    final now = _now();
+    await (update(goalContributions)..where(
+          (t) =>
+              t.templateId.equals(templateId) &
+              t.deletedAt.isNull() &
+              (userId == null
+                  ? const Constant(true)
+                  : t.userId.equals(userId) | t.userId.isNull()),
+        ))
+        .write(
+          GoalContributionsCompanion(
+            deletedAt: Value(now),
+            updatedAt: Value(now),
+          ),
+        );
   }
 }

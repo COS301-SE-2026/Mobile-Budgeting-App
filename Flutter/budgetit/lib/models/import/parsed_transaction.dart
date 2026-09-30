@@ -2,7 +2,7 @@ import 'package:decimal/decimal.dart';
 
 class ParsedTransaction {
   final DateTime date;
-  final String description;
+  String description;
   final Decimal amount;
   bool isIncome;
   bool categoryOverridden = false;
@@ -40,3 +40,4 @@ class ParsedTransaction {
       'ParsedTransaction(data: $date, description: $description,'
       'amount: $amount, isIncome: $isIncome, category: $categoryName, duplicate: $isDuplicate)';
 }
+

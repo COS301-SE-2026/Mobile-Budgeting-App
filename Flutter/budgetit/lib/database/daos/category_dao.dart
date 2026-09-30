@@ -63,6 +63,7 @@ class CategoryDao extends DatabaseAccessor<AppDatabase>
   Future<Category> insertCategory({
     required String name,
     required CategoryType type,
+    required String budgetTemplateId,
     IconData? icon,
     String? color,
     bool isDefault = false,
@@ -76,6 +77,7 @@ class CategoryDao extends DatabaseAccessor<AppDatabase>
       icon: Value(icon != null ? iconToDb(icon) : null),
       color: Value(color),
       isDefault: isDefault,
+      budgetTemplateId: budgetTemplateId,
       createdAt: now,
       updatedAt: now,
     );
@@ -143,6 +145,14 @@ class CategoryDao extends DatabaseAccessor<AppDatabase>
   }) {
     final q = select(categories)..where((t) => t.type.equalsValue(type));
     if (!includeDeleted) q.where((t) => t.deletedAt.isNull());
+    return q.get();
+  }
+
+  /// Retrieves all active categories that belong to the given [budgetTemplateId].
+  Future<List<Category>> getCategoriesByBudget(String budgetTemplateId) {
+    final q = select(categories)
+      ..where((t) => t.budgetTemplateId.equals(budgetTemplateId))
+      ..where((t) => t.deletedAt.isNull());
     return q.get();
   }
 

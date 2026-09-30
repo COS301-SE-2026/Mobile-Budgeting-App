@@ -155,6 +155,7 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
     int? intervalAmount,
     String? currency,
     DateTime? startDate,
+    Value<String?> categoryId = const Value.absent(),
   }) async {
     if (shortDescription != null &&
         shortDescription.length > _maxShortDescriptionLength) {
@@ -197,6 +198,10 @@ class RecurringTransactionDao extends DatabaseAccessor<AppDatabase>
           : const Value.absent(),
 
       currency: currency != null ? Value(currency) : const Value.absent(),
+
+      startDate: startDate != null ? Value(startDate) : const Value.absent(),
+
+      categoryId: categoryId,
 
       updatedAt: Value(_now()),
     );

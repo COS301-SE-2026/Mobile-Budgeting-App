@@ -93,12 +93,15 @@ class SharingDao extends DatabaseAccessor<AppDatabase> with _$SharingDaoMixin {
 
   // ── Goals ──
 
-  /// Adds [userId] as a co-owner of the goal template (idempotent).
-  Future<GoalMember> addGoalMember({
+  Future<GoalMember> inviteToGoal({
     required String goalTemplateId,
-    required String userId,
+    required String inviteeId,
+    required String invitedBy,
   }) async {
-    final existing = await getGoalMember(goalTemplateId, userId);
+    if (inviteeId == invitedBy) {
+      throw ArgumentError('You cannot invite yourself to a goal');
+    }
+    final existing = await getGoalMember(goalTemplateId, inviteeId);
     if (existing != null) return existing;
 
     final id = _uuid.v4();
@@ -107,7 +110,9 @@ class SharingDao extends DatabaseAccessor<AppDatabase> with _$SharingDaoMixin {
       GoalMembersCompanion.insert(
         id: id,
         goalTemplateId: goalTemplateId,
-        userId: Value(userId),
+        userId: Value(inviteeId),
+        status: const Value(GoalMemberStatus.pending),
+        invitedBy: Value(invitedBy),
         createdAt: now,
         updatedAt: now,
       ),
@@ -116,27 +121,76 @@ class SharingDao extends DatabaseAccessor<AppDatabase> with _$SharingDaoMixin {
   }
 
   Future<GoalMember?> getGoalMember(String goalTemplateId, String userId) {
-    return (select(goalMembers)..where(
-          (t) =>
-              t.goalTemplateId.equals(goalTemplateId) &
-              t.userId.equals(userId) &
-              t.deletedAt.isNull(),
-        ))
+          )
+          ..limit(1))
         .getSingleOrNull();
   }
 
   Future<List<GoalMember>> getGoalMembers(String goalTemplateId) {
-    return (select(goalMembers)..where(
-          (t) => t.goalTemplateId.equals(goalTemplateId) & t.deletedAt.isNull(),
-        ))
+                t.goalTemplateId.equals(goalTemplateId) & t.deletedAt.isNull(),
+          )
+          ..orderBy([(t) => OrderingTerm.asc(t.createdAt)]))
         .get();
+  }
+
+  Future<Map<String, List<GoalMember>>> getGoalMembersForTemplates(
+    Iterable<String> goalTemplateIds,
+  ) async {
+    final ids = goalTemplateIds.toList();
+    if (ids.isEmpty) return {};
+    final rows =
+        await (select(goalMembers)
+              ..where((t) => t.goalTemplateId.isIn(ids) & t.deletedAt.isNull())
+              ..orderBy([(t) => OrderingTerm.asc(t.createdAt)]))
+            .get();
+    final byTemplate = <String, List<GoalMember>>{};
+    for (final row in rows) {
+      byTemplate.putIfAbsent(row.goalTemplateId, () => []).add(row);
+    }
+    return byTemplate;
+  }
+
+  Future<List<GoalMember>> getPendingGoalInvites(String userId) {
+    return (select(goalMembers)
+          ..where(
+            (t) =>
+                t.userId.equals(userId) &
+                t.status.equalsValue(GoalMemberStatus.pending) &
+                t.deletedAt.isNull(),
+          )
+          ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
+        .get();
+  }
+
+  Future<void> respondToGoalInvite(
+    String memberId, {
+    required bool accept,
+  }) async {
+    final now = _now();
+    await (update(goalMembers)..where(
+          (t) =>
+              t.id.equals(memberId) &
+              t.status.equalsValue(GoalMemberStatus.pending) &
+              t.deletedAt.isNull(),
+        ))
+        .write(
+          GoalMembersCompanion(
+            status: Value(
+              accept ? GoalMemberStatus.accepted : GoalMemberStatus.declined,
+            ),
+            deletedAt: accept ? const Value.absent() : Value(now),
+            updatedAt: Value(now),
+          ),
+        );
   }
 
   Future<void> removeGoalMember(String goalTemplateId, String userId) async {
     final now = _now();
     await (update(goalMembers)..where(
           (t) =>
-              t.goalTemplateId.equals(goalTemplateId) & t.userId.equals(userId),
+              t.goalTemplateId.equals(goalTemplateId) &
+              t.userId.equals(userId) &
+              t.deletedAt.isNull(),
         ))
         .write(
           GoalMembersCompanion(deletedAt: Value(now), updatedAt: Value(now)),

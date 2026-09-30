@@ -1,24 +1,4 @@
-import 'package:budgetit/database/app_database.dart';
-import 'package:budgetit/database/schema.dart';
-import 'package:decimal/decimal.dart';
-import 'package:drift/drift.dart';
 
-abstract interface class TransactionDaoContract {
-  Future<Transaction> insertTransaction({
-    required Decimal amount,
-    required TransactionType type,
-    required String shortDescription,
-    required DateTime transactionDate,
-    required TransactionSource source,
-    String? longDescription,
-    String currency = 'ZAR',
-    String? recurringId,
-  });
-
-  Future<Transaction?> getTransactionById(
-    String id, {
-    bool includeDeleted = false,
-  });
 
   Future<List<Transaction>> getAllTransactions({bool includeDeleted = false});
 
@@ -68,4 +48,3 @@ abstract interface class TransactionDaoContract {
   Future<void> removeMapping(String transactionId);
 
   Future<List<Transaction>> getTransactionsByCategory(String categoryId);
-}

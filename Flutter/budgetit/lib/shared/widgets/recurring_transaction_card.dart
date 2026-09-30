@@ -55,103 +55,87 @@ class _RecurringTransactionCardState extends State<RecurringTransactionCard> {
 
   @override
   Widget build(BuildContext context) {
+    final colours = context.colours;
     final rt = widget.recurringTransaction;
     final isExpense = rt.type == TransactionType.expense;
+    final isLight = Theme.of(context).brightness == Brightness.light;
     final frequency = _frequencyLabel(rt.unit, rt.intervalAmount);
     final nextDate = _dateLabel(rt.nextTransactionDate);
+    final tileTextColor = isLight ? colours.secondary : colours.cardText;
+    final moneyColor = isExpense
+        ? colours.error
+        : (isLight ? colours.blendedprimary : colours.greenAccents);
 
     return GestureDetector(
       onTap: widget.onTap,
       onTapDown: (_) => setState(() => _isPressed = true),
       onTapUp: (_) => setState(() => _isPressed = false),
       onTapCancel: () => setState(() => _isPressed = false),
-      child: Stack(
-        children: [
-          Container(
-            height: MediaQuery.of(context).size.height * 0.1,
-            width: MediaQuery.of(context).size.width * 0.9,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              shape: BoxShape.rectangle,
-              color: context.colours.background,
-              boxShadow: [
-                BoxShadow(offset: const Offset(6, 6), color: Colors.black),
-              ],
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.1,
+        width: double.infinity,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: colours.background,
+          border: Border.all(color: Colors.black, width: 3),
+        ),
+        child: Row(
+          children: [
+            const SizedBox(width: 12),
+            Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: isLight ? colours.secondary : colours.blendedprimary,
+                border: Border.all(color: Colors.black, width: 2),
+              ),
+              child: Icon(
+                isExpense ? Icons.arrow_downward : Icons.arrow_upward,
+                color: isLight ? colours.background : colours.cardText,
+                size: 20,
+              ),
             ),
-          ),
-          Container(
-            height: MediaQuery.of(context).size.height * 0.1,
-            width: MediaQuery.of(context).size.width * 0.9,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              shape: BoxShape.rectangle,
-              color: context.colours.primary,
-              border: Border.all(color: Colors.black, width: 4.0),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    rt.shortDescription,
+                    style: colours.budgetheader.copyWith(
+                      color: tileTextColor,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    '$frequency - Next: $nextDate',
+                    style: colours.b5.copyWith(
+                      color: tileTextColor,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
-            child: Row(
-              children: [
-                const SizedBox(width: 12),
-                Container(
-                  width: 34,
-                  height: 34,
-                  decoration: BoxDecoration(
-                    color: context.colours.secondary,
-                    border: Border.all(color: Colors.black, width: 2),
-                  ),
-                  child: Icon(
-                    isExpense ? Icons.arrow_downward : Icons.arrow_upward,
-                    color: context.colours.background,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        rt.shortDescription,
-                        style: context.colours.budgetheader.copyWith(
-                          color: context.colours.cardText,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Text(
-                        '$frequency - Next: $nextDate',
-                        style: context.colours.b5.copyWith(
-                          color: context.colours.cardText,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                Text(
-                  isExpense
-                      ? '- R${rt.amount.toStringAsFixed(2)}'
-                      : 'R${rt.amount.toStringAsFixed(2)}',
-                  style: context.colours.b4.copyWith(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    color: isExpense
-                        ? (_isPressed
-                              ? context.colours.background
-                              : context.colours.error)
-                        : (_isPressed
-                              ? context.colours.background
-                              : context.colours.secondary),
-                  ),
-                ),
-                const SizedBox(width: 12),
-              ],
+            Text(
+              isExpense
+                  ? '- R${rt.amount.toStringAsFixed(2)}'
+                  : 'R${rt.amount.toStringAsFixed(2)}',
+              style: colours.b4.copyWith(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: _isPressed ? tileTextColor : moneyColor,
+              ),
             ),
-          ),
-        ],
+            const SizedBox(width: 12),
+          ],
+        ),
       ),
     );
   }

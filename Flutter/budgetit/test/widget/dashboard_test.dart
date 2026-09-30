@@ -32,6 +32,14 @@ void main() {
       when(
         _dashMock.transactionDao.getTransactionsByDateRange(any, any),
       ).thenAnswer((_) async => []);
+
+      when(
+        _dashMock.categoryDao.getCategoriesByType(any),
+      ).thenAnswer((_) async => []);
+
+      when(
+        _dashMock.budgetDao.getAllBudgetTemplates(),
+      ).thenAnswer((_) async => []);
     });
 
     testWidgets('renders without error', (tester) async {
@@ -95,7 +103,19 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(find.text('VIEW REPORTS'), findsOneWidget);
+      expect(find.text('VIEW REPORTS'), findsNothing);
+    });
+
+    testWidgets('shows scrollable graphical report widgets after totals', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_wrapWithMockDb(const Dashboard()));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('dashboard-report-widgets')), findsOneWidget);
+      expect(find.text('GRAPHICAL REPORTS'), findsOneWidget);
+      expect(find.text('SWIPE TO VIEW'), findsOneWidget);
+      expect(find.byType(PageView), findsOneWidget);
     });
 
     testWidgets(

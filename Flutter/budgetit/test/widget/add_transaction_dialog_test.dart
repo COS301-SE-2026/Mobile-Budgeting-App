@@ -11,14 +11,17 @@ Future<AppDatabase> _seededDb() async {
   await db.categoryDao.insertCategory(
     name: 'Transport',
     type: CategoryType.expense,
+    budgetTemplateId: 'test-budget',
   );
   await db.categoryDao.insertCategory(
     name: 'Groceries',
     type: CategoryType.expense,
+    budgetTemplateId: 'test-budget',
   );
   await db.categoryDao.insertCategory(
     name: 'Salary',
     type: CategoryType.income,
+    budgetTemplateId: 'test-budget',
   );
   return db;
 }

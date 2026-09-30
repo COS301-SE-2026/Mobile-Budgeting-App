@@ -36,6 +36,10 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: context.colours.blendedprimary,
       elevation: 0,
+      scrolledUnderElevation: 0,
+      surfaceTintColor: Colors.transparent,
+      shadowColor: Colors.transparent,
+      titleSpacing: 8,
       shape: const Border(bottom: BorderSide(color: Colors.black, width: 4)),
       leading: IconButton(
         tooltip: 'Help menu',
@@ -56,17 +60,13 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
         },
       ),
 
-      title: FittedBox(
-        fit: BoxFit.scaleDown,
-        alignment: Alignment.centerLeft,
-        child: Text(
-          "Budget IT",
-          softWrap: false,
-          overflow: TextOverflow.visible,
-          style: context.colours.title.copyWith(
-            fontSize: 14,
-            color: context.colours.cardText,
-          ),
+      title: Text(
+        "Budget IT",
+        softWrap: false,
+        overflow: TextOverflow.visible,
+        style: context.colours.title.copyWith(
+          fontSize: 16,
+          color: context.colours.cardText,
         ),
       ),
       actions: [

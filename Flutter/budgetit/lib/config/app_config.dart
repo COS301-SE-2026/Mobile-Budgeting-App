@@ -37,6 +37,13 @@ class AppConfig {
   /// Whether the app is running against production infrastructure.
   static bool get isProduction => environment == 'prod';
 
+  /// S3 Base url for folder containing the BGE model files.
+  static const String bgeModelBaseUrl = String.fromEnvironment(
+    'BGE_MODEL_BASE_URL',
+    defaultValue:
+        'https://budgetit-models-releases.s3.af-south-1.amazonaws.com/bge-small-en-finetuned-v0.1',
+  );
+
   /// Base URL of the PowerSync service.
   ///
   /// Defaults to `10.0.2.2`, the Android emulator's alias for the host machine.

@@ -161,6 +161,29 @@ void main() {
       expect(reachedLimitText.style?.color, isNot(MyColours.lightTheme.error));
     });
 
+    testWidgets('opens and closes a chart popup when a chart is tapped', (
+      tester,
+    ) async {
+      final mock = MockDb();
+
+      await tester.pumpWidget(
+        _wrap(database: mock.db, reportBuilder: (_) async => _reportWithData()),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(BarChart).first);
+      await tester.pumpAndSettle();
+
+      expect(find.byTooltip('Close chart'), findsOneWidget);
+      expect(find.text('Income versus Expenses'), findsNWidgets(2));
+
+      await tester.tap(find.byTooltip('Close chart'));
+      await tester.pumpAndSettle();
+
+      expect(find.byTooltip('Close chart'), findsNothing);
+      expect(find.text('Income versus Expenses'), findsOneWidget);
+    });
+
     testWidgets('changing reporting period reloads the report', (tester) async {
       final mock = MockDb();
       final requestedPeriods = <ReportingPeriod>[];

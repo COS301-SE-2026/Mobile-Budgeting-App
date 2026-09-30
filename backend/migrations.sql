@@ -106,12 +106,110 @@ CREATE UNIQUE INDEX IF NOT EXISTS ux_friendships_pair
   ON friendships (user_a, user_b)
   WHERE deleted_at IS NULL;
 
--- 5. Add the new tables to the PowerSync publication (Postgres 10+).
-ALTER PUBLICATION powersync ADD TABLE
-  public.goal_templates,
-  public.goal_periods,
-  public.budget_members,
-  public.goal_members,
-  public.user_profiles,
-  public.friend_requests,
-  public.friendships;
+-- 5. Add the new tables to the PowerSync publication (idempotent).
+DO $$
+DECLARE
+  tbl text;
+BEGIN
+  FOREACH tbl IN ARRAY ARRAY[
+    'goal_templates', 'goal_periods', 'budget_members', 'goal_members',
+    'user_profiles', 'friend_requests', 'friendships'
+  ] LOOP
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_publication_tables
+      WHERE pubname = 'powersync' AND schemaname = 'public' AND tablename = tbl
+    ) THEN
+      EXECUTE format('ALTER PUBLICATION powersync ADD TABLE public.%I', tbl);
+    END IF;
+  END LOOP;
+END $$;
+
+CREATE TABLE IF NOT EXISTS goal_contributions (
+  id uuid PRIMARY KEY,
+  template_id uuid NOT NULL REFERENCES goal_templates(id),
+  user_id text NOT NULL,
+  amount numeric(19,4) NOT NULL,
+  note text,
+  transaction_id uuid REFERENCES transactions(id),
+  contributed_at timestamptz NOT NULL,
+  created_at timestamptz NOT NULL,
+  updated_at timestamptz NOT NULL,
+  deleted_at timestamptz
+);
+CREATE INDEX IF NOT EXISTS ix_goal_contributions_template
+  ON goal_contributions (template_id)
+  WHERE deleted_at IS NULL;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'powersync' AND schemaname = 'public' AND tablename = 'goal_contributions'
+  ) THEN
+    ALTER PUBLICATION powersync ADD TABLE public.goal_contributions;
+  END IF;
+END $$;
+
+ALTER TABLE goal_members
+  ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'accepted',
+  ADD COLUMN IF NOT EXISTS invited_by text;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'goal_members_status_check'
+  ) THEN
+    ALTER TABLE goal_members
+      ADD CONSTRAINT goal_members_status_check
+      CHECK (status IN ('pending', 'accepted', 'declined'));
+  END IF;
+END $$;
+
+ALTER TABLE transactions
+     ADD COLUMN IF NOT EXISTS budget_template_id uuid REFERENCES budget_templates(id);
+
+DELETE FROM transaction_category_map
+  WHERE transaction_id IN (SELECT id FROM transactions WHERE budget_template_id IS NULL);
+
+DELETE FROM goal_contributions
+  WHERE transaction_id IN (SELECT id FROM transactions WHERE budget_template_id IS NULL);
+
+DELETE FROM transactions WHERE budget_template_id IS NULL;
+
+ALTER TABLE transactions ALTER COLUMN budget_template_id SET NOT NULL;
+
+ALTER TABLE categories
+  ADD COLUMN IF NOT EXISTS budget_template_id uuid REFERENCES budget_templates(id);
+
+UPDATE recurring_transactions SET category_id = NULL
+  WHERE category_id IN (SELECT id FROM categories WHERE budget_template_id IS NULL);
+
+UPDATE budget_templates SET category_id = NULL
+  WHERE category_id IN (SELECT id FROM categories WHERE budget_template_id IS NULL);
+
+UPDATE goal_templates SET category_id = NULL
+  WHERE category_id IN (SELECT id FROM categories WHERE budget_template_id IS NULL);
+
+DELETE FROM transaction_category_map
+  WHERE category_id IN (SELECT id FROM categories WHERE budget_template_id IS NULL);
+
+DELETE FROM category_closure
+  WHERE ancestor_id IN (SELECT id FROM categories WHERE budget_template_id IS NULL)
+     OR descendant_id IN (SELECT id FROM categories WHERE budget_template_id IS NULL);
+
+DELETE FROM categories WHERE budget_template_id IS NULL;
+
+ALTER TABLE categories ALTER COLUMN budget_template_id SET NOT NULL;
+
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'powersync' AND schemaname = 'public' AND tablename = 'budget_categories'
+  ) THEN
+    ALTER PUBLICATION powersync DROP TABLE public.budget_categories;
+  END IF;
+END $$;
+
+DROP TABLE IF EXISTS budget_categories;
+

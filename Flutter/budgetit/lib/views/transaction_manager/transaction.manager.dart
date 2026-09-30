@@ -3,6 +3,7 @@ import 'package:budgetit/database/schema.dart';
 import 'package:budgetit/shared/widgets/box.dart';
 import 'package:budgetit/shared/widgets/fab.dart';
 import 'package:budgetit/shared/widgets/transaction_filter_bar.dart';
+import 'package:budgetit/shared/widgets/searchbox.dart';
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:budgetit/utils/theme_provider.dart';
 import 'package:budgetit/utils/icon_mapper.dart';
@@ -26,6 +27,8 @@ class _TransactionManagerState extends State<TransactionManager> {
   Map<String, String> _transactionCategoryNames = {};
   Map<String, IconData> _transactionCategoryIcons = {};
   bool _isLoading = true;
+  List<BudgetTemplate> _budgets = [];
+  String? _selectedBudgetId;
 
   static const _monthNames = [
     'Jan',
@@ -69,6 +72,19 @@ class _TransactionManagerState extends State<TransactionManager> {
   void initState() {
     super.initState();
     _loadTransactions();
+    _loadBudgets();
+  }
+
+  Future<void> _loadBudgets() async {
+    final db = context.read<AppDatabase>();
+    final all = await db.budgetDao.getAllBudgetTemplates();
+    final budgets = all
+        .where((b) => b.categoryId == null && (b.name?.isNotEmpty ?? false))
+        .toList();
+    if (!mounted) return;
+    setState(() {
+      _budgets = budgets;
+    });
   }
 
   Future<void> _loadTransactions() async {
@@ -121,7 +137,10 @@ class _TransactionManagerState extends State<TransactionManager> {
       final matchesCategory =
           _selectedCategory == TransactionFilterBar.allCategories ||
           category == _selectedCategory;
-      return matchesSearch && matchesCategory;
+      final matchesBudget =
+          _selectedBudgetId == null ||
+          transaction.budgetTemplateId == _selectedBudgetId;
+      return matchesSearch && matchesCategory && matchesBudget;
     }).toList();
 
     filtered.sort(
@@ -177,9 +196,7 @@ class _TransactionManagerState extends State<TransactionManager> {
       final month = DateTime(local.year, local.month);
       (map[month] ??= []).add(t);
     }
-    return Map.fromEntries(
-      map.entries.toList()..sort((a, b) => b.key.compareTo(a.key)),
-    );
+    return map;
   }
 
   Map<DateTime, List<Transaction>> _groupByDate(List<Transaction> txns) {
@@ -189,9 +206,7 @@ class _TransactionManagerState extends State<TransactionManager> {
       final date = DateTime(local.year, local.month, local.day);
       (map[date] ??= []).add(t);
     }
-    return Map.fromEntries(
-      map.entries.toList()..sort((a, b) => b.key.compareTo(a.key)),
-    );
+    return map;
   }
 
   double _monthNet(List<Transaction> txns) {
@@ -232,11 +247,37 @@ class _TransactionManagerState extends State<TransactionManager> {
     dao.softDeleteTransaction(id).then((_) => _loadTransactions());
   }
 
+  Widget _transactionTile(Transaction transaction) => Padding(
+    padding: const EdgeInsets.only(bottom: 10),
+    child: MyBox(
+      key: ValueKey(transaction.id),
+      transactionId: transaction.id,
+      text: transaction.shortDescription,
+      amount: transaction.amount.toDouble(),
+      icon: _categoryIconFor(transaction),
+      category: _categoryFor(transaction),
+      categories: _categories,
+      transactionType: transaction.type,
+      date:
+          '${_dayNames[transaction.transactionDate.toLocal().weekday - 1]}, '
+          '${_monthNames[transaction.transactionDate.toLocal().month - 1]} '
+          '${transaction.transactionDate.toLocal().day}, '
+          '${transaction.transactionDate.toLocal().year}',
+      isExpense: transaction.type == TransactionType.expense,
+      onEdited: (name, amount, icon, category) =>
+          _handleEdit(transaction.id, name, amount),
+      onDelete: () => _handleDelete(transaction.id),
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>();
     final colours = context.colours;
-    final byMonth = _groupByMonth(_filtered);
+    final filtered = _filtered;
+    final isDateSort =
+        _sort == TransactionSort.newest || _sort == TransactionSort.oldest;
+    final byMonth = isDateSort ? _groupByMonth(filtered) : null;
 
     return Scaffold(
       backgroundColor: colours.background,
@@ -262,11 +303,108 @@ class _TransactionManagerState extends State<TransactionManager> {
                   horizontal: 16,
                   vertical: 5,
                 ),
+                child: SearchBox(
+                  hintText: 'Search transactions',
+                  onChanged: (value) => setState(() => _searchQuery = value),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 5,
+                ),
+                child: Container(
+                  width: double.infinity,
+                  height: 48,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: _selectedBudgetId != null
+                        ? colours.informational
+                        : Theme.of(context).brightness == Brightness.light
+                        ? colours.cardText
+                        : colours.searchBar,
+                    border: Border.all(color: Colors.black, width: 4),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _selectedBudgetId ?? '',
+                      isExpanded: true,
+                      dropdownColor:
+                          Theme.of(context).brightness == Brightness.light
+                          ? colours.cardText
+                          : colours.searchBar,
+                      iconEnabledColor:
+                          Theme.of(context).brightness == Brightness.light
+                          ? colours.secondary
+                          : colours.cardText,
+                      style: colours.b1.copyWith(
+                        color: Theme.of(context).brightness == Brightness.light
+                            ? colours.secondary
+                            : colours.cardText,
+                      ),
+                      items: [
+                        DropdownMenuItem<String>(
+                          value: '',
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.account_balance_outlined,
+                                size: 18,
+                                color:
+                                    Theme.of(context).brightness ==
+                                        Brightness.light
+                                    ? colours.secondary
+                                    : colours.cardText,
+                              ),
+                              const SizedBox(width: 8),
+                              Text('All budgets'),
+                            ],
+                          ),
+                        ),
+                        for (final budget in _budgets)
+                          DropdownMenuItem<String>(
+                            value: budget.id,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.account_balance_wallet_outlined,
+                                  size: 18,
+                                  color:
+                                      Theme.of(context).brightness ==
+                                          Brightness.light
+                                      ? colours.secondary
+                                      : colours.cardText,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    budget.name ?? 'Budget',
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                      onChanged: (value) => setState(
+                        () => _selectedBudgetId =
+                            (value == null || value.isEmpty) ? null : value,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 5,
+                ),
                 child: TransactionFilterBar(
                   categories: _categories,
                   categoryIcons: _categoryIconsByName,
                   selectedCategory: _selectedCategory,
                   selectedSort: _sort,
+                  showSearch: false,
                   onSearchChanged: (value) =>
                       setState(() => _searchQuery = value),
                   onCategoryChanged: (value) =>
@@ -292,20 +430,30 @@ class _TransactionManagerState extends State<TransactionManager> {
                   padding: const EdgeInsets.only(top: 48),
                   child: CircularProgressIndicator(color: colours.secondary),
                 )
-              else if (byMonth.isEmpty)
+              else if (filtered.isEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 48),
                   child: Text(
                     _searchQuery.isNotEmpty
                         ? 'No results for "$_searchQuery"'
+                        : _selectedCategory !=
+                              TransactionFilterBar.allCategories
+                        ? 'No transactions in $_selectedCategory'
                         : 'No transactions yet',
                     style: TextStyle(
                       color: colours.textPrimary.withValues(alpha: 0.6),
                     ),
                   ),
                 )
+              else if (!isDateSort)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    children: filtered.map(_transactionTile).toList(),
+                  ),
+                )
               else
-                ...byMonth.entries.map((monthEntry) {
+                ...byMonth!.entries.map((monthEntry) {
                   final month = monthEntry.key;
                   final monthTxns = monthEntry.value;
                   final net = _monthNet(monthTxns);
@@ -316,7 +464,9 @@ class _TransactionManagerState extends State<TransactionManager> {
                     margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                     padding: const EdgeInsets.fromLTRB(14, 14, 14, 6),
                     decoration: BoxDecoration(
-                      color: colours.blendedprimary,
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? colours.secondary
+                          : colours.blendedprimary,
                       border: Border.all(color: Colors.black, width: 4),
                       boxShadow: const [
                         BoxShadow(color: Colors.black, offset: Offset(6, 6)),
@@ -374,34 +524,7 @@ class _TransactionManagerState extends State<TransactionManager> {
                                   ),
                                 ),
                               ),
-                              ...txns.map(
-                                (t) => Padding(
-                                  padding: const EdgeInsets.only(bottom: 10),
-                                  child: MyBox(
-                                    key: ValueKey(t.id),
-                                    transactionId: t.id,
-                                    text: t.shortDescription,
-                                    amount: t.amount.toDouble(),
-                                    icon: t.type == TransactionType.income
-                                        ? Icons.arrow_circle_up_outlined
-                                        : Icons.arrow_circle_down_outlined,
-                                    category:
-                                        _transactionCategoryNames[t.id] ??
-                                        (t.type == TransactionType.income
-                                            ? 'Income'
-                                            : 'Expense'),
-                                    categories: const [],
-                                    transactionType: t.type,
-                                    date:
-                                        '${_dayNames[date.weekday - 1]}, ${_monthNames[date.month - 1]} ${date.day}, ${date.year}',
-                                    isExpense:
-                                        t.type == TransactionType.expense,
-                                    onEdited: (name, amount, icon, category) =>
-                                        _handleEdit(t.id, name, amount),
-                                    onDelete: () => _handleDelete(t.id),
-                                  ),
-                                ),
-                              ),
+                              ...txns.map(_transactionTile),
                             ],
                           );
                         }),
@@ -414,7 +537,13 @@ class _TransactionManagerState extends State<TransactionManager> {
           ),
         ),
       ),
-      floatingActionButton: FAB(onTransactionAdded: _loadTransactions),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(right: 12),
+        child: FAB(
+          onTransactionAdded: _loadTransactions,
+          initialBudgetId: _selectedBudgetId,
+        ),
+      ),
     );
   }
 }
