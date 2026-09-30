@@ -2,14 +2,17 @@ import 'package:decimal/decimal.dart';
 import 'package:drift/drift.dart';
 import 'package:drift_sqlite_async/drift_sqlite_async.dart';
 import 'package:powersync/powersync.dart' hide Table;
-import 'schema.dart';
-import 'daos/embedding_cache_dao.dart';
-import 'daos/category_dao.dart';
-import 'daos/transaction_dao.dart';
-import 'daos/budget_dao.dart';
-import 'daos/recurring_transaction_dao.dart';
-import 'daos/settings_dao.dart';
-import 'daos/schema_cache_dao.dart';
+import 'package:budgetit/database/schema.dart';
+import 'package:budgetit/database/daos/embedding_cache_dao.dart';
+import 'package:budgetit/database/daos/category_dao.dart';
+import 'package:budgetit/database/daos/transaction_dao.dart';
+import 'package:budgetit/database/daos/budget_dao.dart';
+import 'package:budgetit/database/daos/recurring_transaction_dao.dart';
+import 'package:budgetit/database/daos/settings_dao.dart';
+import 'package:budgetit/database/daos/schema_cache_dao.dart';
+import 'package:budgetit/database/daos/goal_dao.dart';
+import 'package:budgetit/database/daos/sharing_dao.dart';
+import 'package:budgetit/database/daos/friends_dao.dart';
 
 part 'app_database.g.dart';
 
@@ -22,6 +25,14 @@ part 'app_database.g.dart';
     TransactionCategoryMap,
     BudgetTemplates,
     BudgetPeriods,
+    GoalTemplates,
+    GoalPeriods,
+    GoalContributions,
+    BudgetMembers,
+    GoalMembers,
+    UserProfiles,
+    FriendRequests,
+    Friendships,
     AppSettings,
     EmbeddingCacheEntries,
     StatementSchemaCache,
@@ -50,6 +61,16 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(statementSchemaCache);
       }
     },
+    beforeOpen: (details) async {
+      // Remove legacy rows created before budget_template_id became NOT NULL.
+      // These crash the drift reader (null check) and fail to upload.
+      await customStatement(
+        'DELETE FROM transactions WHERE budget_template_id IS NULL',
+      );
+      await customStatement(
+        'DELETE FROM categories WHERE budget_template_id IS NULL',
+      );
+    },
   );
 
   static QueryExecutor _openConnection(PowerSyncDatabase powerSyncDb) {
@@ -69,4 +90,13 @@ late final EmbeddingCacheDao embeddingCacheDao = EmbeddingCacheDao(this);
   late final SettingsDao settingsDao = SettingsDao(this);
 
   late final SchemaCacheDao schemaCacheDao = SchemaCacheDao(this);
+
+  /// Accessor for income goals.
+  late final GoalDao goalDao = GoalDao(this);
+
+  /// Accessor for budget/goal sharing (co-owners).
+  late final SharingDao sharingDao = SharingDao(this);
+
+  /// Accessor for friends, requests and profiles.
+  late final FriendsDao friendsDao = FriendsDao(this);
 }

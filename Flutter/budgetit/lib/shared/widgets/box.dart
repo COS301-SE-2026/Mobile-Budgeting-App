@@ -10,7 +10,7 @@ class MyBox extends StatefulWidget {
   final double? amount;
   final String? category;
   final String? date;
-  // forgot to add the category to our current ui so here it is 
+  // forgot to add the category to our current ui so here it is
   final List<String> categories;
   final TransactionType? transactionType;
   final bool isExpense;
@@ -64,6 +64,17 @@ class _MyBoxState extends State<MyBox> {
     _isExpense = widget.isExpense;
   }
 
+  @override
+  void didUpdateWidget(covariant MyBox oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _name = widget.text ?? '';
+    _amount = widget.amount ?? 0.0;
+    _icon = widget.icon ?? Icons.attach_money;
+    _category = widget.category ?? '';
+    _date = widget.date ?? '';
+    _isExpense = widget.isExpense;
+  }
+
   void _openEditDialog() {
     showDialog(
       context: context,
@@ -73,8 +84,8 @@ class _MyBoxState extends State<MyBox> {
         icon: _icon,
         category: _category,
         categories: widget.categories,
-        transactionId : widget.transactionId,
-        transactionType : widget.transactionType,
+        transactionId: widget.transactionId,
+        transactionType: widget.transactionType,
         onSave: (newName, newAmount, newIcon, newCategory) {
           setState(() {
             _name = newName;
@@ -92,92 +103,97 @@ class _MyBoxState extends State<MyBox> {
 
   @override
   Widget build(BuildContext context) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final tileTextColor = isLight
+        ? context.colours.secondary
+        : context.colours.cardText;
+
     return GestureDetector(
       onTap: _openEditDialog,
 
       onTapDown: (_) => setState(() => _isPressed = true),
       onTapUp: (_) => setState(() => _isPressed = false),
       onTapCancel: () => setState(() => _isPressed = false),
-      child: Stack(
-        children: [
-          Container(//adding our custom card decor
-            height: MediaQuery.of(context).size.height * 0.1,
-            width: MediaQuery.of(context).size.width * 0.9,
-            alignment : Alignment.center,
-            decoration: BoxDecoration(
-              shape: BoxShape.rectangle,
-              color: context.colours.background,
-              boxShadow: [
-                BoxShadow(offset: const Offset(6, 6), color: Colors.black),
-              ],
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.1,
+        width: MediaQuery.of(context).size.width * 0.9,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: context.colours.background,
+          border: Border.all(color: Colors.black, width: 3),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: isLight
+                    ? context.colours.secondary
+                    : context.colours.blendedprimary,
+                border: Border.all(color: Colors.black, width: 2),
+              ),
+              child: Icon(
+                _icon,
+                color: isLight
+                    ? context.colours.background
+                    : context.colours.cardText,
+                size: 20,
+              ),
             ),
-          ),
-          Container(
-            height: MediaQuery.of(context).size.height * 0.1,
-            width: MediaQuery.of(context).size.width * 0.9,
-
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              shape: BoxShape.rectangle,
-              color: context.colours.primary,
-
-              border: Border.all(color: Colors.black, width: 4.0),
-            ),
-            child: Row(
-              children: [
-                const SizedBox(width: 12),
-                Icon(
-                  _icon,
-                  color: _isPressed
-                      ? context.colours.background
-                      : _isExpense
-                      ? context.colours.error
-                      : context.colours.greenAccents,
-                  size: MediaQuery.of(context).size.width * 0.04,
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _name,
-                        style: context.colours.budgetheader.copyWith(
-                          color: context.colours.cardText,
-                        ),
-                        overflow: TextOverflow.ellipsis,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _name,
+                    style: context.colours.budgetheader.copyWith(
+                      color: tileTextColor,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (_category.isNotEmpty)
+                    Text(
+                      _category + (_date.isNotEmpty ? ' - $_date' : ''),
+                      style: context.colours.b5.copyWith(
+                        color: tileTextColor,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
                       ),
-                      if (_category.isNotEmpty)
-                        Text(
-                          _category + (_date.isNotEmpty ? ' - $_date' : ''),
-                          style: context.colours.b5.copyWith(
-                            color: context.colours.cardText,
-                          ),
-                          overflow: TextOverflow.visible,
-                        ),
-                    ],
-                  ),
-                ),
-                Text(
-                  _isExpense
-                      ? '- R${_amount.toStringAsFixed(2)}'
-                      : 'R${_amount.toStringAsFixed(2)}',
-                  style: context.colours.b4.copyWith(
-                    color: _isExpense
-                        ? _isPressed
-                              ? context.colours.background
-                              : context.colours.error
-                        : _isPressed
-                        ? context.colours.background
-                        : context.colours.greenAccents,
-                  ),
-                ),
-                const SizedBox(width: 12),
-              ],
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                ],
+              ),
             ),
-          ),
-        ],
+            Text(
+              _isExpense
+                  ? '- R${_amount.toStringAsFixed(2)}'
+                  : '+ R${_amount.toStringAsFixed(2)}',
+              style: context.colours.b4.copyWith(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: isLight
+                    ? (_isExpense
+                          ? context.colours.error
+                          : context.colours.blendedprimary)
+                    : _isExpense
+                    ? _isPressed
+                          ? context.colours.background
+                          : context.colours.error
+                    : _isPressed
+                    ? context.colours.background
+                    : context.colours.greenAccents,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

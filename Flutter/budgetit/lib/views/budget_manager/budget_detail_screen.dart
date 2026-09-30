@@ -5,6 +5,7 @@ import '../../database/app_database.dart';
 import '../../database/schema.dart';
 import '../../shared/widgets/add_transaction_dialog.dart';
 import '../../utils/app_colour.dart';
+import '../../utils/app_dialog_style.dart';
 
 class BudgetDetailScreen extends StatefulWidget {
   const BudgetDetailScreen({
@@ -298,7 +299,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
           const SizedBox(height: 6),
           Text(
             'Budget limit: ${_formatCurrency(_limit)}',
-            style: context.colours.b1.copyWith(
+            style: context.colours.b5.copyWith(
               color: cardTextColor,
               fontSize: 13,
             ),
@@ -322,7 +323,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
             _isOverLimit
                 ? 'You are ${_formatCurrency(remaining.abs())} over this budget.'
                 : 'You still have ${_formatCurrency(remaining)} remaining.',
-            style: context.colours.b1.copyWith(
+            style: context.colours.b5.copyWith(
               color: _isOverLimit ? context.colours.error : cardTextColor,
               fontSize: 13,
               fontWeight: _isOverLimit ? FontWeight.bold : FontWeight.normal,
@@ -421,91 +422,126 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
             .take(3)
             .toList();
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _sectionTitle('Recent Transactions'),
-            const SizedBox(height: 12),
-            if (snapshot.connectionState == ConnectionState.waiting)
-              //refactoring it to our design
-              Center(
-                child: CircularProgressIndicator(
-                  color: context.colours.secondary,
-                ),
-              )
-            else if (transactions.isEmpty)
-              _borderCard(
-                child: Text(
-                  'No recent transactions for this budget yet.',
-                  style: context.colours.b1.copyWith(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? context.colours.secondary
-                        : context.colours.background,
-                    fontSize: 13,
-                  ),
-                ),
-              )
-            else
-              ...transactions.map((transaction) {
-                final isIncome = transaction.type == TransactionType.income;
-                final moneyColor = isIncome
-                    ? context.colours.greenAccents
-                    : context.colours.error;
+        final colours = context.colours;
+        final isLight = Theme.of(context).brightness == Brightness.light;
+        final tileTextColor = isLight ? colours.secondary : colours.cardText;
 
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: context.colours.primary,
-                    border: Border.all(color: Colors.black, width: 4),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black,
-                        offset: const Offset(4, 4),
-                      ),
-                    ],
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(14, 14, 14, 6),
+          decoration: BoxDecoration(
+            color: isLight ? colours.secondary : colours.blendedprimary,
+            border: Border.all(color: Colors.black, width: 4),
+            boxShadow: const [
+              BoxShadow(color: Colors.black, offset: Offset(6, 6)),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'RECENT TRANSACTIONS',
+                style: colours.h2.copyWith(color: colours.cardText),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                height: 3,
+                color: colours.cardText.withValues(alpha: 0.35),
+              ),
+              const SizedBox(height: 12),
+              if (snapshot.connectionState == ConnectionState.waiting)
+                //refactoring it to our design
+                Center(
+                  child: CircularProgressIndicator(color: colours.cardText),
+                )
+              else if (transactions.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Text(
+                    'No recent transactions for this budget yet.',
+                    style: colours.b1.copyWith(
+                      color: colours.cardText,
+                      fontSize: 13,
+                    ),
                   ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        isIncome
-                            ? Icons.arrow_circle_up_outlined
-                            : Icons.arrow_circle_down_outlined,
-                        color: moneyColor,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              transaction.shortDescription,
-                              style: context.colours.budgetheader.copyWith(
-                                color: context.colours.cardText,
-                              ),
-                            ),
-                            Text(
-                              _formatDate(transaction.transactionDate),
-                              style: context.colours.b5.copyWith(
-                                color: context.colours.cardText,
-                              ),
-                            ),
-                          ],
+                )
+              else
+                ...transactions.map((transaction) {
+                  final isIncome = transaction.type == TransactionType.income;
+                  final moneyColor = isIncome
+                      ? (isLight
+                            ? colours.blendedprimary
+                            : colours.greenAccents)
+                      : colours.error;
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    height: MediaQuery.sizeOf(context).height * 0.1,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: colours.background,
+                      border: Border.all(color: Colors.black, width: 3),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 34,
+                          height: 34,
+                          decoration: BoxDecoration(
+                            color: colours.secondary,
+                            border: Border.all(color: Colors.black, width: 2),
+                          ),
+                          child: Icon(
+                            isIncome
+                                ? Icons.arrow_upward
+                                : Icons.arrow_downward,
+                            color: colours.background,
+                            size: 20,
+                          ),
                         ),
-                      ),
-                      Text(
-                        _formatCurrency(transaction.amount.toDouble()),
-                        style: context.colours.b4.copyWith(
-                          color: moneyColor,
-                          fontWeight: FontWeight.bold,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                transaction.shortDescription,
+                                style: colours.budgetheader.copyWith(
+                                  color: tileTextColor,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 5),
+                              Text(
+                                _formatDate(transaction.transactionDate),
+                                style: colours.b5.copyWith(
+                                  color: tileTextColor,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-          ],
+                        Text(
+                          '${isIncome ? '+ ' : '- '}${_formatCurrency(transaction.amount.toDouble())}',
+                          style: colours.b4.copyWith(
+                            color: moneyColor,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+            ],
+          ),
         );
       },
     );
@@ -551,12 +587,20 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
     required String label,
     required VoidCallback onTap,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final buttonColor = isDark
+        ? context.colours.blendedprimary
+        : context.colours.secondary;
+    final buttonTextColor = isDark
+        ? context.colours.secondary
+        : context.colours.background;
+
     return InkWell(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         decoration: BoxDecoration(
-          color: context.colours.secondary,
+          color: buttonColor,
           border: Border.all(color: Colors.black, width: 4),
           boxShadow: [
             BoxShadow(color: Colors.black, offset: const Offset(4, 4)),
@@ -565,16 +609,16 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: context.colours.background, size: 18),
+            Icon(icon, color: buttonTextColor, size: 18),
             const SizedBox(width: 8),
             Flexible(
               child: Text(
                 label,
                 textAlign: TextAlign.center,
-                style: context.colours.b1.copyWith(
-                  color: context.colours.background,
+                style: context.colours.h2.copyWith(
+                  color: buttonTextColor,
                   fontWeight: FontWeight.bold,
-                  fontSize: 12,
+                  fontSize: 13,
                 ),
               ),
             ),
@@ -633,6 +677,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
       context: context,
       builder: (dialogContext) {
         final colours = context.colours;
+        final isDark = AppDialogStyle.isDark(context);
 
         return Dialog(
           backgroundColor: Colors.transparent,
@@ -644,7 +689,9 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
             constraints: const BoxConstraints(maxWidth: 420),
             padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
             decoration: BoxDecoration(
-              color: colours.background,
+              color: isDark
+                  ? AppDialogStyle.surface(context)
+                  : colours.background,
               border: Border.all(color: Colors.black, width: 4),
               boxShadow: const [
                 BoxShadow(
@@ -669,8 +716,9 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                 Text(
                   'You have used ${usedPercentage.toStringAsFixed(1)}% of your ${widget.title} budget.\n\n'
                   '${_isOverLimit ? 'You are over budget by ${_formatCurrency(remaining.abs())}.' : 'You still have ${_formatCurrency(remaining)} remaining.'}',
-                  style: colours.b1.copyWith(
+                  style: colours.b5.copyWith(
                     color: colours.textPrimary,
+                    fontSize: 14,
                     height: 1.4,
                   ),
                 ),
@@ -679,14 +727,16 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                   alignment: Alignment.centerRight,
                   child: ElevatedButton(
                     onPressed: () => Navigator.of(dialogContext).pop(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: colours.secondary,
-                      foregroundColor: colours.background,
-                    ),
+                    style: isDark
+                        ? AppDialogStyle.cancel(context)
+                        : ElevatedButton.styleFrom(
+                            backgroundColor: colours.secondary,
+                            foregroundColor: colours.background,
+                          ),
                     child: Text(
                       'Close',
                       style: colours.b1.copyWith(
-                        color: colours.background,
+                        color: isDark ? colours.secondary : colours.background,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -709,6 +759,9 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
       context: context,
       builder: (dialogContext) {
         final colours = context.colours;
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final buttonColor = isDark ? colours.blendedprimary : colours.secondary;
+        final buttonTextColor = isDark ? colours.secondary : colours.background;
 
         return Dialog(
           backgroundColor: Colors.transparent,
@@ -720,7 +773,9 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
             constraints: const BoxConstraints(maxWidth: 420),
             padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
             decoration: BoxDecoration(
-              color: colours.background,
+              color: isDark
+                  ? AppDialogStyle.surface(context)
+                  : colours.background,
               border: Border.all(color: Colors.black, width: 4),
               boxShadow: const [
                 BoxShadow(
@@ -745,13 +800,22 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                 TextField(
                   controller: limitController,
                   keyboardType: TextInputType.number,
-                  style: colours.b1.copyWith(color: colours.textPrimary),
+                  style: colours.b4.copyWith(
+                    color: colours.textPrimary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                  ),
                   decoration: InputDecoration(
                     labelText: 'Budget limit',
-                    labelStyle: colours.b1.copyWith(color: colours.textPrimary),
-                    prefixText: 'R ',
-                    prefixStyle: colours.b1.copyWith(
+                    labelStyle: colours.b5.copyWith(
                       color: colours.textPrimary,
+                      fontSize: 13,
+                    ),
+                    prefixText: 'R ',
+                    prefixStyle: colours.b4.copyWith(
+                      color: colours.textPrimary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
                     ),
                     filled: true,
                     fillColor: colours.background,
@@ -761,17 +825,23 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.zero,
-                      borderSide: BorderSide(color: colours.secondary),
+                      borderSide: const BorderSide(
+                        color: Colors.black,
+                        width: 3,
+                      ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.zero,
-                      borderSide: BorderSide(color: colours.secondary),
+                      borderSide: const BorderSide(
+                        color: Colors.black,
+                        width: 3,
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.zero,
-                      borderSide: BorderSide(
-                        color: colours.secondary,
-                        width: 2,
+                      borderSide: const BorderSide(
+                        color: Colors.black,
+                        width: 4,
                       ),
                     ),
                   ),
@@ -785,9 +855,27 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                         limitController.dispose();
                         Navigator.of(dialogContext).pop();
                       },
+                      style: isDark
+                          ? AppDialogStyle.cancel(context)
+                          : TextButton.styleFrom(
+                              backgroundColor: isDark ? buttonColor : null,
+                              foregroundColor: colours.textPrimary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero,
+                                side: isDark
+                                    ? const BorderSide(
+                                        color: Colors.black,
+                                        width: 3,
+                                      )
+                                    : BorderSide.none,
+                              ),
+                            ),
                       child: Text(
                         'Cancel',
-                        style: colours.b1.copyWith(color: colours.textPrimary),
+                        style: colours.h2.copyWith(
+                          color: isDark ? buttonTextColor : colours.textPrimary,
+                          fontSize: 14,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -820,17 +908,23 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
 
                         _showSnackBar(message: 'Budget updated successfully.');
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colours.secondary,
-                        foregroundColor: colours.background,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          side: const BorderSide(color: Colors.black, width: 3),
-                        ),
-                        textStyle: colours.b1.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      style: isDark
+                          ? AppDialogStyle.primary(context)
+                          : ElevatedButton.styleFrom(
+                              backgroundColor: buttonColor,
+                              foregroundColor: buttonTextColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                side: const BorderSide(
+                                  color: Colors.black,
+                                  width: 3,
+                                ),
+                              ),
+                              textStyle: colours.h2.copyWith(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
                       child: const Text('Save'),
                     ),
                   ],

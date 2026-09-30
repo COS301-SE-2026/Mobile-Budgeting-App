@@ -1,14 +1,19 @@
 import 'package:budgetit/utils/app_colour.dart';
 import 'package:flutter/material.dart';
 import 'package:budgetit/shared/widgets/coming_soon_page.dart';
-import 'package:budgetit/shared/widgets/profile_page.dart';
+//import 'package:budgetit/shared/widgets/profile_page.dart';
 import 'package:budgetit/shared/widgets/help_menu_page.dart';
 import 'package:provider/provider.dart';
 import 'package:budgetit/utils/theme_provider.dart';
 import 'package:budgetit/shared/widgets/settings_page.dart';
 
 class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
-  const MainAppbar({super.key});
+  const MainAppbar({
+    super.key,
+    this.onProfileTap,
+  });
+
+  final VoidCallback? onProfileTap;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -34,6 +39,10 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: context.colours.blendedprimary,
       elevation: 0,
+      scrolledUnderElevation: 0,
+      surfaceTintColor: Colors.transparent,
+      shadowColor: Colors.transparent,
+      titleSpacing: 8,
       shape: const Border(bottom: BorderSide(color: Colors.black, width: 4)),
       leading: IconButton(
         tooltip: 'Help menu',
@@ -54,17 +63,13 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
         },
       ),
 
-      title: FittedBox(
-        fit: BoxFit.scaleDown,
-        alignment: Alignment.centerLeft,
-        child: Text(
-          "Budget IT",
-          softWrap: false,
-          overflow: TextOverflow.visible,
-          style: context.colours.title.copyWith(
-            fontSize: 14,
-            color: context.colours.cardText,
-          ),
+      title: Text(
+        "Budget IT",
+        softWrap: false,
+        overflow: TextOverflow.visible,
+        style: context.colours.title.copyWith(
+          fontSize: 16,
+          color: context.colours.cardText,
         ),
       ),
       actions: [
@@ -100,12 +105,7 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
             ),
             child: Icon(Icons.person_outline, color: Colors.black),
           ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ProfilePage()),
-            );
-          },
+          onPressed: onProfileTap,
         ),
 
         IconButton(

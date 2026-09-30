@@ -8,7 +8,8 @@ CREATE TABLE categories (
   is_default boolean NOT NULL,
   created_at timestamptz NOT NULL,
   updated_at timestamptz NOT NULL,
-  deleted_at timestamptz
+  deleted_at timestamptz,
+  budget_template_id uuid NOT NULL REFERENCES budget_templates(id)
 );
 CREATE INDEX ix_categories_user ON categories (user_id);
 
@@ -64,7 +65,8 @@ CREATE TABLE transactions (
   currency text NOT NULL,
   recurring_id uuid REFERENCES recurring_transactions(id),
   recurring_occurrence_date timestamptz,
-  import_id uuid REFERENCES imports(id)
+  import_id uuid REFERENCES imports(id),
+  budget_template_id uuid NOT NULL REFERENCES budget_templates(id),
 );
 CREATE INDEX ix_transactions_user_date
   ON transactions (user_id, transaction_date DESC);
@@ -80,6 +82,7 @@ CREATE UNIQUE INDEX ux_recurring_occurrence_active
 CREATE TABLE budget_templates (
   id uuid PRIMARY KEY,
   user_id text NOT NULL,
+  name text,
   category_id uuid REFERENCES categories(id),
   amount numeric(19,4) NOT NULL,
   period_type text NOT NULL CHECK (period_type IN ('daily', 'weekly', 'monthly', 'yearly')),
@@ -88,9 +91,8 @@ CREATE TABLE budget_templates (
   updated_at timestamptz NOT NULL,
   deleted_at timestamptz
 );
-CREATE UNIQUE INDEX ux_budget_templates_one_active_category
-  ON budget_templates (user_id, category_id)
-  WHERE category_id IS NOT NULL AND deleted_at IS NULL;
+-- Multiple budgets per category are now supported, so the
+-- ux_budget_templates_one_active_category index has been removed.
 
 CREATE TABLE budget_periods (
   id uuid PRIMARY KEY,
@@ -131,4 +133,111 @@ CREATE TABLE transaction_category_map (
     UNIQUE (transaction_id)
 );
 
-CREATE PUBLICATION powersync FOR TABLE public.categories, public.transactions, public.budget_templates, public.recurring_transactions, public.imports, public.budget_periods, public.transaction_category_map, public.category_closure;
+CREATE TABLE goal_templates (
+  id uuid PRIMARY KEY,
+  user_id text NOT NULL,
+  name text,
+  category_id uuid REFERENCES categories(id),
+  target_amount numeric(19,4) NOT NULL,
+  period_type text NOT NULL CHECK (period_type IN ('daily', 'weekly', 'monthly', 'yearly')),
+  currency text NOT NULL DEFAULT 'ZAR',
+  created_at timestamptz NOT NULL,
+  updated_at timestamptz NOT NULL,
+  deleted_at timestamptz
+);
+
+CREATE TABLE goal_periods (
+  id uuid PRIMARY KEY,
+  template_id uuid NOT NULL REFERENCES goal_templates(id),
+  user_id text NOT NULL,
+  period_key text NOT NULL,
+  start_date timestamptz NOT NULL,
+  end_date timestamptz NOT NULL,
+  target_amount numeric(19,4) NOT NULL,
+  is_overridden boolean NOT NULL,
+  created_at timestamptz NOT NULL,
+  updated_at timestamptz NOT NULL,
+  deleted_at timestamptz
+);
+CREATE UNIQUE INDEX ux_goal_period_active
+  ON goal_periods (template_id, period_key)
+  WHERE deleted_at IS NULL;
+
+CREATE TABLE goal_contributions (
+  id uuid PRIMARY KEY,
+  template_id uuid NOT NULL REFERENCES goal_templates(id),
+  user_id text NOT NULL,
+  amount numeric(19,4) NOT NULL,
+  note text,
+  transaction_id uuid REFERENCES transactions(id),
+  contributed_at timestamptz NOT NULL,
+  created_at timestamptz NOT NULL,
+  updated_at timestamptz NOT NULL,
+  deleted_at timestamptz
+);
+CREATE INDEX ix_goal_contributions_template
+  ON goal_contributions (template_id)
+  WHERE deleted_at IS NULL;
+
+CREATE TABLE budget_members (
+  id uuid PRIMARY KEY,
+  budget_template_id uuid NOT NULL REFERENCES budget_templates(id),
+  user_id text NOT NULL,
+  created_at timestamptz NOT NULL,
+  updated_at timestamptz NOT NULL,
+  deleted_at timestamptz
+);
+CREATE UNIQUE INDEX ux_budget_members_active
+  ON budget_members (budget_template_id, user_id)
+  WHERE deleted_at IS NULL;
+
+CREATE TABLE goal_members (
+  id uuid PRIMARY KEY,
+  goal_template_id uuid NOT NULL REFERENCES goal_templates(id),
+  user_id text NOT NULL,
+  status text NOT NULL DEFAULT 'accepted' CHECK (status IN ('pending', 'accepted', 'declined')),
+  invited_by text,
+  created_at timestamptz NOT NULL,
+  updated_at timestamptz NOT NULL,
+  deleted_at timestamptz
+);
+CREATE UNIQUE INDEX ux_goal_members_active
+  ON goal_members (goal_template_id, user_id)
+  WHERE deleted_at IS NULL;
+
+CREATE TABLE user_profiles (
+  id uuid PRIMARY KEY,
+  user_id text NOT NULL,
+  friend_code text NOT NULL,
+  created_at timestamptz NOT NULL,
+  updated_at timestamptz NOT NULL
+);
+CREATE UNIQUE INDEX ux_user_profiles_user ON user_profiles (user_id);
+CREATE UNIQUE INDEX ux_user_profiles_friend_code ON user_profiles (friend_code);
+
+CREATE TABLE friend_requests (
+  id uuid PRIMARY KEY,
+  requester_id text NOT NULL,
+  addressee_id text NOT NULL,
+  status text NOT NULL CHECK (status IN ('pending', 'accepted', 'declined')),
+  created_at timestamptz NOT NULL,
+  updated_at timestamptz NOT NULL,
+  deleted_at timestamptz
+);
+CREATE UNIQUE INDEX ux_friend_requests_pending
+  ON friend_requests (requester_id, addressee_id)
+  WHERE status = 'pending' AND deleted_at IS NULL;
+
+CREATE TABLE friendships (
+  id uuid PRIMARY KEY,
+  user_a text NOT NULL,
+  user_b text NOT NULL,
+  created_at timestamptz NOT NULL,
+  updated_at timestamptz NOT NULL,
+  deleted_at timestamptz
+);
+CREATE UNIQUE INDEX ux_friendships_pair
+  ON friendships (user_a, user_b)
+  WHERE deleted_at IS NULL;
+
+CREATE PUBLICATION powersync FOR TABLE public.categories, public.transactions, public.budget_templates, public.recurring_transactions, public.imports, public.budget_periods, public.transaction_category_map, public.category_closure, public.goal_templates, public.goal_periods, public.budget_members, public.goal_members, public.user_profiles, public.friend_requests, public.friendships, public.goal_contributions;

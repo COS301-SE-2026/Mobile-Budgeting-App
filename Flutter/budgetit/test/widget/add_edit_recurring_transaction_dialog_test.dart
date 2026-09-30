@@ -331,6 +331,12 @@ void main() {
         await tester.tap(find.byIcon(Icons.delete_outline));
         await tester.pumpAndSettle();
 
+        expect(find.text('Delete Recurring Transaction'), findsOneWidget);
+        expect(deletedCalled, isFalse);
+
+        await tester.tap(find.text('Delete'));
+        await tester.pumpAndSettle();
+
         expect(find.text('Edit Recurring Transaction'), findsNothing);
         expect(deletedCalled, isTrue);
         final active = await db.recurringTransactionDao

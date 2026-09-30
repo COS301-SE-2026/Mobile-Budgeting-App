@@ -37,5 +37,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     expect(find.text('Add Recurring Transaction'), findsOneWidget);
+    expect(find.text('UPCOMING THIS MONTH'), findsOneWidget);
+    expect(find.text('COMPLETED THIS MONTH'), findsOneWidget);
   });
 }

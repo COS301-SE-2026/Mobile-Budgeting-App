@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import  'package:powersync/powersync.dart';
 import 'package:budgetit/auth/data/cognito_auth_service.dart';
 import 'package:budgetit/config/app_config.dart';
@@ -54,7 +56,22 @@ class PSyncConnector extends PowerSyncBackendConnector{
         }).toList(),
       };
 
-      await sendToFastAPI(payload);
+      try {
+        await sendToFastAPI(payload);
+      } on DioException catch (e) {
+        final status = e.response?.statusCode;
+        final isPermanent = status != null &&
+            status >= 400 &&
+            status < 500 &&
+            status != 401 &&
+            status != 408 &&
+            status != 429;
+        if (!isPermanent) rethrow;
+        developer.log(
+          'Upload rejected ($status), discarding: ${e.response?.data}',
+          name: 'PSyncConnector',
+        );
+      }
       await transaction.complete();
     }
 } 

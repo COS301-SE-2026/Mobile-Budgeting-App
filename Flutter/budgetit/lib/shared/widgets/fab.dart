@@ -8,17 +8,17 @@ import 'package:budgetit/database/app_database.dart';
 
 class FAB extends StatefulWidget {
   final VoidCallback? onTransactionAdded;
+  final String? initialBudgetId;
 
-  const FAB({super.key, this.onTransactionAdded});
+  const FAB({super.key, this.onTransactionAdded, this.initialBudgetId});
 
   @override
   State<FAB> createState() => _FABState();
 }
 
 class _FABState extends State<FAB> {
-  static const double _buttonWidth = 88;
-  static const double _buttonHeight = 56;
-  static const double _iconSize = 32;
+  static const double _buttonSize = 58;
+  static const double _iconSize = 30;
 
   bool _pressed = false;
 
@@ -46,8 +46,10 @@ class _FABState extends State<FAB> {
             Navigator.of(dialogContext).pop();
             showDialog<void>(
               context: outerContext,
-              builder: (_) =>
-                  AddTransactionDialog(onAdded: widget.onTransactionAdded),
+              builder: (_) => AddTransactionDialog(
+                onAdded: widget.onTransactionAdded,
+                initialBudgetId: widget.initialBudgetId,
+              ),
             );
           },
           onImportStatement: _navigateToImport,
@@ -58,29 +60,34 @@ class _FABState extends State<FAB> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return GestureDetector(
       onTapDown: (_) => setState(() => _pressed = true),
       onTapUp: (_) => setState(() => _pressed = false),
       onTapCancel: () => setState(() => _pressed = false),
       onTap: _showMenu,
       child: Container(
-        width: _buttonWidth,
-        height: _buttonHeight,
+        width: _buttonSize,
+        height: _buttonSize,
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(offset: const Offset(6, 6), color: Colors.black),
           ],
           border: Border.all(color: Colors.black, width: 4.0),
-          color: _pressed
+          color: isDark
+              ? context.colours.blendedprimary
+              : _pressed
               ? context.colours.informational
               : context.colours.secondary,
           shape: BoxShape.rectangle,
         ),
-        child: Align(
-          alignment: const Alignment(-0.1, -0.1),
+        child: Center(
           child: Icon(
             Icons.add,
-            color: _pressed
+            color: isDark
+                ? context.colours.secondary
+                : _pressed
                 ? context.colours.secondary
                 : context.colours.background,
             size: _iconSize,

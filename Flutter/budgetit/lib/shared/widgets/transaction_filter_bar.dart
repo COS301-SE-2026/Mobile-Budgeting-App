@@ -14,6 +14,7 @@ class TransactionFilterBar extends StatelessWidget {
     required this.onSearchChanged,
     required this.onCategoryChanged,
     required this.onSortChanged,
+    this.showSearch = true,
   });
 
   static const allCategories = 'All categories';
@@ -25,6 +26,7 @@ class TransactionFilterBar extends StatelessWidget {
   final ValueChanged<String> onSearchChanged;
   final ValueChanged<String> onCategoryChanged;
   final ValueChanged<TransactionSort> onSortChanged;
+  final bool showSearch;
 
   @override
   Widget build(BuildContext context) {
@@ -58,6 +60,8 @@ class TransactionFilterBar extends StatelessWidget {
             ),
           ],
         );
+
+        if (!showSearch) return dropdowns;
 
         if (constraints.maxWidth < 620) {
           return Column(
@@ -119,22 +123,32 @@ class _FilterDropdown<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final filterBackground = isActive
+        ? context.colours.informational
+        : isLight
+        ? context.colours.cardText
+        : context.colours.searchBar;
+    final filterForeground = isLight
+        ? context.colours.secondary
+        : context.colours.cardText;
+
     return Container(
       height: 48,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        color: isActive
-            ? context.colours.informational
-            : context.colours.searchBar,
+        color: filterBackground,
         border: Border.all(color: Colors.black, width: 4),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<T>(
           value: value,
           isExpanded: true,
-          dropdownColor: context.colours.searchBar,
-          iconEnabledColor: context.colours.cardText,
-          style: context.colours.b1.copyWith(color: context.colours.cardText),
+          dropdownColor: isLight
+              ? context.colours.cardText
+              : context.colours.searchBar,
+          iconEnabledColor: filterForeground,
+          style: context.colours.b1.copyWith(color: filterForeground),
           items: items
               .map(
                 (item) => DropdownMenuItem<T>(
@@ -144,7 +158,7 @@ class _FilterDropdown<T> extends StatelessWidget {
                       Icon(
                         iconFor?.call(item) ?? icon,
                         size: 18,
-                        color: context.colours.cardText,
+                        color: filterForeground,
                       ),
                       const SizedBox(width: 8),
                       Expanded(

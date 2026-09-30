@@ -51,10 +51,11 @@ class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
   /// - [periodType] - the frequency at which to generate budget periods
   /// - [currency] - the currency code (defaults to 'ZAR')
   Future<BudgetTemplate> insertBudgetTemplate({
-    required String categoryId,
+    String? categoryId,
     required Decimal amount,
     required PeriodType periodType,
     String currency = 'ZAR',
+    String? name,
   }) async {
     final id = _uuid.v4();
     final now = _now();
@@ -65,6 +66,7 @@ class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
         amount: amount,
         periodType: periodType,
         currency: Value(currency),
+        name: Value(name),
         createdAt: now,
         updatedAt: now,
       ),
@@ -133,11 +135,13 @@ class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
     Decimal? amount,
     PeriodType? periodType,
     String? currency,
+    String? name,
   }) async {
     final companion = BudgetTemplatesCompanion(
       amount: amount != null ? Value(amount) : const Value.absent(),
       periodType: periodType != null ? Value(periodType) : const Value.absent(),
       currency: currency != null ? Value(currency) : const Value.absent(),
+      name: name != null ? Value(name) : const Value.absent(),
       updatedAt: Value(_now()),
     );
     await (update(
@@ -363,4 +367,16 @@ class BudgetDao extends DatabaseAccessor<AppDatabase> with _$BudgetDaoMixin {
   Future<void> hardDeleteBudgetPeriod(String id) async {
     await (delete(budgetPeriods)..where((t) => t.id.equals(id))).go();
   }
+
+  /// Returns the first active budget, creating a "Main Budget" if none exist.
+  Future<BudgetTemplate> getOrCreateDefaultBudget() async {
+    final budgets = await getAllBudgetTemplates();
+    if (budgets.isNotEmpty) return budgets.first;
+    return insertBudgetTemplate(
+      amount: Decimal.zero,
+      periodType: PeriodType.monthly,
+      name: 'Main Budget',
+    );
+  }
+
 }

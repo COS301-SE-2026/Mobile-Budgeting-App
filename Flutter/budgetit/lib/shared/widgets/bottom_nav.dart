@@ -75,7 +75,7 @@ class _NavItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 14),
 
         decoration: BoxDecoration(
-          border: Border(right: BorderSide(color: Color(0x3304240C), width: 1)),
+          border: Border(right: BorderSide(color: Colors.black, width: 1)),
         ),
 
         child: Column(

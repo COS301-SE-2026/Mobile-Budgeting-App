@@ -9,3 +9,11 @@ class CrudOp(BaseModel):
 
 class UploadPayload(BaseModel):
     operations: list[CrudOp]
+
+
+class FriendRequestIn(BaseModel):
+    friend_code: str
+
+
+class FriendRequestIdIn(BaseModel):
+    request_id: str

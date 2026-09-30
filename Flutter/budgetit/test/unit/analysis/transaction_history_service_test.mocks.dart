@@ -3,24 +3,28 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i13;
 
-import 'package:budgetit/database/app_database.dart' as _i10;
+import 'dart:async' as _i16;
+
+import 'package:budgetit/database/app_database.dart' as _i13;
 import 'package:budgetit/database/daos/budget_dao.dart' as _i6;
 import 'package:budgetit/database/daos/category_dao.dart' as _i3;
 import 'package:budgetit/database/daos/embedding_cache_dao.dart' as _i4;
+import 'package:budgetit/database/daos/friends_dao.dart' as _i12;
+import 'package:budgetit/database/daos/goal_dao.dart' as _i10;
 import 'package:budgetit/database/daos/recurring_transaction_dao.dart' as _i7;
 import 'package:budgetit/database/daos/schema_cache_dao.dart' as _i9;
 import 'package:budgetit/database/daos/settings_dao.dart' as _i8;
+import 'package:budgetit/database/daos/sharing_dao.dart' as _i11;
 import 'package:budgetit/database/daos/transaction_dao.dart' as _i5;
-import 'package:budgetit/database/schema.dart' as _i16;
-import 'package:decimal/decimal.dart' as _i15;
-import 'package:drift/backends.dart' as _i11;
+import 'package:budgetit/database/schema.dart' as _i19;
+import 'package:decimal/decimal.dart' as _i18;
+import 'package:drift/backends.dart' as _i14;
 import 'package:drift/drift.dart' as _i2;
-import 'package:drift/src/runtime/executor/stream_queries.dart' as _i12;
-import 'package:flutter/widgets.dart' as _i17;
+import 'package:drift/src/runtime/executor/stream_queries.dart' as _i15;
+import 'package:flutter/widgets.dart' as _i20;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i14;
+import 'package:mockito/src/dummies.dart' as _i17;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -83,222 +87,285 @@ class _FakeSchemaCacheDao_7 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
-class _Fake$AppDatabaseManager_8 extends _i1.SmartFake
-    implements _i10.$AppDatabaseManager {
-  _Fake$AppDatabaseManager_8(Object parent, Invocation parentInvocation)
+class _FakeGoalDao_8 extends _i1.SmartFake implements _i10.GoalDao {
+  _FakeGoalDao_8(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _Fake$CategoriesTable_9 extends _i1.SmartFake
-    implements _i10.$CategoriesTable {
-  _Fake$CategoriesTable_9(Object parent, Invocation parentInvocation)
+class _FakeSharingDao_9 extends _i1.SmartFake implements _i11.SharingDao {
+  _FakeSharingDao_9(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _Fake$CategoryClosureTable_10 extends _i1.SmartFake
-    implements _i10.$CategoryClosureTable {
-  _Fake$CategoryClosureTable_10(Object parent, Invocation parentInvocation)
+class _FakeFriendsDao_10 extends _i1.SmartFake implements _i12.FriendsDao {
+  _FakeFriendsDao_10(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _Fake$RecurringTransactionsTable_11 extends _i1.SmartFake
-    implements _i10.$RecurringTransactionsTable {
-  _Fake$RecurringTransactionsTable_11(
+class _Fake$AppDatabaseManager_11 extends _i1.SmartFake
+    implements _i13.$AppDatabaseManager {
+  _Fake$AppDatabaseManager_11(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$BudgetTemplatesTable_12 extends _i1.SmartFake
+    implements _i13.$BudgetTemplatesTable {
+  _Fake$BudgetTemplatesTable_12(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$CategoriesTable_13 extends _i1.SmartFake
+    implements _i13.$CategoriesTable {
+  _Fake$CategoriesTable_13(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$CategoryClosureTable_14 extends _i1.SmartFake
+    implements _i13.$CategoryClosureTable {
+  _Fake$CategoryClosureTable_14(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$RecurringTransactionsTable_15 extends _i1.SmartFake
+    implements _i13.$RecurringTransactionsTable {
+  _Fake$RecurringTransactionsTable_15(
     Object parent,
     Invocation parentInvocation,
   ) : super(parent, parentInvocation);
 }
 
-class _Fake$ImportsTable_12 extends _i1.SmartFake
-    implements _i10.$ImportsTable {
-  _Fake$ImportsTable_12(Object parent, Invocation parentInvocation)
+class _Fake$ImportsTable_16 extends _i1.SmartFake
+    implements _i13.$ImportsTable {
+  _Fake$ImportsTable_16(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _Fake$TransactionsTable_13 extends _i1.SmartFake
-    implements _i10.$TransactionsTable {
-  _Fake$TransactionsTable_13(Object parent, Invocation parentInvocation)
+class _Fake$TransactionsTable_17 extends _i1.SmartFake
+    implements _i13.$TransactionsTable {
+  _Fake$TransactionsTable_17(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _Fake$TransactionCategoryMapTable_14 extends _i1.SmartFake
-    implements _i10.$TransactionCategoryMapTable {
-  _Fake$TransactionCategoryMapTable_14(
+class _Fake$TransactionCategoryMapTable_18 extends _i1.SmartFake
+    implements _i13.$TransactionCategoryMapTable {
+  _Fake$TransactionCategoryMapTable_18(
     Object parent,
     Invocation parentInvocation,
   ) : super(parent, parentInvocation);
 }
 
-class _Fake$BudgetTemplatesTable_15 extends _i1.SmartFake
-    implements _i10.$BudgetTemplatesTable {
-  _Fake$BudgetTemplatesTable_15(Object parent, Invocation parentInvocation)
+class _Fake$BudgetPeriodsTable_19 extends _i1.SmartFake
+    implements _i13.$BudgetPeriodsTable {
+  _Fake$BudgetPeriodsTable_19(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _Fake$BudgetPeriodsTable_16 extends _i1.SmartFake
-    implements _i10.$BudgetPeriodsTable {
-  _Fake$BudgetPeriodsTable_16(Object parent, Invocation parentInvocation)
+class _Fake$GoalTemplatesTable_20 extends _i1.SmartFake
+    implements _i13.$GoalTemplatesTable {
+  _Fake$GoalTemplatesTable_20(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _Fake$AppSettingsTable_17 extends _i1.SmartFake
-    implements _i10.$AppSettingsTable {
-  _Fake$AppSettingsTable_17(Object parent, Invocation parentInvocation)
+class _Fake$GoalPeriodsTable_21 extends _i1.SmartFake
+    implements _i13.$GoalPeriodsTable {
+  _Fake$GoalPeriodsTable_21(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _Fake$EmbeddingCacheEntriesTable_18 extends _i1.SmartFake
-    implements _i10.$EmbeddingCacheEntriesTable {
-  _Fake$EmbeddingCacheEntriesTable_18(
+class _Fake$GoalContributionsTable_22 extends _i1.SmartFake
+    implements _i13.$GoalContributionsTable {
+  _Fake$GoalContributionsTable_22(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$BudgetMembersTable_23 extends _i1.SmartFake
+    implements _i13.$BudgetMembersTable {
+  _Fake$BudgetMembersTable_23(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$GoalMembersTable_24 extends _i1.SmartFake
+    implements _i13.$GoalMembersTable {
+  _Fake$GoalMembersTable_24(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$UserProfilesTable_25 extends _i1.SmartFake
+    implements _i13.$UserProfilesTable {
+  _Fake$UserProfilesTable_25(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$FriendRequestsTable_26 extends _i1.SmartFake
+    implements _i13.$FriendRequestsTable {
+  _Fake$FriendRequestsTable_26(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$FriendshipsTable_27 extends _i1.SmartFake
+    implements _i13.$FriendshipsTable {
+  _Fake$FriendshipsTable_27(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$AppSettingsTable_28 extends _i1.SmartFake
+    implements _i13.$AppSettingsTable {
+  _Fake$AppSettingsTable_28(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _Fake$EmbeddingCacheEntriesTable_29 extends _i1.SmartFake
+    implements _i13.$EmbeddingCacheEntriesTable {
+  _Fake$EmbeddingCacheEntriesTable_29(
     Object parent,
     Invocation parentInvocation,
   ) : super(parent, parentInvocation);
 }
 
-class _Fake$StatementSchemaCacheTable_19 extends _i1.SmartFake
-    implements _i10.$StatementSchemaCacheTable {
-  _Fake$StatementSchemaCacheTable_19(Object parent, Invocation parentInvocation)
+class _Fake$StatementSchemaCacheTable_30 extends _i1.SmartFake
+    implements _i13.$StatementSchemaCacheTable {
+  _Fake$StatementSchemaCacheTable_30(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeDriftDatabaseOptions_20 extends _i1.SmartFake
+class _FakeDriftDatabaseOptions_31 extends _i1.SmartFake
     implements _i2.DriftDatabaseOptions {
-  _FakeDriftDatabaseOptions_20(Object parent, Invocation parentInvocation)
+  _FakeDriftDatabaseOptions_31(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeGeneratedDatabase_21 extends _i1.SmartFake
+class _FakeGeneratedDatabase_32 extends _i1.SmartFake
     implements _i2.GeneratedDatabase {
-  _FakeGeneratedDatabase_21(Object parent, Invocation parentInvocation)
+  _FakeGeneratedDatabase_32(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeStreamQueryUpdateRules_22 extends _i1.SmartFake
+class _FakeStreamQueryUpdateRules_33 extends _i1.SmartFake
     implements _i2.StreamQueryUpdateRules {
-  _FakeStreamQueryUpdateRules_22(Object parent, Invocation parentInvocation)
+  _FakeStreamQueryUpdateRules_33(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeDatabaseConnection_23 extends _i1.SmartFake
+class _FakeDatabaseConnection_34 extends _i1.SmartFake
     implements _i2.DatabaseConnection {
-  _FakeDatabaseConnection_23(Object parent, Invocation parentInvocation)
+  _FakeDatabaseConnection_34(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeQueryExecutor_24 extends _i1.SmartFake
-    implements _i11.QueryExecutor {
-  _FakeQueryExecutor_24(Object parent, Invocation parentInvocation)
+class _FakeQueryExecutor_35 extends _i1.SmartFake
+    implements _i14.QueryExecutor {
+  _FakeQueryExecutor_35(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeStreamQueryStore_25 extends _i1.SmartFake
-    implements _i12.StreamQueryStore {
-  _FakeStreamQueryStore_25(Object parent, Invocation parentInvocation)
+class _FakeStreamQueryStore_36 extends _i1.SmartFake
+    implements _i15.StreamQueryStore {
+  _FakeStreamQueryStore_36(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeDatabaseConnectionUser_26 extends _i1.SmartFake
+class _FakeDatabaseConnectionUser_37 extends _i1.SmartFake
     implements _i2.DatabaseConnectionUser {
-  _FakeDatabaseConnectionUser_26(Object parent, Invocation parentInvocation)
+  _FakeDatabaseConnectionUser_37(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeMigrator_27 extends _i1.SmartFake implements _i2.Migrator {
-  _FakeMigrator_27(Object parent, Invocation parentInvocation)
+class _FakeMigrator_38 extends _i1.SmartFake implements _i2.Migrator {
+  _FakeMigrator_38(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeFuture_28<T> extends _i1.SmartFake implements _i13.Future<T> {
-  _FakeFuture_28(Object parent, Invocation parentInvocation)
+class _FakeFuture_39<T> extends _i1.SmartFake implements _i16.Future<T> {
+  _FakeFuture_39(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeInsertStatement_29<T1 extends _i2.Table, D1> extends _i1.SmartFake
+class _FakeInsertStatement_40<T1 extends _i2.Table, D1> extends _i1.SmartFake
     implements _i2.InsertStatement<T1, D1> {
-  _FakeInsertStatement_29(Object parent, Invocation parentInvocation)
+  _FakeInsertStatement_40(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeUpdateStatement_30<T extends _i2.Table, D> extends _i1.SmartFake
+class _FakeUpdateStatement_41<T extends _i2.Table, D> extends _i1.SmartFake
     implements _i2.UpdateStatement<T, D> {
-  _FakeUpdateStatement_30(Object parent, Invocation parentInvocation)
+  _FakeUpdateStatement_41(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeSimpleSelectStatement_31<T1 extends _i2.HasResultSet, D>
+class _FakeSimpleSelectStatement_42<T1 extends _i2.HasResultSet, D>
     extends _i1.SmartFake
     implements _i2.SimpleSelectStatement<T1, D> {
-  _FakeSimpleSelectStatement_31(Object parent, Invocation parentInvocation)
+  _FakeSimpleSelectStatement_42(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeJoinedSelectStatement_32<FirstT extends _i2.HasResultSet, FirstD>
+class _FakeJoinedSelectStatement_43<FirstT extends _i2.HasResultSet, FirstD>
     extends _i1.SmartFake
     implements _i2.JoinedSelectStatement<FirstT, FirstD> {
-  _FakeJoinedSelectStatement_32(Object parent, Invocation parentInvocation)
+  _FakeJoinedSelectStatement_43(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeBaseSelectStatement_33<Row> extends _i1.SmartFake
+class _FakeBaseSelectStatement_44<Row> extends _i1.SmartFake
     implements _i2.BaseSelectStatement<Row> {
-  _FakeBaseSelectStatement_33(Object parent, Invocation parentInvocation)
+  _FakeBaseSelectStatement_44(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeDeleteStatement_34<T1 extends _i2.Table, D1> extends _i1.SmartFake
+class _FakeDeleteStatement_45<T1 extends _i2.Table, D1> extends _i1.SmartFake
     implements _i2.DeleteStatement<T1, D1> {
-  _FakeDeleteStatement_34(Object parent, Invocation parentInvocation)
+  _FakeDeleteStatement_45(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeSelectable_35<T> extends _i1.SmartFake implements _i2.Selectable<T> {
-  _FakeSelectable_35(Object parent, Invocation parentInvocation)
+class _FakeSelectable_46<T> extends _i1.SmartFake implements _i2.Selectable<T> {
+  _FakeSelectable_46(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeGenerationContext_36 extends _i1.SmartFake
+class _FakeGenerationContext_47 extends _i1.SmartFake
     implements _i2.GenerationContext {
-  _FakeGenerationContext_36(Object parent, Invocation parentInvocation)
+  _FakeGenerationContext_47(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeAppDatabase_37 extends _i1.SmartFake implements _i10.AppDatabase {
-  _FakeAppDatabase_37(Object parent, Invocation parentInvocation)
+class _FakeAppDatabase_48 extends _i1.SmartFake implements _i13.AppDatabase {
+  _FakeAppDatabase_48(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeTransactionDaoManager_38 extends _i1.SmartFake
+class _FakeTransactionDaoManager_49 extends _i1.SmartFake
     implements _i5.TransactionDaoManager {
-  _FakeTransactionDaoManager_38(Object parent, Invocation parentInvocation)
+  _FakeTransactionDaoManager_49(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeTransaction_39 extends _i1.SmartFake implements _i10.Transaction {
-  _FakeTransaction_39(Object parent, Invocation parentInvocation)
+class _FakeTransaction_50 extends _i1.SmartFake implements _i13.Transaction {
+  _FakeTransaction_50(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeTransactionCategoryMapData_40 extends _i1.SmartFake
-    implements _i10.TransactionCategoryMapData {
-  _FakeTransactionCategoryMapData_40(Object parent, Invocation parentInvocation)
+class _FakeTransactionCategoryMapData_51 extends _i1.SmartFake
+    implements _i13.TransactionCategoryMapData {
+  _FakeTransactionCategoryMapData_51(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeCategoryDaoManager_41 extends _i1.SmartFake
+class _FakeCategoryDaoManager_52 extends _i1.SmartFake
     implements _i3.CategoryDaoManager {
-  _FakeCategoryDaoManager_41(Object parent, Invocation parentInvocation)
+  _FakeCategoryDaoManager_52(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeCategory_42 extends _i1.SmartFake implements _i10.Category {
-  _FakeCategory_42(Object parent, Invocation parentInvocation)
+class _FakeCategory_53 extends _i1.SmartFake implements _i13.Category {
+  _FakeCategory_53(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
 /// A class which mocks [AppDatabase].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
+class MockAppDatabase extends _i1.Mock implements _i13.AppDatabase {
   MockAppDatabase() {
     _i1.throwOnMissingStub(this);
   }
@@ -394,136 +461,254 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
           as _i9.SchemaCacheDao);
 
   @override
-  _i10.$AppDatabaseManager get managers =>
+  _i10.GoalDao get goalDao =>
+      (super.noSuchMethod(
+            Invocation.getter(#goalDao),
+            returnValue: _FakeGoalDao_8(this, Invocation.getter(#goalDao)),
+          )
+          as _i10.GoalDao);
+
+  @override
+  _i11.SharingDao get sharingDao =>
+      (super.noSuchMethod(
+            Invocation.getter(#sharingDao),
+            returnValue: _FakeSharingDao_9(
+              this,
+              Invocation.getter(#sharingDao),
+            ),
+          )
+          as _i11.SharingDao);
+
+  @override
+  _i12.FriendsDao get friendsDao =>
+      (super.noSuchMethod(
+            Invocation.getter(#friendsDao),
+            returnValue: _FakeFriendsDao_10(
+              this,
+              Invocation.getter(#friendsDao),
+            ),
+          )
+          as _i12.FriendsDao);
+
+  @override
+  _i13.$AppDatabaseManager get managers =>
       (super.noSuchMethod(
             Invocation.getter(#managers),
-            returnValue: _Fake$AppDatabaseManager_8(
+            returnValue: _Fake$AppDatabaseManager_11(
               this,
               Invocation.getter(#managers),
             ),
           )
-          as _i10.$AppDatabaseManager);
+          as _i13.$AppDatabaseManager);
 
   @override
-  _i10.$CategoriesTable get categories =>
-      (super.noSuchMethod(
-            Invocation.getter(#categories),
-            returnValue: _Fake$CategoriesTable_9(
-              this,
-              Invocation.getter(#categories),
-            ),
-          )
-          as _i10.$CategoriesTable);
-
-  @override
-  _i10.$CategoryClosureTable get categoryClosure =>
-      (super.noSuchMethod(
-            Invocation.getter(#categoryClosure),
-            returnValue: _Fake$CategoryClosureTable_10(
-              this,
-              Invocation.getter(#categoryClosure),
-            ),
-          )
-          as _i10.$CategoryClosureTable);
-
-  @override
-  _i10.$RecurringTransactionsTable get recurringTransactions =>
-      (super.noSuchMethod(
-            Invocation.getter(#recurringTransactions),
-            returnValue: _Fake$RecurringTransactionsTable_11(
-              this,
-              Invocation.getter(#recurringTransactions),
-            ),
-          )
-          as _i10.$RecurringTransactionsTable);
-
-  @override
-  _i10.$ImportsTable get imports =>
-      (super.noSuchMethod(
-            Invocation.getter(#imports),
-            returnValue: _Fake$ImportsTable_12(
-              this,
-              Invocation.getter(#imports),
-            ),
-          )
-          as _i10.$ImportsTable);
-
-  @override
-  _i10.$TransactionsTable get transactions =>
-      (super.noSuchMethod(
-            Invocation.getter(#transactions),
-            returnValue: _Fake$TransactionsTable_13(
-              this,
-              Invocation.getter(#transactions),
-            ),
-          )
-          as _i10.$TransactionsTable);
-
-  @override
-  _i10.$TransactionCategoryMapTable get transactionCategoryMap =>
-      (super.noSuchMethod(
-            Invocation.getter(#transactionCategoryMap),
-            returnValue: _Fake$TransactionCategoryMapTable_14(
-              this,
-              Invocation.getter(#transactionCategoryMap),
-            ),
-          )
-          as _i10.$TransactionCategoryMapTable);
-
-  @override
-  _i10.$BudgetTemplatesTable get budgetTemplates =>
+  _i13.$BudgetTemplatesTable get budgetTemplates =>
       (super.noSuchMethod(
             Invocation.getter(#budgetTemplates),
-            returnValue: _Fake$BudgetTemplatesTable_15(
+            returnValue: _Fake$BudgetTemplatesTable_12(
               this,
               Invocation.getter(#budgetTemplates),
             ),
           )
-          as _i10.$BudgetTemplatesTable);
+          as _i13.$BudgetTemplatesTable);
 
   @override
-  _i10.$BudgetPeriodsTable get budgetPeriods =>
+  _i13.$CategoriesTable get categories =>
+      (super.noSuchMethod(
+            Invocation.getter(#categories),
+            returnValue: _Fake$CategoriesTable_13(
+              this,
+              Invocation.getter(#categories),
+            ),
+          )
+          as _i13.$CategoriesTable);
+
+  @override
+  _i13.$CategoryClosureTable get categoryClosure =>
+      (super.noSuchMethod(
+            Invocation.getter(#categoryClosure),
+            returnValue: _Fake$CategoryClosureTable_14(
+              this,
+              Invocation.getter(#categoryClosure),
+            ),
+          )
+          as _i13.$CategoryClosureTable);
+
+  @override
+  _i13.$RecurringTransactionsTable get recurringTransactions =>
+      (super.noSuchMethod(
+            Invocation.getter(#recurringTransactions),
+            returnValue: _Fake$RecurringTransactionsTable_15(
+              this,
+              Invocation.getter(#recurringTransactions),
+            ),
+          )
+          as _i13.$RecurringTransactionsTable);
+
+  @override
+  _i13.$ImportsTable get imports =>
+      (super.noSuchMethod(
+            Invocation.getter(#imports),
+            returnValue: _Fake$ImportsTable_16(
+              this,
+              Invocation.getter(#imports),
+            ),
+          )
+          as _i13.$ImportsTable);
+
+  @override
+  _i13.$TransactionsTable get transactions =>
+      (super.noSuchMethod(
+            Invocation.getter(#transactions),
+            returnValue: _Fake$TransactionsTable_17(
+              this,
+              Invocation.getter(#transactions),
+            ),
+          )
+          as _i13.$TransactionsTable);
+
+  @override
+  _i13.$TransactionCategoryMapTable get transactionCategoryMap =>
+      (super.noSuchMethod(
+            Invocation.getter(#transactionCategoryMap),
+            returnValue: _Fake$TransactionCategoryMapTable_18(
+              this,
+              Invocation.getter(#transactionCategoryMap),
+            ),
+          )
+          as _i13.$TransactionCategoryMapTable);
+
+  @override
+  _i13.$BudgetPeriodsTable get budgetPeriods =>
       (super.noSuchMethod(
             Invocation.getter(#budgetPeriods),
-            returnValue: _Fake$BudgetPeriodsTable_16(
+            returnValue: _Fake$BudgetPeriodsTable_19(
               this,
               Invocation.getter(#budgetPeriods),
             ),
           )
-          as _i10.$BudgetPeriodsTable);
+          as _i13.$BudgetPeriodsTable);
 
   @override
-  _i10.$AppSettingsTable get appSettings =>
+  _i13.$GoalTemplatesTable get goalTemplates =>
+      (super.noSuchMethod(
+            Invocation.getter(#goalTemplates),
+            returnValue: _Fake$GoalTemplatesTable_20(
+              this,
+              Invocation.getter(#goalTemplates),
+            ),
+          )
+          as _i13.$GoalTemplatesTable);
+
+  @override
+  _i13.$GoalPeriodsTable get goalPeriods =>
+      (super.noSuchMethod(
+            Invocation.getter(#goalPeriods),
+            returnValue: _Fake$GoalPeriodsTable_21(
+              this,
+              Invocation.getter(#goalPeriods),
+            ),
+          )
+          as _i13.$GoalPeriodsTable);
+
+  @override
+  _i13.$GoalContributionsTable get goalContributions =>
+      (super.noSuchMethod(
+            Invocation.getter(#goalContributions),
+            returnValue: _Fake$GoalContributionsTable_22(
+              this,
+              Invocation.getter(#goalContributions),
+            ),
+          )
+          as _i13.$GoalContributionsTable);
+
+  @override
+  _i13.$BudgetMembersTable get budgetMembers =>
+      (super.noSuchMethod(
+            Invocation.getter(#budgetMembers),
+            returnValue: _Fake$BudgetMembersTable_23(
+              this,
+              Invocation.getter(#budgetMembers),
+            ),
+          )
+          as _i13.$BudgetMembersTable);
+
+  @override
+  _i13.$GoalMembersTable get goalMembers =>
+      (super.noSuchMethod(
+            Invocation.getter(#goalMembers),
+            returnValue: _Fake$GoalMembersTable_24(
+              this,
+              Invocation.getter(#goalMembers),
+            ),
+          )
+          as _i13.$GoalMembersTable);
+
+  @override
+  _i13.$UserProfilesTable get userProfiles =>
+      (super.noSuchMethod(
+            Invocation.getter(#userProfiles),
+            returnValue: _Fake$UserProfilesTable_25(
+              this,
+              Invocation.getter(#userProfiles),
+            ),
+          )
+          as _i13.$UserProfilesTable);
+
+  @override
+  _i13.$FriendRequestsTable get friendRequests =>
+      (super.noSuchMethod(
+            Invocation.getter(#friendRequests),
+            returnValue: _Fake$FriendRequestsTable_26(
+              this,
+              Invocation.getter(#friendRequests),
+            ),
+          )
+          as _i13.$FriendRequestsTable);
+
+  @override
+  _i13.$FriendshipsTable get friendships =>
+      (super.noSuchMethod(
+            Invocation.getter(#friendships),
+            returnValue: _Fake$FriendshipsTable_27(
+              this,
+              Invocation.getter(#friendships),
+            ),
+          )
+          as _i13.$FriendshipsTable);
+
+  @override
+  _i13.$AppSettingsTable get appSettings =>
       (super.noSuchMethod(
             Invocation.getter(#appSettings),
-            returnValue: _Fake$AppSettingsTable_17(
+            returnValue: _Fake$AppSettingsTable_28(
               this,
               Invocation.getter(#appSettings),
             ),
           )
-          as _i10.$AppSettingsTable);
+          as _i13.$AppSettingsTable);
 
   @override
-  _i10.$EmbeddingCacheEntriesTable get embeddingCacheEntries =>
+  _i13.$EmbeddingCacheEntriesTable get embeddingCacheEntries =>
       (super.noSuchMethod(
             Invocation.getter(#embeddingCacheEntries),
-            returnValue: _Fake$EmbeddingCacheEntriesTable_18(
+            returnValue: _Fake$EmbeddingCacheEntriesTable_29(
               this,
               Invocation.getter(#embeddingCacheEntries),
             ),
           )
-          as _i10.$EmbeddingCacheEntriesTable);
+          as _i13.$EmbeddingCacheEntriesTable);
 
   @override
-  _i10.$StatementSchemaCacheTable get statementSchemaCache =>
+  _i13.$StatementSchemaCacheTable get statementSchemaCache =>
       (super.noSuchMethod(
             Invocation.getter(#statementSchemaCache),
-            returnValue: _Fake$StatementSchemaCacheTable_19(
+            returnValue: _Fake$StatementSchemaCacheTable_30(
               this,
               Invocation.getter(#statementSchemaCache),
             ),
           )
-          as _i10.$StatementSchemaCacheTable);
+          as _i13.$StatementSchemaCacheTable);
 
   @override
   Iterable<_i2.TableInfo<_i2.Table, Object?>> get allTables =>
@@ -545,7 +730,7 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
   _i2.DriftDatabaseOptions get options =>
       (super.noSuchMethod(
             Invocation.getter(#options),
-            returnValue: _FakeDriftDatabaseOptions_20(
+            returnValue: _FakeDriftDatabaseOptions_31(
               this,
               Invocation.getter(#options),
             ),
@@ -556,7 +741,7 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
   _i2.GeneratedDatabase get attachedDatabase =>
       (super.noSuchMethod(
             Invocation.getter(#attachedDatabase),
-            returnValue: _FakeGeneratedDatabase_21(
+            returnValue: _FakeGeneratedDatabase_32(
               this,
               Invocation.getter(#attachedDatabase),
             ),
@@ -567,7 +752,7 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
   _i2.StreamQueryUpdateRules get streamUpdateRules =>
       (super.noSuchMethod(
             Invocation.getter(#streamUpdateRules),
-            returnValue: _FakeStreamQueryUpdateRules_22(
+            returnValue: _FakeStreamQueryUpdateRules_33(
               this,
               Invocation.getter(#streamUpdateRules),
             ),
@@ -578,7 +763,7 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
   _i2.DatabaseConnection get connection =>
       (super.noSuchMethod(
             Invocation.getter(#connection),
-            returnValue: _FakeDatabaseConnection_23(
+            returnValue: _FakeDatabaseConnection_34(
               this,
               Invocation.getter(#connection),
             ),
@@ -589,7 +774,7 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
   _i2.SqlTypes get typeMapping =>
       (super.noSuchMethod(
             Invocation.getter(#typeMapping),
-            returnValue: _i14.dummyValue<_i2.SqlTypes>(
+            returnValue: _i17.dummyValue<_i2.SqlTypes>(
               this,
               Invocation.getter(#typeMapping),
             ),
@@ -597,32 +782,32 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
           as _i2.SqlTypes);
 
   @override
-  _i11.QueryExecutor get executor =>
+  _i14.QueryExecutor get executor =>
       (super.noSuchMethod(
             Invocation.getter(#executor),
-            returnValue: _FakeQueryExecutor_24(
+            returnValue: _FakeQueryExecutor_35(
               this,
               Invocation.getter(#executor),
             ),
           )
-          as _i11.QueryExecutor);
+          as _i14.QueryExecutor);
 
   @override
-  _i12.StreamQueryStore get streamQueries =>
+  _i15.StreamQueryStore get streamQueries =>
       (super.noSuchMethod(
             Invocation.getter(#streamQueries),
-            returnValue: _FakeStreamQueryStore_25(
+            returnValue: _FakeStreamQueryStore_36(
               this,
               Invocation.getter(#streamQueries),
             ),
           )
-          as _i12.StreamQueryStore);
+          as _i15.StreamQueryStore);
 
   @override
   _i2.DatabaseConnectionUser get resolvedEngine =>
       (super.noSuchMethod(
             Invocation.getter(#resolvedEngine),
-            returnValue: _FakeDatabaseConnectionUser_26(
+            returnValue: _FakeDatabaseConnectionUser_37(
               this,
               Invocation.getter(#resolvedEngine),
             ),
@@ -633,7 +818,7 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
   _i2.Migrator createMigrator() =>
       (super.noSuchMethod(
             Invocation.method(#createMigrator, []),
-            returnValue: _FakeMigrator_27(
+            returnValue: _FakeMigrator_38(
               this,
               Invocation.method(#createMigrator, []),
             ),
@@ -641,29 +826,29 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
           as _i2.Migrator);
 
   @override
-  _i13.Future<void> beforeOpen(
-    _i11.QueryExecutor? executor,
+  _i16.Future<void> beforeOpen(
+    _i14.QueryExecutor? executor,
     _i2.OpeningDetails? details,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#beforeOpen, [executor, details]),
-            returnValue: _i13.Future<void>.value(),
-            returnValueForMissingStub: _i13.Future<void>.value(),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
           )
-          as _i13.Future<void>);
+          as _i16.Future<void>);
 
   @override
-  _i13.Future<void> close() =>
+  _i16.Future<void> close() =>
       (super.noSuchMethod(
             Invocation.method(#close, []),
-            returnValue: _i13.Future<void>.value(),
-            returnValueForMissingStub: _i13.Future<void>.value(),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
           )
-          as _i13.Future<void>);
+          as _i16.Future<void>);
 
   @override
-  _i13.Future<Ret> computeWithDatabase<Ret, DB extends _i2.GeneratedDatabase>({
-    required _i13.FutureOr<Ret> Function(DB)? computation,
+  _i16.Future<Ret> computeWithDatabase<Ret, DB extends _i2.GeneratedDatabase>({
+    required _i16.FutureOr<Ret> Function(DB)? computation,
     required DB Function(_i2.DatabaseConnection)? connect,
   }) =>
       (super.noSuchMethod(
@@ -672,17 +857,17 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
               #connect: connect,
             }),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<Ret>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<Ret>(
                     this,
                     Invocation.method(#computeWithDatabase, [], {
                       #computation: computation,
                       #connect: connect,
                     }),
                   ),
-                  (Ret v) => _i13.Future<Ret>.value(v),
+                  (Ret v) => _i16.Future<Ret>.value(v),
                 ) ??
-                _FakeFuture_28<Ret>(
+                _FakeFuture_39<Ret>(
                   this,
                   Invocation.method(#computeWithDatabase, [], {
                     #computation: computation,
@@ -690,23 +875,23 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
                   }),
                 ),
           )
-          as _i13.Future<Ret>);
+          as _i16.Future<Ret>);
 
   @override
-  _i13.Stream<T> createStream<T extends Object>(
-    _i12.QueryStreamFetcher<T>? stmt,
+  _i16.Stream<T> createStream<T extends Object>(
+    _i15.QueryStreamFetcher<T>? stmt,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#createStream, [stmt]),
-            returnValue: _i13.Stream<T>.empty(),
+            returnValue: _i16.Stream<T>.empty(),
           )
-          as _i13.Stream<T>);
+          as _i16.Stream<T>);
 
   @override
   T alias<T, D>(_i2.ResultSetImplementation<T, D>? table, String? alias) =>
       (super.noSuchMethod(
             Invocation.method(#alias, [table, alias]),
-            returnValue: _i14.dummyValue<T>(
+            returnValue: _i17.dummyValue<T>(
               this,
               Invocation.method(#alias, [table, alias]),
             ),
@@ -727,32 +912,32 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
   );
 
   @override
-  _i13.Stream<Set<_i2.TableUpdate>> tableUpdates([
+  _i16.Stream<Set<_i2.TableUpdate>> tableUpdates([
     _i2.TableUpdateQuery? query = const _i2.TableUpdateQuery.any(),
   ]) =>
       (super.noSuchMethod(
             Invocation.method(#tableUpdates, [query]),
-            returnValue: _i13.Stream<Set<_i2.TableUpdate>>.empty(),
+            returnValue: _i16.Stream<Set<_i2.TableUpdate>>.empty(),
           )
-          as _i13.Stream<Set<_i2.TableUpdate>>);
+          as _i16.Stream<Set<_i2.TableUpdate>>);
 
   @override
-  _i13.Future<T> doWhenOpened<T>(
-    _i13.FutureOr<T> Function(_i11.QueryExecutor)? fn,
+  _i16.Future<T> doWhenOpened<T>(
+    _i16.FutureOr<T> Function(_i14.QueryExecutor)? fn,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#doWhenOpened, [fn]),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#doWhenOpened, [fn]),
                   ),
-                  (T v) => _i13.Future<T>.value(v),
+                  (T v) => _i16.Future<T>.value(v),
                 ) ??
-                _FakeFuture_28<T>(this, Invocation.method(#doWhenOpened, [fn])),
+                _FakeFuture_39<T>(this, Invocation.method(#doWhenOpened, [fn])),
           )
-          as _i13.Future<T>);
+          as _i16.Future<T>);
 
   @override
   _i2.InsertStatement<T, D> into<T extends _i2.Table, D>(
@@ -760,7 +945,7 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#into, [table]),
-            returnValue: _FakeInsertStatement_29<T, D>(
+            returnValue: _FakeInsertStatement_40<T, D>(
               this,
               Invocation.method(#into, [table]),
             ),
@@ -773,7 +958,7 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#update, [table]),
-            returnValue: _FakeUpdateStatement_30<Tbl, R>(
+            returnValue: _FakeUpdateStatement_41<Tbl, R>(
               this,
               Invocation.method(#update, [table]),
             ),
@@ -787,7 +972,7 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
   }) =>
       (super.noSuchMethod(
             Invocation.method(#select, [table], {#distinct: distinct}),
-            returnValue: _FakeSimpleSelectStatement_31<T, R>(
+            returnValue: _FakeSimpleSelectStatement_42<T, R>(
               this,
               Invocation.method(#select, [table], {#distinct: distinct}),
             ),
@@ -801,7 +986,7 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
   }) =>
       (super.noSuchMethod(
             Invocation.method(#selectOnly, [table], {#distinct: distinct}),
-            returnValue: _FakeJoinedSelectStatement_32<T, R>(
+            returnValue: _FakeJoinedSelectStatement_43<T, R>(
               this,
               Invocation.method(#selectOnly, [table], {#distinct: distinct}),
             ),
@@ -814,7 +999,7 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#selectExpressions, [columns]),
-            returnValue: _FakeBaseSelectStatement_33<_i2.TypedResult>(
+            returnValue: _FakeBaseSelectStatement_44<_i2.TypedResult>(
               this,
               Invocation.method(#selectExpressions, [columns]),
             ),
@@ -827,7 +1012,7 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#delete, [table]),
-            returnValue: _FakeDeleteStatement_34<T, D>(
+            returnValue: _FakeDeleteStatement_45<T, D>(
               this,
               Invocation.method(#delete, [table]),
             ),
@@ -835,7 +1020,7 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
           as _i2.DeleteStatement<T, D>);
 
   @override
-  _i13.Future<int> customUpdate(
+  _i16.Future<int> customUpdate(
     String? query, {
     List<_i2.Variable<Object>>? variables = const [],
     Set<_i2.ResultSetImplementation<dynamic, dynamic>>? updates,
@@ -851,12 +1036,12 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
                 #updateKind: updateKind,
               },
             ),
-            returnValue: _i13.Future<int>.value(0),
+            returnValue: _i16.Future<int>.value(0),
           )
-          as _i13.Future<int>);
+          as _i16.Future<int>);
 
   @override
-  _i13.Future<int> customInsert(
+  _i16.Future<int> customInsert(
     String? query, {
     List<_i2.Variable<Object>>? variables = const [],
     Set<_i2.ResultSetImplementation<dynamic, dynamic>>? updates,
@@ -867,12 +1052,12 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
               [query],
               {#variables: variables, #updates: updates},
             ),
-            returnValue: _i13.Future<int>.value(0),
+            returnValue: _i16.Future<int>.value(0),
           )
-          as _i13.Future<int>);
+          as _i16.Future<int>);
 
   @override
-  _i13.Future<List<_i2.QueryRow>> customWriteReturning(
+  _i16.Future<List<_i2.QueryRow>> customWriteReturning(
     String? query, {
     List<_i2.Variable<Object>>? variables = const [],
     Set<_i2.ResultSetImplementation<dynamic, dynamic>>? updates,
@@ -888,11 +1073,11 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
                 #updateKind: updateKind,
               },
             ),
-            returnValue: _i13.Future<List<_i2.QueryRow>>.value(
+            returnValue: _i16.Future<List<_i2.QueryRow>>.value(
               <_i2.QueryRow>[],
             ),
           )
-          as _i13.Future<List<_i2.QueryRow>>);
+          as _i16.Future<List<_i2.QueryRow>>);
 
   @override
   _i2.Selectable<_i2.QueryRow> customSelect(
@@ -906,7 +1091,7 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
               [query],
               {#variables: variables, #readsFrom: readsFrom},
             ),
-            returnValue: _FakeSelectable_35<_i2.QueryRow>(
+            returnValue: _FakeSelectable_46<_i2.QueryRow>(
               this,
               Invocation.method(
                 #customSelect,
@@ -929,7 +1114,7 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
               [query],
               {#variables: variables, #readsFrom: readsFrom},
             ),
-            returnValue: _FakeSelectable_35<_i2.QueryRow>(
+            returnValue: _FakeSelectable_46<_i2.QueryRow>(
               this,
               Invocation.method(
                 #customSelectQuery,
@@ -941,17 +1126,17 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
           as _i2.Selectable<_i2.QueryRow>);
 
   @override
-  _i13.Future<void> customStatement(String? statement, [List<dynamic>? args]) =>
+  _i16.Future<void> customStatement(String? statement, [List<dynamic>? args]) =>
       (super.noSuchMethod(
             Invocation.method(#customStatement, [statement, args]),
-            returnValue: _i13.Future<void>.value(),
-            returnValueForMissingStub: _i13.Future<void>.value(),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
           )
-          as _i13.Future<void>);
+          as _i16.Future<void>);
 
   @override
-  _i13.Future<T> transaction<T>(
-    _i13.Future<T> Function()? action, {
+  _i16.Future<T> transaction<T>(
+    _i16.Future<T> Function()? action, {
     bool? requireNew = false,
   }) =>
       (super.noSuchMethod(
@@ -961,8 +1146,8 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
               {#requireNew: requireNew},
             ),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #transaction,
@@ -970,9 +1155,9 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
                       {#requireNew: requireNew},
                     ),
                   ),
-                  (T v) => _i13.Future<T>.value(v),
+                  (T v) => _i16.Future<T>.value(v),
                 ) ??
-                _FakeFuture_28<T>(
+                _FakeFuture_39<T>(
                   this,
                   Invocation.method(
                     #transaction,
@@ -981,41 +1166,41 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
                   ),
                 ),
           )
-          as _i13.Future<T>);
+          as _i16.Future<T>);
 
   @override
-  _i13.Future<T> exclusively<T>(_i13.Future<T> Function()? action) =>
+  _i16.Future<T> exclusively<T>(_i16.Future<T> Function()? action) =>
       (super.noSuchMethod(
             Invocation.method(#exclusively, [action]),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#exclusively, [action]),
                   ),
-                  (T v) => _i13.Future<T>.value(v),
+                  (T v) => _i16.Future<T>.value(v),
                 ) ??
-                _FakeFuture_28<T>(
+                _FakeFuture_39<T>(
                   this,
                   Invocation.method(#exclusively, [action]),
                 ),
           )
-          as _i13.Future<T>);
+          as _i16.Future<T>);
 
   @override
-  _i13.Future<void> batch(
-    _i13.FutureOr<void> Function(_i2.Batch)? runInBatch,
+  _i16.Future<void> batch(
+    _i16.FutureOr<void> Function(_i2.Batch)? runInBatch,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#batch, [runInBatch]),
-            returnValue: _i13.Future<void>.value(),
-            returnValueForMissingStub: _i13.Future<void>.value(),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
           )
-          as _i13.Future<void>);
+          as _i16.Future<void>);
 
   @override
-  _i13.Future<T> runWithInterceptor<T>(
-    _i13.Future<T> Function()? action, {
+  _i16.Future<T> runWithInterceptor<T>(
+    _i16.Future<T> Function()? action, {
     required _i2.QueryInterceptor? interceptor,
   }) =>
       (super.noSuchMethod(
@@ -1025,8 +1210,8 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
               {#interceptor: interceptor},
             ),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #runWithInterceptor,
@@ -1034,9 +1219,9 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
                       {#interceptor: interceptor},
                     ),
                   ),
-                  (T v) => _i13.Future<T>.value(v),
+                  (T v) => _i16.Future<T>.value(v),
                 ) ??
-                _FakeFuture_28<T>(
+                _FakeFuture_39<T>(
                   this,
                   Invocation.method(
                     #runWithInterceptor,
@@ -1045,7 +1230,7 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
                   ),
                 ),
           )
-          as _i13.Future<T>);
+          as _i16.Future<T>);
 
   @override
   _i2.GenerationContext $write(
@@ -1059,7 +1244,7 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
               [component],
               {#hasMultipleTables: hasMultipleTables, #startIndex: startIndex},
             ),
-            returnValue: _FakeGenerationContext_36(
+            returnValue: _FakeGenerationContext_47(
               this,
               Invocation.method(
                 #$write,
@@ -1085,7 +1270,7 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
               [table, insertable],
               {#startIndex: startIndex},
             ),
-            returnValue: _FakeGenerationContext_36(
+            returnValue: _FakeGenerationContext_47(
               this,
               Invocation.method(
                 #$writeInsertable,
@@ -1108,7 +1293,7 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
               [table, insertable],
               {#startIndex: startIndex},
             ),
-            returnValue: _FakeGenerationContext_36(
+            returnValue: _FakeGenerationContext_47(
               this,
               Invocation.method(
                 #$writeUpdateInsertable,
@@ -1123,7 +1308,7 @@ class MockAppDatabase extends _i1.Mock implements _i10.AppDatabase {
   String $expandVar(int? start, int? amount) =>
       (super.noSuchMethod(
             Invocation.method(#$expandVar, [start, amount]),
-            returnValue: _i14.dummyValue<String>(
+            returnValue: _i17.dummyValue<String>(
               this,
               Invocation.method(#$expandVar, [start, amount]),
             ),
@@ -1140,21 +1325,21 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
   }
 
   @override
-  _i10.AppDatabase get attachedDatabase =>
+  _i13.AppDatabase get attachedDatabase =>
       (super.noSuchMethod(
             Invocation.getter(#attachedDatabase),
-            returnValue: _FakeAppDatabase_37(
+            returnValue: _FakeAppDatabase_48(
               this,
               Invocation.getter(#attachedDatabase),
             ),
           )
-          as _i10.AppDatabase);
+          as _i13.AppDatabase);
 
   @override
   _i2.DatabaseConnection get connection =>
       (super.noSuchMethod(
             Invocation.getter(#connection),
-            returnValue: _FakeDatabaseConnection_23(
+            returnValue: _FakeDatabaseConnection_34(
               this,
               Invocation.getter(#connection),
             ),
@@ -1165,7 +1350,7 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
   _i2.DriftDatabaseOptions get options =>
       (super.noSuchMethod(
             Invocation.getter(#options),
-            returnValue: _FakeDriftDatabaseOptions_20(
+            returnValue: _FakeDriftDatabaseOptions_31(
               this,
               Invocation.getter(#options),
             ),
@@ -1176,7 +1361,7 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
   _i2.SqlTypes get typeMapping =>
       (super.noSuchMethod(
             Invocation.getter(#typeMapping),
-            returnValue: _i14.dummyValue<_i2.SqlTypes>(
+            returnValue: _i17.dummyValue<_i2.SqlTypes>(
               this,
               Invocation.getter(#typeMapping),
             ),
@@ -1184,32 +1369,32 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
           as _i2.SqlTypes);
 
   @override
-  _i11.QueryExecutor get executor =>
+  _i14.QueryExecutor get executor =>
       (super.noSuchMethod(
             Invocation.getter(#executor),
-            returnValue: _FakeQueryExecutor_24(
+            returnValue: _FakeQueryExecutor_35(
               this,
               Invocation.getter(#executor),
             ),
           )
-          as _i11.QueryExecutor);
+          as _i14.QueryExecutor);
 
   @override
-  _i12.StreamQueryStore get streamQueries =>
+  _i15.StreamQueryStore get streamQueries =>
       (super.noSuchMethod(
             Invocation.getter(#streamQueries),
-            returnValue: _FakeStreamQueryStore_25(
+            returnValue: _FakeStreamQueryStore_36(
               this,
               Invocation.getter(#streamQueries),
             ),
           )
-          as _i12.StreamQueryStore);
+          as _i15.StreamQueryStore);
 
   @override
   _i2.DatabaseConnectionUser get resolvedEngine =>
       (super.noSuchMethod(
             Invocation.getter(#resolvedEngine),
-            returnValue: _FakeDatabaseConnectionUser_26(
+            returnValue: _FakeDatabaseConnectionUser_37(
               this,
               Invocation.getter(#resolvedEngine),
             ),
@@ -1217,65 +1402,76 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
           as _i2.DatabaseConnectionUser);
 
   @override
-  _i10.$CategoriesTable get categories =>
+  _i13.$BudgetTemplatesTable get budgetTemplates =>
+      (super.noSuchMethod(
+            Invocation.getter(#budgetTemplates),
+            returnValue: _Fake$BudgetTemplatesTable_12(
+              this,
+              Invocation.getter(#budgetTemplates),
+            ),
+          )
+          as _i13.$BudgetTemplatesTable);
+
+  @override
+  _i13.$CategoriesTable get categories =>
       (super.noSuchMethod(
             Invocation.getter(#categories),
-            returnValue: _Fake$CategoriesTable_9(
+            returnValue: _Fake$CategoriesTable_13(
               this,
               Invocation.getter(#categories),
             ),
           )
-          as _i10.$CategoriesTable);
+          as _i13.$CategoriesTable);
 
   @override
-  _i10.$RecurringTransactionsTable get recurringTransactions =>
+  _i13.$RecurringTransactionsTable get recurringTransactions =>
       (super.noSuchMethod(
             Invocation.getter(#recurringTransactions),
-            returnValue: _Fake$RecurringTransactionsTable_11(
+            returnValue: _Fake$RecurringTransactionsTable_15(
               this,
               Invocation.getter(#recurringTransactions),
             ),
           )
-          as _i10.$RecurringTransactionsTable);
+          as _i13.$RecurringTransactionsTable);
 
   @override
-  _i10.$ImportsTable get imports =>
+  _i13.$ImportsTable get imports =>
       (super.noSuchMethod(
             Invocation.getter(#imports),
-            returnValue: _Fake$ImportsTable_12(
+            returnValue: _Fake$ImportsTable_16(
               this,
               Invocation.getter(#imports),
             ),
           )
-          as _i10.$ImportsTable);
+          as _i13.$ImportsTable);
 
   @override
-  _i10.$TransactionsTable get transactions =>
+  _i13.$TransactionsTable get transactions =>
       (super.noSuchMethod(
             Invocation.getter(#transactions),
-            returnValue: _Fake$TransactionsTable_13(
+            returnValue: _Fake$TransactionsTable_17(
               this,
               Invocation.getter(#transactions),
             ),
           )
-          as _i10.$TransactionsTable);
+          as _i13.$TransactionsTable);
 
   @override
-  _i10.$TransactionCategoryMapTable get transactionCategoryMap =>
+  _i13.$TransactionCategoryMapTable get transactionCategoryMap =>
       (super.noSuchMethod(
             Invocation.getter(#transactionCategoryMap),
-            returnValue: _Fake$TransactionCategoryMapTable_14(
+            returnValue: _Fake$TransactionCategoryMapTable_18(
               this,
               Invocation.getter(#transactionCategoryMap),
             ),
           )
-          as _i10.$TransactionCategoryMapTable);
+          as _i13.$TransactionCategoryMapTable);
 
   @override
   _i5.TransactionDaoManager get managers =>
       (super.noSuchMethod(
             Invocation.getter(#managers),
-            returnValue: _FakeTransactionDaoManager_38(
+            returnValue: _FakeTransactionDaoManager_49(
               this,
               Invocation.getter(#managers),
             ),
@@ -1283,15 +1479,16 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
           as _i5.TransactionDaoManager);
 
   @override
-  _i13.Future<_i10.Transaction> insertTransaction({
-    required _i15.Decimal? amount,
-    required _i16.TransactionType? type,
+  _i16.Future<_i13.Transaction> insertTransaction({
+    required _i18.Decimal? amount,
+    required _i19.TransactionType? type,
     required String? shortDescription,
     String? longDescription,
     required DateTime? transactionDate,
-    required _i16.TransactionSource? source,
+    required _i19.TransactionSource? source,
     String? currency = 'ZAR',
     String? recurringId,
+    required String? budgetTemplateId,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#insertTransaction, [], {
@@ -1303,9 +1500,10 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
               #source: source,
               #currency: currency,
               #recurringId: recurringId,
+              #budgetTemplateId: budgetTemplateId,
             }),
-            returnValue: _i13.Future<_i10.Transaction>.value(
-              _FakeTransaction_39(
+            returnValue: _i16.Future<_i13.Transaction>.value(
+              _FakeTransaction_50(
                 this,
                 Invocation.method(#insertTransaction, [], {
                   #amount: amount,
@@ -1316,14 +1514,15 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
                   #source: source,
                   #currency: currency,
                   #recurringId: recurringId,
+                  #budgetTemplateId: budgetTemplateId,
                 }),
               ),
             ),
           )
-          as _i13.Future<_i10.Transaction>);
+          as _i16.Future<_i13.Transaction>);
 
   @override
-  _i13.Future<_i10.Transaction?> getTransactionById(
+  _i16.Future<_i13.Transaction?> getTransactionById(
     String? id, {
     bool? includeDeleted = false,
   }) =>
@@ -1333,27 +1532,27 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
               [id],
               {#includeDeleted: includeDeleted},
             ),
-            returnValue: _i13.Future<_i10.Transaction?>.value(),
+            returnValue: _i16.Future<_i13.Transaction?>.value(),
           )
-          as _i13.Future<_i10.Transaction?>);
+          as _i16.Future<_i13.Transaction?>);
 
   @override
-  _i13.Future<List<_i10.Transaction>> getAllTransactions({
+  _i16.Future<List<_i13.Transaction>> getAllTransactions({
     bool? includeDeleted = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#getAllTransactions, [], {
               #includeDeleted: includeDeleted,
             }),
-            returnValue: _i13.Future<List<_i10.Transaction>>.value(
-              <_i10.Transaction>[],
+            returnValue: _i16.Future<List<_i13.Transaction>>.value(
+              <_i13.Transaction>[],
             ),
           )
-          as _i13.Future<List<_i10.Transaction>>);
+          as _i16.Future<List<_i13.Transaction>>);
 
   @override
-  _i13.Future<List<_i10.Transaction>> getTransactionsByType(
-    _i16.TransactionType? type, {
+  _i16.Future<List<_i13.Transaction>> getTransactionsByType(
+    _i19.TransactionType? type, {
     bool? includeDeleted = false,
   }) =>
       (super.noSuchMethod(
@@ -1362,14 +1561,14 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
               [type],
               {#includeDeleted: includeDeleted},
             ),
-            returnValue: _i13.Future<List<_i10.Transaction>>.value(
-              <_i10.Transaction>[],
+            returnValue: _i16.Future<List<_i13.Transaction>>.value(
+              <_i13.Transaction>[],
             ),
           )
-          as _i13.Future<List<_i10.Transaction>>);
+          as _i16.Future<List<_i13.Transaction>>);
 
   @override
-  _i13.Future<List<_i10.Transaction>> getTransactionsByDateRange(
+  _i16.Future<List<_i13.Transaction>> getTransactionsByDateRange(
     DateTime? start,
     DateTime? end, {
     bool? includeDeleted = false,
@@ -1380,22 +1579,23 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
               [start, end],
               {#includeDeleted: includeDeleted},
             ),
-            returnValue: _i13.Future<List<_i10.Transaction>>.value(
-              <_i10.Transaction>[],
+            returnValue: _i16.Future<List<_i13.Transaction>>.value(
+              <_i13.Transaction>[],
             ),
           )
-          as _i13.Future<List<_i10.Transaction>>);
+          as _i16.Future<List<_i13.Transaction>>);
 
   @override
-  _i13.Future<_i10.Transaction> updateTransaction(
+  _i16.Future<_i13.Transaction> updateTransaction(
     String? id, {
-    _i15.Decimal? amount,
-    _i16.TransactionType? type,
+    _i18.Decimal? amount,
+    _i19.TransactionType? type,
     String? shortDescription,
     _i2.Value<String?>? longDescription = const _i2.Value.absent(),
     DateTime? transactionDate,
-    _i16.TransactionSource? source,
+    _i19.TransactionSource? source,
     String? currency,
+    String? budgetTemplateId,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
@@ -1409,10 +1609,11 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
                 #transactionDate: transactionDate,
                 #source: source,
                 #currency: currency,
+                #budgetTemplateId: budgetTemplateId,
               },
             ),
-            returnValue: _i13.Future<_i10.Transaction>.value(
-              _FakeTransaction_39(
+            returnValue: _i16.Future<_i13.Transaction>.value(
+              _FakeTransaction_50(
                 this,
                 Invocation.method(
                   #updateTransaction,
@@ -1425,45 +1626,46 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
                     #transactionDate: transactionDate,
                     #source: source,
                     #currency: currency,
+                    #budgetTemplateId: budgetTemplateId,
                   },
                 ),
               ),
             ),
           )
-          as _i13.Future<_i10.Transaction>);
+          as _i16.Future<_i13.Transaction>);
 
   @override
-  _i13.Future<void> softDeleteTransaction(String? id) =>
+  _i16.Future<void> softDeleteTransaction(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#softDeleteTransaction, [id]),
-            returnValue: _i13.Future<void>.value(),
-            returnValueForMissingStub: _i13.Future<void>.value(),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
           )
-          as _i13.Future<void>);
+          as _i16.Future<void>);
 
   @override
-  _i13.Future<void> hardDeleteTransaction(String? id) =>
+  _i16.Future<void> hardDeleteTransaction(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#hardDeleteTransaction, [id]),
-            returnValue: _i13.Future<void>.value(),
-            returnValueForMissingStub: _i13.Future<void>.value(),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
           )
-          as _i13.Future<void>);
+          as _i16.Future<void>);
 
   @override
-  _i13.Future<void> restoreTransaction(String? id) =>
+  _i16.Future<void> restoreTransaction(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#restoreTransaction, [id]),
-            returnValue: _i13.Future<void>.value(),
-            returnValueForMissingStub: _i13.Future<void>.value(),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
           )
-          as _i13.Future<void>);
+          as _i16.Future<void>);
 
   @override
-  _i13.Future<_i10.TransactionCategoryMapData> assignCategory({
+  _i16.Future<_i13.TransactionCategoryMapData> assignCategory({
     required String? transactionId,
     required String? categoryId,
-    required _i16.AssignmentSource? assignmentSource,
+    required _i19.AssignmentSource? assignmentSource,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#assignCategory, [], {
@@ -1471,8 +1673,8 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
               #categoryId: categoryId,
               #assignmentSource: assignmentSource,
             }),
-            returnValue: _i13.Future<_i10.TransactionCategoryMapData>.value(
-              _FakeTransactionCategoryMapData_40(
+            returnValue: _i16.Future<_i13.TransactionCategoryMapData>.value(
+              _FakeTransactionCategoryMapData_51(
                 this,
                 Invocation.method(#assignCategory, [], {
                   #transactionId: transactionId,
@@ -1482,67 +1684,79 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
               ),
             ),
           )
-          as _i13.Future<_i10.TransactionCategoryMapData>);
+          as _i16.Future<_i13.TransactionCategoryMapData>);
 
   @override
-  _i13.Future<_i10.TransactionCategoryMapData?> getCategoryForTransaction(
+  _i16.Future<_i13.TransactionCategoryMapData?> getCategoryForTransaction(
     String? transactionId,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#getCategoryForTransaction, [transactionId]),
-            returnValue: _i13.Future<_i10.TransactionCategoryMapData?>.value(),
+            returnValue: _i16.Future<_i13.TransactionCategoryMapData?>.value(),
           )
-          as _i13.Future<_i10.TransactionCategoryMapData?>);
+          as _i16.Future<_i13.TransactionCategoryMapData?>);
 
   @override
-  _i13.Future<List<_i10.TransactionCategoryMapData>> getTransactionsForCategory(
+  _i16.Future<List<_i13.TransactionCategoryMapData>> getTransactionsForCategory(
     String? categoryId,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#getTransactionsForCategory, [categoryId]),
             returnValue:
-                _i13.Future<List<_i10.TransactionCategoryMapData>>.value(
-                  <_i10.TransactionCategoryMapData>[],
+                _i16.Future<List<_i13.TransactionCategoryMapData>>.value(
+                  <_i13.TransactionCategoryMapData>[],
                 ),
           )
-          as _i13.Future<List<_i10.TransactionCategoryMapData>>);
+          as _i16.Future<List<_i13.TransactionCategoryMapData>>);
 
   @override
-  _i13.Future<void> removeMapping(String? transactionId) =>
+  _i16.Future<void> removeMapping(String? transactionId) =>
       (super.noSuchMethod(
             Invocation.method(#removeMapping, [transactionId]),
-            returnValue: _i13.Future<void>.value(),
-            returnValueForMissingStub: _i13.Future<void>.value(),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
           )
-          as _i13.Future<void>);
+          as _i16.Future<void>);
 
   @override
-  _i13.Future<List<_i10.Transaction>> getTransactionsByCategory(
+  _i16.Future<List<_i13.Transaction>> getTransactionsByCategory(
     String? categoryId,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#getTransactionsByCategory, [categoryId]),
-            returnValue: _i13.Future<List<_i10.Transaction>>.value(
-              <_i10.Transaction>[],
+            returnValue: _i16.Future<List<_i13.Transaction>>.value(
+              <_i13.Transaction>[],
             ),
           )
-          as _i13.Future<List<_i10.Transaction>>);
+          as _i16.Future<List<_i13.Transaction>>);
 
   @override
-  _i13.Stream<T> createStream<T extends Object>(
-    _i12.QueryStreamFetcher<T>? stmt,
+  _i16.Future<List<_i13.Transaction>> getTransactionsByBudget(
+    String? budgetTemplateId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getTransactionsByBudget, [budgetTemplateId]),
+            returnValue: _i16.Future<List<_i13.Transaction>>.value(
+              <_i13.Transaction>[],
+            ),
+          )
+          as _i16.Future<List<_i13.Transaction>>);
+
+  @override
+  _i16.Stream<T> createStream<T extends Object>(
+    _i15.QueryStreamFetcher<T>? stmt,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#createStream, [stmt]),
-            returnValue: _i13.Stream<T>.empty(),
+            returnValue: _i16.Stream<T>.empty(),
           )
-          as _i13.Stream<T>);
+          as _i16.Stream<T>);
 
   @override
   T alias<T, D>(_i2.ResultSetImplementation<T, D>? table, String? alias) =>
       (super.noSuchMethod(
             Invocation.method(#alias, [table, alias]),
-            returnValue: _i14.dummyValue<T>(
+            returnValue: _i17.dummyValue<T>(
               this,
               Invocation.method(#alias, [table, alias]),
             ),
@@ -1563,32 +1777,32 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
   );
 
   @override
-  _i13.Stream<Set<_i2.TableUpdate>> tableUpdates([
+  _i16.Stream<Set<_i2.TableUpdate>> tableUpdates([
     _i2.TableUpdateQuery? query = const _i2.TableUpdateQuery.any(),
   ]) =>
       (super.noSuchMethod(
             Invocation.method(#tableUpdates, [query]),
-            returnValue: _i13.Stream<Set<_i2.TableUpdate>>.empty(),
+            returnValue: _i16.Stream<Set<_i2.TableUpdate>>.empty(),
           )
-          as _i13.Stream<Set<_i2.TableUpdate>>);
+          as _i16.Stream<Set<_i2.TableUpdate>>);
 
   @override
-  _i13.Future<T> doWhenOpened<T>(
-    _i13.FutureOr<T> Function(_i11.QueryExecutor)? fn,
+  _i16.Future<T> doWhenOpened<T>(
+    _i16.FutureOr<T> Function(_i14.QueryExecutor)? fn,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#doWhenOpened, [fn]),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#doWhenOpened, [fn]),
                   ),
-                  (T v) => _i13.Future<T>.value(v),
+                  (T v) => _i16.Future<T>.value(v),
                 ) ??
-                _FakeFuture_28<T>(this, Invocation.method(#doWhenOpened, [fn])),
+                _FakeFuture_39<T>(this, Invocation.method(#doWhenOpened, [fn])),
           )
-          as _i13.Future<T>);
+          as _i16.Future<T>);
 
   @override
   _i2.InsertStatement<T, D> into<T extends _i2.Table, D>(
@@ -1596,7 +1810,7 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#into, [table]),
-            returnValue: _FakeInsertStatement_29<T, D>(
+            returnValue: _FakeInsertStatement_40<T, D>(
               this,
               Invocation.method(#into, [table]),
             ),
@@ -1609,7 +1823,7 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#update, [table]),
-            returnValue: _FakeUpdateStatement_30<Tbl, R>(
+            returnValue: _FakeUpdateStatement_41<Tbl, R>(
               this,
               Invocation.method(#update, [table]),
             ),
@@ -1623,7 +1837,7 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
   }) =>
       (super.noSuchMethod(
             Invocation.method(#select, [table], {#distinct: distinct}),
-            returnValue: _FakeSimpleSelectStatement_31<T, R>(
+            returnValue: _FakeSimpleSelectStatement_42<T, R>(
               this,
               Invocation.method(#select, [table], {#distinct: distinct}),
             ),
@@ -1637,7 +1851,7 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
   }) =>
       (super.noSuchMethod(
             Invocation.method(#selectOnly, [table], {#distinct: distinct}),
-            returnValue: _FakeJoinedSelectStatement_32<T, R>(
+            returnValue: _FakeJoinedSelectStatement_43<T, R>(
               this,
               Invocation.method(#selectOnly, [table], {#distinct: distinct}),
             ),
@@ -1650,7 +1864,7 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#selectExpressions, [columns]),
-            returnValue: _FakeBaseSelectStatement_33<_i2.TypedResult>(
+            returnValue: _FakeBaseSelectStatement_44<_i2.TypedResult>(
               this,
               Invocation.method(#selectExpressions, [columns]),
             ),
@@ -1663,7 +1877,7 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#delete, [table]),
-            returnValue: _FakeDeleteStatement_34<T, D>(
+            returnValue: _FakeDeleteStatement_45<T, D>(
               this,
               Invocation.method(#delete, [table]),
             ),
@@ -1671,7 +1885,7 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
           as _i2.DeleteStatement<T, D>);
 
   @override
-  _i13.Future<int> customUpdate(
+  _i16.Future<int> customUpdate(
     String? query, {
     List<_i2.Variable<Object>>? variables = const [],
     Set<_i2.ResultSetImplementation<dynamic, dynamic>>? updates,
@@ -1687,12 +1901,12 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
                 #updateKind: updateKind,
               },
             ),
-            returnValue: _i13.Future<int>.value(0),
+            returnValue: _i16.Future<int>.value(0),
           )
-          as _i13.Future<int>);
+          as _i16.Future<int>);
 
   @override
-  _i13.Future<int> customInsert(
+  _i16.Future<int> customInsert(
     String? query, {
     List<_i2.Variable<Object>>? variables = const [],
     Set<_i2.ResultSetImplementation<dynamic, dynamic>>? updates,
@@ -1703,12 +1917,12 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
               [query],
               {#variables: variables, #updates: updates},
             ),
-            returnValue: _i13.Future<int>.value(0),
+            returnValue: _i16.Future<int>.value(0),
           )
-          as _i13.Future<int>);
+          as _i16.Future<int>);
 
   @override
-  _i13.Future<List<_i2.QueryRow>> customWriteReturning(
+  _i16.Future<List<_i2.QueryRow>> customWriteReturning(
     String? query, {
     List<_i2.Variable<Object>>? variables = const [],
     Set<_i2.ResultSetImplementation<dynamic, dynamic>>? updates,
@@ -1724,11 +1938,11 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
                 #updateKind: updateKind,
               },
             ),
-            returnValue: _i13.Future<List<_i2.QueryRow>>.value(
+            returnValue: _i16.Future<List<_i2.QueryRow>>.value(
               <_i2.QueryRow>[],
             ),
           )
-          as _i13.Future<List<_i2.QueryRow>>);
+          as _i16.Future<List<_i2.QueryRow>>);
 
   @override
   _i2.Selectable<_i2.QueryRow> customSelect(
@@ -1742,7 +1956,7 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
               [query],
               {#variables: variables, #readsFrom: readsFrom},
             ),
-            returnValue: _FakeSelectable_35<_i2.QueryRow>(
+            returnValue: _FakeSelectable_46<_i2.QueryRow>(
               this,
               Invocation.method(
                 #customSelect,
@@ -1765,7 +1979,7 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
               [query],
               {#variables: variables, #readsFrom: readsFrom},
             ),
-            returnValue: _FakeSelectable_35<_i2.QueryRow>(
+            returnValue: _FakeSelectable_46<_i2.QueryRow>(
               this,
               Invocation.method(
                 #customSelectQuery,
@@ -1777,17 +1991,17 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
           as _i2.Selectable<_i2.QueryRow>);
 
   @override
-  _i13.Future<void> customStatement(String? statement, [List<dynamic>? args]) =>
+  _i16.Future<void> customStatement(String? statement, [List<dynamic>? args]) =>
       (super.noSuchMethod(
             Invocation.method(#customStatement, [statement, args]),
-            returnValue: _i13.Future<void>.value(),
-            returnValueForMissingStub: _i13.Future<void>.value(),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
           )
-          as _i13.Future<void>);
+          as _i16.Future<void>);
 
   @override
-  _i13.Future<T> transaction<T>(
-    _i13.Future<T> Function()? action, {
+  _i16.Future<T> transaction<T>(
+    _i16.Future<T> Function()? action, {
     bool? requireNew = false,
   }) =>
       (super.noSuchMethod(
@@ -1797,8 +2011,8 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
               {#requireNew: requireNew},
             ),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #transaction,
@@ -1806,9 +2020,9 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
                       {#requireNew: requireNew},
                     ),
                   ),
-                  (T v) => _i13.Future<T>.value(v),
+                  (T v) => _i16.Future<T>.value(v),
                 ) ??
-                _FakeFuture_28<T>(
+                _FakeFuture_39<T>(
                   this,
                   Invocation.method(
                     #transaction,
@@ -1817,41 +2031,41 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
                   ),
                 ),
           )
-          as _i13.Future<T>);
+          as _i16.Future<T>);
 
   @override
-  _i13.Future<T> exclusively<T>(_i13.Future<T> Function()? action) =>
+  _i16.Future<T> exclusively<T>(_i16.Future<T> Function()? action) =>
       (super.noSuchMethod(
             Invocation.method(#exclusively, [action]),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#exclusively, [action]),
                   ),
-                  (T v) => _i13.Future<T>.value(v),
+                  (T v) => _i16.Future<T>.value(v),
                 ) ??
-                _FakeFuture_28<T>(
+                _FakeFuture_39<T>(
                   this,
                   Invocation.method(#exclusively, [action]),
                 ),
           )
-          as _i13.Future<T>);
+          as _i16.Future<T>);
 
   @override
-  _i13.Future<void> batch(
-    _i13.FutureOr<void> Function(_i2.Batch)? runInBatch,
+  _i16.Future<void> batch(
+    _i16.FutureOr<void> Function(_i2.Batch)? runInBatch,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#batch, [runInBatch]),
-            returnValue: _i13.Future<void>.value(),
-            returnValueForMissingStub: _i13.Future<void>.value(),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
           )
-          as _i13.Future<void>);
+          as _i16.Future<void>);
 
   @override
-  _i13.Future<T> runWithInterceptor<T>(
-    _i13.Future<T> Function()? action, {
+  _i16.Future<T> runWithInterceptor<T>(
+    _i16.Future<T> Function()? action, {
     required _i2.QueryInterceptor? interceptor,
   }) =>
       (super.noSuchMethod(
@@ -1861,8 +2075,8 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
               {#interceptor: interceptor},
             ),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #runWithInterceptor,
@@ -1870,9 +2084,9 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
                       {#interceptor: interceptor},
                     ),
                   ),
-                  (T v) => _i13.Future<T>.value(v),
+                  (T v) => _i16.Future<T>.value(v),
                 ) ??
-                _FakeFuture_28<T>(
+                _FakeFuture_39<T>(
                   this,
                   Invocation.method(
                     #runWithInterceptor,
@@ -1881,7 +2095,7 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
                   ),
                 ),
           )
-          as _i13.Future<T>);
+          as _i16.Future<T>);
 
   @override
   _i2.GenerationContext $write(
@@ -1895,7 +2109,7 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
               [component],
               {#hasMultipleTables: hasMultipleTables, #startIndex: startIndex},
             ),
-            returnValue: _FakeGenerationContext_36(
+            returnValue: _FakeGenerationContext_47(
               this,
               Invocation.method(
                 #$write,
@@ -1921,7 +2135,7 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
               [table, insertable],
               {#startIndex: startIndex},
             ),
-            returnValue: _FakeGenerationContext_36(
+            returnValue: _FakeGenerationContext_47(
               this,
               Invocation.method(
                 #$writeInsertable,
@@ -1944,7 +2158,7 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
               [table, insertable],
               {#startIndex: startIndex},
             ),
-            returnValue: _FakeGenerationContext_36(
+            returnValue: _FakeGenerationContext_47(
               this,
               Invocation.method(
                 #$writeUpdateInsertable,
@@ -1959,7 +2173,7 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
   String $expandVar(int? start, int? amount) =>
       (super.noSuchMethod(
             Invocation.method(#$expandVar, [start, amount]),
-            returnValue: _i14.dummyValue<String>(
+            returnValue: _i17.dummyValue<String>(
               this,
               Invocation.method(#$expandVar, [start, amount]),
             ),
@@ -1967,13 +2181,13 @@ class MockTransactionDao extends _i1.Mock implements _i5.TransactionDao {
           as String);
 
   @override
-  _i13.Future<void> close() =>
+  _i16.Future<void> close() =>
       (super.noSuchMethod(
             Invocation.method(#close, []),
-            returnValue: _i13.Future<void>.value(),
-            returnValueForMissingStub: _i13.Future<void>.value(),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
           )
-          as _i13.Future<void>);
+          as _i16.Future<void>);
 }
 
 /// A class which mocks [CategoryDao].
@@ -1985,21 +2199,21 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
   }
 
   @override
-  _i10.AppDatabase get attachedDatabase =>
+  _i13.AppDatabase get attachedDatabase =>
       (super.noSuchMethod(
             Invocation.getter(#attachedDatabase),
-            returnValue: _FakeAppDatabase_37(
+            returnValue: _FakeAppDatabase_48(
               this,
               Invocation.getter(#attachedDatabase),
             ),
           )
-          as _i10.AppDatabase);
+          as _i13.AppDatabase);
 
   @override
   _i2.DatabaseConnection get connection =>
       (super.noSuchMethod(
             Invocation.getter(#connection),
-            returnValue: _FakeDatabaseConnection_23(
+            returnValue: _FakeDatabaseConnection_34(
               this,
               Invocation.getter(#connection),
             ),
@@ -2010,7 +2224,7 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
   _i2.DriftDatabaseOptions get options =>
       (super.noSuchMethod(
             Invocation.getter(#options),
-            returnValue: _FakeDriftDatabaseOptions_20(
+            returnValue: _FakeDriftDatabaseOptions_31(
               this,
               Invocation.getter(#options),
             ),
@@ -2021,7 +2235,7 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
   _i2.SqlTypes get typeMapping =>
       (super.noSuchMethod(
             Invocation.getter(#typeMapping),
-            returnValue: _i14.dummyValue<_i2.SqlTypes>(
+            returnValue: _i17.dummyValue<_i2.SqlTypes>(
               this,
               Invocation.getter(#typeMapping),
             ),
@@ -2029,32 +2243,32 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
           as _i2.SqlTypes);
 
   @override
-  _i11.QueryExecutor get executor =>
+  _i14.QueryExecutor get executor =>
       (super.noSuchMethod(
             Invocation.getter(#executor),
-            returnValue: _FakeQueryExecutor_24(
+            returnValue: _FakeQueryExecutor_35(
               this,
               Invocation.getter(#executor),
             ),
           )
-          as _i11.QueryExecutor);
+          as _i14.QueryExecutor);
 
   @override
-  _i12.StreamQueryStore get streamQueries =>
+  _i15.StreamQueryStore get streamQueries =>
       (super.noSuchMethod(
             Invocation.getter(#streamQueries),
-            returnValue: _FakeStreamQueryStore_25(
+            returnValue: _FakeStreamQueryStore_36(
               this,
               Invocation.getter(#streamQueries),
             ),
           )
-          as _i12.StreamQueryStore);
+          as _i15.StreamQueryStore);
 
   @override
   _i2.DatabaseConnectionUser get resolvedEngine =>
       (super.noSuchMethod(
             Invocation.getter(#resolvedEngine),
-            returnValue: _FakeDatabaseConnectionUser_26(
+            returnValue: _FakeDatabaseConnectionUser_37(
               this,
               Invocation.getter(#resolvedEngine),
             ),
@@ -2062,98 +2276,98 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
           as _i2.DatabaseConnectionUser);
 
   @override
-  _i10.$CategoriesTable get categories =>
-      (super.noSuchMethod(
-            Invocation.getter(#categories),
-            returnValue: _Fake$CategoriesTable_9(
-              this,
-              Invocation.getter(#categories),
-            ),
-          )
-          as _i10.$CategoriesTable);
-
-  @override
-  _i10.$CategoryClosureTable get categoryClosure =>
-      (super.noSuchMethod(
-            Invocation.getter(#categoryClosure),
-            returnValue: _Fake$CategoryClosureTable_10(
-              this,
-              Invocation.getter(#categoryClosure),
-            ),
-          )
-          as _i10.$CategoryClosureTable);
-
-  @override
-  _i10.$RecurringTransactionsTable get recurringTransactions =>
-      (super.noSuchMethod(
-            Invocation.getter(#recurringTransactions),
-            returnValue: _Fake$RecurringTransactionsTable_11(
-              this,
-              Invocation.getter(#recurringTransactions),
-            ),
-          )
-          as _i10.$RecurringTransactionsTable);
-
-  @override
-  _i10.$ImportsTable get imports =>
-      (super.noSuchMethod(
-            Invocation.getter(#imports),
-            returnValue: _Fake$ImportsTable_12(
-              this,
-              Invocation.getter(#imports),
-            ),
-          )
-          as _i10.$ImportsTable);
-
-  @override
-  _i10.$TransactionsTable get transactions =>
-      (super.noSuchMethod(
-            Invocation.getter(#transactions),
-            returnValue: _Fake$TransactionsTable_13(
-              this,
-              Invocation.getter(#transactions),
-            ),
-          )
-          as _i10.$TransactionsTable);
-
-  @override
-  _i10.$TransactionCategoryMapTable get transactionCategoryMap =>
-      (super.noSuchMethod(
-            Invocation.getter(#transactionCategoryMap),
-            returnValue: _Fake$TransactionCategoryMapTable_14(
-              this,
-              Invocation.getter(#transactionCategoryMap),
-            ),
-          )
-          as _i10.$TransactionCategoryMapTable);
-
-  @override
-  _i10.$BudgetTemplatesTable get budgetTemplates =>
+  _i13.$BudgetTemplatesTable get budgetTemplates =>
       (super.noSuchMethod(
             Invocation.getter(#budgetTemplates),
-            returnValue: _Fake$BudgetTemplatesTable_15(
+            returnValue: _Fake$BudgetTemplatesTable_12(
               this,
               Invocation.getter(#budgetTemplates),
             ),
           )
-          as _i10.$BudgetTemplatesTable);
+          as _i13.$BudgetTemplatesTable);
 
   @override
-  _i10.$BudgetPeriodsTable get budgetPeriods =>
+  _i13.$CategoriesTable get categories =>
+      (super.noSuchMethod(
+            Invocation.getter(#categories),
+            returnValue: _Fake$CategoriesTable_13(
+              this,
+              Invocation.getter(#categories),
+            ),
+          )
+          as _i13.$CategoriesTable);
+
+  @override
+  _i13.$CategoryClosureTable get categoryClosure =>
+      (super.noSuchMethod(
+            Invocation.getter(#categoryClosure),
+            returnValue: _Fake$CategoryClosureTable_14(
+              this,
+              Invocation.getter(#categoryClosure),
+            ),
+          )
+          as _i13.$CategoryClosureTable);
+
+  @override
+  _i13.$RecurringTransactionsTable get recurringTransactions =>
+      (super.noSuchMethod(
+            Invocation.getter(#recurringTransactions),
+            returnValue: _Fake$RecurringTransactionsTable_15(
+              this,
+              Invocation.getter(#recurringTransactions),
+            ),
+          )
+          as _i13.$RecurringTransactionsTable);
+
+  @override
+  _i13.$ImportsTable get imports =>
+      (super.noSuchMethod(
+            Invocation.getter(#imports),
+            returnValue: _Fake$ImportsTable_16(
+              this,
+              Invocation.getter(#imports),
+            ),
+          )
+          as _i13.$ImportsTable);
+
+  @override
+  _i13.$TransactionsTable get transactions =>
+      (super.noSuchMethod(
+            Invocation.getter(#transactions),
+            returnValue: _Fake$TransactionsTable_17(
+              this,
+              Invocation.getter(#transactions),
+            ),
+          )
+          as _i13.$TransactionsTable);
+
+  @override
+  _i13.$TransactionCategoryMapTable get transactionCategoryMap =>
+      (super.noSuchMethod(
+            Invocation.getter(#transactionCategoryMap),
+            returnValue: _Fake$TransactionCategoryMapTable_18(
+              this,
+              Invocation.getter(#transactionCategoryMap),
+            ),
+          )
+          as _i13.$TransactionCategoryMapTable);
+
+  @override
+  _i13.$BudgetPeriodsTable get budgetPeriods =>
       (super.noSuchMethod(
             Invocation.getter(#budgetPeriods),
-            returnValue: _Fake$BudgetPeriodsTable_16(
+            returnValue: _Fake$BudgetPeriodsTable_19(
               this,
               Invocation.getter(#budgetPeriods),
             ),
           )
-          as _i10.$BudgetPeriodsTable);
+          as _i13.$BudgetPeriodsTable);
 
   @override
   _i3.CategoryDaoManager get managers =>
       (super.noSuchMethod(
             Invocation.getter(#managers),
-            returnValue: _FakeCategoryDaoManager_41(
+            returnValue: _FakeCategoryDaoManager_52(
               this,
               Invocation.getter(#managers),
             ),
@@ -2161,10 +2375,11 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
           as _i3.CategoryDaoManager);
 
   @override
-  _i13.Future<_i10.Category> insertCategory({
+  _i16.Future<_i13.Category> insertCategory({
     required String? name,
-    required _i16.CategoryType? type,
-    _i17.IconData? icon,
+    required _i19.CategoryType? type,
+    required String? budgetTemplateId,
+    _i20.IconData? icon,
     String? color,
     bool? isDefault = false,
   }) =>
@@ -2172,16 +2387,18 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
             Invocation.method(#insertCategory, [], {
               #name: name,
               #type: type,
+              #budgetTemplateId: budgetTemplateId,
               #icon: icon,
               #color: color,
               #isDefault: isDefault,
             }),
-            returnValue: _i13.Future<_i10.Category>.value(
-              _FakeCategory_42(
+            returnValue: _i16.Future<_i13.Category>.value(
+              _FakeCategory_53(
                 this,
                 Invocation.method(#insertCategory, [], {
                   #name: name,
                   #type: type,
+                  #budgetTemplateId: budgetTemplateId,
                   #icon: icon,
                   #color: color,
                   #isDefault: isDefault,
@@ -2189,10 +2406,10 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
               ),
             ),
           )
-          as _i13.Future<_i10.Category>);
+          as _i16.Future<_i13.Category>);
 
   @override
-  _i13.Future<_i10.Category?> getCategoryById(
+  _i16.Future<_i13.Category?> getCategoryById(
     String? id, {
     bool? includeDeleted = false,
   }) =>
@@ -2202,27 +2419,27 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
               [id],
               {#includeDeleted: includeDeleted},
             ),
-            returnValue: _i13.Future<_i10.Category?>.value(),
+            returnValue: _i16.Future<_i13.Category?>.value(),
           )
-          as _i13.Future<_i10.Category?>);
+          as _i16.Future<_i13.Category?>);
 
   @override
-  _i13.Future<List<_i10.Category>> getAllCategories({
+  _i16.Future<List<_i13.Category>> getAllCategories({
     bool? includeDeleted = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#getAllCategories, [], {
               #includeDeleted: includeDeleted,
             }),
-            returnValue: _i13.Future<List<_i10.Category>>.value(
-              <_i10.Category>[],
+            returnValue: _i16.Future<List<_i13.Category>>.value(
+              <_i13.Category>[],
             ),
           )
-          as _i13.Future<List<_i10.Category>>);
+          as _i16.Future<List<_i13.Category>>);
 
   @override
-  _i13.Future<List<_i10.Category>> getCategoriesByType(
-    _i16.CategoryType? type, {
+  _i16.Future<List<_i13.Category>> getCategoriesByType(
+    _i19.CategoryType? type, {
     bool? includeDeleted = false,
   }) =>
       (super.noSuchMethod(
@@ -2231,18 +2448,30 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
               [type],
               {#includeDeleted: includeDeleted},
             ),
-            returnValue: _i13.Future<List<_i10.Category>>.value(
-              <_i10.Category>[],
+            returnValue: _i16.Future<List<_i13.Category>>.value(
+              <_i13.Category>[],
             ),
           )
-          as _i13.Future<List<_i10.Category>>);
+          as _i16.Future<List<_i13.Category>>);
 
   @override
-  _i13.Future<_i10.Category> updateCategory(
+  _i16.Future<List<_i13.Category>> getCategoriesByBudget(
+    String? budgetTemplateId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getCategoriesByBudget, [budgetTemplateId]),
+            returnValue: _i16.Future<List<_i13.Category>>.value(
+              <_i13.Category>[],
+            ),
+          )
+          as _i16.Future<List<_i13.Category>>);
+
+  @override
+  _i16.Future<_i13.Category> updateCategory(
     String? id, {
     String? name,
-    _i16.CategoryType? type,
-    _i2.Value<_i17.IconData?>? icon = const _i2.Value.absent(),
+    _i19.CategoryType? type,
+    _i2.Value<_i20.IconData?>? icon = const _i2.Value.absent(),
     _i2.Value<String?>? color = const _i2.Value.absent(),
     bool? isDefault,
   }) =>
@@ -2258,8 +2487,8 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
                 #isDefault: isDefault,
               },
             ),
-            returnValue: _i13.Future<_i10.Category>.value(
-              _FakeCategory_42(
+            returnValue: _i16.Future<_i13.Category>.value(
+              _FakeCategory_53(
                 this,
                 Invocation.method(
                   #updateCategory,
@@ -2275,79 +2504,79 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
               ),
             ),
           )
-          as _i13.Future<_i10.Category>);
+          as _i16.Future<_i13.Category>);
 
   @override
-  _i13.Future<void> softDeleteCategory(String? id) =>
+  _i16.Future<void> softDeleteCategory(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#softDeleteCategory, [id]),
-            returnValue: _i13.Future<void>.value(),
-            returnValueForMissingStub: _i13.Future<void>.value(),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
           )
-          as _i13.Future<void>);
+          as _i16.Future<void>);
 
   @override
-  _i13.Future<void> hardDeleteCategory(String? id) =>
+  _i16.Future<void> hardDeleteCategory(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#hardDeleteCategory, [id]),
-            returnValue: _i13.Future<void>.value(),
-            returnValueForMissingStub: _i13.Future<void>.value(),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
           )
-          as _i13.Future<void>);
+          as _i16.Future<void>);
 
   @override
-  _i13.Future<void> restoreCategory(String? id) =>
+  _i16.Future<void> restoreCategory(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#restoreCategory, [id]),
-            returnValue: _i13.Future<void>.value(),
-            returnValueForMissingStub: _i13.Future<void>.value(),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
           )
-          as _i13.Future<void>);
+          as _i16.Future<void>);
 
   @override
-  _i13.Future<List<_i10.Category>> getChildren(String? ancestorId) =>
+  _i16.Future<List<_i13.Category>> getChildren(String? ancestorId) =>
       (super.noSuchMethod(
             Invocation.method(#getChildren, [ancestorId]),
-            returnValue: _i13.Future<List<_i10.Category>>.value(
-              <_i10.Category>[],
+            returnValue: _i16.Future<List<_i13.Category>>.value(
+              <_i13.Category>[],
             ),
           )
-          as _i13.Future<List<_i10.Category>>);
+          as _i16.Future<List<_i13.Category>>);
 
   @override
-  _i13.Future<List<_i10.Category>> getDescendants(String? ancestorId) =>
+  _i16.Future<List<_i13.Category>> getDescendants(String? ancestorId) =>
       (super.noSuchMethod(
             Invocation.method(#getDescendants, [ancestorId]),
-            returnValue: _i13.Future<List<_i10.Category>>.value(
-              <_i10.Category>[],
+            returnValue: _i16.Future<List<_i13.Category>>.value(
+              <_i13.Category>[],
             ),
           )
-          as _i13.Future<List<_i10.Category>>);
+          as _i16.Future<List<_i13.Category>>);
 
   @override
-  _i13.Future<void> moveCategory(String? categoryId, String? newParentId) =>
+  _i16.Future<void> moveCategory(String? categoryId, String? newParentId) =>
       (super.noSuchMethod(
             Invocation.method(#moveCategory, [categoryId, newParentId]),
-            returnValue: _i13.Future<void>.value(),
-            returnValueForMissingStub: _i13.Future<void>.value(),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
           )
-          as _i13.Future<void>);
+          as _i16.Future<void>);
 
   @override
-  _i13.Stream<T> createStream<T extends Object>(
-    _i12.QueryStreamFetcher<T>? stmt,
+  _i16.Stream<T> createStream<T extends Object>(
+    _i15.QueryStreamFetcher<T>? stmt,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#createStream, [stmt]),
-            returnValue: _i13.Stream<T>.empty(),
+            returnValue: _i16.Stream<T>.empty(),
           )
-          as _i13.Stream<T>);
+          as _i16.Stream<T>);
 
   @override
   T alias<T, D>(_i2.ResultSetImplementation<T, D>? table, String? alias) =>
       (super.noSuchMethod(
             Invocation.method(#alias, [table, alias]),
-            returnValue: _i14.dummyValue<T>(
+            returnValue: _i17.dummyValue<T>(
               this,
               Invocation.method(#alias, [table, alias]),
             ),
@@ -2368,32 +2597,32 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
   );
 
   @override
-  _i13.Stream<Set<_i2.TableUpdate>> tableUpdates([
+  _i16.Stream<Set<_i2.TableUpdate>> tableUpdates([
     _i2.TableUpdateQuery? query = const _i2.TableUpdateQuery.any(),
   ]) =>
       (super.noSuchMethod(
             Invocation.method(#tableUpdates, [query]),
-            returnValue: _i13.Stream<Set<_i2.TableUpdate>>.empty(),
+            returnValue: _i16.Stream<Set<_i2.TableUpdate>>.empty(),
           )
-          as _i13.Stream<Set<_i2.TableUpdate>>);
+          as _i16.Stream<Set<_i2.TableUpdate>>);
 
   @override
-  _i13.Future<T> doWhenOpened<T>(
-    _i13.FutureOr<T> Function(_i11.QueryExecutor)? fn,
+  _i16.Future<T> doWhenOpened<T>(
+    _i16.FutureOr<T> Function(_i14.QueryExecutor)? fn,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#doWhenOpened, [fn]),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#doWhenOpened, [fn]),
                   ),
-                  (T v) => _i13.Future<T>.value(v),
+                  (T v) => _i16.Future<T>.value(v),
                 ) ??
-                _FakeFuture_28<T>(this, Invocation.method(#doWhenOpened, [fn])),
+                _FakeFuture_39<T>(this, Invocation.method(#doWhenOpened, [fn])),
           )
-          as _i13.Future<T>);
+          as _i16.Future<T>);
 
   @override
   _i2.InsertStatement<T, D> into<T extends _i2.Table, D>(
@@ -2401,7 +2630,7 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#into, [table]),
-            returnValue: _FakeInsertStatement_29<T, D>(
+            returnValue: _FakeInsertStatement_40<T, D>(
               this,
               Invocation.method(#into, [table]),
             ),
@@ -2414,7 +2643,7 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#update, [table]),
-            returnValue: _FakeUpdateStatement_30<Tbl, R>(
+            returnValue: _FakeUpdateStatement_41<Tbl, R>(
               this,
               Invocation.method(#update, [table]),
             ),
@@ -2428,7 +2657,7 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
   }) =>
       (super.noSuchMethod(
             Invocation.method(#select, [table], {#distinct: distinct}),
-            returnValue: _FakeSimpleSelectStatement_31<T, R>(
+            returnValue: _FakeSimpleSelectStatement_42<T, R>(
               this,
               Invocation.method(#select, [table], {#distinct: distinct}),
             ),
@@ -2442,7 +2671,7 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
   }) =>
       (super.noSuchMethod(
             Invocation.method(#selectOnly, [table], {#distinct: distinct}),
-            returnValue: _FakeJoinedSelectStatement_32<T, R>(
+            returnValue: _FakeJoinedSelectStatement_43<T, R>(
               this,
               Invocation.method(#selectOnly, [table], {#distinct: distinct}),
             ),
@@ -2455,7 +2684,7 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#selectExpressions, [columns]),
-            returnValue: _FakeBaseSelectStatement_33<_i2.TypedResult>(
+            returnValue: _FakeBaseSelectStatement_44<_i2.TypedResult>(
               this,
               Invocation.method(#selectExpressions, [columns]),
             ),
@@ -2468,7 +2697,7 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#delete, [table]),
-            returnValue: _FakeDeleteStatement_34<T, D>(
+            returnValue: _FakeDeleteStatement_45<T, D>(
               this,
               Invocation.method(#delete, [table]),
             ),
@@ -2476,7 +2705,7 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
           as _i2.DeleteStatement<T, D>);
 
   @override
-  _i13.Future<int> customUpdate(
+  _i16.Future<int> customUpdate(
     String? query, {
     List<_i2.Variable<Object>>? variables = const [],
     Set<_i2.ResultSetImplementation<dynamic, dynamic>>? updates,
@@ -2492,12 +2721,12 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
                 #updateKind: updateKind,
               },
             ),
-            returnValue: _i13.Future<int>.value(0),
+            returnValue: _i16.Future<int>.value(0),
           )
-          as _i13.Future<int>);
+          as _i16.Future<int>);
 
   @override
-  _i13.Future<int> customInsert(
+  _i16.Future<int> customInsert(
     String? query, {
     List<_i2.Variable<Object>>? variables = const [],
     Set<_i2.ResultSetImplementation<dynamic, dynamic>>? updates,
@@ -2508,12 +2737,12 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
               [query],
               {#variables: variables, #updates: updates},
             ),
-            returnValue: _i13.Future<int>.value(0),
+            returnValue: _i16.Future<int>.value(0),
           )
-          as _i13.Future<int>);
+          as _i16.Future<int>);
 
   @override
-  _i13.Future<List<_i2.QueryRow>> customWriteReturning(
+  _i16.Future<List<_i2.QueryRow>> customWriteReturning(
     String? query, {
     List<_i2.Variable<Object>>? variables = const [],
     Set<_i2.ResultSetImplementation<dynamic, dynamic>>? updates,
@@ -2529,11 +2758,11 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
                 #updateKind: updateKind,
               },
             ),
-            returnValue: _i13.Future<List<_i2.QueryRow>>.value(
+            returnValue: _i16.Future<List<_i2.QueryRow>>.value(
               <_i2.QueryRow>[],
             ),
           )
-          as _i13.Future<List<_i2.QueryRow>>);
+          as _i16.Future<List<_i2.QueryRow>>);
 
   @override
   _i2.Selectable<_i2.QueryRow> customSelect(
@@ -2547,7 +2776,7 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
               [query],
               {#variables: variables, #readsFrom: readsFrom},
             ),
-            returnValue: _FakeSelectable_35<_i2.QueryRow>(
+            returnValue: _FakeSelectable_46<_i2.QueryRow>(
               this,
               Invocation.method(
                 #customSelect,
@@ -2570,7 +2799,7 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
               [query],
               {#variables: variables, #readsFrom: readsFrom},
             ),
-            returnValue: _FakeSelectable_35<_i2.QueryRow>(
+            returnValue: _FakeSelectable_46<_i2.QueryRow>(
               this,
               Invocation.method(
                 #customSelectQuery,
@@ -2582,17 +2811,17 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
           as _i2.Selectable<_i2.QueryRow>);
 
   @override
-  _i13.Future<void> customStatement(String? statement, [List<dynamic>? args]) =>
+  _i16.Future<void> customStatement(String? statement, [List<dynamic>? args]) =>
       (super.noSuchMethod(
             Invocation.method(#customStatement, [statement, args]),
-            returnValue: _i13.Future<void>.value(),
-            returnValueForMissingStub: _i13.Future<void>.value(),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
           )
-          as _i13.Future<void>);
+          as _i16.Future<void>);
 
   @override
-  _i13.Future<T> transaction<T>(
-    _i13.Future<T> Function()? action, {
+  _i16.Future<T> transaction<T>(
+    _i16.Future<T> Function()? action, {
     bool? requireNew = false,
   }) =>
       (super.noSuchMethod(
@@ -2602,8 +2831,8 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
               {#requireNew: requireNew},
             ),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #transaction,
@@ -2611,9 +2840,9 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
                       {#requireNew: requireNew},
                     ),
                   ),
-                  (T v) => _i13.Future<T>.value(v),
+                  (T v) => _i16.Future<T>.value(v),
                 ) ??
-                _FakeFuture_28<T>(
+                _FakeFuture_39<T>(
                   this,
                   Invocation.method(
                     #transaction,
@@ -2622,41 +2851,41 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
                   ),
                 ),
           )
-          as _i13.Future<T>);
+          as _i16.Future<T>);
 
   @override
-  _i13.Future<T> exclusively<T>(_i13.Future<T> Function()? action) =>
+  _i16.Future<T> exclusively<T>(_i16.Future<T> Function()? action) =>
       (super.noSuchMethod(
             Invocation.method(#exclusively, [action]),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(#exclusively, [action]),
                   ),
-                  (T v) => _i13.Future<T>.value(v),
+                  (T v) => _i16.Future<T>.value(v),
                 ) ??
-                _FakeFuture_28<T>(
+                _FakeFuture_39<T>(
                   this,
                   Invocation.method(#exclusively, [action]),
                 ),
           )
-          as _i13.Future<T>);
+          as _i16.Future<T>);
 
   @override
-  _i13.Future<void> batch(
-    _i13.FutureOr<void> Function(_i2.Batch)? runInBatch,
+  _i16.Future<void> batch(
+    _i16.FutureOr<void> Function(_i2.Batch)? runInBatch,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#batch, [runInBatch]),
-            returnValue: _i13.Future<void>.value(),
-            returnValueForMissingStub: _i13.Future<void>.value(),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
           )
-          as _i13.Future<void>);
+          as _i16.Future<void>);
 
   @override
-  _i13.Future<T> runWithInterceptor<T>(
-    _i13.Future<T> Function()? action, {
+  _i16.Future<T> runWithInterceptor<T>(
+    _i16.Future<T> Function()? action, {
     required _i2.QueryInterceptor? interceptor,
   }) =>
       (super.noSuchMethod(
@@ -2666,8 +2895,8 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
               {#interceptor: interceptor},
             ),
             returnValue:
-                _i14.ifNotNull(
-                  _i14.dummyValueOrNull<T>(
+                _i17.ifNotNull(
+                  _i17.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
                       #runWithInterceptor,
@@ -2675,9 +2904,9 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
                       {#interceptor: interceptor},
                     ),
                   ),
-                  (T v) => _i13.Future<T>.value(v),
+                  (T v) => _i16.Future<T>.value(v),
                 ) ??
-                _FakeFuture_28<T>(
+                _FakeFuture_39<T>(
                   this,
                   Invocation.method(
                     #runWithInterceptor,
@@ -2686,7 +2915,7 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
                   ),
                 ),
           )
-          as _i13.Future<T>);
+          as _i16.Future<T>);
 
   @override
   _i2.GenerationContext $write(
@@ -2700,7 +2929,7 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
               [component],
               {#hasMultipleTables: hasMultipleTables, #startIndex: startIndex},
             ),
-            returnValue: _FakeGenerationContext_36(
+            returnValue: _FakeGenerationContext_47(
               this,
               Invocation.method(
                 #$write,
@@ -2726,7 +2955,7 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
               [table, insertable],
               {#startIndex: startIndex},
             ),
-            returnValue: _FakeGenerationContext_36(
+            returnValue: _FakeGenerationContext_47(
               this,
               Invocation.method(
                 #$writeInsertable,
@@ -2749,7 +2978,7 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
               [table, insertable],
               {#startIndex: startIndex},
             ),
-            returnValue: _FakeGenerationContext_36(
+            returnValue: _FakeGenerationContext_47(
               this,
               Invocation.method(
                 #$writeUpdateInsertable,
@@ -2764,7 +2993,7 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
   String $expandVar(int? start, int? amount) =>
       (super.noSuchMethod(
             Invocation.method(#$expandVar, [start, amount]),
-            returnValue: _i14.dummyValue<String>(
+            returnValue: _i17.dummyValue<String>(
               this,
               Invocation.method(#$expandVar, [start, amount]),
             ),
@@ -2772,11 +3001,11 @@ class MockCategoryDao extends _i1.Mock implements _i3.CategoryDao {
           as String);
 
   @override
-  _i13.Future<void> close() =>
+  _i16.Future<void> close() =>
       (super.noSuchMethod(
             Invocation.method(#close, []),
-            returnValue: _i13.Future<void>.value(),
-            returnValueForMissingStub: _i13.Future<void>.value(),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
           )
-          as _i13.Future<void>);
+          as _i16.Future<void>);
 }

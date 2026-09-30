@@ -19,18 +19,41 @@ class _FABMenuState extends State<FABMenu> {
   Widget build(BuildContext context) {
     final colours = context.colours;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final buttonColor = isDark ? colours.blendedprimary : colours.secondary;
-    final textColor = isDark ? colours.cardText : colours.background;
+    final buttonColor = isDark ? colours.background : colours.secondary;
+    final textColor = isDark ? colours.secondary : colours.background;
     final hoverColor = isDark ? colours.background : colours.primary;
-    final hoverTextColor = colours.cardText;
+    final hoverTextColor = isDark ? colours.secondary : colours.cardText;
 
     return Container(
-      color: colours.background,
+      decoration: BoxDecoration(
+        color: isDark ? colours.blendedprimary : colours.background,
+        border: Border.all(color: Colors.black, width: 4),
+      ),
       padding: const EdgeInsets.fromLTRB(20, 22, 20, 28),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Align(
+            alignment: Alignment.centerRight,
+            child: InkWell(
+              onTap: () => Navigator.of(context).pop(),
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: isDark ? colours.background : colours.secondary,
+                  border: Border.all(color: Colors.black, width: 3),
+                ),
+                child: Icon(
+                  Icons.close,
+                  color: isDark ? colours.cardText : colours.background,
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
           _MenuButton(
             label: 'Add Transaction',
             icon: Icons.add,

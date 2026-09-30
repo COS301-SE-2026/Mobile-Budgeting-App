@@ -75,6 +75,7 @@ class Category(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     user_id: Mapped[str] = mapped_column(String)
+    budget_template_id: Mapped[str] = mapped_column(ForeignKey("budget_templates.id"))
 
 
 class CategoryClosure(Base):
@@ -114,7 +115,7 @@ class Transaction(Base):
     )
     user_id: Mapped[str] = mapped_column(String)
     import_id: Mapped[str | None] = mapped_column(ForeignKey("imports.id"), nullable=True)
-
+    budget_template_id: Mapped[str] = mapped_column(ForeignKey("budget_templates.id"))
 
 class TransactionCategoryMap(Base):
     
@@ -141,6 +142,7 @@ class BudgetTemplate(Base):
     __tablename__ = "budget_templates"
 
     id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=_uuid)
+    name: Mapped[str | None] = mapped_column(String, nullable=True)
     category_id: Mapped[str | None] = mapped_column(ForeignKey("categories.id"), nullable=True)
     amount: Mapped[Decimal] = mapped_column(Numeric(19, 4))
     period_type: Mapped[PeriodType] = mapped_column(SAEnum(PeriodType, native_enum=False))
@@ -206,6 +208,111 @@ class Import(Base):
     file_type: Mapped[ImportFileType] = mapped_column(SAEnum(ImportFileType, native_enum=False))
     account_identifier: Mapped[str | None] = mapped_column(String, nullable=True)
     imported_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class GoalTemplate(Base):
+    __tablename__ = "goal_templates"
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=_uuid)
+    name: Mapped[str | None] = mapped_column(String, nullable=True)
+    category_id: Mapped[str | None] = mapped_column(ForeignKey("categories.id"), nullable=True)
+    target_amount: Mapped[Decimal] = mapped_column(Numeric(19, 4))
+    period_type: Mapped[PeriodType] = mapped_column(SAEnum(PeriodType, native_enum=False))
+    currency: Mapped[str] = mapped_column(String, default="ZAR", server_default="ZAR")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    user_id: Mapped[str] = mapped_column(String)
+
+
+class GoalPeriod(Base):
+    __tablename__ = "goal_periods"
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=_uuid)
+    template_id: Mapped[str] = mapped_column(ForeignKey("goal_templates.id"))
+    user_id: Mapped[str] = mapped_column(String)
+    period_key: Mapped[str] = mapped_column(String)
+    start_date: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    end_date: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    target_amount: Mapped[Decimal] = mapped_column(Numeric(19, 4))
+    is_overridden: Mapped[bool] = mapped_column(Boolean)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class GoalContribution(Base):
+    __tablename__ = "goal_contributions"
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=_uuid)
+    template_id: Mapped[str] = mapped_column(ForeignKey("goal_templates.id"))
+    user_id: Mapped[str] = mapped_column(String)
+    amount: Mapped[Decimal] = mapped_column(Numeric(19, 4))
+    note: Mapped[str | None] = mapped_column(String, nullable=True)
+    transaction_id: Mapped[str | None] = mapped_column(
+        ForeignKey("transactions.id"), nullable=True
+    )
+    contributed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class BudgetMember(Base):
+    __tablename__ = "budget_members"
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=_uuid)
+    budget_template_id: Mapped[str] = mapped_column(ForeignKey("budget_templates.id"))
+    user_id: Mapped[str] = mapped_column(String)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class GoalMember(Base):
+    __tablename__ = "goal_members"
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=_uuid)
+    goal_template_id: Mapped[str] = mapped_column(ForeignKey("goal_templates.id"))
+    user_id: Mapped[str] = mapped_column(String)
+    status: Mapped[str] = mapped_column(String, default="accepted", server_default="accepted")
+    invited_by: Mapped[str | None] = mapped_column(String, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class UserProfile(Base):
+    __tablename__ = "user_profiles"
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=_uuid)
+    user_id: Mapped[str] = mapped_column(String)
+    friend_code: Mapped[str] = mapped_column(String)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class FriendRequest(Base):
+    __tablename__ = "friend_requests"
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=_uuid)
+    requester_id: Mapped[str] = mapped_column(String)
+    addressee_id: Mapped[str] = mapped_column(String)
+    status: Mapped[str] = mapped_column(String)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class Friendship(Base):
+    __tablename__ = "friendships"
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=_uuid)
+    user_a: Mapped[str] = mapped_column(String)
+    user_b: Mapped[str] = mapped_column(String)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

@@ -7,12 +7,14 @@ class FinancialHealthScoreService {
 
   final AppDatabase database;
 
-  Future<FinancialHealthScore> calculateMonthlyScore() async {
-    final now = DateTime.now();
-    final startDate = DateTime(now.year, now.month);
+  Future<FinancialHealthScore> calculateMonthlyScore({
+    DateTime? anchorDate,
+  }) async {
+    final selectedMonth = anchorDate ?? DateTime.now();
+    final startDate = DateTime(selectedMonth.year, selectedMonth.month);
     final endDate = DateTime(
-      now.year,
-      now.month + 1,
+      selectedMonth.year,
+      selectedMonth.month + 1,
       1,
     ).subtract(const Duration(milliseconds: 1));
 

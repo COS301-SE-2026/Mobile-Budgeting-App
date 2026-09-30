@@ -1,0 +1,215 @@
+-- =============================================================================
+-- Migration for existing databases: friends, goals and sharing features.
+--
+-- schema.sql only runs when the Postgres volume is first created. For an
+-- existing database, run this script (e.g. `psql <db> -f migrations.sql`) to
+-- bring it in line with schema.sql.
+--
+-- NOTE: the backend's `Base.metadata.create_all` already creates the *new*
+-- tables on startup, but it does NOT add columns, drop indexes, or alter the
+-- publication — which is why those steps are included here explicitly.
+-- =============================================================================
+
+-- 1. Multiple budgets per category: add a label and drop the one-per-category index.
+ALTER TABLE budget_templates ADD COLUMN IF NOT EXISTS name text;
+DROP INDEX IF EXISTS ux_budget_templates_one_active_category;
+
+-- 2. Goals (income targets), mirroring budgets.
+CREATE TABLE IF NOT EXISTS goal_templates (
+  id uuid PRIMARY KEY,
+  user_id text NOT NULL,
+  name text,
+  category_id uuid REFERENCES categories(id),
+  target_amount numeric(19,4) NOT NULL,
+  period_type text NOT NULL CHECK (period_type IN ('daily', 'weekly', 'monthly', 'yearly')),
+  currency text NOT NULL DEFAULT 'ZAR',
+  created_at timestamptz NOT NULL,
+  updated_at timestamptz NOT NULL,
+  deleted_at timestamptz
+);
+
+CREATE TABLE IF NOT EXISTS goal_periods (
+  id uuid PRIMARY KEY,
+  template_id uuid NOT NULL REFERENCES goal_templates(id),
+  user_id text NOT NULL,
+  period_key text NOT NULL,
+  start_date timestamptz NOT NULL,
+  end_date timestamptz NOT NULL,
+  target_amount numeric(19,4) NOT NULL,
+  is_overridden boolean NOT NULL,
+  created_at timestamptz NOT NULL,
+  updated_at timestamptz NOT NULL,
+  deleted_at timestamptz
+);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_goal_period_active
+  ON goal_periods (template_id, period_key)
+  WHERE deleted_at IS NULL;
+
+-- 3. Sharing (equal co-owners) for budgets and goals.
+CREATE TABLE IF NOT EXISTS budget_members (
+  id uuid PRIMARY KEY,
+  budget_template_id uuid NOT NULL REFERENCES budget_templates(id),
+  user_id text NOT NULL,
+  created_at timestamptz NOT NULL,
+  updated_at timestamptz NOT NULL,
+  deleted_at timestamptz
+);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_budget_members_active
+  ON budget_members (budget_template_id, user_id)
+  WHERE deleted_at IS NULL;
+
+CREATE TABLE IF NOT EXISTS goal_members (
+  id uuid PRIMARY KEY,
+  goal_template_id uuid NOT NULL REFERENCES goal_templates(id),
+  user_id text NOT NULL,
+  created_at timestamptz NOT NULL,
+  updated_at timestamptz NOT NULL,
+  deleted_at timestamptz
+);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_goal_members_active
+  ON goal_members (goal_template_id, user_id)
+  WHERE deleted_at IS NULL;
+
+-- 4. Friends.
+CREATE TABLE IF NOT EXISTS user_profiles (
+  id uuid PRIMARY KEY,
+  user_id text NOT NULL,
+  friend_code text NOT NULL,
+  created_at timestamptz NOT NULL,
+  updated_at timestamptz NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_user_profiles_user ON user_profiles (user_id);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_user_profiles_friend_code ON user_profiles (friend_code);
+
+CREATE TABLE IF NOT EXISTS friend_requests (
+  id uuid PRIMARY KEY,
+  requester_id text NOT NULL,
+  addressee_id text NOT NULL,
+  status text NOT NULL CHECK (status IN ('pending', 'accepted', 'declined')),
+  created_at timestamptz NOT NULL,
+  updated_at timestamptz NOT NULL,
+  deleted_at timestamptz
+);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_friend_requests_pending
+  ON friend_requests (requester_id, addressee_id)
+  WHERE status = 'pending' AND deleted_at IS NULL;
+
+CREATE TABLE IF NOT EXISTS friendships (
+  id uuid PRIMARY KEY,
+  user_a text NOT NULL,
+  user_b text NOT NULL,
+  created_at timestamptz NOT NULL,
+  updated_at timestamptz NOT NULL,
+  deleted_at timestamptz
+);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_friendships_pair
+  ON friendships (user_a, user_b)
+  WHERE deleted_at IS NULL;
+
+-- 5. Add the new tables to the PowerSync publication (idempotent).
+DO $$
+DECLARE
+  tbl text;
+BEGIN
+  FOREACH tbl IN ARRAY ARRAY[
+    'goal_templates', 'goal_periods', 'budget_members', 'goal_members',
+    'user_profiles', 'friend_requests', 'friendships'
+  ] LOOP
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_publication_tables
+      WHERE pubname = 'powersync' AND schemaname = 'public' AND tablename = tbl
+    ) THEN
+      EXECUTE format('ALTER PUBLICATION powersync ADD TABLE public.%I', tbl);
+    END IF;
+  END LOOP;
+END $$;
+
+CREATE TABLE IF NOT EXISTS goal_contributions (
+  id uuid PRIMARY KEY,
+  template_id uuid NOT NULL REFERENCES goal_templates(id),
+  user_id text NOT NULL,
+  amount numeric(19,4) NOT NULL,
+  note text,
+  transaction_id uuid REFERENCES transactions(id),
+  contributed_at timestamptz NOT NULL,
+  created_at timestamptz NOT NULL,
+  updated_at timestamptz NOT NULL,
+  deleted_at timestamptz
+);
+CREATE INDEX IF NOT EXISTS ix_goal_contributions_template
+  ON goal_contributions (template_id)
+  WHERE deleted_at IS NULL;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'powersync' AND schemaname = 'public' AND tablename = 'goal_contributions'
+  ) THEN
+    ALTER PUBLICATION powersync ADD TABLE public.goal_contributions;
+  END IF;
+END $$;
+
+ALTER TABLE goal_members
+  ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'accepted',
+  ADD COLUMN IF NOT EXISTS invited_by text;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'goal_members_status_check'
+  ) THEN
+    ALTER TABLE goal_members
+      ADD CONSTRAINT goal_members_status_check
+      CHECK (status IN ('pending', 'accepted', 'declined'));
+  END IF;
+END $$;
+
+ALTER TABLE transactions
+     ADD COLUMN IF NOT EXISTS budget_template_id uuid REFERENCES budget_templates(id);
+
+DELETE FROM transaction_category_map
+  WHERE transaction_id IN (SELECT id FROM transactions WHERE budget_template_id IS NULL);
+
+DELETE FROM goal_contributions
+  WHERE transaction_id IN (SELECT id FROM transactions WHERE budget_template_id IS NULL);
+
+DELETE FROM transactions WHERE budget_template_id IS NULL;
+
+ALTER TABLE transactions ALTER COLUMN budget_template_id SET NOT NULL;
+
+ALTER TABLE categories
+  ADD COLUMN IF NOT EXISTS budget_template_id uuid REFERENCES budget_templates(id);
+
+UPDATE recurring_transactions SET category_id = NULL
+  WHERE category_id IN (SELECT id FROM categories WHERE budget_template_id IS NULL);
+
+UPDATE budget_templates SET category_id = NULL
+  WHERE category_id IN (SELECT id FROM categories WHERE budget_template_id IS NULL);
+
+UPDATE goal_templates SET category_id = NULL
+  WHERE category_id IN (SELECT id FROM categories WHERE budget_template_id IS NULL);
+
+DELETE FROM transaction_category_map
+  WHERE category_id IN (SELECT id FROM categories WHERE budget_template_id IS NULL);
+
+DELETE FROM category_closure
+  WHERE ancestor_id IN (SELECT id FROM categories WHERE budget_template_id IS NULL)
+     OR descendant_id IN (SELECT id FROM categories WHERE budget_template_id IS NULL);
+
+DELETE FROM categories WHERE budget_template_id IS NULL;
+
+ALTER TABLE categories ALTER COLUMN budget_template_id SET NOT NULL;
+
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'powersync' AND schemaname = 'public' AND tablename = 'budget_categories'
+  ) THEN
+    ALTER PUBLICATION powersync DROP TABLE public.budget_categories;
+  END IF;
+END $$;
+
+DROP TABLE IF EXISTS budget_categories;
+

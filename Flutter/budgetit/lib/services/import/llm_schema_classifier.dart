@@ -51,8 +51,8 @@ class LlmSchemaClassifier implements SchemaClassifier {
       return const StatementSchema(signConvention: SignConvention.keywordBased);
     }
 
-    final deterministic = classifyDeterministic(sampleRows);
-    if (deterministic != null) return deterministic;    
+   // final deterministic = classifyDeterministic(sampleRows);
+    //if (deterministic != null) return deterministic;    
 
    /* final markers = sampleRows
         .map((r) => r.signMarker?.toUpperCase())

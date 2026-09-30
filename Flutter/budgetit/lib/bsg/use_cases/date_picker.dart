@@ -1,4 +1,5 @@
 import 'package:budgetit/utils/app_colour.dart';
+import 'package:budgetit/utils/date_display_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:widgetbook_annotation/widgetbook_annotation.dart' as widgetbook;
 
@@ -11,7 +12,6 @@ Widget datePickerUseCase(BuildContext context) {
   return const BudgetDatePickerPreview();
 }
 
-/// Interactive preview of the branded calendar used by transaction dialogs.
 class BudgetDatePickerPreview extends StatefulWidget {
   const BudgetDatePickerPreview({super.key});
 
@@ -41,9 +41,7 @@ class _BudgetDatePickerPreviewState extends State<BudgetDatePickerPreview> {
             decoration: BoxDecoration(
               color: cardColor,
               border: Border.all(width: 4),
-              boxShadow: const [
-                BoxShadow(offset: Offset(6, 6)),
-              ],
+              boxShadow: const [BoxShadow(offset: Offset(6, 6))],
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -68,12 +66,25 @@ class _BudgetDatePickerPreviewState extends State<BudgetDatePickerPreview> {
                       backgroundColor: cardColor,
                       headerBackgroundColor: cardColor,
                       headerForegroundColor: cardTextColor,
+                      toggleButtonTextStyle: colours.b5.copyWith(
+                        color: cardTextColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.8,
+                      ),
+                      subHeaderForegroundColor: cardTextColor,
                       weekdayStyle: colours.b5.copyWith(
                         color: cardTextColor,
                         fontWeight: FontWeight.bold,
                       ),
-                      dayStyle: colours.b1.copyWith(color: cardTextColor),
-                      yearStyle: colours.b1.copyWith(color: cardTextColor),
+                      dayStyle: colours.b5.copyWith(
+                        color: cardTextColor,
+                        fontSize: 14,
+                      ),
+                      yearStyle: colours.b5.copyWith(
+                        color: cardTextColor,
+                        fontSize: 14,
+                      ),
                       dayShape: WidgetStateProperty.resolveWith((states) {
                         return RoundedRectangleBorder(
                           side: states.contains(WidgetState.selected)
@@ -96,8 +107,12 @@ class _BudgetDatePickerPreviewState extends State<BudgetDatePickerPreview> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: Text(
-                    'Selected: ${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
-                    style: colours.b1.copyWith(color: cardTextColor),
+                    'Selected: ${formatLongDate(_selectedDate)}',
+                    style: colours.b5.copyWith(
+                      color: cardTextColor,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.8,
+                    ),
                   ),
                 ),
               ],

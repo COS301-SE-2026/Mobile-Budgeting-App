@@ -11,6 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:saropa_drift_advisor/saropa_drift_advisor.dart';
 import 'amplifyconfiguration.dart';
+import 'shared/widgets/biometric_lock_screen.dart';
+import 'shared/widgets/biometric_enrollment_dialog.dart';
 import 'auth/data/cognito_auth_service.dart';
 import 'auth/providers/auth_provider.dart';
 import 'database/app_database.dart';
@@ -22,81 +24,137 @@ import 'services/recurring/recurring_transaction_catch_up_service.dart';
 import 'synch/backendconnector.dart';
 import 'views/dashboard/dashboard.dart';
 import 'shared/widgets/login_password_screen.dart';
+import 'shared/widgets/onboarding_screen.dart';
+import 'shared/widgets/biometric_lock_screen.dart';
 import 'utils/theme_provider.dart';
 import 'shared/widgets/main_appbar.dart';
+import 'shared/widgets/splash_screen.dart';
+import 'shared/widgets/biometric_lock_screen.dart';
 import 'utils/app_colour.dart';
 import 'views/budget_manager/budget_manager_screen.dart';
-import 'package:budgetit/services/analysis/background_anomaly_scanner.dart';
+import 'package:budgetit/views/profile/profile_page.dart';
+import 'shared/widgets/friends_page.dart';
+import 'shared/widgets/profile_page.dart' as app_profile;
 import 'package:flutter_gemma/flutter_gemma.dart';
 //import 'package:flutter_gemma_litertlm/flutter_gemma_litertlm.dart';
 import 'package:pdfrx/pdfrx.dart';
 import 'package:flutter_gemma_mediapipe/flutter_gemma_mediapipe.dart';
 import 'services/import/llm_schema_classifier.dart';
-import 'services/ai/transaction_classifier/bge_model_downloader.dart';
-
-
+import 'services/ai/transaction_classifier/fine_tuned_bge_model_downloader.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  runApp(const StartupApp());
+}
+
+class StartupApp extends StatefulWidget {
+  const StartupApp({super.key});
+
+  @override
+  State<StartupApp> createState() => _StartupAppState();
+}
+
+class _StartupAppState extends State<StartupApp> {
+  late final Future<Widget> _app = _loadApp();
+
+  Future<Widget> _loadApp() async {
+    // Let the brand reveal finish, but keep the splash up for as long as
+    // initialization and session restoration actually need.
+    final results = await Future.wait<Object?>([
+      _initializeApp(),
+      Future<Object?>.delayed(const Duration(milliseconds: 2500)),
+    ]);
+    return results.first as Widget;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Widget>(
+      future: _app,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) return snapshot.data!;
+        if (snapshot.hasError) {
+          return MaterialApp(
+            home: Scaffold(
+              body: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Text('Startup failed: ${snapshot.error}'),
+                ),
+              ),
+            ),
+          );
+        }
+        return const MaterialApp(
+          debugShowCheckedModeBanner: false,
+          home: SplashScreen(),
+        );
+      },
+    );
+  }
+}
+
+Future<Widget> _initializeApp() async {
   pdfrxFlutterInitialize();
   await _configureAmplify();
   const skipReseed = bool.fromEnvironment('SKIP_RESEED', defaultValue: false);
   final shouldReseed = kDebugMode && !skipReseed;
 
-  final powerSyncDb = await _openPowerSyncDatabase(reset: shouldReseed);
+  final powerSyncDb = await _openPowerSyncDatabase();
   final db = AppDatabase(powerSyncDb);
 
   // Initialise the local schema before seeding, so the tables exist when the
   // seeder writes to them. Syncing is started separately once the user signs in.
   await powerSyncDb.initialize();
 
-  if (shouldReseed) await DatabaseSeeder(db).seed();
+  if (shouldReseed) {
+    await powerSyncDb.disconnectAndClear();
+    for (final table in db.allTables) {
+      await db.delete(table).go();
+    }
+    await DatabaseSeeder(db).seed();
+  }
   if (kDebugMode && !kIsWeb) {
     unawaited(db.startDriftViewer(enabled: true));
   }
 
   const hfToken = String.fromEnvironment('HUGGINGFACE_TOKEN');
-  FlutterGemma.initialize(
-    inferenceEngines: const [MediaPipeEngine()],
-    huggingFaceToken: hfToken.isNotEmpty ? hfToken : null,
-  );
+  if (!kIsWeb) {
+    FlutterGemma.initialize(
+      inferenceEngines: const [MediaPipeEngine()],
+      huggingFaceToken: hfToken.isNotEmpty ? hfToken : null,
+    );
+  }
 
-  runApp(
-    MultiProvider(
-      providers: [
-        Provider<AppDatabase>(
-          create: (_) => db,
-          dispose: (_, db) => db.close(),
-        ),
-        Provider<RecurringTransactionCatchUpService>(
-          create: (context) =>
-              RecurringTransactionCatchUpService(context.read<AppDatabase>()),
-        ),
-        ChangeNotifierProvider(
-          //USED DEEPSEEK TO FIX CONTEXT ERRORS
-          create: (_) => _createAuthProvider(powerSyncDb),
-        ),
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        ChangeNotifierProvider(
-          create: (context) =>
-              BackgroundAnomalyScanner(context.read<AppDatabase>()),
-        ),
-      ],
-      child: const BudgetApp(),
-    ),
+  final authProvider = _createAuthProvider(powerSyncDb);
+  await authProvider.initialSessionCheck;
+
+  return MultiProvider(
+    providers: [
+      Provider<AppDatabase>(create: (_) => db, dispose: (_, db) => db.close()),
+      Provider<RecurringTransactionCatchUpService>(
+        create: (context) =>
+            RecurringTransactionCatchUpService(context.read<AppDatabase>()),
+      ),
+      ChangeNotifierProvider(create: (_) => authProvider),
+      ChangeNotifierProvider(create: (_) => ThemeProvider()),
+      ChangeNotifierProvider(
+        create: (context) =>
+            BackgroundAnomalyScanner(context.read<AppDatabase>()),
+      ),
+    ],
+    child: const BudgetApp(),
   );
 }
 
-Future<PowerSyncDatabase> _openPowerSyncDatabase({required bool reset}) async {
+Future<PowerSyncDatabase> _openPowerSyncDatabase() async {
+  if (kIsWeb) {
+    // PowerSync stores this named database in browser storage on the web.
+    return PowerSyncDatabase(schema: powerSyncSchema, path: 'budgetit.db');
+  }
   final directory = await getApplicationDocumentsDirectory();
   final file = File(p.join(directory.path, 'budgetit.db'));
-  if (reset && await file.exists()) {
-    await file.delete();
-  }
-  return PowerSyncDatabase(
-    schema: powerSyncSchema,
-    path: file.path,
-  );
+  return PowerSyncDatabase(schema: powerSyncSchema, path: file.path);
 }
 
 /// Creates the auth provider and keeps PowerSync in sync with the auth state.
@@ -133,8 +191,33 @@ Future<void> _configureAmplify() async {
   } on AmplifyAlreadyConfiguredException {}
 }
 
-class BudgetApp extends StatelessWidget {
+class BudgetApp extends StatefulWidget {
   const BudgetApp({super.key});
+
+  @override
+  State<BudgetApp> createState() => _BudgetAppState();
+}
+
+class _BudgetAppState extends State<BudgetApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden) {
+      context.read<AppAuthProvider>().lock();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -142,18 +225,34 @@ class BudgetApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+
       themeMode: themeProvider.isDark ? ThemeMode.dark : ThemeMode.light,
+
       theme: ThemeData(
         brightness: Brightness.light,
         extensions: [MyColours.lightTheme],
       ),
+
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         extensions: [MyColours.darkTheme],
       ),
+
       initialRoute: '/',
+
       routes: {'/transaction_manager': (context) => const TransactionManager()},
+
       home: const AuthWrapper(),
+      builder: (context, child) {
+        final locked =
+            context.watch<AppAuthProvider>().status == AuthStatus.locked;
+        return Stack(
+          children: [
+            if (child != null) child,
+            if (locked) const BiometricLockScreen(),
+          ],
+        );
+      },
     );
   }
 }
@@ -168,16 +267,54 @@ class AuthWrapper extends StatelessWidget {
 
     switch (auth.status) {
       case AuthStatus.unknown:
-        return const Scaffold(
-          backgroundColor: Color(0xFF04240C),
-          body: Center(
-            child: CircularProgressIndicator(color: Color(0xFFDDD6AE)),
-          ),
-        );
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      case AuthStatus.locked:
+        return const SplashScreen();
       case AuthStatus.guest:
         return const LoginRegisterScreen();
+
       case AuthStatus.skipped:
       case AuthStatus.loggedIn:
+        return const OnboardingGate();
+    }
+  }
+}
+
+class OnboardingGate extends StatefulWidget {
+  const OnboardingGate({super.key});
+
+  @override
+  State<OnboardingGate> createState() => _OnboardingGateState();
+}
+
+class _OnboardingGateState extends State<OnboardingGate> {
+  bool? _onboardingComplete;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_checkOnboarding());
+  }
+
+  Future<void> _checkOnboarding() async {
+    final complete = await context
+        .read<AppDatabase>()
+        .settingsDao
+        .getOnboardingComplete();
+    if (!mounted) return;
+    setState(() => _onboardingComplete = complete);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    switch (_onboardingComplete) {
+      case null:
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      case false:
+        return OnboardingScreen(
+          onComplete: () => setState(() => _onboardingComplete = true),
+        );
+      case true:
         return const HomePage();
     }
   }
@@ -192,15 +329,52 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+  bool _biometricPromptScheduled = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(_runRecurringTransactionCatchUp());
-      unawaited(LlmSchemaClassifier.ensureModelDownloaded());
-      unawaited(BgeModelDownloader.ensureModelDownloaded());
+      if (!kIsWeb) {
+        unawaited(LlmSchemaClassifier.ensureModelDownloaded());
+        unawaited(FineTunedBgeModelDownloader.ensureModelDownloaded());
+      }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final auth = context.watch<AppAuthProvider>();
+    if (!auth.shouldOfferBiometricEnrollment || _biometricPromptScheduled) {
+      return;
+    }
+    _biometricPromptScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(_showBiometricEnrollmentPrompt());
+    });
+  }
+
+  Future<void> _showBiometricEnrollmentPrompt() async {
+    if (!mounted) return;
+    final enable = await showBiometricEnrollmentDialog(context);
+    if (!mounted) return;
+
+    final auth = context.read<AppAuthProvider>();
+    auth.dismissBiometricEnrollmentOffer();
+    if (!enable) return;
+
+    final enabled = await auth.setBiometricLockEnabled(true);
+    if (!enabled && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            auth.errorMessage ?? 'Biometric lock could not be enabled.',
+          ),
+        ),
+      );
+    }
   }
 
   Future<void> _runRecurringTransactionCatchUp() async {
@@ -238,16 +412,26 @@ class _HomePageState extends State<HomePage> {
 
     final db = context.read<AppDatabase>();
     final selectedNavIconColor = Theme.of(context).brightness == Brightness.dark
+        ? context.colours.cardText
+        : context.colours.secondary;
+    final navIndicatorColor = Theme.of(context).brightness == Brightness.dark
         ? context.colours.background
         : context.colours.cardText;
     final unselectedNavIconColor = context.colours.cardText;
 
     return Scaffold(
-      appBar: const MainAppbar(),
+      appBar: MainAppbar(
+        onProfileTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const app_profile.ProfilePage()),
+          );
+        },
+      ),
       body: _buildPages(db)[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          border: const Border(top: BorderSide(color: Colors.black, width: 4)),
+          border: Border(top: const BorderSide(color: Colors.black, width: 4)),
         ),
         child: SafeArea(
           top: false,
@@ -258,11 +442,11 @@ class _HomePageState extends State<HomePage> {
             surfaceTintColor: Colors.transparent,
             shadowColor: Colors.transparent,
             backgroundColor: context.colours.blendedprimary,
-            indicatorColor: context.colours.secondary,
+            indicatorColor: navIndicatorColor,
             labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-            indicatorShape: const RoundedRectangleBorder(
+            indicatorShape: RoundedRectangleBorder(
               borderRadius: BorderRadius.zero,
-              side: BorderSide(color: Colors.black, width: 3),
+              side: const BorderSide(color: Colors.black, width: 3),
             ),
             onDestinationSelected: _onDestinationSelected,
             destinations: [
@@ -305,6 +489,19 @@ class _HomePageState extends State<HomePage> {
                 ),
                 label: 'Budgets',
               ),
+              NavigationDestination(
+                icon: Icon(
+                  Icons.people_outline,
+                  color: unselectedNavIconColor,
+                  size: 26,
+                ),
+                selectedIcon: Icon(
+                  Icons.people,
+                  color: selectedNavIconColor,
+                  size: 26,
+                ),
+                label: 'Friends',
+              ),
             ],
           ),
         ),
@@ -317,6 +514,7 @@ class _HomePageState extends State<HomePage> {
       Dashboard(onViewTransactions: () => _onDestinationSelected(1)),
       const TransactionManager(),
       BudgetManagerScreen(database: db),
+      const FriendsPage(showAppBar: false),
     ];
   }
 
