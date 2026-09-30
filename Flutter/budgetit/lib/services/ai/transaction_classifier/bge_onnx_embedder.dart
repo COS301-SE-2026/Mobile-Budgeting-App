@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:bert_tokenizer/bert_tokenizer.dart';
 import 'package:flutter_onnxruntime/flutter_onnxruntime.dart';
 
-import 'bge_model_downloader.dart';
+import 'fine_tuned_bge_model_downloader.dart';
 import 'text_embedder.dart';
 import 'vector_similarity.dart';
 
@@ -17,7 +17,7 @@ final class BgeOnnxEmbedder implements TextEmbedder {
   BertTokenizer? _tokenizer;
 
   @override
-  String get modelVersion => 'bge-small-en-v1.5-base-1';
+  String get modelVersion => 'bge-small-en-finetuned-v0.1';
 
   @override
   int get embeddingSize => 384;
@@ -32,9 +32,9 @@ final class BgeOnnxEmbedder implements TextEmbedder {
       return;
     }
 
-    await BgeModelDownloader.ensureModelDownloaded();
+    await FineTunedBgeModelDownloader.ensureModelDownloaded();
 
-    final basePath = await BgeModelDownloader.modelPath;
+    final basePath = await FineTunedBgeModelDownloader.modelPath;
     final modelPath = '$basePath/model.onnx';
     final vocabPath = '$basePath/vocab.txt';
 
