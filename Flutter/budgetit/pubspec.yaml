@@ -49,7 +49,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   url_launcher: ^6.3.0
 
-  saropa_drift_advisor: ^4.2.5
+  saropa_drift_advisor: ^4.4.1
   uuid: ^4.5.3
   decimal: ^3.0.0
   csv: ^8.0.0
