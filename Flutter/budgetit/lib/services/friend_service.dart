@@ -12,13 +12,23 @@ class FriendService {
 
   static final FriendService instance = FriendService._();
 
-  final Dio _dio = Dio();
+  final Dio _dio = Dio(
+    BaseOptions(
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
+      sendTimeout: const Duration(seconds: 10),
+    ),
+  );
   final CognitoAuthService _auth = CognitoAuthService();
 
   Map<String, dynamic>? _myProfile;
+  int _sessionVersion = 0;
+
+  Map<String, dynamic>? get cachedProfile => _myProfile;
 
   /// Clears profile data that belongs to the previously authenticated user.
   void clearCachedProfile() {
+    _sessionVersion++;
     _myProfile = null;
   }
 
@@ -26,13 +36,15 @@ class FriendService {
   /// server if it does not yet exist. Cached in memory.
   Future<Map<String, dynamic>> getMyProfile({bool refresh = false}) async {
     if (_myProfile != null && !refresh) return _myProfile!;
-    final token = await _auth.getJWT();
+    final sessionVersion = _sessionVersion;
+    final token = await _auth.getJWT().timeout(const Duration(seconds: 10));
     final res = await _dio.get(
       '${AppConfig.apiUrl}/me/profile',
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
-    _myProfile = Map<String, dynamic>.from(res.data as Map);
-    return _myProfile!;
+    final profile = Map<String, dynamic>.from(res.data as Map);
+    if (sessionVersion == _sessionVersion) _myProfile = profile;
+    return profile;
   }
 
   Future<String> getMyUserId() async =>

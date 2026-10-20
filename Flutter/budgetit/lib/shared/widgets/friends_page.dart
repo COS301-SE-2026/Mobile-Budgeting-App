@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:dio/dio.dart';
 import 'package:provider/provider.dart';
 
-/// Friends list: shows the user's friend code, friends, and pending requests.
 class FriendsPage extends StatefulWidget {
   const FriendsPage({super.key, this.showAppBar = true});
 
@@ -26,6 +25,7 @@ class _FriendsPageState extends State<FriendsPage> {
   List<FriendRequest> _incoming = [];
   List<FriendRequest> _outgoing = [];
   bool? _wasLoggedIn;
+  int _loadVersion = 0;
 
   @override
   void initState() {
@@ -43,6 +43,7 @@ class _FriendsPageState extends State<FriendsPage> {
       _loading = true;
       Future<void>.microtask(_load);
     } else {
+      _loadVersion++;
       FriendService.instance.clearCachedProfile();
       _loading = false;
       _myCode = '';
@@ -56,36 +57,57 @@ class _FriendsPageState extends State<FriendsPage> {
 
   Future<void> _load() async {
     if (!context.read<AppAuthProvider>().isLoggedIn) return;
+    final version = ++_loadVersion;
     final db = context.read<AppDatabase>();
     try {
+      final cached = FriendService.instance.cachedProfile;
+      if (cached != null) await _showProfile(db, cached, version);
       final profile = await FriendService.instance.getMyProfile(refresh: true);
-      final userId = profile['user_id'] as String;
-      final code = profile['friend_code'] as String;
-      final friends = await db.friendsDao.getFriends();
-      final profiles = await db.friendsDao.getAllProfiles();
-      final incoming = await db.friendsDao.getIncomingRequests(userId);
-      final outgoing = await db.friendsDao.getOutgoingRequests(userId);
-
-      if (!mounted || !context.read<AppAuthProvider>().isLoggedIn) return;
-      setState(() {
-        _currentUserId = userId;
-        _myCode = code;
-        _friends = friends;
-        _codeByUserId = {
-          for (final p in profiles)
-            if (p.userId != null) p.userId!: p.friendCode,
-        };
-        _incoming = incoming;
-        _outgoing = outgoing;
-        _loading = false;
-      });
+      await _showProfile(db, profile, version);
     } catch (e) {
-      if (!mounted) return;
+      if (!_isCurrentLoad(version)) return;
       setState(() => _loading = false);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Could not load friends: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Could not refresh friends: ${_friendlyError(e)}'),
+        ),
+      );
     }
+  }
+
+  bool _isCurrentLoad(int version) =>
+      mounted &&
+      version == _loadVersion &&
+      context.read<AppAuthProvider>().isLoggedIn;
+
+  Future<void> _showProfile(
+    AppDatabase db,
+    Map<String, dynamic> profile,
+    int version,
+  ) async {
+    if (!_isCurrentLoad(version)) return;
+    final userId = profile['user_id'] as String;
+    final code = profile['friend_code'] as String;
+    final (friends, profiles, incoming, outgoing) = await (
+      db.friendsDao.getFriends(),
+      db.friendsDao.getAllProfiles(),
+      db.friendsDao.getIncomingRequests(userId),
+      db.friendsDao.getOutgoingRequests(userId),
+    ).wait;
+
+    if (!_isCurrentLoad(version)) return;
+    setState(() {
+      _currentUserId = userId;
+      _myCode = code;
+      _friends = friends;
+      _codeByUserId = {
+        for (final p in profiles)
+          if (p.userId != null) p.userId!: p.friendCode,
+      };
+      _incoming = incoming;
+      _outgoing = outgoing;
+      _loading = false;
+    });
   }
 
   String _otherUserId(Friendship f) =>
@@ -265,6 +287,7 @@ class _FriendsPageState extends State<FriendsPage> {
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.all(20),
                 children: [
                   if (!widget.showAppBar) ...[
