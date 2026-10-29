@@ -53,10 +53,16 @@ class AppConfig {
   );
 
   /// Base URL of the FastAPI backend.
-  static const String apiUrl = String.fromEnvironment(
+  static const String _apiUrlRaw = String.fromEnvironment(
     'API_URL',
     defaultValue: 'http://10.0.2.2:8000',
   );
+
+  /// Base URL with any trailing slash removed, so callers can safely append
+  /// paths (e.g. `/powersync/upload`) without producing a double slash.
+  static String get apiUrl => _apiUrlRaw.endsWith('/')
+      ? _apiUrlRaw.substring(0, _apiUrlRaw.length - 1)
+      : _apiUrlRaw;
 
   /// Endpoint that receives PowerSync's CRUD upload queue.
   static String get uploadEndpoint => '$apiUrl/powersync/upload';

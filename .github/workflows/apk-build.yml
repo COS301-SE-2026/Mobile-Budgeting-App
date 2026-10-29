@@ -112,10 +112,16 @@ jobs:
       - name: Build debug APK
         working-directory: Flutter/budgetit
         run: |
+          set -euo pipefail
+          API_URL='https://api.16.28.126.118.sslip.io'
+          POWERSYNC_URL='https://sync.16.28.126.118.sslip.io'
+          # Strip any trailing slash so the app never builds a `//path` URL.
+          API_URL="${API_URL%/}"
+          POWERSYNC_URL="${POWERSYNC_URL%/}"
           flutter build apk --debug --no-tree-shake-icons \
             --dart-define=ENVIRONMENT=prod \
-            --dart-define=POWERSYNC_URL=https://sync.16.28.126.118.sslip.io \
-            --dart-define=API_URL=https://api.16.28.126.118.sslip.io
+            --dart-define=POWERSYNC_URL="${POWERSYNC_URL}" \
+            --dart-define=API_URL="${API_URL}"
 
       - name: Upload debug APK
         if: always()
