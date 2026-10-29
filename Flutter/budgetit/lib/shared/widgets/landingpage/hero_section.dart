@@ -176,7 +176,7 @@ class _HeroSectionState extends State<HeroSection> {
                       border: Border.all(color: Colors.black, width: 4),
                     ),
                     child: Image.asset(
-                      'assets/images/dashboard.jpg',
+                      'assets/images/budgetit_logo.jpg',
                       fit: BoxFit.contain,
                     ),
                   ),
@@ -281,7 +281,7 @@ class _HeroSectionState extends State<HeroSection> {
                             border: Border.all(color: Colors.black, width: 4),
                           ),
                           child: Image.asset(
-                            'assets/images/phone_mockup.jpg',
+                            'assets/images/budgetit_logo.jpg',
                             fit: BoxFit.contain,
                           ),
                         ),

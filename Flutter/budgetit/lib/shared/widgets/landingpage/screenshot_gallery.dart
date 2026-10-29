@@ -7,30 +7,11 @@ class _Screenshot {
   final String asset;
   final String title;
   final String caption;
-  final BoxFit fit;
-  final Color? background;
-  final Color? borderColor;
 
-  const _Screenshot(
-    this.asset,
-    this.title,
-    this.caption, {
-    this.fit = BoxFit.cover,
-    this.background,
-    this.borderColor,
-  });
+  const _Screenshot(this.asset, this.title, this.caption);
 }
 
 const List<_Screenshot> _screenshots = [
-  // The logo isn't phone-shaped, so it's letterboxed on its own background.
-  _Screenshot(
-    'assets/images/budgetit_logo.jpg',
-    "Budget IT",
-    "Make every rand count.",
-    fit: BoxFit.contain,
-    background: Color(0xFF04230E),
-    borderColor: Colors.black,
-  ),
   _Screenshot(
     'assets/images/screenshots/dashboard.jpg',
     "Dashboard",
@@ -158,12 +139,10 @@ class _ScreenshotCard extends StatelessWidget {
       children: [
         Container(
           decoration: BoxDecoration(
-            color: shot.background,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color:
-                  shot.borderColor ?? colours.secondary.withValues(alpha: 0.25),
-              width: shot.borderColor != null ? 4 : 1,
+              color: colours.secondary.withValues(alpha: 0.25),
+              width: 1,
             ),
             boxShadow: [
               BoxShadow(
@@ -176,7 +155,7 @@ class _ScreenshotCard extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           child: AspectRatio(
             aspectRatio: 1080 / 2408,
-            child: Image.asset(shot.asset, fit: shot.fit),
+            child: Image.asset(shot.asset, fit: BoxFit.cover),
           ),
         ),
         const SizedBox(height: 16),
