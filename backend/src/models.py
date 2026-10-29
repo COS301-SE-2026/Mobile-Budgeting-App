@@ -54,6 +54,21 @@ class ImportFileType(str, enum.Enum):
     csv = "csv"
 
 
+def _enum(enum_cls):
+    """SAEnum that stores enum *values* rather than member names.
+
+    The Dart client persists enum member names, which for these enums equal the
+    Python values (e.g. ``TransactionSource.import_ == "import"``). Storing the
+    Python member name would emit ``"import_"`` and crash drift's enum
+    deserialization on the client.
+    """
+    return SAEnum(
+        enum_cls,
+        native_enum=False,
+        values_callable=lambda e: [member.value for member in e],
+    )
+
+
 def _uuid() -> str:
     return str(uuid.uuid4())
 
@@ -67,7 +82,7 @@ class Category(Base):
 
     id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=_uuid)
     name: Mapped[str] = mapped_column(String)
-    type: Mapped[CategoryType] = mapped_column(SAEnum(CategoryType, native_enum=False))
+    type: Mapped[CategoryType] = mapped_column(_enum(CategoryType))
     icon: Mapped[str | None] = mapped_column(String, nullable=True)
     color: Mapped[str | None] = mapped_column(String, nullable=True)
     is_default: Mapped[bool] = mapped_column(Boolean)
@@ -98,14 +113,14 @@ class Transaction(Base):
 
     id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=_uuid)
     amount: Mapped[Decimal] = mapped_column(Numeric(19, 4))
-    type: Mapped[TransactionType] = mapped_column(SAEnum(TransactionType, native_enum=False))
+    type: Mapped[TransactionType] = mapped_column(_enum(TransactionType))
     short_description: Mapped[str] = mapped_column(String(100))
     long_description: Mapped[str | None] = mapped_column(String(500), nullable=True)
     transaction_date: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    source: Mapped[TransactionSource] = mapped_column(SAEnum(TransactionSource, native_enum=False))
+    source: Mapped[TransactionSource] = mapped_column(_enum(TransactionSource))
     currency: Mapped[str] = mapped_column(String, default="ZAR", server_default="ZAR")
     recurring_id: Mapped[str | None] = mapped_column(
         ForeignKey("recurring_transactions.id"), nullable=True
@@ -133,7 +148,7 @@ class TransactionCategoryMap(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     assignment_source: Mapped[AssignmentSource] = mapped_column(
-        SAEnum(AssignmentSource, native_enum=False)
+        _enum(AssignmentSource)
     )
 
 
@@ -145,7 +160,7 @@ class BudgetTemplate(Base):
     name: Mapped[str | None] = mapped_column(String, nullable=True)
     category_id: Mapped[str | None] = mapped_column(ForeignKey("categories.id"), nullable=True)
     amount: Mapped[Decimal] = mapped_column(Numeric(19, 4))
-    period_type: Mapped[PeriodType] = mapped_column(SAEnum(PeriodType, native_enum=False))
+    period_type: Mapped[PeriodType] = mapped_column(_enum(PeriodType))
     currency: Mapped[str] = mapped_column(String, default="ZAR", server_default="ZAR")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
@@ -178,7 +193,7 @@ class RecurringTransaction(Base):
 
     id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=_uuid)
     amount: Mapped[Decimal] = mapped_column(Numeric(19, 4))
-    type: Mapped[TransactionType] = mapped_column(SAEnum(TransactionType, native_enum=False))
+    type: Mapped[TransactionType] = mapped_column(_enum(TransactionType))
     short_description: Mapped[str] = mapped_column(String)
     long_description: Mapped[str | None] = mapped_column(String, nullable=True)
     next_transaction_date: Mapped[datetime] = mapped_column(DateTime(timezone=True))
@@ -186,7 +201,7 @@ class RecurringTransaction(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     currency: Mapped[str] = mapped_column(String, default="ZAR", server_default="ZAR")
-    unit: Mapped[PeriodType] = mapped_column(SAEnum(PeriodType, native_enum=False))
+    unit: Mapped[PeriodType] = mapped_column(_enum(PeriodType))
     interval_amount: Mapped[int] = mapped_column(Integer)
     start_date: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     category_id: Mapped[str | None] = mapped_column(ForeignKey("categories.id"), nullable=True)
@@ -205,7 +220,7 @@ class Import(Base):
     user_id: Mapped[str] = mapped_column(String)
     file_sha256: Mapped[str] = mapped_column(String)
     original_filename: Mapped[str] = mapped_column(String)
-    file_type: Mapped[ImportFileType] = mapped_column(SAEnum(ImportFileType, native_enum=False))
+    file_type: Mapped[ImportFileType] = mapped_column(_enum(ImportFileType))
     account_identifier: Mapped[str | None] = mapped_column(String, nullable=True)
     imported_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
@@ -220,7 +235,7 @@ class GoalTemplate(Base):
     name: Mapped[str | None] = mapped_column(String, nullable=True)
     category_id: Mapped[str | None] = mapped_column(ForeignKey("categories.id"), nullable=True)
     target_amount: Mapped[Decimal] = mapped_column(Numeric(19, 4))
-    period_type: Mapped[PeriodType] = mapped_column(SAEnum(PeriodType, native_enum=False))
+    period_type: Mapped[PeriodType] = mapped_column(_enum(PeriodType))
     currency: Mapped[str] = mapped_column(String, default="ZAR", server_default="ZAR")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))

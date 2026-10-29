@@ -1207,7 +1207,7 @@ class _DashboardState extends State<Dashboard> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Text(
-                    'Could not load dashboard data.',
+                    loadError ?? 'Could not load dashboard data.',
                     style: TextStyle(
                       color: colours.error,
                       fontWeight: FontWeight.w600,
