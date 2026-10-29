@@ -103,59 +103,15 @@ A mobile budgeting app designed to help users track income and expenses, manage 
 
 </div>
 
-<div align="center">
-
-#### Milestones
-
-</div>
-
-<p align="center">
-  <img alt="Milestones 1–4" src="https://shieldcn.dev/group/github/milestones/COS301-SE-2026/Mobile-Budgeting-App/1+github/milestones/COS301-SE-2026/Mobile-Budgeting-App/2+github/milestones/COS301-SE-2026/Mobile-Budgeting-App/3+github/milestones/COS301-SE-2026/Mobile-Budgeting-App/4.svg?variant=secondary&amp;size=default" />
-</p>
-
-<div align="center">
-
-#### Issues
-
-</div>
-
-<p align="center">
-  <img alt="Open and closed issues" src="https://shieldcn.dev/group/github/open-issues/COS301-SE-2026/Mobile-Budgeting-App+github/closed-issues/COS301-SE-2026/Mobile-Budgeting-App.svg?variant=secondary&amp;size=default" />
-</p>
-
-<div align="center">
-
-#### CI
-
-</div>
-
 <p align="center">
   <a href="https://github.com/COS301-SE-2026/Mobile-Budgeting-App/actions/workflows/ci-main.yml"><img alt="Main CI" src="https://shieldcn.dev/github/ci/COS301-SE-2026/Mobile-Budgeting-App.svg?workflow=ci-main.yml&amp;branch=main&amp;variant=secondary&amp;size=default&amp;split=true&amp;label=Main+CI" /></a>
   <a href="https://github.com/COS301-SE-2026/Mobile-Budgeting-App/actions/workflows/ci-dev.yml"><img alt="Dev CI" src="https://shieldcn.dev/github/ci/COS301-SE-2026/Mobile-Budgeting-App.svg?workflow=ci-dev.yml&amp;branch=newdev&amp;variant=secondary&amp;size=default&amp;split=true&amp;label=Dev+CI" /></a>
-</p>
-
-<div align="center">
-
-#### Quality
-
-</div>
-
-<p align="center">
+  <br />
   <img alt="Quality gate, bugs, vulnerabilities, code smells, and duplicated lines" src="https://shieldcn.dev/group/sonar/quality-gate/COS301-SE-2026_Mobile-Budgeting-App+sonar/bugs/COS301-SE-2026_Mobile-Budgeting-App+sonar/vulnerabilities/COS301-SE-2026_Mobile-Budgeting-App+sonar/code-smells/COS301-SE-2026_Mobile-Budgeting-App+sonar/duplicated-lines/COS301-SE-2026_Mobile-Budgeting-App.svg?variant=secondary&amp;size=default" />
-</p>
-
-<div align="center">
-
-#### Coverage
-
-</div>
-
-<p align="center">
+  <br />
   <a href="https://app.codecov.io/gh/COS301-SE-2026/Mobile-Budgeting-App/tree/main"><img alt="Main coverage" src="https://shieldcn.dev/codecov/github/COS301-SE-2026/Mobile-Budgeting-App/main.svg?variant=secondary&amp;size=default&amp;label=Main" /></a>
   <a href="https://app.codecov.io/gh/COS301-SE-2026/Mobile-Budgeting-App/tree/newdev"><img alt="Dev coverage" src="https://shieldcn.dev/codecov/github/COS301-SE-2026/Mobile-Budgeting-App/newdev.svg?variant=secondary&amp;size=default&amp;label=Dev" /></a>
-</p>
-
-<p align="center">
+  <br />
   <a href="https://app.codecov.io/gh/COS301-SE-2026/Mobile-Budgeting-App"><img alt="Codecov Dashboard" src="https://shieldcn.dev/badge/Codecov%20Dashboard.svg?variant=secondary&amp;size=default&amp;logo=codecov&amp;logoColor=F01F7A" /></a>
 </p>
 
@@ -199,43 +155,4 @@ curl http://localhost:8000/health
 ### Branching Strategy
 
 </div>
-
-![Branching Strategy](docs/assets/diagrams/GIT/branch_strategy.png)
-
-<div align="center">
-
-### CI/CD
-
-</div>
-
-<!-- The four CI/CD diagrams below retain the supplied README paths. These files were not present on main when checked; add them at these paths or update the paths before publishing. -->
-
-<details>
-<summary>Feature Branches</summary>
-
-![Feature Branches](docs/assets/diagrams/CI-CD/CI-CD-FEATURE.png)
-
-</details>
-
-<details>
-<summary>Dev Branch</summary>
-
-![Dev Branch](docs/assets/diagrams/CI-CD/CI-CD-DEV.png)
-
-</details>
-
-<details>
-<summary>Main Branch</summary>
-
-![Main Branch](docs/assets/diagrams/CI-CD/CI-CD-MAIN.png)
-
-</details>
-
-<details>
-<summary>Full Flow</summary>
-
-![Full Flow](docs/assets/diagrams/CI-CD/CI-CD-FULL.png)
-
-</details>
-
 
