@@ -1,7 +1,10 @@
+<div align="center">
+
 ![Header](https://capsule-render.vercel.app/api?type=waving&color=0:04240C,50:04240C,100:04240C&height=130&section=header&text=Welcome%20to%20Budget%20It%20by%20Dev%20OOP's!%20&fontSize=30&fontColor=ffffff&animation=fadeIn&fontAlignY=40&desc=Offline%20Mobile%20budgeting%20app&descAlignY=60&descSize=13&descColor=04240C)
 
 ![Typing](https://readme-typing-svg.demolab.com?font=Fira+Code&pause=1000&color=DDD6AE&width=650&center=true&lines=Designed+to+help+users+track+income+and+expenses;Manage+your+budget;Nerf+your+expenses)
 
+</div>
 <div align="center">
 
 ---
@@ -72,52 +75,24 @@ A mobile budgeting app designed to help users track income and expenses, manage 
 
 </div>
 
-<div align="center">
-
-#### Web
-
-</div>
-
-<p align="center">
-  <img alt="TypeScript" src="https://shieldcn.dev/badge/TypeScript.svg?variant=secondary&amp;size=default&amp;logo=typescript&amp;logoColor=3178C6" />
-</p>
-
-<div align="center">
-
-#### Mobile
-
-</div>
-
 <p align="center">
   <img alt="Flutter" src="https://shieldcn.dev/badge/Flutter.svg?variant=secondary&amp;size=default&amp;logo=flutter&amp;logoColor=049BE4" />
-  <img alt="Dart" src="https://shieldcn.dev/badge/Dart.svg?variant=secondary&amp;size=default&amp;logo=dart" />
-</p>
-
-<div align="center">
-
-#### Backend
-
-</div>
-
-<p align="center">
   <img alt="Python" src="https://shieldcn.dev/badge/Python.svg?variant=secondary&amp;size=default&amp;logo=python&amp;logoColor=3776AB" />
   <img alt="FastAPI" src="https://shieldcn.dev/badge/FastAPI.svg?variant=secondary&amp;size=default&amp;logo=fastapi&amp;logoColor=009688" />
-  <img alt="Pytest" src="https://shieldcn.dev/badge/Pytest.svg?variant=secondary&amp;size=default&amp;logo=ri%3ATbTestPipe&amp;logoColor=049BE4" />
   <img alt="uv" src="https://shieldcn.dev/badge/uv.svg?variant=secondary&amp;size=default&amp;logo=uv&amp;logoColor=DE5FE9" />
 </p>
 
-<div align="center">
-
-#### Database and Infrastructure
-
-</div>
+<p align="center">
+  <img alt="AWS" src="https://shieldcn.dev/badge/AWS.svg?variant=secondary&amp;size=default&amp;logo=ri%3AFaAws&amp;logoColor=FF9900" />
+  <img alt="RDS" src="https://shieldcn.dev/badge/RDS.svg?variant=secondary&amp;size=default&amp;logo=lu%3ADatabase&amp;logoColor=527FFF" />
+  <img alt="ECS" src="https://shieldcn.dev/badge/ECS.svg?variant=secondary&amp;size=default&amp;logo=lu%3AContainer&amp;logoColor=FF9900" />
+  <img alt="S3" src="https://shieldcn.dev/badge/S3.svg?variant=secondary&amp;size=default&amp;logo=lu%3AArchive&amp;logoColor=569A31" />
+  <img alt="Caddy" src="https://shieldcn.dev/badge/Caddy.svg?variant=secondary&amp;size=default&amp;logo=caddy&amp;logoColor=1F88C0" />
+</p>
 
 <p align="center">
-  <img alt="SQLite" src="https://shieldcn.dev/badge/SQLite.svg?variant=secondary&amp;size=default&amp;logo=sqlite" />
-  <img alt="PostgreSQL" src="https://shieldcn.dev/badge/PostgreSQL.svg?variant=secondary&amp;size=default&amp;logo=postgresql&amp;logoColor=4169E1" />
-  <img alt="Docker" src="https://shieldcn.dev/badge/Docker.svg?variant=secondary&amp;size=default&amp;logo=docker&amp;logoColor=2496ED" />
-  <img alt="GitHub Actions" src="https://shieldcn.dev/badge/GitHub%20Actions.svg?variant=secondary&amp;size=default&amp;logo=githubactions" />
-  <img alt="S3" src="https://shieldcn.dev/badge/S3.svg?variant=secondary&amp;size=default&amp;logo=ri%3AFaAws" />
+  <img alt="Maestro" src="https://shieldcn.dev/badge/Maestro.svg?variant=secondary&amp;size=default&amp;logo=lu%3ASmartphone&amp;logoColor=049BE4" />
+  <img alt="k6" src="https://shieldcn.dev/badge/k6.svg?variant=secondary&amp;size=default&amp;logo=k6&amp;logoColor=7D64FF" />
 </p>
 
 ---
