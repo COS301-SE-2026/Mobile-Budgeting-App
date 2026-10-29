@@ -2,6 +2,7 @@
 
 How to run the manual / tool-assisted tests for the non-functional requirements
 (NFRs) defined in [`docs/SAS.md`](SAS.md) §2.5.
+Evidence: [`assets/nfr/`](assets/nfr).
 
 | ID | Requirement (quantified) | Tool | Target |
 |----|--------------------------|------|--------|
@@ -60,7 +61,7 @@ Failures        : 12
 Avg / p95 / p99 : 62.0 ms / 145.0 ms / 290.0 ms
 Error rate      : 0.10%
 QR-01 (p95 < 400 ms @ 50 users): PASS
-QR-02 (error rate < 1.0%): FAIL
+QR-02 (error rate < 1.0%): PASS
 ======================================================
 ```
 
