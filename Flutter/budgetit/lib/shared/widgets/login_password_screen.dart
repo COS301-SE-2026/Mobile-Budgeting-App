@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../utils/app_colour.dart';
+import 'data_consent_dialog.dart';
 import 'verify_email_screen.dart';
 import 'forgot_password_screen.dart';
 
@@ -482,6 +483,9 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
         );
         return;
       }
+      final consented = await showDataConsentDialog(context);
+      if (!mounted || !consented) return;
+
       final success = await auth.signUp(email, password);
       if (success && mounted) {
         auth.clearNeedsVerification();
