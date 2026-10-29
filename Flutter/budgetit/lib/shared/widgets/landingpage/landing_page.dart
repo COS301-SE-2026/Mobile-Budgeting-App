@@ -3,6 +3,7 @@ import 'custom_app_bar.dart';
 import 'hero_section.dart';
 import 'import_section.dart';
 import 'how_it_works.dart';
+import 'screenshot_gallery.dart';
 import 'download_section.dart';
 import 'about_section.dart';
 import 'footer.dart';
@@ -88,10 +89,6 @@ class _LandingPageState extends State<LandingPage> {
     );
   }
 
-  void _handleLogin() {
-    // TODO: route to your login screen.
-  }
-
   void _handleGetStarted() {
     _scrollTo(_downloadKey);
   }
@@ -113,6 +110,7 @@ class _LandingPageState extends State<LandingPage> {
                   ),
                   ImportSection(key: _featuresKey),
                   HowItWorks(key: _howItWorksKey),
+                  const ScreenshotGallery(),
                   DownloadSection(key: _downloadKey),
                   AboutSection(key: _aboutKey),
                   const Footer(
@@ -135,7 +133,6 @@ class _LandingPageState extends State<LandingPage> {
               onHowItWorksTap: () => _scrollTo(_howItWorksKey),
               onDownloadTap: () => _scrollTo(_downloadKey),
               onAboutTap: () => _scrollTo(_aboutKey),
-              onLogin: _handleLogin,
               onGetStarted: _handleGetStarted,
             ),
           ),
