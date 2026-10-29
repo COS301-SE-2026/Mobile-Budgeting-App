@@ -136,7 +136,7 @@ COGNITO_JWKS_URL = (
 jwks_client = PyJWKClient(COGNITO_JWKS_URL)
 
 
-async def get_current_user(authorization: str = Header(...)) -> str:
+async def get_current_user(request: Request, authorization: str = Header(...)) -> str:
     token = authorization.replace("Bearer ", "")
     try:
         signing_key = jwks_client.get_signing_key_from_jwt(token)
@@ -146,8 +146,10 @@ async def get_current_user(authorization: str = Header(...)) -> str:
             algorithms=["RS256"],
             audience=COGNITO_APP_CLIENT_ID,
         )
+        request.state.identity = payload
         return payload["sub"]
-    except jwt.PyJWTError:
+    except jwt.PyJWTError as exc:
+        print(f"Token validation failed: {type(exc).__name__}: {exc}", flush=True)
         raise HTTPException(status_code=401, detail="Invalid token")
 
 
@@ -671,7 +673,16 @@ async def get_my_profile(
         await db.commit()
         await db.refresh(profile)
 
+    claims = request.state.identity
+    username = (claims.get("preferred_username") or claims.get("name")
+                or claims.get("cognito:username") or claims.get("email", "").split("@")[0])
+    if profile.username != username:
+        profile.username = username
+        profile.updated_at = datetime.now(timezone.utc)
+        await db.commit()
+
     return {
+        "username": profile.username,
         "user_id": profile.user_id,
         "friend_code": profile.friend_code,
         "created_at": profile.created_at,
@@ -809,3 +820,42 @@ async def decline_friend_request(
     request.updated_at = datetime.now(timezone.utc)
     await db.commit()
     return {"status": "declined"}
+
+
+@app.get("/friends/usernames", tags=["Friends"])
+async def friend_usernames(
+    db: Annotated[AsyncSession, Depends(get_db)],
+    user_id: Annotated[str, Depends(get_current_user)],
+):
+    """Only expose names of the caller's friends and pending request partners."""
+    friendships = (await db.execute(sa_select(Friendship).where(
+        or_(Friendship.user_a == user_id, Friendship.user_b == user_id),
+        Friendship.deleted_at.is_(None),
+    ))).scalars().all()
+    requests = (await db.execute(sa_select(FriendRequest).where(
+        or_(FriendRequest.requester_id == user_id, FriendRequest.addressee_id == user_id),
+        FriendRequest.status == "pending", FriendRequest.deleted_at.is_(None),
+    ))).scalars().all()
+    ids = {user_id}
+    for friendship in friendships:
+        ids.update((friendship.user_a, friendship.user_b))
+    for item in requests:
+        ids.update((item.requester_id, item.addressee_id))
+    profiles = (await db.execute(sa_select(UserProfile).where(UserProfile.user_id.in_(ids)))).scalars().all()
+    return {p.user_id: p.username for p in profiles if p.username}
+
+
+@app.delete("/friends/{friendship_id}", tags=["Friends"])
+async def remove_friend(
+    friendship_id: str,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    user_id: Annotated[str, Depends(get_current_user)],
+):
+    friendship = await db.get(Friendship, friendship_id)
+    if friendship is None:
+        raise HTTPException(status_code=404, detail="Friendship not found")
+    if user_id not in (friendship.user_a, friendship.user_b):
+        raise HTTPException(status_code=403, detail="You can only remove your own friends")
+    friendship.deleted_at = friendship.updated_at = datetime.now(timezone.utc)
+    await db.commit()
+    return {"status": "removed"}

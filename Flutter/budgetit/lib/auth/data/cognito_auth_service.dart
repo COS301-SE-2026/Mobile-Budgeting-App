@@ -182,12 +182,18 @@ class CognitoAuthService implements AuthService {
     try {
       final user = await Amplify.Auth.getCurrentUser();
       final attributes = await Amplify.Auth.fetchUserAttributes();
+      String? email;
+      String? username;
       for (final attribute in attributes) {
         if (attribute.userAttributeKey == AuthUserAttributeKey.email) {
-          return AppAuthUser(email: attribute.value);
+          email = attribute.value;
+        }
+        if (attribute.userAttributeKey ==
+            AuthUserAttributeKey.preferredUsername) {
+          username = attribute.value;
         }
       }
-      return AppAuthUser(email: user.username);
+      return AppAuthUser(email: email ?? user.username, username: username);
     } on AuthException {
       return null;
     }
