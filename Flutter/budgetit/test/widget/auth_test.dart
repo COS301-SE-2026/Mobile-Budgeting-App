@@ -19,10 +19,13 @@ class _FakeAuthService implements AuthService {
   AppAuthResult resetResult = const AppAuthResult(success: true);
   AppAuthResult confirmResetResult = const AppAuthResult(success: true);
   AppAuthUser? currentUserResult;
+  int signUpCalls = 0;
 
   @override
-  Future<AppAuthResult> signUp(String email, String password) async =>
-      signUpResult;
+  Future<AppAuthResult> signUp(String email, String password) async {
+    signUpCalls++;
+    return signUpResult;
+  }
 
   @override
   Future<AppAuthResult> confirmSignUp(String email, String code) async =>
@@ -451,6 +454,50 @@ void main() {
         find.text('Password must be at least 8 characters'),
         findsOneWidget,
       );
+    });
+
+    testWidgets('signup consent appears before registration is submitted', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_wrap(const LoginRegisterScreen(), provider));
+      await tester.pump();
+
+      await tester.tap(find.text('Register'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).at(0), 'new@test.com');
+      await tester.enterText(find.byType(TextField).at(1), 'password123');
+      await tester.enterText(find.byType(TextField).at(2), 'password123');
+
+      await tester.tap(find.text('Register →'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('DATA-SHARING CONSENT'), findsOneWidget);
+      expect(fake.signUpCalls, 0);
+
+      await tester.tap(find.text('DECLINE'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('DATA-SHARING CONSENT'), findsNothing);
+      expect(fake.signUpCalls, 0);
+    });
+
+    testWidgets('accepting consent continues the signup flow', (tester) async {
+      await tester.pumpWidget(_wrap(const LoginRegisterScreen(), provider));
+      await tester.pump();
+
+      await tester.tap(find.text('Register'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).at(0), 'new@test.com');
+      await tester.enterText(find.byType(TextField).at(1), 'password123');
+      await tester.enterText(find.byType(TextField).at(2), 'password123');
+
+      await tester.tap(find.text('Register →'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('I CONSENT'));
+      await tester.pumpAndSettle();
+
+      expect(fake.signUpCalls, 1);
+      expect(find.text('Verify your email'), findsOneWidget);
     });
 
     testWidgets('Continue as Guest sets provider status to skipped', (
