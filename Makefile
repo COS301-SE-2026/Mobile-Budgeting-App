@@ -5,6 +5,9 @@
 # Ensure this path is in your systems environmental variables: 'C:\Users\_YOUR_YOU_YOURS_\AppData\Local\Pub\Cache\bin'
 
 FLUTTER_DIR = Flutter/budgetit
+PROD_POWERSYNC_URL ?= https://sync.16.28.126.118.sslip.io
+PROD_API_URL ?= https://api.16.28.126.118.sslip.io
+PROD_DART_DEFINES = --dart-define=ENVIRONMENT=prod --dart-define=POWERSYNC_URL=$(PROD_POWERSYNC_URL) --dart-define=API_URL=$(PROD_API_URL)
 
 # ── Flutter ────────────────────────────────────────────────
 
@@ -49,12 +52,10 @@ flutter-test-coverage:
 	cd $(FLUTTER_DIR) && fvm flutter test --coverage test/unit/ test/widget/ test/integration/
 
 flutter-build-apk:
-	cd $(FLUTTER_DIR) && fvm flutter build apk --release --no-tree-shake-icons --dart-define=ENVIRONMENT=prod --dart-define=POWERSYNC_URL=https://sync.16.28.126.118.sslip.io 
-   --dart-define=API_URL=https://api.16.28.126.118.sslip.io
-
+	cd $(FLUTTER_DIR) && fvm flutter build apk --release --no-tree-shake-icons $(PROD_DART_DEFINES)
 
 flutter-build-appbundle:
-	cd $(FLUTTER_DIR) && fvm flutter build appbundle --release
+	cd $(FLUTTER_DIR) && fvm flutter build appbundle --release $(PROD_DART_DEFINES)
 
 flutter-clean:
 	cd $(FLUTTER_DIR) && fvm flutter clean && fvm flutter pub get
