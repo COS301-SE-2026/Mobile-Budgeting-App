@@ -291,6 +291,7 @@ class UserProfile(Base):
     id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=_uuid)
     user_id: Mapped[str] = mapped_column(String)
     friend_code: Mapped[str] = mapped_column(String)
+    username: Mapped[str | None] = mapped_column(String, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 

@@ -436,14 +436,15 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           const SizedBox(height: 13),
           Text(
-            'Alex Smith',
+            context.watch<AppAuthProvider>().currentUser?.username ??
+                'Guest User',
             style: colours.h2.copyWith(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
           Text(
-            'alex.smith@example.com',
+            context.watch<AppAuthProvider>().currentUser?.email ?? '',
             style: colours.b5.copyWith(
               color: colours.textMuted,
               letterSpacing: 0.8,

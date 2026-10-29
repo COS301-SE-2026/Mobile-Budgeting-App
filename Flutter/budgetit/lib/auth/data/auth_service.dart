@@ -18,8 +18,11 @@ class AppAuthResult {
 }
 
 class AppAuthUser {
-  const AppAuthUser({required this.email});
+  const AppAuthUser({required this.email, String? username})
+    : _username = username;
   final String email;
+  final String? _username;
+  String get username => _username ?? email.split('@').first;
 }
 
 // --- Abstract interface ---

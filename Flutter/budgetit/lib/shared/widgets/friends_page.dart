@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'package:drift/drift.dart' show TableUpdateQuery;
+import 'package:budgetit/utils/app_dialog_style.dart';
 import 'package:budgetit/auth/providers/auth_provider.dart';
 import 'package:budgetit/database/app_database.dart';
 import 'package:budgetit/services/friend_service.dart';
@@ -26,6 +29,16 @@ class _FriendsPageState extends State<FriendsPage> {
   List<FriendRequest> _outgoing = [];
   bool? _wasLoggedIn;
   int _loadVersion = 0;
+  StreamSubscription<dynamic>? _updates;
+  Map<String, String> _names = {};
+  final Set<String> _removed = {};
+  final Set<String> _busy = {};
+
+  @override
+  void dispose() {
+    _updates?.cancel();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -41,9 +54,28 @@ class _FriendsPageState extends State<FriendsPage> {
 
     if (isLoggedIn) {
       _loading = true;
+      final db = context.read<AppDatabase>();
+      _updates?.cancel();
+      _updates = db
+          .tableUpdates(
+            TableUpdateQuery.onAllTables([
+              db.friendships,
+              db.friendRequests,
+              db.userProfiles,
+            ]),
+          )
+          .listen((_) {
+            final profile = FriendService.instance.cachedProfile;
+            if (profile != null)
+              unawaited(_showProfile(db, profile, _loadVersion));
+          });
       Future<void>.microtask(_load);
     } else {
       _loadVersion++;
+      _updates?.cancel();
+      _names = {};
+      _removed.clear();
+      _busy.clear();
       FriendService.instance.clearCachedProfile();
       _loading = false;
       _myCode = '';
@@ -55,15 +87,18 @@ class _FriendsPageState extends State<FriendsPage> {
     }
   }
 
-  Future<void> _load() async {
+  Future<void> _load({bool refresh = false}) async {
     if (!context.read<AppAuthProvider>().isLoggedIn) return;
     final version = ++_loadVersion;
     final db = context.read<AppDatabase>();
     try {
       final cached = FriendService.instance.cachedProfile;
-      if (cached != null) await _showProfile(db, cached, version);
-      final profile = await FriendService.instance.getMyProfile(refresh: true);
+      final profile = cached != null && !refresh
+          ? cached
+          : await FriendService.instance.getMyProfile(refresh: refresh);
       await _showProfile(db, profile, version);
+      final names = await FriendService.instance.getFriendUsernames();
+      if (_isCurrentLoad(version)) setState(() => _names = names);
     } catch (e) {
       if (!_isCurrentLoad(version)) return;
       setState(() => _loading = false);
@@ -99,7 +134,7 @@ class _FriendsPageState extends State<FriendsPage> {
     setState(() {
       _currentUserId = userId;
       _myCode = code;
-      _friends = friends;
+      _friends = friends.where((f) => !_removed.contains(f.id)).toList();
       _codeByUserId = {
         for (final p in profiles)
           if (p.userId != null) p.userId!: p.friendCode,
@@ -113,7 +148,8 @@ class _FriendsPageState extends State<FriendsPage> {
   String _otherUserId(Friendship f) =>
       f.userA == _currentUserId ? f.userB : f.userA;
 
-  String _codeFor(String userId) => _codeByUserId[userId] ?? 'Unknown';
+  String _codeFor(String userId) =>
+      _names[userId] ?? _codeByUserId[userId] ?? 'Unknown user';
 
   Future<void> _showAddFriendDialog() async {
     if (!context.read<AppAuthProvider>().isLoggedIn) return;
@@ -192,6 +228,7 @@ class _FriendsPageState extends State<FriendsPage> {
     );
     controller.dispose();
 
+    if (!mounted) return;
     if (code == null ||
         code.isEmpty ||
         !context.read<AppAuthProvider>().isLoggedIn)
@@ -226,6 +263,64 @@ class _FriendsPageState extends State<FriendsPage> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Failed: ${_friendlyError(e)}')));
+    }
+  }
+
+  Future<void> _removeFriend(Friendship friend) async {
+    final name = _codeFor(_otherUserId(friend));
+    final version = _loadVersion;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        final colours = dialogContext.colours;
+        return AlertDialog(
+          backgroundColor: AppDialogStyle.surface(dialogContext),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero,
+            side: BorderSide(color: Colors.black, width: 4),
+          ),
+          title: Text('REMOVE FRIEND', style: colours.h2),
+          content: Text('Remove $name from your friends?', style: colours.b1),
+          actions: [
+            OutlinedButton(
+              style: AppDialogStyle.cancel(dialogContext),
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              style: AppDialogStyle.primary(dialogContext),
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: const Text('Remove'),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirmed != true ||
+        !_isCurrentLoad(version) ||
+        _busy.contains(friend.id))
+      return;
+    setState(() => _busy.add(friend.id));
+    try {
+      await FriendService.instance.removeFriend(friend.id);
+      if (!_isCurrentLoad(version)) return;
+      setState(() {
+        _removed.add(friend.id);
+        _friends.removeWhere((f) => f.id == friend.id);
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('$name removed')));
+    } catch (e) {
+      if (_isCurrentLoad(version)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not remove friend: ${_friendlyError(e)}'),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _busy.remove(friend.id));
     }
   }
 
@@ -285,7 +380,7 @@ class _FriendsPageState extends State<FriendsPage> {
           : _loading
           ? Center(child: CircularProgressIndicator(color: colours.textPrimary))
           : RefreshIndicator(
-              onRefresh: _load,
+              onRefresh: () => _load(refresh: true),
               child: ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.all(20),
@@ -376,7 +471,17 @@ class _FriendsPageState extends State<FriendsPage> {
                     ..._friends.map(
                       (f) => _friendTile(
                         icon: Icons.person_outline,
-                        title: 'Friend code: ${_codeFor(_otherUserId(f))}',
+                        title: _codeFor(_otherUserId(f)),
+                        trailing: IconButton(
+                          tooltip: 'Remove friend',
+                          icon: Icon(
+                            Icons.person_remove_outlined,
+                            color: colours.error,
+                          ),
+                          onPressed: _busy.contains(f.id)
+                              ? null
+                              : () => _removeFriend(f),
+                        ),
                       ),
                     ),
                 ],
