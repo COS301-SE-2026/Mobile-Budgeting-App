@@ -358,7 +358,14 @@ def _coerce_datetime_column(value, column_type):
             if not value.strip():
                 # Empty string means null (e.g. a soft-delete timestamp cleared).
                 return None
-            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+            # drift emits a space before the UTC offset for non-UTC datetimes
+            # ("2026-06-02T00:00:00.000 +02:00"); fromisoformat() rejects that.
+            cleaned = (
+                value.replace("Z", "+00:00")
+                .replace(" +", "+")
+                .replace(" -", "-")
+            )
+            parsed = datetime.fromisoformat(cleaned)
             return parsed.date() if isinstance(column_type, Date) else parsed
         return value
 
