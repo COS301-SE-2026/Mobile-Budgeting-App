@@ -675,7 +675,7 @@ async def get_my_profile(
 
     claims = request.state.identity
     username = (claims.get("preferred_username") or claims.get("name")
-                or claims.get("cognito:username") or claims.get("email", "").split("@")[0])
+                or claims.get("email", "").split("@")[0] or claims.get("cognito:username"))
     if profile.username != username:
         profile.username = username
         profile.updated_at = datetime.now(timezone.utc)

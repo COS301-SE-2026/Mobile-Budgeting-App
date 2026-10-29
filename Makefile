@@ -49,8 +49,7 @@ flutter-test-coverage:
 	cd $(FLUTTER_DIR) && fvm flutter test --coverage test/unit/ test/widget/ test/integration/
 
 flutter-build-apk:
-	cd $(FLUTTER_DIR) && fvm flutter build apk --release --no-tree-shake-icons --dart-define=ENVIRONMENT=prod --dart-define=POWERSYNC_URL=https://sync.16.28.126.118.sslip.io 
-   --dart-define=API_URL=https://api.16.28.126.118.sslip.io
+	cd $(FLUTTER_DIR) && fvm flutter build apk --release --no-tree-shake-icons --dart-define=ENVIRONMENT=prod --dart-define=POWERSYNC_URL=https://sync.16.28.126.118.sslip.io --dart-define=API_URL=https://api.16.28.126.118.sslip.io
 
 
 flutter-build-appbundle:
