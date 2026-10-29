@@ -54,6 +54,7 @@ flutter-test-coverage:
 flutter-build-apk:
 	cd $(FLUTTER_DIR) && fvm flutter build apk --release --no-tree-shake-icons $(PROD_DART_DEFINES)
 
+
 flutter-build-appbundle:
 	cd $(FLUTTER_DIR) && fvm flutter build appbundle --release $(PROD_DART_DEFINES)
 
