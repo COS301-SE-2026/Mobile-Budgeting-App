@@ -7,12 +7,18 @@ services:
         - PYTHON_IMAGE=${PYTHON_IMAGE:-python:3.12-slim}
         - APP_HOST=${APP_HOST:-0.0.0.0}
         - APP_PORT=${APP_PORT:-8000}
+        - UVICORN_WORKERS=${UVICORN_WORKERS:-1}
     ports:
       - "${APP_PORT:-8000}:${APP_PORT:-8000}"
     volumes:
       - ../../backend/src:/app/src
     networks:
       - budgetit-net
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   minio:
     image: quay.io/minio/minio:latest
@@ -56,6 +62,11 @@ services:
       POWERSYNC_CONFIG_PATH: /config/config.yaml
     networks:
       - budgetit-net
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   minio-data:
