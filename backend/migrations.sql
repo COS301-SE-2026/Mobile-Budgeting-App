@@ -213,6 +213,9 @@ END $$;
 
 DROP TABLE IF EXISTS budget_categories;
 
+
+-- Public display name from verified Cognito identity
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS username VARCHAR;
 -- Fix enum values for source / assignment_source.
 -- SQLAlchemy previously stored the Python enum member *name* ("import_") because
 -- "import" is a reserved Python keyword. The Dart client expects the enum *value*
