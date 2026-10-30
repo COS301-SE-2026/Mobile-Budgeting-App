@@ -170,10 +170,15 @@ class _HeroSectionState extends State<HeroSection> {
                     ),
                   ),
                   const SizedBox(height: 40),
-                  Image.asset(
-                    'assets/images/dashboard.jpg',
+                  Container(
                     width: 400,
-                    fit: BoxFit.contain,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black, width: 4),
+                    ),
+                    child: Image.asset(
+                      'assets/images/budgetit_logo.jpg',
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ],
               ),
@@ -271,9 +276,14 @@ class _HeroSectionState extends State<HeroSection> {
                     Center(
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 320),
-                        child: Image.asset(
-                          'assets/images/phone_mockup.jpg',
-                          fit: BoxFit.contain,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black, width: 4),
+                          ),
+                          child: Image.asset(
+                            'assets/images/budgetit_logo.jpg',
+                            fit: BoxFit.contain,
+                          ),
                         ),
                       ),
                     ),

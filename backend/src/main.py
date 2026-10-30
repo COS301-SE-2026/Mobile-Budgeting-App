@@ -1,3 +1,4 @@
+import logging
 import os
 import secrets
 import uuid
@@ -38,6 +39,8 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
 load_dotenv()
+
+logger = logging.getLogger("uvicorn.error")
 
 app = FastAPI(
     title=os.getenv("APP_TITLE", "Budgetit API"),
@@ -133,7 +136,7 @@ COGNITO_JWKS_URL = (
 jwks_client = PyJWKClient(COGNITO_JWKS_URL)
 
 
-async def get_current_user(authorization: str = Header(...)) -> str:
+async def get_current_user(request: Request, authorization: str = Header(...)) -> str:
     token = authorization.replace("Bearer ", "")
     try:
         signing_key = jwks_client.get_signing_key_from_jwt(token)
@@ -143,8 +146,10 @@ async def get_current_user(authorization: str = Header(...)) -> str:
             algorithms=["RS256"],
             audience=COGNITO_APP_CLIENT_ID,
         )
+        request.state.identity = payload
         return payload["sub"]
-    except jwt.PyJWTError:
+    except jwt.PyJWTError as exc:
+        print(f"Token validation failed: {type(exc).__name__}: {exc}", flush=True)
         raise HTTPException(status_code=401, detail="Invalid token")
 
 
@@ -352,7 +357,17 @@ def _coerce_datetime_column(value, column_type):
         # drift (storeDateTimeValuesAsText) sends datetimes as ISO-8601 text,
         # e.g. "2026-09-02T16:06:56.021464Z". asyncpg needs a real datetime.
         if isinstance(column_type, (DateTime, Date)):
-            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+            if not value.strip():
+                # Empty string means null (e.g. a soft-delete timestamp cleared).
+                return None
+            # drift emits a space before the UTC offset for non-UTC datetimes
+            # ("2026-06-02T00:00:00.000 +02:00"); fromisoformat() rejects that.
+            cleaned = (
+                value.replace("Z", "+00:00")
+                .replace(" +", "+")
+                .replace(" -", "-")
+            )
+            parsed = datetime.fromisoformat(cleaned)
             return parsed.date() if isinstance(column_type, Date) else parsed
         return value
 
@@ -378,16 +393,52 @@ def _coerce_row_values(model, values):
     }
 
 
-async def apply_put(db: AsyncSession, model, entry: CrudOp, user_id: str, table: str):
+async def _build_put_values(db: AsyncSession, model, entry: CrudOp, user_id: str, table: str) -> dict:
+    """Validate a create/upsert and return the coerced row values (no DB write)."""
     data = await _prepare_put(db, entry, user_id, table)
     values = {**data, "id": entry.id}
-    values = _coerce_row_values(model, values)
+    return _coerce_row_values(model, values)
 
-    statement = pg_insert(model).values(**values).on_conflict_do_update(
+
+async def _execute_upsert(db: AsyncSession, model, rows: list[dict]) -> None:
+    """Insert/update rows, batching many rows into a single multi-row upsert."""
+    if not rows:
+        return
+
+    if len(rows) == 1:
+        row = rows[0]
+        statement = pg_insert(model).values(**row).on_conflict_do_update(
+            index_elements=["id"],
+            set_={k: v for k, v in row.items() if k != "id"},
+        )
+        await db.execute(statement)
+        return
+
+    # A multi-row upsert needs a uniform column set across all rows. If the
+    # sets differ (unexpected for full-row PowerSync "put" payloads), fall back
+    # to individual statements instead of failing the whole upload.
+    key_sets = {tuple(sorted(row.keys())) for row in rows}
+    if len(key_sets) > 1:
+        for row in rows:
+            statement = pg_insert(model).values(**row).on_conflict_do_update(
+                index_elements=["id"],
+                set_={k: v for k, v in row.items() if k != "id"},
+            )
+            await db.execute(statement)
+        return
+
+    columns = list(rows[0].keys())
+    statement = pg_insert(model).values(rows)
+    statement = statement.on_conflict_do_update(
         index_elements=["id"],
-        set_={k: v for k, v in values.items() if k != "id"},
+        set_={col: getattr(statement.excluded, col) for col in columns if col != "id"},
     )
     await db.execute(statement)
+
+
+async def apply_put(db: AsyncSession, model, entry: CrudOp, user_id: str, table: str):
+    values = await _build_put_values(db, model, entry, user_id, table)
+    await _execute_upsert(db, model, [values])
 
 
 async def apply_patch(db: AsyncSession, model, entry: CrudOp, user_id: str, table: str):
@@ -486,6 +537,65 @@ async def apply_delete(db: AsyncSession, model, entry: CrudOp, user_id: str, tab
     await db.execute(sa_delete(model).where(model.id == entry.id))
 
 
+async def _apply_operations(
+    db: AsyncSession, operations: list[CrudOp], user_id: str
+) -> None:
+    """Apply a PowerSync CRUD queue against the database.
+
+    ``put`` operations are grouped by table and flushed in two phases so a
+    handful of multi-row INSERT statements replace thousands of single-row
+    round-trips (a large statement import would otherwise issue O(n) serial
+    queries):
+
+      1. "independent" tables (owned / shared templates / two-party) whose
+         ``_prepare_put`` never reads other rows, then
+      2. "dependent" tables (join-owned / membership) whose ``_prepare_put``
+         looks up a parent row that must already be inserted.
+
+    ``patch``/``delete`` operations run afterwards, in their original order.
+    """
+    independent: dict[str, list[CrudOp]] = {}
+    dependent: dict[str, list[CrudOp]] = {}
+    other: list[tuple[str, object, CrudOp, str]] = []
+
+    for entry in operations:
+        model = tables.get(entry.table)
+        if model is None:
+            continue
+        if entry.op == "put":
+            if entry.table in JOIN_OWNED_TABLES or entry.table in MEMBERSHIP_TABLES:
+                dependent.setdefault(entry.table, []).append(entry)
+            else:
+                independent.setdefault(entry.table, []).append(entry)
+        else:
+            other.append((entry.op, model, entry, entry.table))
+
+    # Phase 1: independent tables, batched per table in first-seen order.
+    for table, entries in independent.items():
+        model = tables[table]
+        rows = [
+            await _build_put_values(db, model, entry, user_id, table)
+            for entry in entries
+        ]
+        await _execute_upsert(db, model, rows)
+
+    # Phase 2: dependent tables (their parents now exist), batched per table.
+    for table, entries in dependent.items():
+        model = tables[table]
+        rows = [
+            await _build_put_values(db, model, entry, user_id, table)
+            for entry in entries
+        ]
+        await _execute_upsert(db, model, rows)
+
+    # Phase 3: patches and deletes in their original order.
+    for op, model, entry, table in other:
+        if op == "patch":
+            await apply_patch(db, model, entry, user_id, table)
+        elif op == "delete":
+            await apply_delete(db, model, entry, user_id, table)
+
+
 @limiter.limit("600/minute")
 @app.post(
     "/powersync/upload",
@@ -505,21 +615,14 @@ async def upload(
     user_id: Annotated[str, Depends(get_current_user)],
 ):
     try:
-        for entry in payload.operations:
-            model = tables.get(entry.table)
-            if model is not None:
-                if entry.op == "put":
-                    await apply_put(db, model, entry, user_id, entry.table)
-                elif entry.op == "patch":
-                    await apply_patch(db, model, entry, user_id, entry.table)
-                elif entry.op == "delete":
-                    await apply_delete(db, model, entry, user_id, entry.table)
+        await _apply_operations(db, payload.operations, user_id)
         await db.commit()
     except HTTPException:
         await db.rollback()
         raise
     except Exception as e:
         await db.rollback()
+        logger.exception("Unhandled error in /powersync/upload: %s", e)
         raise HTTPException(status_code=500, detail=str(e))
 
     return {"status": "ok"}
@@ -570,7 +673,16 @@ async def get_my_profile(
         await db.commit()
         await db.refresh(profile)
 
+    claims = request.state.identity
+    username = (claims.get("preferred_username") or claims.get("name")
+                or claims.get("email", "").split("@")[0] or claims.get("cognito:username"))
+    if profile.username != username:
+        profile.username = username
+        profile.updated_at = datetime.now(timezone.utc)
+        await db.commit()
+
     return {
+        "username": profile.username,
         "user_id": profile.user_id,
         "friend_code": profile.friend_code,
         "created_at": profile.created_at,
@@ -708,3 +820,42 @@ async def decline_friend_request(
     request.updated_at = datetime.now(timezone.utc)
     await db.commit()
     return {"status": "declined"}
+
+
+@app.get("/friends/usernames", tags=["Friends"])
+async def friend_usernames(
+    db: Annotated[AsyncSession, Depends(get_db)],
+    user_id: Annotated[str, Depends(get_current_user)],
+):
+    """Only expose names of the caller's friends and pending request partners."""
+    friendships = (await db.execute(sa_select(Friendship).where(
+        or_(Friendship.user_a == user_id, Friendship.user_b == user_id),
+        Friendship.deleted_at.is_(None),
+    ))).scalars().all()
+    requests = (await db.execute(sa_select(FriendRequest).where(
+        or_(FriendRequest.requester_id == user_id, FriendRequest.addressee_id == user_id),
+        FriendRequest.status == "pending", FriendRequest.deleted_at.is_(None),
+    ))).scalars().all()
+    ids = {user_id}
+    for friendship in friendships:
+        ids.update((friendship.user_a, friendship.user_b))
+    for item in requests:
+        ids.update((item.requester_id, item.addressee_id))
+    profiles = (await db.execute(sa_select(UserProfile).where(UserProfile.user_id.in_(ids)))).scalars().all()
+    return {p.user_id: p.username for p in profiles if p.username}
+
+
+@app.delete("/friends/{friendship_id}", tags=["Friends"])
+async def remove_friend(
+    friendship_id: str,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    user_id: Annotated[str, Depends(get_current_user)],
+):
+    friendship = await db.get(Friendship, friendship_id)
+    if friendship is None:
+        raise HTTPException(status_code=404, detail="Friendship not found")
+    if user_id not in (friendship.user_a, friendship.user_b):
+        raise HTTPException(status_code=403, detail="You can only remove your own friends")
+    friendship.deleted_at = friendship.updated_at = datetime.now(timezone.utc)
+    await db.commit()
+    return {"status": "removed"}

@@ -12,7 +12,6 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
     required this.onHowItWorksTap,
     required this.onDownloadTap,
     required this.onAboutTap,
-    required this.onLogin,
     required this.onGetStarted,
   });
 
@@ -22,7 +21,6 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final VoidCallback onHowItWorksTap;
   final VoidCallback onDownloadTap;
   final VoidCallback onAboutTap;
-  final VoidCallback onLogin;
   final VoidCallback onGetStarted;
 
   @override
@@ -126,19 +124,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
                         isActive: widget.activeSection == "Download App",
                         onTap: widget.onDownloadTap,
                       ),
-
-                      Container(
-                        width: 1,
-                        height: 22,
-                        margin: const EdgeInsets.symmetric(horizontal: 22),
-                        color: colours.background.withValues(alpha: 0.25),
-                      ),
-                      _NavLink(
-                        text: "Login",
-                        isActive: false,
-                        onTap: widget.onLogin,
-                      ),
-                      const SizedBox(width: 18),
+                      const SizedBox(width: 28),
                       _NavPill(text: "Get Started", onTap: widget.onGetStarted),
                     ] else
                       IconButton(
@@ -222,14 +208,6 @@ class _CustomAppBarState extends State<CustomAppBar> {
                                 color: colours.background.withValues(
                                   alpha: 0.2,
                                 ),
-                              ),
-                              _MobileNavLink(
-                                text: "Login",
-                                isActive: false,
-                                onTap: () {
-                                  _closeMenu();
-                                  widget.onLogin();
-                                },
                               ),
                               const SizedBox(height: 8),
                               SizedBox(

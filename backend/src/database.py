@@ -19,7 +19,9 @@ DATABASE_URL = os.getenv(
     "postgresql+asyncpg://postgres:postgres@localhost:5432/appdb",
 )
 
-engine = create_async_engine(DATABASE_URL, echo=True)
+_sql_echo = os.getenv("SQL_ECHO", "false").strip().lower() in {"1", "true", "yes", "on"}
+
+engine = create_async_engine(DATABASE_URL, echo=_sql_echo)
 
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
 

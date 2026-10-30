@@ -12,27 +12,52 @@ class FriendService {
 
   static final FriendService instance = FriendService._();
 
-  final Dio _dio = Dio();
+  final Dio _dio = Dio(
+    BaseOptions(
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
+      sendTimeout: const Duration(seconds: 10),
+    ),
+  );
   final CognitoAuthService _auth = CognitoAuthService();
 
   Map<String, dynamic>? _myProfile;
+  int _sessionVersion = 0;
+  Future<Map<String, dynamic>>? _profileRequest;
+
+  Map<String, dynamic>? get cachedProfile => _myProfile;
 
   /// Clears profile data that belongs to the previously authenticated user.
   void clearCachedProfile() {
+    _sessionVersion++;
     _myProfile = null;
+    _profileRequest = null;
   }
 
   /// Returns the caller's profile, creating it (with a friend code) on the
   /// server if it does not yet exist. Cached in memory.
   Future<Map<String, dynamic>> getMyProfile({bool refresh = false}) async {
     if (_myProfile != null && !refresh) return _myProfile!;
-    final token = await _auth.getJWT();
+    if (_profileRequest != null) return _profileRequest!;
+    final pending = _fetchProfile();
+    _profileRequest = pending;
+    try {
+      return await pending;
+    } finally {
+      if (identical(_profileRequest, pending)) _profileRequest = null;
+    }
+  }
+
+  Future<Map<String, dynamic>> _fetchProfile() async {
+    final sessionVersion = _sessionVersion;
+    final token = await _auth.getJWT().timeout(const Duration(seconds: 10));
     final res = await _dio.get(
       '${AppConfig.apiUrl}/me/profile',
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
-    _myProfile = Map<String, dynamic>.from(res.data as Map);
-    return _myProfile!;
+    final profile = Map<String, dynamic>.from(res.data as Map);
+    if (sessionVersion == _sessionVersion) _myProfile = profile;
+    return profile;
   }
 
   Future<String> getMyUserId() async =>
@@ -52,6 +77,23 @@ class FriendService {
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
     return Map<String, dynamic>.from(res.data as Map);
+  }
+
+  Future<Map<String, String>> getFriendUsernames() async {
+    final token = await _auth.getJWT();
+    final response = await _dio.get(
+      '${AppConfig.apiUrl}/friends/usernames',
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
+    );
+    return Map<String, String>.from(response.data as Map);
+  }
+
+  Future<void> removeFriend(String friendshipId) async {
+    final token = await _auth.getJWT();
+    await _dio.delete(
+      '${AppConfig.apiUrl}/friends/$friendshipId',
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
+    );
   }
 
   Future<void> sendFriendRequest(String friendCode) async {

@@ -104,11 +104,21 @@ class ProfilePage extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        auth.currentUser!.email,
+                        auth.currentUser!.username,
                         style: colours.b1.copyWith(
                           color: colours.cardText,
                           fontWeight: FontWeight.bold,
                         ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'EMAIL',
+                        style: colours.h4.copyWith(color: colours.cardText),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        auth.currentUser!.email,
+                        style: colours.b1.copyWith(color: colours.cardText),
                       ),
                     ],
                   ),
@@ -420,7 +430,12 @@ class _ProfileDetailsCardState extends State<_ProfileDetailsCard> {
               style: colours.b1.copyWith(color: colours.cardText),
             )
           else ...[
-            _detailRow(context, 'Name', details.name),
+            _detailRow(
+              context,
+              'Name',
+              context.watch<AppAuthProvider>().currentUser?.username ??
+                  details.name,
+            ),
             _detailRow(context, 'Phone', details.phone),
             _detailRow(
               context,

@@ -209,6 +209,7 @@ CREATE TABLE user_profiles (
   id uuid PRIMARY KEY,
   user_id text NOT NULL,
   friend_code text NOT NULL,
+  username text,
   created_at timestamptz NOT NULL,
   updated_at timestamptz NOT NULL
 );

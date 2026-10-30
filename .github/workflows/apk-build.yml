@@ -18,7 +18,7 @@ on:
         type: string
     outputs:
       artifact-name:
-        description: Uploaded debug APK artifact name
+        description: Uploaded release APK artifact name
         value: ${{ jobs.build.outputs.artifact-name }}
       source-sha:
         description: Source SHA for the APK artifact
@@ -33,6 +33,9 @@ jobs:
       - flutter-3.47.1
       - android-ndk-28.2.13676358
     continue-on-error: ${{ !inputs.blocking }}
+    env:
+      PROD_API_URL: https://api.16.28.126.118.sslip.io
+      PROD_POWERSYNC_URL: https://sync.16.28.126.118.sslip.io
     permissions:
       actions: read
       contents: read
@@ -109,19 +112,80 @@ jobs:
         shell: bash
         run: cp .github/gradle/ci-gradle.properties Flutter/budgetit/android/gradle.properties
 
-      - name: Build debug APK
+      - name: Check production endpoints
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for endpoint in "$PROD_API_URL" "$PROD_POWERSYNC_URL"; do
+            case "$endpoint" in
+              https://*) ;;
+              *)
+                echo "Production endpoint must use HTTPS: $endpoint" >&2
+                exit 1
+                ;;
+            esac
+
+            case "$endpoint" in
+              *10.0.2.2*|*localhost*|*127.0.0.1*)
+                echo "Production endpoint points to a local address: $endpoint" >&2
+                exit 1
+                ;;
+            esac
+          done
+
+      - name: Build release APK
         working-directory: Flutter/budgetit
         run: |
-          flutter build apk --debug --no-tree-shake-icons \
-            --dart-define=ENVIRONMENT=prod \
-            --dart-define=POWERSYNC_URL=https://sync.16.28.126.118.sslip.io \
-            --dart-define=API_URL=https://api.16.28.126.118.sslip.io
+          set -euo pipefail
+          api_url="${PROD_API_URL%/}"
+          powersync_url="${PROD_POWERSYNC_URL%/}"
 
-      - name: Upload debug APK
-        if: always()
+          flutter build apk --release --no-tree-shake-icons \
+            --dart-define=ENVIRONMENT=prod \
+            --dart-define=POWERSYNC_URL="$powersync_url" \
+            --dart-define=API_URL="$api_url"
+
+      - name: Check release APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          apk_path='Flutter/budgetit/build/app/outputs/flutter-apk/app-release.apk'
+
+          if [ ! -f "$apk_path" ]; then
+            echo "Release APK was not created at $apk_path." >&2
+            exit 1
+          fi
+
+          sdk_root=${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}
+          if [ -z "$sdk_root" ]; then
+            echo 'ANDROID_SDK_ROOT or ANDROID_HOME is required.' >&2
+            exit 1
+          fi
+
+          aapt_path=$(find "$sdk_root/build-tools" -type f -name aapt -print | sort -V | tail -n 1)
+          if [ -z "$aapt_path" ]; then
+            echo 'Unable to find aapt in the Android SDK.' >&2
+            exit 1
+          fi
+
+          permissions=$($aapt_path dump permissions "$apk_path")
+          printf '%s\n' "$permissions"
+          if ! grep -q 'android.permission.INTERNET' <<< "$permissions"; then
+            echo 'Release APK is missing android.permission.INTERNET.' >&2
+            exit 1
+          fi
+
+          badging=$($aapt_path dump badging "$apk_path")
+          if grep -q 'application-debuggable' <<< "$badging"; then
+            echo 'Expected a non-debuggable release APK.' >&2
+            exit 1
+          fi
+
+      - name: Upload release APK
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: ${{ steps.source.outputs.artifact-name }}
-          path: Flutter/budgetit/build/app/outputs/flutter-apk/app-debug.apk
+          path: Flutter/budgetit/build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 7
